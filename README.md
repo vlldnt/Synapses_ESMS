@@ -15,10 +15,7 @@ mindmap
             Choix des activités effectuées
             Pour chaque activité sélectionnée
                 Ajouter un ou plusieurs mots-clés associés
-                Ajouter un mot-clé pour l'activité suivante ?
-                    Oui
-                    Non
-                        Génération du prompt modifiable
+                    Génération du prompt modifiable
         Traitement IA
             Modification et validation du prompt
             Envoi du prompt à l'agent IA
