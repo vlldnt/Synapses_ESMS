@@ -1,1 +1,9 @@
 @import "tailwindcss";
+
+@font-face {
+    font-family: 'Ailerons';
+    src: url('./assets/fonts/Ailerons-Typeface.otf') format('opentype');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
