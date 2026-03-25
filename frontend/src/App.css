@@ -7,3 +7,37 @@
     font-style: normal;
     font-display: swap;
 }
+
+:root {
+    /* Couleur Synapses */
+    --rose-clair: #FC89A3;
+    --rose-fonce: #F44E92;
+
+    --vert-clair: #6CE4A8;
+    --vert-fonce: #42C4A1;
+
+    --bleu-clair: #1294C3;
+    --bleu-fonce: #0D66D4;
+
+    --orange: #FCBE82;
+    --violet: #9B2CB6;
+}
+
+@keyframes gradient-drift {
+    0%   { background-position: 0% 0%; }
+    25%  { background-position: 100% 0%; }
+    50%  { background-position: 100% 100%; }
+    75%  { background-position: 0% 100%; }
+    100% { background-position: 0% 0%; }
+}
+
+.bg-synapses-animated {
+    background:
+        radial-gradient(circle at 0% 0%, var(--bleu-fonce), transparent 50%),
+        radial-gradient(circle at 100% 0%, var(--violet), transparent 50%),
+        radial-gradient(circle at 100% 100%, var(--rose-fonce), transparent 50%),
+        radial-gradient(circle at 0% 100%, var(--vert-fonce), transparent 50%),
+        radial-gradient(circle at 50% 50%, var(--orange), transparent 60%);
+    background-size: 200% 200%;
+    animation: gradient-drift 25s ease-in-out infinite;
+}

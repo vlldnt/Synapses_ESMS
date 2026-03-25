@@ -1,14 +1,13 @@
-
-function ItemList({ onClick, titre, link, color }) {
-
+function ItemList({ titre, link }) {
   return (
-    <a
-      href={link}
-      onClick={onClick}
-      className={`text-gray-600 hover:text-${color}-900 font-medium`}
-    >
-      {titre}
-    </a>
+    <li>
+      <a
+        href={link}
+        className="relative font-medium text-gray-600 hover:text-(--bleu-fonce) transition-colors duration-200"
+      >
+        {titre}
+      </a>
+    </li>
   );
 }
 

@@ -6,10 +6,12 @@ import Login from './features/Login';
 function App() {
   const isLogged = useSelector((state) => state.auth.isLogged);
 
+  if (!isLogged) return <Login />;
+
   return (
     <>
       <Header />
-      {!isLogged ? <Login /> : null}
+      <main className="pt-20">{/* Contenu principal ici */}</main>
     </>
   );
 }
