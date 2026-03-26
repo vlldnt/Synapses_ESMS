@@ -1,10 +1,16 @@
 import { useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import { setTheme } from './store/themeSlice';
 import { Sun, Moon } from 'lucide-react';
 import './App.css';
 import Sidebar from './components/Sidebar/Sidebar';
 import Login from './features/Login';
+import TableauDeBord from './features/TableauDeBord';
+import CompteRendu from './features/CompteRendu';
+import ProjetPersonnalise from './features/ProjetPersonnalise';
+import Historique from './features/Historique';
+import Enfants from './features/Enfants';
 
 function ThemeToggle() {
   const dispatch = useDispatch();
@@ -41,8 +47,14 @@ function App() {
       <ThemeToggle />
       <Sidebar />
       <main className="ml-64 min-h-screen bg-(--bg-secondary) text-(--text-primary)">
-        {/* Contenu principal ici */}
-        <Login />
+        <Routes>
+          <Route path="/" element={<TableauDeBord />} />
+          <Route path="/compte-rendu" element={<CompteRendu />} />
+          <Route path="/projet-personnalise" element={<ProjetPersonnalise />} />
+          <Route path="/historique" element={<Historique />} />
+          <Route path="/enfants" element={<Enfants />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
       </main>
     </>
   );
