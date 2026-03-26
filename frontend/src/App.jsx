@@ -20,7 +20,7 @@ function ThemeToggle() {
   return (
     <button
       onClick={() => dispatch(setTheme(isDark ? 'light' : 'dark'))}
-      className="fixed top-4 right-4 z-100 p-2.5 rounded-full bg-(--bg-primary)/80 backdrop-blur-sm shadow-lg border border-(--border) text-(--text-secondary) hover:bg-(--bg-tertiary) transition-colors duration-200 cursor-pointer"
+      className="fixed top-2 right-4 z-100 p-2.5 rounded-full bg-(--bg-primary)/80 backdrop-blur-sm shadow-lg border border-(--border) text-(--text-secondary) hover:bg-(--bg-tertiary) transition-colors duration-200 cursor-pointer"
     >
       {isDark ? <Sun size={20} /> : <Moon size={20} />}
     </button>
@@ -35,12 +35,13 @@ function App() {
     document.documentElement.setAttribute('data-theme', theme);
   }, [theme]);
 
-  if (!isLogged) return (
-    <>
-      <ThemeToggle />
-      <Login />
-    </>
-  );
+  if (!isLogged)
+    return (
+      <>
+        <ThemeToggle />
+        <Login />
+      </>
+    );
 
   return (
     <>

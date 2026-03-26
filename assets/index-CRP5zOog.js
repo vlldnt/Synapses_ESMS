@@ -16589,7 +16589,7 @@ function oo() {
         children: [
           (0, F.jsx)(`img`, {
             className: `h-8 w-8 lg:h-10`,
-            src: `/favicon.png`,
+            src: `./favicon.png`,
             alt: `Logo Synapses`,
           }),
           (0, F.jsx)(`span`, {
