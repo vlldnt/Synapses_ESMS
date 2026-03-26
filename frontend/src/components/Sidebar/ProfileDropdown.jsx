@@ -2,9 +2,13 @@ import { useState, useRef, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { setLogged } from '../../store/authSlice';
 import { setTheme } from '../../store/themeSlice';
-import { User, LogOut, ChevronUp, Sun, Moon } from 'lucide-react';
+import { User, LogOut, Sun, Moon, ChevronDown } from 'lucide-react';
 
-function ProfileDropdown({ initials = 'AV', fullname = 'Adrien Vieilledent', photo = null }) {
+function ProfileDropdown({
+  initials = 'AV',
+  fullname = 'Adrien Vieilledent',
+  photo = null,
+}) {
   const [open, setOpen] = useState(false);
   const dropdownRef = useRef(null);
   const closeTimeout = useRef(null);
@@ -50,13 +54,16 @@ function ProfileDropdown({ initials = 'AV', fullname = 'Adrien Vieilledent', pho
     <div
       className="relative"
       ref={dropdownRef}
-      onMouseEnter={() => { clearCloseTimeout(); setOpen(true); }}
+      onMouseEnter={() => {
+        clearCloseTimeout();
+        setOpen(true);
+      }}
       onMouseLeave={startCloseTimeout}
     >
       {/* Trigger */}
       <button
-        onClick={() => setOpen(prev => !prev)}
-        className="flex items-center gap-3 w-full cursor-pointer rounded-lg px-3 py-2.5 transition-all duration-200 hover:bg-(--bg-tertiary)"
+        onClick={() => setOpen((prev) => !prev)}
+        className="flex items-center justify-center lg:justify-start gap-3 w-full cursor-pointer rounded-lg px-1 lg:px-3 py-2.5 transition-all duration-200 hover:bg-(--bg-tertiary)"
       >
         {photo ? (
           <img
@@ -69,16 +76,18 @@ function ProfileDropdown({ initials = 'AV', fullname = 'Adrien Vieilledent', pho
             {initials}
           </div>
         )}
-        <span className="font-medium text-(--text-primary) text-sm">{fullname}</span>
-        <ChevronUp
+        <span className="hidden lg:flex font-medium text-(--text-primary) text-sm">
+          {fullname}
+        </span>
+        <ChevronDown
           size={16}
-          className={`ml-auto text-(--text-muted) transition-transform duration-200 ${open ? '' : 'rotate-180'}`}
+          className={`hidden lg:flex ml-auto text-(--text-muted) transition-transform duration-200 ${open ? '' : 'rotate-180'}`}
         />
       </button>
 
       {/* Menu (s'ouvre vers le haut) */}
       {open && (
-        <div className="absolute bottom-full left-0 mb-2 w-full bg-(--bg-primary) rounded-xl shadow-lg border border-(--border) py-2 z-50">
+        <div className="absolute bottom-full left-full ml-2 mb-2 w-56 lg:w-full lg:left-0 lg:ml-0 bg-(--bg-primary) rounded-xl shadow-lg border border-(--border) py-2 z-70">
           <a
             href="#"
             className="flex items-center gap-3 px-4 py-2.5 text-(--text-primary) hover:bg-(--bg-tertiary) transition-colors duration-150"
@@ -95,7 +104,9 @@ function ProfileDropdown({ initials = 'AV', fullname = 'Adrien Vieilledent', pho
             className="flex items-center gap-3 px-4 py-2.5 w-full text-(--text-primary) hover:bg-(--bg-tertiary) transition-colors duration-150 cursor-pointer"
           >
             {isDark ? <Sun size={18} /> : <Moon size={18} />}
-            <span className="font-medium">{isDark ? 'Mode clair' : 'Mode sombre'}</span>
+            <span className="font-medium">
+              {isDark ? 'Mode clair' : 'Mode sombre'}
+            </span>
           </button>
 
           <div className="mx-3 my-1 border-t border-(--border)" />

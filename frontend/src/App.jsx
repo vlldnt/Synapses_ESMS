@@ -46,7 +46,7 @@ function App() {
     <>
       <ThemeToggle />
       <Sidebar />
-      <main className="ml-64 min-h-screen bg-(--bg-secondary) text-(--text-primary)">
+      <main className="ml-16 lg:ml-64 min-h-screen bg-(--bg-secondary) text-(--text-primary)">
         <Routes>
           <Route path="/" element={<TableauDeBord />} />
           <Route path="/compte-rendu" element={<CompteRendu />} />
