@@ -1,17 +1,49 @@
-import { useSelector } from 'react-redux';
+import { useEffect } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { setTheme } from './store/themeSlice';
+import { Sun, Moon } from 'lucide-react';
 import './App.css';
-import Header from './components/Header/Header';
+import Sidebar from './components/Sidebar/Sidebar';
 import Login from './features/Login';
+
+function ThemeToggle() {
+  const dispatch = useDispatch();
+  const theme = useSelector((state) => state.theme.theme);
+  const isDark = theme === 'dark';
+
+  return (
+    <button
+      onClick={() => dispatch(setTheme(isDark ? 'light' : 'dark'))}
+      className="fixed top-4 right-4 z-100 p-2.5 rounded-full bg-(--bg-primary)/80 backdrop-blur-sm shadow-lg border border-(--border) text-(--text-secondary) hover:bg-(--bg-tertiary) transition-colors duration-200 cursor-pointer"
+    >
+      {isDark ? <Sun size={20} /> : <Moon size={20} />}
+    </button>
+  );
+}
 
 function App() {
   const isLogged = useSelector((state) => state.auth.isLogged);
+  const theme = useSelector((state) => state.theme.theme);
 
-  if (!isLogged) return <Login />;
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+  }, [theme]);
+
+  if (!isLogged) return (
+    <>
+      <ThemeToggle />
+      <Login />
+    </>
+  );
 
   return (
     <>
-      <Header />
-      <main className="pt-20">{/* Contenu principal ici */}</main>
+      <ThemeToggle />
+      <Sidebar />
+      <main className="ml-64 min-h-screen bg-(--bg-secondary) text-(--text-primary)">
+        {/* Contenu principal ici */}
+        <Login />
+      </main>
     </>
   );
 }
