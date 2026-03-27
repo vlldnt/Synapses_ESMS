@@ -4,9 +4,10 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { setTheme } from './store/themeSlice';
 import { Sun, Moon } from 'lucide-react';
 import './App.css';
-import Sidebar from './components/Sidebar/Sidebar';
+import Sidebar from './components/MenuSidebar/Sidebar';
+import MobileMenu from './components/MenuSidebar/MobileMenu';
 import Login from './features/Login';
-import TableauDeBord from './features/TableauDeBord';
+import Dashboard from './features/Dashboard';
 import CompteRendu from './features/CompteRendu';
 import ProjetPersonnalise from './features/ProjetPersonnalise';
 import Historique from './features/Historique';
@@ -20,7 +21,7 @@ function ThemeToggle() {
   return (
     <button
       onClick={() => dispatch(setTheme(isDark ? 'light' : 'dark'))}
-      className="fixed top-2 right-4 z-100 p-2.5 rounded-full bg-(--bg-primary)/80 backdrop-blur-sm shadow-lg border border-(--border) text-(--text-secondary) hover:bg-(--bg-tertiary) transition-colors duration-200 cursor-pointer"
+      className="hidden md:flex fixed top-2 right-4 z-100 p-2.5 rounded-full bg-(--bg-primary)/80 backdrop-blur-sm shadow-lg border border-(--border) text-(--text-secondary) hover:bg-(--bg-tertiary) transition-colors duration-200 cursor-pointer"
     >
       {isDark ? <Sun size={20} /> : <Moon size={20} />}
     </button>
@@ -46,14 +47,18 @@ function App() {
   return (
     <>
       <ThemeToggle />
-      <Sidebar />
-      <main className="ml-16 lg:ml-64 min-h-screen bg-(--bg-secondary) text-(--text-primary)">
+      <div className="hidden md:block">
+        <Sidebar />
+      </div>
+      <div className="md:hidden">
+        <MobileMenu />
+      </div>
+      <main className="md:ml-64 min-h-screen bg-(--bg-secondary) text-(--text-primary)">
         <Routes>
-          <Route path="/" element={<TableauDeBord />} />
+          <Route path="/" element={<Dashboard />} />
           <Route path="/compte-rendu" element={<CompteRendu />} />
           <Route path="/projet-personnalise" element={<ProjetPersonnalise />} />
           <Route path="/historique" element={<Historique />} />
-          <Route path="/enfants" element={<Enfants />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>
