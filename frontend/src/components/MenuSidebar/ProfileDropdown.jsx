@@ -39,27 +39,34 @@ function ProfileDropdown({
   };
 
   return (
-    <div
-      className="relative"
-      ref={dropdownRef}
-    >
+    <div className="relative" ref={dropdownRef}>
       {/* Trigger */}
       <button
         onClick={() => setOpen((prev) => !prev)}
-        className={mobile
-          ? 'flex items-center justify-center cursor-pointer rounded-full p-0.75 bg-(--bg-primary)/90 backdrop-blur-sm border border-(--border) shadow-sm transition-all duration-200 hover:bg-(--bg-tertiary)'
-          : 'flex items-center justify-start gap-3 w-full cursor-pointer rounded-lg px-3 py-2.5 transition-all duration-200 hover:bg-(--bg-tertiary)'}
+        className={
+          mobile
+            ? 'flex items-center justify-center cursor-pointer rounded-full p-0.75 bg-(--bg-primary)/90 backdrop-blur-sm border border-(--border) shadow-sm transition-all duration-200 hover:bg-(--bg-tertiary)'
+            : 'flex items-center justify-start gap-3 w-full cursor-pointer rounded-lg px-3 py-2.5 transition-all duration-200 hover:bg-(--bg-tertiary)'
+        }
       >
         {photo ? (
           <img
             src={photo}
             alt="Photo de profil"
-            className={mobile ? 'w-8 h-8 rounded-full object-cover' : 'w-9 h-9 rounded-full object-cover'}
+            className={
+              mobile
+                ? 'w-8 h-8 rounded-full object-cover'
+                : 'w-9 h-9 rounded-full object-cover'
+            }
           />
         ) : (
-          <div className={mobile
-            ? 'w-8 h-8 rounded-full bg-(--bleu-fonce) flex items-center justify-center text-white font-semibold text-xs shrink-0'
-            : 'w-9 h-9 rounded-full bg-(--bleu-fonce) flex items-center justify-center text-white font-semibold text-sm shrink-0'}>
+          <div
+            className={
+              mobile
+                ? 'w-8 h-8 rounded-full bg-(--bleu-fonce) flex items-center justify-center text-white font-semibold text-xs shrink-0'
+                : 'w-9 h-9 rounded-full bg-(--bleu-fonce) flex items-center justify-center text-white font-semibold text-sm shrink-0'
+            }
+          >
             {initials}
           </div>
         )}
@@ -69,9 +76,7 @@ function ProfileDropdown({
               <span className="font-medium text-(--text-primary) text-sm">
                 {fullname}
               </span>
-              <span className="text-(--text-muted) text-xs">
-                {jobType}
-              </span>
+              <span className="text-(--text-muted) text-xs">{jobType}</span>
             </div>
             <ChevronDown
               size={16}
@@ -83,12 +88,18 @@ function ProfileDropdown({
 
       {/* Menu (s'ouvre vers le haut) */}
       {open && (
-        <div className={mobile
-          ? 'absolute top-full right-0 mt-2 w-52 bg-(--bg-primary) rounded-xl shadow-lg border border-(--border) py-2 z-70'
-          : 'absolute bottom-full left-0 mb-2 w-full bg-(--bg-primary) rounded-xl shadow-lg border border-(--border) py-2 z-70'}>
+        <div
+          className={
+            mobile
+              ? 'absolute top-full right-0 mt-2 w-52 bg-(--bg-primary) rounded-xl shadow-lg border border-(--border) py-2 z-70'
+              : 'absolute bottom-full left-0 mb-2 w-full bg-(--bg-primary) rounded-xl shadow-lg border border-(--border) py-2 z-70'
+          }
+        >
           {mobile && (
             <div className="px-4 py-2">
-              <p className="font-medium text-(--text-primary) text-sm">{fullname}</p>
+              <p className="font-medium text-(--text-primary) text-sm">
+                {fullname}
+              </p>
               <p className="text-(--text-muted) text-xs">{jobType}</p>
             </div>
           )}

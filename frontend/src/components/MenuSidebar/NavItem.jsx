@@ -1,6 +1,37 @@
 import { NavLink } from 'react-router-dom';
 
-function NavItem({ titre, link, icon: Icon, mobile = false }) {
+function NavItem({
+  titre,
+  link,
+  icon: Icon,
+  mobile = false,
+  disabled = false,
+}) {
+  if (disabled) {
+    return (
+      <li className="list-none">
+        <div
+          className={
+            mobile
+              ? 'flex flex-col items-center justify-center gap-0 min-h-14 px-0 py-0 rounded-md text-(--text-muted) opacity-60 cursor-not-allowed'
+              : 'flex justify-start items-center w-full gap-3 px-5 py-3 text-sm rounded-xs text-(--text-muted) opacity-60 cursor-not-allowed'
+          }
+        >
+          {Icon && <Icon className={mobile ? 'w-4 h-4 shrink-0' : 'w-5 h-5'} />}
+          <p
+            className={
+              mobile
+                ? 'text-[10px] leading-3 text-center whitespace-normal wrap-break-word max-w-16'
+                : ''
+            }
+          >
+            {titre}
+          </p>
+        </div>
+      </li>
+    );
+  }
+
   if (mobile) {
     return (
       <li className="list-none">

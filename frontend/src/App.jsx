@@ -59,7 +59,10 @@ function App() {
           <Routes>
             <Route path="/" element={<Dashboard />} />
             <Route path="/compte-rendu" element={<CompteRendu />} />
-            <Route path="/projet-personnalise" element={<ProjetPersonnalise />} />
+            <Route
+              path="/projet-personnalise"
+              element={<ProjetPersonnalise />}
+            />
             <Route path="/historique" element={<Historique />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
