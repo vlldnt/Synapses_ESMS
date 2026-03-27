@@ -30,7 +30,7 @@ function Sidebar() {
       {/* Navigation */}
       <nav className="flex-1 py-4 mt-20">
         <p className="flex text-(--text-muted) mb-2 px-3 mt-2">
-          Tableau de bord
+          Menu
         </p>
         <ul className="flex flex-col gap-1 list-none mb-6">
           <NavItem titre="Tableau de bord" link="/" icon={LayoutDashboard} />

@@ -1,26 +1,18 @@
-export async function loadArticles() {
-  // Try backend endpoint first, then fall back to local dev data.
-  const sources = [
-    '/api/dashboard/articles',
-    new URL('../../devData/dashboardArticles.json', import.meta.url),
-  ];
+const dataUrl = new URL('../data/dashboardCards.json', import.meta.url);
 
-  for (const source of sources) {
-    try {
-      const response = await fetch(source);
+// Loads dashboard cards data
+export async function loadCards() {
+  try {
+    const response = await fetch(dataUrl);
 
-      if (!response.ok) {
-        continue;
-      }
-
-      const data = await response.json();
-      if (Array.isArray(data)) {
-        return data;
-      }
-    } catch {
-      // Try next source.
+    if (!response.ok) {
+      throw new Error(`Erreur HTTP: ${response.status}`);
     }
-  }
 
-  return [];
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Impossible de charger les articles:', error);
+    return [];
+  }
 }

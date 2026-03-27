@@ -2,7 +2,7 @@
   {
     "id": "intervention",
     "title": "Compte rendu d'intervention",
-    "description": "Saisissez vos notes brutes, l'IA genere un ecrit structure et professionnel adapte au secteur ESMS.",
+    "description": "Saisissez vos notes brutes, l'IA genere un écrit structuré et professionnel adapté au secteur ESMS.",
     "ctaText": "Nouveau compte rendu ->",
     "to": "/compte-rendu",
     "color": "var(--bleu-fonce)"
@@ -10,7 +10,7 @@
   {
     "id": "ppa",
     "title": "Projet Personnalise (PPA)",
-    "description": "Construisez un PPA structure, aligne avec le referentiel SERAFIN-PH, avec des objectifs SMART generes par l'IA.",
+    "description": "Construisez un PPA structuré, aligné avec le referentiel SERAFIN-PH, avec des objectifs SMART générés par l'IA.",
     "ctaText": "Nouveau PPA ->",
     "to": "/projet-personnalise",
     "color": "var(--vert-fonce)"
@@ -18,7 +18,7 @@
   {
     "id": "reunion",
     "title": "Compte rendu de reunion",
-    "description": "Bientot disponible - synthese automatique des reunions d'equipe et de synthese.",
+    "description": "Bientot disponible - synthèse automatique des réunions d'équipe et de synthèse.",
     "ctaText": "Bientot disponible",
     "color": "var(--orange)",
     "disabled": true,
