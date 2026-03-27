@@ -7,15 +7,15 @@ function NavItem({ titre, link, icon: Icon, mobile = false }) {
         <NavLink
           to={link}
           className={({ isActive }) =>
-            `flex flex-col items-center justify-center gap-1 min-h-16 px-1 py-2 rounded-lg transition-colors duration-200 ${
+            `flex flex-col items-center justify-center gap-0 min-h-14 px-0 py-0 rounded-md transition-colors duration-200 ${
               isActive
                 ? 'text-(--bleu-fonce) bg-(--bg-tertiary) font-semibold'
                 : 'text-(--text-secondary) hover:bg-(--bg-tertiary) hover:text-(--bleu-fonce)'
             }`
           }
         >
-          {Icon && <Icon className="w-5 h-5 shrink-0" />}
-          <p className="text-[10px] leading-3 text-center whitespace-normal break-words max-w-[68px]">
+          {Icon && <Icon className="w-4 h-4 shrink-0" />}
+          <p className="text-[10px] leading-3 text-center whitespace-normal wrap-break-word max-w-16">
             {titre}
           </p>
         </NavLink>

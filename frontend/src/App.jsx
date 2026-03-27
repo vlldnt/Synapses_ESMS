@@ -6,12 +6,12 @@ import { Sun, Moon } from 'lucide-react';
 import './App.css';
 import Sidebar from './components/MenuSidebar/Sidebar';
 import MobileMenu from './components/MenuSidebar/MobileMenu';
+import TopBar from './components/MenuSidebar/TopBar';
 import Login from './features/Login';
 import Dashboard from './features/Dashboard';
 import CompteRendu from './features/CompteRendu';
 import ProjetPersonnalise from './features/ProjetPersonnalise';
 import Historique from './features/Historique';
-import Enfants from './features/Enfants';
 
 function ThemeToggle() {
   const dispatch = useDispatch();
@@ -53,14 +53,17 @@ function App() {
       <div className="md:hidden">
         <MobileMenu />
       </div>
-      <main className="md:ml-64 min-h-screen bg-(--bg-secondary) text-(--text-primary)">
-        <Routes>
-          <Route path="/" element={<Dashboard />} />
-          <Route path="/compte-rendu" element={<CompteRendu />} />
-          <Route path="/projet-personnalise" element={<ProjetPersonnalise />} />
-          <Route path="/historique" element={<Historique />} />
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
+      <main className="md:ml-64 min-h-screen pb-[calc(3.75rem+env(safe-area-inset-bottom))] md:pb-0 bg-(--bg-secondary) text-(--text-primary)">
+        <TopBar />
+        <div className="h-[calc(100dvh-3.5rem-3.75rem-env(safe-area-inset-bottom))] md:h-[calc(100dvh-4rem)]">
+          <Routes>
+            <Route path="/" element={<Dashboard />} />
+            <Route path="/compte-rendu" element={<CompteRendu />} />
+            <Route path="/projet-personnalise" element={<ProjetPersonnalise />} />
+            <Route path="/historique" element={<Historique />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </div>
       </main>
     </>
   );

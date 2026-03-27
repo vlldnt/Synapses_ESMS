@@ -47,7 +47,7 @@ function ProfileDropdown({
       <button
         onClick={() => setOpen((prev) => !prev)}
         className={mobile
-          ? 'flex items-center justify-center cursor-pointer rounded-full p-1.5 bg-(--bg-primary)/90 backdrop-blur-sm border border-(--border) shadow-sm transition-all duration-200 hover:bg-(--bg-tertiary)'
+          ? 'flex items-center justify-center cursor-pointer rounded-full p-0.75 bg-(--bg-primary)/90 backdrop-blur-sm border border-(--border) shadow-sm transition-all duration-200 hover:bg-(--bg-tertiary)'
           : 'flex items-center justify-start gap-3 w-full cursor-pointer rounded-lg px-3 py-2.5 transition-all duration-200 hover:bg-(--bg-tertiary)'}
       >
         {photo ? (
@@ -86,13 +86,22 @@ function ProfileDropdown({
         <div className={mobile
           ? 'absolute top-full right-0 mt-2 w-52 bg-(--bg-primary) rounded-xl shadow-lg border border-(--border) py-2 z-70'
           : 'absolute bottom-full left-0 mb-2 w-full bg-(--bg-primary) rounded-xl shadow-lg border border-(--border) py-2 z-70'}>
+          {mobile && (
+            <div className="px-4 py-2">
+              <p className="font-medium text-(--text-primary) text-sm">{fullname}</p>
+              <p className="text-(--text-muted) text-xs">{jobType}</p>
+            </div>
+          )}
+
+          {mobile && <div className="mx-3 my-1 border-t border-(--border)" />}
+
           <a
             href="#"
             className="flex items-center gap-3 px-4 py-2.5 text-(--text-primary) hover:bg-(--bg-tertiary) transition-colors duration-150"
             onClick={() => setOpen(false)}
           >
             <User size={18} className="text-(--bleu-fonce)" />
-            <span className="font-medium text-xs md:text-base">Profil</span>
+            <span className="font-medium text-xs md:text-sm">Paramètres</span>
           </a>
 
           <div className="mx-3 my-1 border-t border-(--border)" />
@@ -102,7 +111,7 @@ function ProfileDropdown({
             className="flex items-center gap-3 px-4 py-2.5 w-full text-(--text-primary) hover:bg-(--bg-tertiary) transition-colors duration-150 cursor-pointer"
           >
             {isDark ? <Sun size={18} /> : <Moon size={18} />}
-            <span className="font-medium text-xs md:text-base">
+            <span className="font-medium text-xs md:text-sm">
               {isDark ? 'Mode clair' : 'Mode sombre'}
             </span>
           </button>
@@ -114,7 +123,7 @@ function ProfileDropdown({
             className="flex items-center gap-3 px-4 py-2.5 w-full text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors duration-150 cursor-pointer"
           >
             <LogOut size={18} />
-            <span className="font-medium text-xs md:text-base">Déconnexion</span>
+            <span className="font-medium text-xs md:text-sm">Déconnexion</span>
           </button>
         </div>
       )}
