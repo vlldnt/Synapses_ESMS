@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Lock, RefreshCw, ClipboardCopy, FileDown, CircleCheck } from 'lucide-react';
 import Input from '../components/Input';
+import structureTypes from '../data/structureTypes.json';
 
 const cardClass = 'rounded-2xl border border-(--border) bg-(--bg-primary) p-5 md:p-8 shadow-sm';
 
@@ -46,12 +47,6 @@ function CompteRendu() {
     <div id="cr-page" className="h-full overflow-y-auto py-6 px-3 md:px-8 md:py-8">
       <div className="mx-auto flex w-full max-w-full flex-col gap-6">
 
-        {/* En-tête */}
-        <div>
-          <h1 className="text-xl md:text-3xl text-(--text-primary)">Compte rendu d'intervention</h1>
-          <p className="mt-1 text-xs md:text-sm text-(--text-muted)">Rédaction professionnelle assistée par IA</p>
-        </div>
-
         <form id="cr-form" onSubmit={handleSubmit} className="flex flex-col gap-6">
 
           {/* ── Étape 1 : Contexte ── */}
@@ -60,11 +55,11 @@ function CompteRendu() {
               <Input
                 id="cr-type-structure"
                 label="Type de structure"
-                type="select"
+                type="combobox"
                 value={typeStructure}
                 onChange={setTypeStructure}
-                placeholder="Choisir..."
-                options={['SESSAD', 'MECS', 'IME', 'ESAT', 'Domicile', 'Autre']}
+                placeholder="Rechercher ou sélectionner…"
+                categories={structureTypes.categories}
                 required
               />
               <Input

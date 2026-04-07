@@ -29,7 +29,12 @@
     --font-title: 'DM Serif Display', Georgia, serif;
 }
 
-body {
+html {
+    height: 100dvh;
+}
+
+body, #root {
+    min-height: 100dvh;
     font-family: var(--font-body);
 }
 

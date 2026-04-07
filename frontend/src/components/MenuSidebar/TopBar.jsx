@@ -2,16 +2,16 @@ import { useLocation } from 'react-router-dom';
 import ProfileDropdown from './ProfileDropdown';
 
 const routeTitles = {
-  '/': 'Tableau de bord',
-  '/compte-rendu': 'Compte rendu',
-  '/projet-personnalise': 'Projet Personnalisé',
-  '/historique': 'Historique',
-  '/enfants': 'Enfants',
+  '/': { title: 'Tableau de bord' },
+  '/compte-rendu': { title: "Compte rendu d'intervention", subtitle: 'Rédaction professionnelle assistée par IA' },
+  '/projet-personnalise': { title: 'Projet Personnalisé' },
+  '/historique': { title: 'Historique' },
+  '/enfants': { title: 'Enfants' },
 };
 
 function TopBar() {
   const location = useLocation();
-  const title = routeTitles[location.pathname] || 'Tableau de bord';
+  const { title, subtitle } = routeTitles[location.pathname] || routeTitles['/'];
 
   return (
     <header
@@ -28,9 +28,12 @@ function TopBar() {
             Synapses
           </span>
         </div>
-        <h1 id="page-title" className="text-lg md:text-2xl font-bold text-(--text-primary)">
-          {title}
-        </h1>
+        <div id="page-title" className="flex flex-col leading-tight">
+          <h1 className="text-lg md:text-2xl font-bold text-(--text-primary)">{title}</h1>
+          {subtitle && (
+            <p className="hidden md:block text-xs text-(--text-muted)">{subtitle}</p>
+          )}
+        </div>
         <div className="ml-auto md:hidden">
           <ProfileDropdown mobile />
         </div>

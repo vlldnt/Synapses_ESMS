@@ -10,7 +10,7 @@ import ProfileDropdown from './ProfileDropdown';
 
 function Sidebar() {
   return (
-    <aside id="sidebar" className="hidden md:flex fixed left-0 top-0 h-screen w-64 bg-(--bg-primary) shadow-sm flex-col z-50 border-r border-(--border)">
+    <aside id="sidebar" className="hidden md:flex fixed left-0 top-0 h-dvh w-64 bg-(--bg-primary) shadow-sm flex-col z-50 border-r border-(--border)">
       {/* Logo + Titre */}
       <Link
         id="sidebar-logo"

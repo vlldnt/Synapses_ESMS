@@ -129,6 +129,257 @@ function CalendarPicker({ value, onChange, min, max, onClose }) {
   );
 }
 
+function Combobox({ id, value, onChange, placeholder, disabled, categories = [] }) {
+  const [inputValue, setInputValue] = useState(value || '');
+  const [open, setOpen] = useState(false);
+  const [browseMode, setBrowseMode] = useState(false);
+  const [activeIndex, setActiveIndex] = useState(-1);
+  const inputRef = useRef(null);
+  const containerRef = useRef(null);
+  const itemRefs = useRef([]);
+
+  useEffect(() => {
+    if (!open) setInputValue(value || '');
+  }, [value, open]);
+
+  useEffect(() => {
+    setActiveIndex(-1);
+    itemRefs.current = [];
+  }, [open, inputValue, browseMode]);
+
+  useEffect(() => {
+    if (activeIndex >= 0 && itemRefs.current[activeIndex]) {
+      itemRefs.current[activeIndex].scrollIntoView({ block: 'nearest' });
+    }
+  }, [activeIndex]);
+
+  useEffect(() => {
+    if (!open) return;
+    const handler = (e) => {
+      if (containerRef.current && !containerRef.current.contains(e.target)) {
+        setOpen(false);
+        setBrowseMode(false);
+        setInputValue(value || '');
+      }
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [open, value]);
+
+  const allItems = categories.flatMap((cat) =>
+    cat.options.map((opt) => ({ label: opt, category: cat.label })),
+  );
+
+  const query = inputValue.trim();
+  const filtered = !browseMode && query
+    ? allItems.filter((item) => item.label.toLowerCase().includes(query.toLowerCase())).slice(0, 4)
+    : null;
+
+  const visibleItems = browseMode
+    ? [...allItems, { label: 'Autre structure', isOther: true }]
+    : filtered
+      ? [...filtered, { label: 'Autre structure', isOther: true }]
+      : [];
+
+  const handleInputChange = (e) => {
+    setInputValue(e.target.value);
+    setBrowseMode(false);
+    setOpen(true);
+  };
+
+  const handleSelect = (label) => {
+    onChange(label);
+    setInputValue(label);
+    setOpen(false);
+    setBrowseMode(false);
+  };
+
+  const handleArrowClick = () => {
+    if (open && browseMode) {
+      setOpen(false);
+      setBrowseMode(false);
+    } else {
+      setBrowseMode(true);
+      setOpen(true);
+      inputRef.current?.focus();
+    }
+  };
+
+  const handleKeyDown = (e) => {
+    if (!open) {
+      if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+        e.preventDefault();
+        setBrowseMode(true);
+        setOpen(true);
+      }
+      return;
+    }
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      setActiveIndex((i) => Math.min(i + 1, visibleItems.length - 1));
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      setActiveIndex((i) => Math.max(i - 1, -1));
+    } else if (e.key === 'Enter' && activeIndex >= 0) {
+      e.preventDefault();
+      handleSelect(visibleItems[activeIndex].label);
+    } else if (e.key === 'Escape') {
+      e.preventDefault();
+      setOpen(false);
+      setBrowseMode(false);
+      setInputValue(value || '');
+    }
+  };
+
+  const itemClass = (index, isSelected) =>
+    `w-full text-left px-3 py-2 text-sm transition-colors cursor-pointer ${
+      index === activeIndex
+        ? 'bg-[#1294C3] text-white'
+        : isSelected
+          ? 'bg-[#1294C3]/10 text-[#1294C3] font-medium'
+          : 'text-(--text-primary) hover:bg-(--bg-tertiary)'
+    }`;
+
+  const otherClass = (index) =>
+    `w-full text-left px-3 py-2 text-sm transition-colors cursor-pointer ${
+      index === activeIndex
+        ? 'bg-[#1294C3] text-white'
+        : 'text-(--text-muted) hover:bg-(--bg-tertiary)'
+    }`;
+
+  return (
+    <div ref={containerRef} className="relative">
+      <div className="relative">
+        <input
+          ref={inputRef}
+          id={id}
+          type="text"
+          value={inputValue}
+          onChange={handleInputChange}
+          onFocus={() => { if (inputValue && !browseMode) setOpen(true); }}
+          onKeyDown={handleKeyDown}
+          placeholder={placeholder || 'Rechercher ou sélectionner…'}
+          disabled={disabled}
+          autoComplete="off"
+          className={`${fieldClass} pr-9`}
+        />
+        <button
+          type="button"
+          tabIndex={-1}
+          disabled={disabled}
+          onClick={handleArrowClick}
+          className="absolute right-2.5 top-1/2 -translate-y-1/2 text-(--text-muted) hover:text-(--text-primary) transition-colors cursor-pointer"
+        >
+          <svg
+            className={`w-4 h-4 transition-transform duration-200 ${open && browseMode ? 'rotate-180' : ''}`}
+            fill="none" stroke="currentColor" viewBox="0 0 24 24"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+          </svg>
+        </button>
+      </div>
+
+      {open && (
+        <div className="absolute z-50 mt-1 w-full rounded-lg border border-(--border) bg-(--bg-primary) shadow-lg overflow-hidden">
+          {browseMode ? (
+            /* Flèche : liste complète groupée */
+            <div className="max-h-56 overflow-y-auto">
+              {(() => {
+                let idx = 0;
+                return (
+                  <>
+                    {categories.map((cat) => (
+                      <div key={cat.label}>
+                        <div className="px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-(--text-muted) bg-(--bg-secondary) sticky top-0">
+                          {cat.label}
+                        </div>
+                        {cat.options.map((opt) => {
+                          const i = idx++;
+                          return (
+                            <button
+                              key={opt}
+                              ref={(el) => { itemRefs.current[i] = el; }}
+                              type="button"
+                              onClick={() => handleSelect(opt)}
+                              onMouseEnter={() => setActiveIndex(i)}
+                              onMouseLeave={() => setActiveIndex(-1)}
+                              className={itemClass(i, value === opt)}
+                            >
+                              {opt}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    ))}
+                    <div className="border-t border-(--border)">
+                      {(() => {
+                        const i = idx++;
+                        return (
+                          <button
+                            ref={(el) => { itemRefs.current[i] = el; }}
+                            type="button"
+                            onClick={() => handleSelect('Autre structure')}
+                            onMouseEnter={() => setActiveIndex(i)}
+                            onMouseLeave={() => setActiveIndex(-1)}
+                            className={otherClass(i)}
+                          >
+                            Autre structure…
+                          </button>
+                        );
+                      })()}
+                    </div>
+                  </>
+                );
+              })()}
+            </div>
+          ) : filtered && filtered.length === 0 ? (
+            /* Saisie : aucun résultat */
+            <div className="px-3 py-2.5 text-sm text-(--text-muted)">Aucun résultat</div>
+          ) : filtered ? (
+            /* Saisie : max 4 suggestions */
+            <ul>
+              {filtered.map((item, i) => (
+                <li key={item.label}>
+                  <button
+                    ref={(el) => { itemRefs.current[i] = el; }}
+                    type="button"
+                    onClick={() => handleSelect(item.label)}
+                    onMouseEnter={() => setActiveIndex(i)}
+                    onMouseLeave={() => setActiveIndex(-1)}
+                    className={`${itemClass(i, false)} flex items-baseline justify-between`}
+                  >
+                    <span>{item.label}</span>
+                    <span className={`text-[11px] ml-2 shrink-0 ${i === activeIndex ? 'text-white/70' : 'text-(--text-muted)'}`}>
+                      {item.category}
+                    </span>
+                  </button>
+                </li>
+              ))}
+              <li className="border-t border-(--border)">
+                {(() => {
+                  const i = filtered.length;
+                  return (
+                    <button
+                      ref={(el) => { itemRefs.current[i] = el; }}
+                      type="button"
+                      onClick={() => handleSelect('Autre structure')}
+                      onMouseEnter={() => setActiveIndex(i)}
+                      onMouseLeave={() => setActiveIndex(-1)}
+                      className={otherClass(i)}
+                    >
+                      Autre structure…
+                    </button>
+                  );
+                })()}
+              </li>
+            </ul>
+          ) : null}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function Input({
   id,
   label,
@@ -144,6 +395,8 @@ function Input({
   max,
   // select
   options = [],
+  // combobox
+  categories = [],
   // textarea
   rows = 5,
 }) {
@@ -204,6 +457,15 @@ function Input({
             />
           )}
         </div>
+      ) : type === 'combobox' ? (
+        <Combobox
+          id={id}
+          value={value}
+          onChange={onChange}
+          placeholder={placeholder}
+          disabled={disabled}
+          categories={categories}
+        />
       ) : type === 'select' ? (
         <select
           id={id}

@@ -26,7 +26,7 @@ function Login() {
   };
 
   return (
-    <div id="login-page" className="min-h-screen flex items-center justify-center bg-synapses-animated px-3">
+    <div id="login-page" className="min-h-dvh flex items-center justify-center bg-synapses-animated px-3">
       <div className="absolute hidden md:flex left-2 top-2">
         <a
           className="flex flex-row justify-center items-center gap-3 px-5 py-6"

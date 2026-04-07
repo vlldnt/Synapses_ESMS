@@ -54,7 +54,7 @@ function App() {
       <div className="md:hidden">
         <MobileMenu />
       </div>
-      <main id="main-content" className="md:ml-64 min-h-screen pb-[calc(3.75rem+env(safe-area-inset-bottom))] md:pb-0 bg-(--bg-secondary) text-(--text-primary)">
+      <main id="main-content" className="md:ml-64 min-h-dvh pb-[calc(3.75rem+env(safe-area-inset-bottom))] md:pb-0 bg-(--bg-secondary) text-(--text-primary)">
         <TopBar />
         <div className="h-[calc(100dvh-3.5rem-3.75rem-env(safe-area-inset-bottom))] md:h-[calc(100dvh-4rem)]">
           <Routes>
