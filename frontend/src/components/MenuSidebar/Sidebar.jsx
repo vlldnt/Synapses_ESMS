@@ -10,9 +10,10 @@ import ProfileDropdown from './ProfileDropdown';
 
 function Sidebar() {
   return (
-    <aside className="hidden md:flex fixed left-0 top-0 h-screen w-64 bg-(--bg-primary) shadow-sm flex-col z-50 border-r border-(--border)">
+    <aside id="sidebar" className="hidden md:flex fixed left-0 top-0 h-screen w-64 bg-(--bg-primary) shadow-sm flex-col z-50 border-r border-(--border)">
       {/* Logo + Titre */}
       <Link
+        id="sidebar-logo"
         className="flex flex-col justify-center items-start gap-3 px-5 py-6"
         to="/"
       >
@@ -28,16 +29,16 @@ function Sidebar() {
       <div className="mx-1 border-t border-(--border)" />
 
       {/* Navigation */}
-      <nav className="flex-1 py-4 mt-20">
+      <nav id="sidebar-nav" className="flex-1 py-4 mt-20">
         <p className="flex text-(--text-muted) mb-2 px-3 mt-2">
           Menu
         </p>
-        <ul className="flex flex-col gap-1 list-none mb-6">
+        <ul id="nav-menu" className="flex flex-col gap-1 list-none mb-6">
           <NavItem titre="Tableau de bord" link="/" icon={LayoutDashboard} />
         </ul>
 
         <p className="flex text-(--text-muted) mb-2 px-3">Module IA</p>
-        <ul className="flex flex-col gap-1 list-none mb-10">
+        <ul id="nav-modules-ia" className="flex flex-col gap-1 list-none mb-10">
           <NavItem
             titre="Compte rendu"
             link="/compte-rendu"
@@ -52,7 +53,7 @@ function Sidebar() {
         </ul>
 
         <p className="flex text-(--text-muted) mb-2 px-3">Gestion</p>
-        <ul className="flex flex-col gap-1 list-none mb-4">
+        <ul id="nav-gestion" className="flex flex-col gap-1 list-none mb-4">
           <NavItem
             titre="Historique"
             link="/historique"

@@ -20,6 +20,7 @@ function ThemeToggle() {
 
   return (
     <button
+      id="theme-toggle"
       onClick={() => dispatch(setTheme(isDark ? 'light' : 'dark'))}
       className="hidden md:flex fixed top-2 right-4 z-100 p-2.5 rounded-full bg-(--bg-primary)/80 backdrop-blur-sm shadow-lg border border-(--border) text-(--text-secondary) hover:bg-(--bg-tertiary) transition-colors duration-200 cursor-pointer"
     >
@@ -53,7 +54,7 @@ function App() {
       <div className="md:hidden">
         <MobileMenu />
       </div>
-      <main className="md:ml-64 min-h-screen pb-[calc(3.75rem+env(safe-area-inset-bottom))] md:pb-0 bg-(--bg-secondary) text-(--text-primary)">
+      <main id="main-content" className="md:ml-64 min-h-screen pb-[calc(3.75rem+env(safe-area-inset-bottom))] md:pb-0 bg-(--bg-secondary) text-(--text-primary)">
         <TopBar />
         <div className="h-[calc(100dvh-3.5rem-3.75rem-env(safe-area-inset-bottom))] md:h-[calc(100dvh-4rem)]">
           <Routes>

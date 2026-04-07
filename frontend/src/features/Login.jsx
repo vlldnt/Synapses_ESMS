@@ -26,7 +26,7 @@ function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-synapses-animated px-3">
+    <div id="login-page" className="min-h-screen flex items-center justify-center bg-synapses-animated px-3">
       <div className="absolute hidden md:flex left-2 top-2">
         <a
           className="flex flex-row justify-center items-center gap-3 px-5 py-6"
@@ -41,7 +41,7 @@ function Login() {
           </span>
         </a>
       </div>
-      <div className="w-full max-w-md mx-2 md:mx-4 bg-(--bg-primary)/90 backdrop-blur-sm rounded-3xl md:rounded-4xl shadow-2xl px-5 pb-5 pt-1 md:px-8 md:pb-8 md:pt-2 border border-(--border)/50">
+      <div id="login-card" className="w-full max-w-md mx-2 md:mx-4 bg-(--bg-primary)/90 backdrop-blur-sm rounded-3xl md:rounded-4xl shadow-2xl px-5 pb-5 pt-1 md:px-8 md:pb-8 md:pt-2 border border-(--border)/50">
         {/* Logo + Titre */}
         <div className="flex flex-col w-full items-center mb-4 md:mb-8">
           <img
@@ -62,7 +62,7 @@ function Login() {
         </div>
 
         {/* Formulaire */}
-        <form onSubmit={handleSubmit} className="flex flex-col gap-3 md:gap-5">
+        <form id="login-form" onSubmit={handleSubmit} className="flex flex-col gap-3 md:gap-5">
           <div className="flex flex-col gap-1 md:gap-1.5">
             <label
               className="text-sm md:text-sm font-medium text-(--text-secondary)"

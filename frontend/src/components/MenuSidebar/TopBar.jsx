@@ -28,7 +28,7 @@ function TopBar() {
             Synapses
           </span>
         </div>
-        <h1 className="text-lg md:text-2xl font-bold text-(--text-primary)">
+        <h1 id="page-title" className="text-lg md:text-2xl font-bold text-(--text-primary)">
           {title}
         </h1>
         <div className="ml-auto md:hidden">

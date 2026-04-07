@@ -7,9 +7,14 @@ function NavItem({
   mobile = false,
   disabled = false,
 }) {
+  const prefix = mobile ? 'mobile-nav' : 'nav';
+  const itemId = link
+    ? `${prefix}-${link === '/' ? 'home' : link.slice(1)}`
+    : `${prefix}-disabled`;
+
   if (disabled) {
     return (
-      <li className="list-none">
+      <li id={itemId} className="list-none">
         <div
           className={
             mobile
@@ -34,7 +39,7 @@ function NavItem({
 
   if (mobile) {
     return (
-      <li className="list-none">
+      <li id={itemId} className="list-none">
         <NavLink
           to={link}
           className={({ isActive }) =>
@@ -55,7 +60,7 @@ function NavItem({
   }
 
   return (
-    <li className="list-none">
+    <li id={itemId} className="list-none">
       <NavLink
         to={link}
         className={({ isActive }) =>

@@ -36,10 +36,10 @@ function Dashboard({ educName = 'Adrien Vieilledent', etablissement='SESSAS - Le
   }, []);
 
   return (
-    <div className="h-full overflow-y-auto py-6 px-3 md:px-8 md:py-8">
+    <div id="dashboard-page" className="h-full overflow-y-auto py-6 px-3 md:px-8 md:py-8">
       <div className="mx-auto flex w-full flex-col items-center justify-center">
-        <div className="w-full text-left md:flex md:flex-col">
-          <h1 className="text-xl md:text-3xl text-(--text-primary) whitespace-nowrap">
+        <div id="dashboard-welcome" className="w-full text-left md:flex md:flex-col">
+          <h1 id="dashboard-greeting" className="text-xl md:text-3xl text-(--text-primary) whitespace-nowrap">
             Bonjour {educName.split(' ')[0]}
           </h1>
           <p className="mt-1 text-xs md:text-sm text-(--text-muted)">{date} - {etablissement}</p>

@@ -14,6 +14,7 @@ function DashboardItem({ article }) {
 
   return (
     <article
+      id={`card-${article.id}`}
       className={`rounded-2xl border border-(--border) bg-(--bg-primary) p-3 md:p-5 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md ${className}`.trim()}
       style={{ borderTop: `4px solid ${color || 'var(--border)'}` }}
     >
@@ -28,6 +29,7 @@ function DashboardItem({ article }) {
         </span>
       ) : (
         <Link
+          id={`card-${article.id}-cta`}
           className="mt-4 inline-flex text-sm font-semibold hover:underline"
           style={{ color: color || 'var(--bleu-fonce)' }}
           to={to}
