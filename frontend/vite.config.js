@@ -4,15 +4,15 @@ import tailwindcss from '@tailwindcss/vite';
 
 // https://vite.dev/config/
 export default defineConfig({
-  base: './',
+  base: '/synapses/',
   plugins: [react(), tailwindcss()],
   server: {
     host: '0.0.0.0',
     proxy: {
-      '/ollama': {
-        target: 'http://host.docker.internal:11434',
+      '/synapses/ollama': {
+        target: 'http://51.178.41.170:11434',
         changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/ollama/, ''),
+        rewrite: (path) => path.replace(/^\/synapses\/ollama/, ''),
       },
     },
   },

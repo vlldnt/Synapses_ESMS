@@ -1,3 +1,4 @@
+import faviconUrl from '/favicon.png';
 import {
   LayoutDashboard,
   ClipboardPen,
@@ -17,7 +18,7 @@ function Sidebar() {
         className="flex flex-col justify-center items-start gap-3 px-5 py-6"
         to="/"
       >
-        <img className="h-10" src="/favicon.png" alt="Logo Synapses" />
+        <img className="h-10" src={faviconUrl} alt="Logo Synapses" />
         <span
           className="flex text-2xl font-bold text-(--text-primary)"
           style={{ fontFamily: 'Ailerons' }}

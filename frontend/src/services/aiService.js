@@ -1,6 +1,6 @@
 import promptData from '../data/prompt_CR_intervention.json';
 
-const API_URL = '/ollama/v1/chat/completions';
+const API_URL = `${import.meta.env.BASE_URL}ollama/v1/chat/completions`;
 const MODEL = 'qwen3:0.6b';
 
 export async function generateInterventionReport({ structureType, interventionType, reference, date, notes, educatorName }) {

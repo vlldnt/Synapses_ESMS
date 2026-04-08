@@ -1,4 +1,5 @@
 import { useLocation } from 'react-router-dom';
+import faviconUrl from '/favicon.png';
 import ProfileDropdown from './ProfileDropdown';
 
 const routeTitles = {
@@ -20,7 +21,7 @@ function TopBar() {
     >
       <div className="h-full px-4 md:px-5 flex items-center gap-2 md:gap-3">
         <div className="md:hidden flex flex-col items-center leading-none">
-          <img className="h-6 w-6" src="/favicon.png" alt="Logo Synapses" />
+          <img className="h-6 w-6" src={faviconUrl} alt="Logo Synapses" />
           <span
             className="text-[9px] text-(--text-muted)"
             style={{ fontFamily: 'Ailerons' }}

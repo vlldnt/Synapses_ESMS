@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import faviconUrl from '/favicon.png';
 import { useDispatch, useSelector } from 'react-redux';
 import { setLogged, setLoading } from '../store/authSlice';
 
@@ -32,7 +33,7 @@ function Login() {
           className="flex flex-row justify-center items-center gap-3 px-5 py-6"
           href="/"
         >
-          <img className="h-10" src="/favicon.png" alt="Logo Synapses" />
+          <img className="h-10" src={faviconUrl} alt="Logo Synapses" />
           <span
             className=" md:text-xl font-bold text-white dark:text-gray-200"
             style={{ fontFamily: 'Ailerons' }}
@@ -46,7 +47,7 @@ function Login() {
         <div className="flex flex-col w-full items-center mb-4 md:mb-8">
           <img
             className="h-24 w-24 md:h-40 md:w-40 drop-shadow-lg"
-            src="/favicon.png"
+            src={faviconUrl}
             alt="Logo Synapses"
           />
           <h1
