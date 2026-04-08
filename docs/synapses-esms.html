@@ -1,0 +1,1442 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Synapses ESMS</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #0f1f3d;
+    --navy-mid: #1a3260;
+    --teal: #1a9e8f;
+    --teal-light: #22c4b0;
+    --cream: #f5f2ec;
+    --warm-white: #faf9f6;
+    --text: #1c2b3a;
+    --text-muted: #6b7f93;
+    --border: #dce3ec;
+    --success: #2da86b;
+    --accent: #e8734a;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--warm-white);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── SCREENS ── */
+  .screen { display: none; min-height: 100vh; }
+  .screen.active { display: flex; flex-direction: column; }
+
+  /* ══════════════════════════════
+     SCREEN 0 — SPLASH / LOGIN
+  ══════════════════════════════ */
+  #screen-login {
+    background: var(--navy);
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  #screen-login::before {
+    content: '';
+    position: absolute;
+    width: 600px; height: 600px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(26,158,143,.25) 0%, transparent 70%);
+    top: -150px; right: -150px;
+    animation: pulse 6s ease-in-out infinite;
+  }
+  #screen-login::after {
+    content: '';
+    position: absolute;
+    width: 400px; height: 400px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(26,158,143,.12) 0%, transparent 70%);
+    bottom: -100px; left: -100px;
+    animation: pulse 8s ease-in-out infinite reverse;
+  }
+
+  @keyframes pulse { 0%,100%{transform:scale(1);opacity:1} 50%{transform:scale(1.1);opacity:.7} }
+
+  .login-card {
+    background: rgba(255,255,255,.04);
+    border: 1px solid rgba(255,255,255,.1);
+    backdrop-filter: blur(20px);
+    border-radius: 24px;
+    padding: 56px 48px;
+    width: 420px;
+    position: relative;
+    z-index: 1;
+    animation: fadeUp .8s ease both;
+  }
+
+  @keyframes fadeUp { from{opacity:0;transform:translateY(24px)} to{opacity:1;transform:none} }
+
+  .logo-mark {
+    width: 56px; height: 56px;
+    background: linear-gradient(135deg, var(--teal), var(--teal-light));
+    border-radius: 16px;
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 24px;
+    font-size: 26px;
+  }
+
+  .login-card h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 28px;
+    color: #fff;
+    line-height: 1.2;
+    margin-bottom: 6px;
+  }
+
+  .login-card .tagline {
+    color: rgba(255,255,255,.45);
+    font-size: 13px;
+    margin-bottom: 36px;
+    font-weight: 300;
+  }
+
+  .field-label {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,.4);
+    margin-bottom: 8px;
+    display: block;
+  }
+
+  .input-field {
+    width: 100%;
+    background: rgba(255,255,255,.07);
+    border: 1px solid rgba(255,255,255,.12);
+    border-radius: 12px;
+    padding: 14px 16px;
+    color: #fff;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    margin-bottom: 20px;
+    transition: border .2s;
+    outline: none;
+  }
+  .input-field:focus { border-color: var(--teal-light); }
+  .input-field::placeholder { color: rgba(255,255,255,.25); }
+
+  .btn-primary {
+    width: 100%;
+    background: linear-gradient(135deg, var(--teal), var(--teal-light));
+    border: none;
+    border-radius: 12px;
+    padding: 15px;
+    color: #fff;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform .15s, box-shadow .15s;
+    margin-top: 4px;
+  }
+  .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 8px 24px rgba(26,158,143,.4); }
+  .btn-primary:active { transform: none; }
+
+  .login-note {
+    margin-top: 24px;
+    font-size: 11px;
+    color: rgba(255,255,255,.25);
+    text-align: center;
+    line-height: 1.6;
+  }
+  .login-note span { color: var(--teal-light); }
+
+  /* ══════════════════════════════
+     LAYOUT SHELL (SIDEBAR + MAIN)
+  ══════════════════════════════ */
+  .app-shell {
+    display: flex;
+    min-height: 100vh;
+    background: var(--cream);
+  }
+
+  /* SIDEBAR */
+  .sidebar {
+    width: 260px;
+    background: var(--navy);
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    flex-shrink: 0;
+    position: fixed;
+    top: 0; left: 0; bottom: 0;
+    z-index: 10;
+  }
+
+  .sidebar-header {
+    padding: 28px 24px 24px;
+    border-bottom: 1px solid rgba(255,255,255,.07);
+  }
+
+  .sidebar-logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .sidebar-logo-mark {
+    width: 38px; height: 38px;
+    background: linear-gradient(135deg, var(--teal), var(--teal-light));
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+
+  .sidebar-logo-text {
+    font-family: 'DM Serif Display', serif;
+    color: #fff;
+    font-size: 16px;
+    line-height: 1.1;
+  }
+  .sidebar-logo-text small {
+    display: block;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 10px;
+    color: rgba(255,255,255,.35);
+    font-weight: 400;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    margin-top: 1px;
+  }
+
+  .sidebar-user {
+    padding: 16px 24px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-bottom: 1px solid rgba(255,255,255,.07);
+    margin-bottom: 8px;
+  }
+
+  .avatar {
+    width: 34px; height: 34px;
+    background: linear-gradient(135deg, #3b6ea5, var(--teal));
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 600; color: #fff;
+    flex-shrink: 0;
+  }
+
+  .user-info { flex: 1; min-width: 0; }
+  .user-name { color: #fff; font-size: 13px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .user-role { color: rgba(255,255,255,.35); font-size: 11px; }
+
+  .nav-section-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,.25);
+    padding: 16px 24px 8px;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 11px 16px 11px 24px;
+    border-radius: 0;
+    cursor: pointer;
+    transition: background .15s;
+    color: rgba(255,255,255,.55);
+    font-size: 14px;
+    font-weight: 400;
+    border: none; background: none; width: 100%; text-align: left;
+    position: relative;
+  }
+  .nav-item:hover { background: rgba(255,255,255,.05); color: rgba(255,255,255,.85); }
+  .nav-item.active {
+    background: rgba(26,158,143,.15);
+    color: var(--teal-light);
+    font-weight: 500;
+  }
+  .nav-item.active::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 3px;
+    background: var(--teal-light);
+    border-radius: 0 2px 2px 0;
+  }
+  .nav-icon { font-size: 16px; flex-shrink: 0; width: 20px; text-align: center; }
+
+  .nav-badge {
+    margin-left: auto;
+    background: var(--teal);
+    color: #fff;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 20px;
+  }
+
+  .sidebar-footer {
+    margin-top: auto;
+    padding: 16px 24px;
+    border-top: 1px solid rgba(255,255,255,.07);
+  }
+
+  .rgpd-badge {
+    background: rgba(255,255,255,.05);
+    border: 1px solid rgba(255,255,255,.08);
+    border-radius: 10px;
+    padding: 10px 12px;
+    font-size: 10.5px;
+    color: rgba(255,255,255,.35);
+    line-height: 1.5;
+  }
+  .rgpd-badge strong { color: var(--teal-light); display: flex; align-items: center; gap: 4px; margin-bottom: 3px; font-size: 11px; }
+
+  /* MAIN CONTENT */
+  .main-content {
+    flex: 1;
+    margin-left: 260px;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+
+  .topbar {
+    background: #fff;
+    border-bottom: 1px solid var(--border);
+    padding: 0 32px;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky; top: 0; z-index: 5;
+  }
+
+  .topbar-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 20px;
+    color: var(--navy);
+  }
+
+  .topbar-actions { display: flex; gap: 10px; align-items: center; }
+
+  .chip {
+    background: #edf7f5;
+    color: var(--teal);
+    font-size: 12px;
+    font-weight: 600;
+    padding: 5px 12px;
+    border-radius: 20px;
+    border: 1px solid rgba(26,158,143,.2);
+  }
+
+  .page-content {
+    padding: 32px;
+    flex: 1;
+  }
+
+  /* ══════════════════════════════
+     SCREEN 1 — DASHBOARD
+  ══════════════════════════════ */
+  .welcome-row {
+    margin-bottom: 28px;
+  }
+  .welcome-row h2 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 26px;
+    color: var(--navy);
+    margin-bottom: 4px;
+  }
+  .welcome-row p { color: var(--text-muted); font-size: 14px; }
+
+  .cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+    margin-bottom: 32px;
+  }
+
+  .module-card {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 28px;
+    cursor: pointer;
+    transition: transform .2s, box-shadow .2s, border-color .2s;
+    position: relative;
+    overflow: hidden;
+  }
+  .module-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+  }
+  .module-card.teal::before { background: linear-gradient(90deg, var(--teal), var(--teal-light)); }
+  .module-card.orange::before { background: linear-gradient(90deg, #e8734a, #f5a97f); }
+  .module-card.blue::before { background: linear-gradient(90deg, #3b6ea5, #6199d0); }
+
+  .module-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 32px rgba(0,0,0,.08);
+    border-color: transparent;
+  }
+
+  .card-icon {
+    width: 52px; height: 52px;
+    border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 24px;
+    margin-bottom: 16px;
+  }
+  .card-icon.teal { background: #edf7f5; }
+  .card-icon.orange { background: #fef3ee; }
+  .card-icon.blue { background: #eef3fb; }
+
+  .card-title {
+    font-weight: 600;
+    font-size: 15px;
+    color: var(--navy);
+    margin-bottom: 6px;
+  }
+  .card-desc {
+    font-size: 13px;
+    color: var(--text-muted);
+    line-height: 1.55;
+    margin-bottom: 20px;
+  }
+
+  .card-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--teal);
+    background: none; border: none; cursor: pointer;
+    padding: 0;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .card-cta.orange { color: var(--accent); }
+  .card-cta.blue { color: #3b6ea5; }
+
+  .priority-badge {
+    position: absolute;
+    top: 20px; right: 20px;
+    background: linear-gradient(135deg, var(--teal), var(--teal-light));
+    color: #fff;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    border-radius: 20px;
+  }
+
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 32px;
+  }
+
+  .stat-card {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 20px 24px;
+  }
+  .stat-value {
+    font-family: 'DM Serif Display', serif;
+    font-size: 32px;
+    color: var(--navy);
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+  .stat-label { font-size: 12px; color: var(--text-muted); }
+
+  .recent-section h3 {
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--navy);
+    margin-bottom: 12px;
+    letter-spacing: .01em;
+  }
+
+  .recent-list { display: flex; flex-direction: column; gap: 8px; }
+
+  .recent-item {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 18px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .recent-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .recent-dot.teal { background: var(--teal); }
+  .recent-dot.orange { background: var(--accent); }
+  .recent-info { flex: 1; }
+  .recent-name { font-size: 13px; font-weight: 500; color: var(--navy); }
+  .recent-meta { font-size: 11px; color: var(--text-muted); margin-top: 1px; }
+  .recent-date { font-size: 11px; color: var(--text-muted); }
+
+  /* ══════════════════════════════
+     SCREEN 2 — COMPTE RENDU
+  ══════════════════════════════ */
+  .form-card {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 32px;
+    margin-bottom: 24px;
+  }
+
+  .form-card h3 {
+    font-weight: 600;
+    font-size: 16px;
+    color: var(--navy);
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .step-indicator {
+    display: inline-flex;
+    width: 24px; height: 24px;
+    background: var(--teal);
+    color: #fff;
+    border-radius: 50%;
+    font-size: 12px;
+    font-weight: 700;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+  .form-row.full { grid-template-columns: 1fr; }
+
+  .form-group { display: flex; flex-direction: column; }
+
+  .form-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-muted);
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  .form-select, .form-input {
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    padding: 11px 14px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    color: var(--text);
+    background: var(--warm-white);
+    outline: none;
+    transition: border .2s;
+  }
+  .form-select:focus, .form-input:focus { border-color: var(--teal); background: #fff; }
+
+  .form-textarea {
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    padding: 14px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    color: var(--text);
+    background: var(--warm-white);
+    resize: vertical;
+    min-height: 130px;
+    outline: none;
+    line-height: 1.6;
+    transition: border .2s;
+    width: 100%;
+  }
+  .form-textarea:focus { border-color: var(--teal); background: #fff; }
+
+  .field-hint {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 6px;
+  }
+
+  .anon-notice {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    background: #edf7f5;
+    border: 1px solid rgba(26,158,143,.2);
+    border-radius: 12px;
+    padding: 14px 16px;
+    margin-top: 4px;
+    font-size: 12.5px;
+    color: #1a6b5e;
+    line-height: 1.5;
+  }
+  .anon-notice .anon-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+
+  .generate-btn {
+    background: linear-gradient(135deg, var(--teal), var(--teal-light));
+    border: none;
+    border-radius: 14px;
+    padding: 16px 32px;
+    color: #fff;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform .15s, box-shadow .15s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .generate-btn:hover { transform: translateY(-1px); box-shadow: 0 8px 24px rgba(26,158,143,.35); }
+
+  /* RESULT PANEL */
+  .result-panel {
+    display: none;
+    background: #fff;
+    border: 1.5px solid var(--teal);
+    border-radius: 20px;
+    padding: 32px;
+    margin-bottom: 24px;
+    animation: fadeUp .4s ease both;
+  }
+  .result-panel.visible { display: block; }
+
+  .result-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+  }
+  .result-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 600;
+    font-size: 15px;
+    color: var(--navy);
+  }
+  .result-check {
+    width: 28px; height: 28px;
+    background: var(--success);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    color: #fff;
+    font-size: 14px;
+  }
+
+  .result-actions { display: flex; gap: 10px; }
+
+  .btn-outline {
+    border: 1.5px solid var(--border);
+    background: #fff;
+    border-radius: 10px;
+    padding: 9px 16px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: border-color .2s, background .2s;
+  }
+  .btn-outline:hover { border-color: var(--teal); background: #edf7f5; color: var(--teal); }
+
+  .result-text {
+    background: var(--cream);
+    border-radius: 12px;
+    padding: 20px;
+    font-size: 13.5px;
+    line-height: 1.75;
+    color: var(--text);
+    white-space: pre-wrap;
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  .result-section-title {
+    font-weight: 700;
+    font-size: 12px;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    color: var(--teal);
+    margin-top: 16px;
+    margin-bottom: 6px;
+    display: block;
+  }
+  .result-section-title:first-child { margin-top: 0; }
+
+  .human-validation {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    background: #fffbf5;
+    border: 1px solid #f5d9a8;
+    border-radius: 12px;
+    padding: 14px 16px;
+    margin-top: 16px;
+    font-size: 12.5px;
+    color: #8a5a00;
+    line-height: 1.5;
+  }
+  .human-validation input[type=checkbox] { margin-top: 2px; flex-shrink: 0; cursor: pointer; }
+
+  .loading-overlay {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+    gap: 16px;
+    color: var(--text-muted);
+    font-size: 14px;
+  }
+  .loading-overlay.visible { display: flex; }
+
+  .spinner {
+    width: 40px; height: 40px;
+    border: 3px solid var(--border);
+    border-top-color: var(--teal);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ══════════════════════════════
+     SCREEN 3 — PPA
+  ══════════════════════════════ */
+
+  .axes-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    margin-bottom: 4px;
+  }
+
+  .axe-chip {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 14px;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all .15s;
+    font-size: 13px;
+    color: var(--text);
+    background: var(--warm-white);
+    user-select: none;
+  }
+  .axe-chip.selected {
+    border-color: var(--teal);
+    background: #edf7f5;
+    color: var(--teal);
+    font-weight: 500;
+  }
+  .axe-chip input { display: none; }
+  .axe-check {
+    width: 18px; height: 18px;
+    border: 2px solid var(--border);
+    border-radius: 5px;
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px;
+    transition: all .15s;
+  }
+  .axe-chip.selected .axe-check {
+    background: var(--teal);
+    border-color: var(--teal);
+    color: #fff;
+  }
+
+  /* ══════════════════════════════
+     SCREEN 4 — HISTORIQUE
+  ══════════════════════════════ */
+
+  .history-filters {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+  }
+
+  .filter-btn {
+    border: 1.5px solid var(--border);
+    background: #fff;
+    border-radius: 20px;
+    padding: 7px 16px;
+    font-size: 13px;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    transition: all .15s;
+  }
+  .filter-btn.active, .filter-btn:hover {
+    border-color: var(--teal);
+    color: var(--teal);
+    background: #edf7f5;
+  }
+
+  .history-table {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+  }
+
+  .history-table table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .history-table thead th {
+    padding: 14px 20px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    text-align: left;
+    background: var(--cream);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .history-table tbody tr {
+    border-bottom: 1px solid var(--border);
+    transition: background .1s;
+  }
+  .history-table tbody tr:last-child { border-bottom: none; }
+  .history-table tbody tr:hover { background: var(--cream); }
+
+  .history-table tbody td {
+    padding: 14px 20px;
+    font-size: 13px;
+    color: var(--text);
+  }
+
+  .type-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+  }
+  .type-badge.cr { background: #edf7f5; color: var(--teal); }
+  .type-badge.ppa { background: #fef3ee; color: var(--accent); }
+
+  .action-link {
+    color: var(--teal);
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    text-decoration: none;
+    border: none; background: none;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .action-link:hover { text-decoration: underline; }
+
+  /* ══════════════════════════════
+     UTILITIES
+  ══════════════════════════════ */
+  .divider { height: 1px; background: var(--border); margin: 20px 0; }
+
+  /* hide screens 2-4 initially */
+  #screen-dashboard.active .app-shell { flex: 1; }
+</style>
+</head>
+<body>
+
+<!-- ══ LOGIN ══ -->
+<div class="screen active" id="screen-login">
+  <div class="login-card">
+    <div class="logo-mark">🧠</div>
+    <h1>Synapses ESMS</h1>
+    <p class="tagline">Rédaction professionnelle assistée par IA · Secteur social & médico-social</p>
+
+    <label class="field-label">Identifiant</label>
+    <input class="input-field" type="text" placeholder="prenom.nom@etablissement.fr" value="marie.dupont@sessad.fr">
+
+    <label class="field-label">Mot de passe</label>
+    <input class="input-field" type="password" placeholder="••••••••" value="••••••••">
+
+    <button class="btn-primary" onclick="goTo('dashboard')">Connexion</button>
+
+    <p class="login-note">
+      <span>🔒 Aucune donnée nominative ne quitte votre établissement.</span><br>
+      Conforme RGPD · IA Act · Secret professionnel
+    </p>
+  </div>
+</div>
+
+<!-- ══ DASHBOARD ══ -->
+<div class="screen" id="screen-dashboard">
+  <div class="app-shell">
+    <!-- SIDEBAR -->
+    <nav class="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">
+          <div class="sidebar-logo-mark">🧠</div>
+          <div class="sidebar-logo-text">
+            Synapses
+            <small>ESMS · Beta</small>
+          </div>
+        </div>
+      </div>
+      <div class="sidebar-user">
+        <div class="avatar">MD</div>
+        <div class="user-info">
+          <div class="user-name">Marie Dupont</div>
+          <div class="user-role">Éducatrice spécialisée</div>
+        </div>
+      </div>
+
+      <div class="nav-section-label">Modules IA</div>
+      <button class="nav-item active" onclick="goTo('dashboard')" id="nav-dashboard">
+        <span class="nav-icon">🏠</span> Tableau de bord
+      </button>
+      <button class="nav-item" onclick="goTo('cr')" id="nav-cr">
+        <span class="nav-icon">📝</span> Compte rendu
+        <span class="nav-badge">MVP</span>
+      </button>
+      <button class="nav-item" onclick="goTo('ppa')" id="nav-ppa">
+        <span class="nav-icon">📋</span> Projet Personnalisé
+        <span class="nav-badge">MVP</span>
+      </button>
+
+      <div class="nav-section-label" style="margin-top:8px">Gestion</div>
+      <button class="nav-item" onclick="goTo('historique')" id="nav-historique">
+        <span class="nav-icon">📂</span> Historique
+      </button>
+      <button class="nav-item" id="nav-settings">
+        <span class="nav-icon">⚙️</span> Paramètres
+      </button>
+
+      <div class="sidebar-footer">
+        <div class="rgpd-badge">
+          <strong>🔒 Données protégées</strong>
+          Anonymisation automatique avant envoi à l'IA. Aucune donnée nominative transmise.
+        </div>
+      </div>
+    </nav>
+
+    <!-- MAIN -->
+    <div class="main-content">
+
+      <!-- ── PAGE : DASHBOARD ── -->
+      <div id="page-dashboard">
+        <div class="topbar">
+          <div class="topbar-title">Tableau de bord</div>
+          <div class="topbar-actions">
+            <span class="chip">✅ Mistral AI connectée</span>
+          </div>
+        </div>
+        <div class="page-content">
+          <div class="welcome-row">
+            <h2>Bonjour, Marie 👋</h2>
+            <p>Jeudi 20 mars 2026 · SESSAD Les Acacias</p>
+          </div>
+
+          <div class="stats-row">
+            <div class="stat-card">
+              <div class="stat-value">12</div>
+              <div class="stat-label">Écrits générés ce mois</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-value">3</div>
+              <div class="stat-label">PPA en cours</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-value">~8 min</div>
+              <div class="stat-label">Temps moyen économisé</div>
+            </div>
+          </div>
+
+          <div class="cards-grid">
+            <div class="module-card teal" onclick="goTo('cr')">
+              <div class="priority-badge">✦ Priorité MVP</div>
+              <div class="card-icon teal">📝</div>
+              <div class="card-title">Compte rendu d'intervention</div>
+              <div class="card-desc">Saisissez vos notes brutes, l'IA génère un écrit structuré et professionnel adapté au secteur ESMS.</div>
+              <button class="card-cta">Nouveau compte rendu →</button>
+            </div>
+
+            <div class="module-card orange" onclick="goTo('ppa')">
+              <div class="priority-badge" style="background:linear-gradient(135deg,#e8734a,#f5a97f)">✦ Priorité MVP</div>
+              <div class="card-icon orange">📋</div>
+              <div class="card-title">Projet Personnalisé (PPA)</div>
+              <div class="card-desc">Construisez un PPA structuré, aligné avec le référentiel SERAFIN-PH, avec des objectifs SMART générés par l'IA.</div>
+              <button class="card-cta orange">Nouveau PPA →</button>
+            </div>
+
+            <div class="module-card blue">
+              <div class="card-icon blue">📅</div>
+              <div class="card-title">Compte rendu de réunion</div>
+              <div class="card-desc">Bientôt disponible — synthèse automatique des réunions d'équipe et de synthèse.</div>
+              <button class="card-cta blue" style="opacity:.5;cursor:default">Bientôt disponible</button>
+            </div>
+          </div>
+
+          <div class="recent-section">
+            <h3>Derniers documents générés</h3>
+            <div class="recent-list">
+              <div class="recent-item">
+                <div class="recent-dot teal"></div>
+                <div class="recent-info">
+                  <div class="recent-name">CR · Visite à domicile — B.L. (Réf. 2024-047)</div>
+                  <div class="recent-meta">Compte rendu d'intervention · Validé</div>
+                </div>
+                <div class="recent-date">Aujourd'hui, 09h12</div>
+              </div>
+              <div class="recent-item">
+                <div class="recent-dot orange"></div>
+                <div class="recent-info">
+                  <div class="recent-name">PPA · Axe autonomie + communication — T.M.</div>
+                  <div class="recent-meta">Projet Personnalisé · En attente de validation</div>
+                </div>
+                <div class="recent-date">Hier, 16h45</div>
+              </div>
+              <div class="recent-item">
+                <div class="recent-dot teal"></div>
+                <div class="recent-info">
+                  <div class="recent-name">CR · Entretien famille — S.K. (Réf. 2024-031)</div>
+                  <div class="recent-meta">Compte rendu d'intervention · Validé</div>
+                </div>
+                <div class="recent-date">18 mars, 11h30</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── PAGE : COMPTE RENDU ── -->
+      <div id="page-cr" style="display:none">
+        <div class="topbar">
+          <div class="topbar-title">📝 Compte rendu d'intervention</div>
+          <div class="topbar-actions">
+            <button class="btn-outline" onclick="goTo('dashboard')">← Retour</button>
+          </div>
+        </div>
+        <div class="page-content">
+          <div class="form-card">
+            <h3><span class="step-indicator">1</span> Contexte de l'intervention</h3>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Type de structure</label>
+                <select class="form-select">
+                  <option>SESSAD</option>
+                  <option>MECS</option>
+                  <option>IME</option>
+                  <option>ESAT</option>
+                  <option>Domicile</option>
+                  <option>Autre</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Type d'intervention</label>
+                <select class="form-select">
+                  <option>Visite à domicile</option>
+                  <option>Entretien individuel</option>
+                  <option>Entretien famille</option>
+                  <option>Accompagnement extérieur</option>
+                  <option>Autre</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Référence dossier (anonymisé)</label>
+                <input class="form-input" type="text" placeholder="Ex : Réf. 2024-047 ou initiales B.L." value="Réf. 2024-047">
+                <span class="field-hint">⚠️ Pas de nom complet — utilisez une référence ou des initiales.</span>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Date de l'intervention</label>
+                <input class="form-input" type="date" value="2026-03-20">
+              </div>
+            </div>
+          </div>
+
+          <div class="form-card">
+            <h3><span class="step-indicator">2</span> Vos notes brutes</h3>
+            <div class="form-row full">
+              <div class="form-group">
+                <label class="form-label">Ce qui s'est passé (saisie libre)</label>
+                <textarea class="form-textarea" id="cr-notes" placeholder="Notez librement ce que vous avez observé, ce qui a été dit, les difficultés rencontrées, les points positifs…">Visite à domicile, présence de la mère et de la sœur aînée. L'enfant est calme, plus communicant qu'habituellement. La mère signale des troubles du sommeil persistants depuis 3 semaines. L'enfant a montré ses dessins, semble fier. Discussion sur la rentrée scolaire, la mère est inquiète mais coopérante. Prévu : contact avec l'école la semaine prochaine.</textarea>
+              </div>
+            </div>
+            <div class="anon-notice">
+              <span class="anon-icon">🔒</span>
+              <span><strong>Protection des données :</strong> Vos notes sont anonymisées automatiquement avant d'être envoyées à l'IA. Aucun nom, prénom ou donnée nominative n'est transmis.</span>
+            </div>
+          </div>
+
+          <div style="display:flex;gap:12px;align-items:center">
+            <button class="generate-btn" onclick="generateCR()">
+              🤖 Générer le compte rendu
+            </button>
+            <span style="font-size:13px;color:var(--text-muted)">Temps estimé : 5–10 secondes</span>
+          </div>
+
+          <!-- LOADING -->
+          <div class="loading-overlay" id="cr-loading">
+            <div class="spinner"></div>
+            <span>L'IA structure votre compte rendu…</span>
+          </div>
+
+          <!-- RESULT -->
+          <div class="result-panel" id="cr-result" style="margin-top:24px">
+            <div class="result-header">
+              <div class="result-title">
+                <div class="result-check">✓</div>
+                Compte rendu généré
+              </div>
+              <div class="result-actions">
+                <button class="btn-outline">♻️ Régénérer</button>
+                <button class="btn-outline">📋 Copier</button>
+                <button class="btn-outline">⬇️ Word</button>
+              </div>
+            </div>
+            <div class="result-text" id="cr-output"></div>
+            <div class="human-validation">
+              <input type="checkbox" id="val-check">
+              <label for="val-check" style="cursor:pointer"><strong>Validation obligatoire :</strong> Je confirme avoir relu, vérifié et, si besoin, corrigé ce compte rendu. Je reste l'auteur et le responsable de ce document. L'IA est un outil d'assistance, non un substitut au jugement professionnel.</label>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ── PAGE : PPA ── -->
+      <div id="page-ppa" style="display:none">
+        <div class="topbar">
+          <div class="topbar-title">📋 Projet Personnalisé d'Accompagnement</div>
+          <div class="topbar-actions">
+            <button class="btn-outline" onclick="goTo('dashboard')">← Retour</button>
+          </div>
+        </div>
+        <div class="page-content">
+          <div class="form-card">
+            <h3><span class="step-indicator">1</span> Identification anonymisée</h3>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Référence / Code usager</label>
+                <input class="form-input" type="text" placeholder="Ex : T.M. ou Réf. 2024-031">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Type de structure</label>
+                <select class="form-select">
+                  <option>SESSAD</option><option>IME</option><option>MECS</option><option>ESAT</option><option>Domicile</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Tranche d'âge</label>
+                <select class="form-select">
+                  <option>Enfant (0-12 ans)</option>
+                  <option>Adolescent (12-18 ans)</option>
+                  <option>Jeune adulte (18-25 ans)</option>
+                  <option>Adulte (25+ ans)</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Période du PPA</label>
+                <select class="form-select">
+                  <option>6 mois</option><option>1 an</option><option>2 ans</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-card">
+            <h3><span class="step-indicator">2</span> Axes SERAFIN-PH à travailler</h3>
+            <div class="axes-grid">
+              <label class="axe-chip" onclick="toggleAxe(this)">
+                <div class="axe-check">✓</div>
+                🗣️ Communication
+              </label>
+              <label class="axe-chip selected" onclick="toggleAxe(this)">
+                <div class="axe-check">✓</div>
+                🚶 Mobilité & déplacements
+              </label>
+              <label class="axe-chip selected" onclick="toggleAxe(this)">
+                <div class="axe-check">✓</div>
+                🏠 Autonomie quotidienne
+              </label>
+              <label class="axe-chip" onclick="toggleAxe(this)">
+                <div class="axe-check">✓</div>
+                👥 Socialisation
+              </label>
+              <label class="axe-chip" onclick="toggleAxe(this)">
+                <div class="axe-check">✓</div>
+                📚 Scolarité / Formation
+              </label>
+              <label class="axe-chip selected" onclick="toggleAxe(this)">
+                <div class="axe-check">✓</div>
+                💼 Emploi & activité
+              </label>
+              <label class="axe-chip" onclick="toggleAxe(this)">
+                <div class="axe-check">✓</div>
+                🏥 Santé & soins
+              </label>
+              <label class="axe-chip" onclick="toggleAxe(this)">
+                <div class="axe-check">✓</div>
+                🏡 Logement & cadre de vie
+              </label>
+            </div>
+          </div>
+
+          <div class="form-card">
+            <h3><span class="step-indicator">3</span> Observations par axe</h3>
+            <div class="form-group" style="margin-bottom:16px">
+              <label class="form-label">Mobilité & déplacements — observations</label>
+              <textarea class="form-textarea" style="min-height:90px" placeholder="Décrivez les capacités actuelles, les difficultés, les progrès…">Déplacements autonomes en transport en commun depuis 2 mois, mais difficultés encore présentes la nuit ou sur trajets non familiers. Progresse bien avec le bus, veut apprendre le métro.</textarea>
+            </div>
+            <div class="form-group" style="margin-bottom:16px">
+              <label class="form-label">Autonomie quotidienne — observations</label>
+              <textarea class="form-textarea" style="min-height:90px" placeholder="Décrivez les capacités actuelles, les difficultés, les progrès…">Gestion des repas OK pour plats simples. Difficultés sur la gestion du budget et les courses. Motivé à progresser, aide de la famille encore nécessaire.</textarea>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Emploi & activité — observations</label>
+              <textarea class="form-textarea" style="min-height:90px" placeholder="Décrivez les capacités actuelles, les difficultés, les progrès…">Stage en ESAT depuis janvier, bilan positif de l'équipe. Apprécie les activités manuelles. Objectif : convention de stage renouvelée.</textarea>
+            </div>
+            <div class="anon-notice" style="margin-top:16px">
+              <span class="anon-icon">🔒</span>
+              <span><strong>Protection des données :</strong> Toutes les données envoyées à l'IA sont anonymisées. Aucune donnée nominative ne quitte cet outil.</span>
+            </div>
+          </div>
+
+          <div style="display:flex;gap:12px;align-items:center">
+            <button class="generate-btn" style="background:linear-gradient(135deg,#e8734a,#f5a97f)" onclick="generatePPA()">
+              🤖 Générer le PPA
+            </button>
+            <span style="font-size:13px;color:var(--text-muted)">Génération en 10–15 secondes</span>
+          </div>
+
+          <!-- LOADING -->
+          <div class="loading-overlay" id="ppa-loading">
+            <div class="spinner" style="border-top-color:var(--accent)"></div>
+            <span>L'IA structure votre PPA selon le référentiel SERAFIN-PH…</span>
+          </div>
+
+          <!-- RESULT -->
+          <div class="result-panel" id="ppa-result" style="margin-top:24px;border-color:var(--accent)">
+            <div class="result-header">
+              <div class="result-title">
+                <div class="result-check">✓</div>
+                PPA généré
+              </div>
+              <div class="result-actions">
+                <button class="btn-outline">♻️ Régénérer</button>
+                <button class="btn-outline">📋 Copier</button>
+                <button class="btn-outline">⬇️ Word</button>
+              </div>
+            </div>
+            <div class="result-text" id="ppa-output"></div>
+            <div class="human-validation">
+              <input type="checkbox" id="ppa-val-check">
+              <label for="ppa-val-check" style="cursor:pointer"><strong>Validation obligatoire :</strong> Je confirme avoir relu et validé ce PPA avec le professionnel référent. Ce document engage ma responsabilité professionnelle. L'IA propose, le professionnel décide.</label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── PAGE : HISTORIQUE ── -->
+      <div id="page-historique" style="display:none">
+        <div class="topbar">
+          <div class="topbar-title">📂 Historique des documents</div>
+          <div class="topbar-actions">
+            <button class="btn-outline" onclick="goTo('dashboard')">← Retour</button>
+          </div>
+        </div>
+        <div class="page-content">
+          <div class="history-filters">
+            <button class="filter-btn active">Tous</button>
+            <button class="filter-btn">Comptes rendus</button>
+            <button class="filter-btn">PPA</button>
+            <button class="filter-btn">Ce mois</button>
+          </div>
+          <div class="history-table">
+            <table>
+              <thead>
+                <tr>
+                  <th>Type</th>
+                  <th>Référence</th>
+                  <th>Créé le</th>
+                  <th>Statut</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><span class="type-badge cr">📝 Compte rendu</span></td>
+                  <td>B.L. · Visite domicile</td>
+                  <td>20/03/2026</td>
+                  <td>✅ Validé</td>
+                  <td><button class="action-link">Voir · Exporter</button></td>
+                </tr>
+                <tr>
+                  <td><span class="type-badge ppa">📋 PPA</span></td>
+                  <td>T.M. · Autonomie + Emploi</td>
+                  <td>19/03/2026</td>
+                  <td>⏳ En attente</td>
+                  <td><button class="action-link">Voir · Valider</button></td>
+                </tr>
+                <tr>
+                  <td><span class="type-badge cr">📝 Compte rendu</span></td>
+                  <td>S.K. · Entretien famille</td>
+                  <td>18/03/2026</td>
+                  <td>✅ Validé</td>
+                  <td><button class="action-link">Voir · Exporter</button></td>
+                </tr>
+                <tr>
+                  <td><span class="type-badge cr">📝 Compte rendu</span></td>
+                  <td>Réf. 2024-012 · Entretien</td>
+                  <td>15/03/2026</td>
+                  <td>✅ Validé</td>
+                  <td><button class="action-link">Voir · Exporter</button></td>
+                </tr>
+                <tr>
+                  <td><span class="type-badge ppa">📋 PPA</span></td>
+                  <td>Réf. 2024-008 · Socialisation</td>
+                  <td>12/03/2026</td>
+                  <td>✅ Validé</td>
+                  <td><button class="action-link">Voir · Exporter</button></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /main-content -->
+  </div><!-- /app-shell -->
+</div><!-- /screen-dashboard -->
+
+<script>
+// ── NAVIGATION ──
+function goTo(page) {
+  document.getElementById('screen-login').style.display = 'none';
+  document.getElementById('screen-login').classList.remove('active');
+  document.getElementById('screen-dashboard').classList.add('active');
+  document.getElementById('screen-dashboard').style.display = 'flex';
+
+  const pages = ['dashboard','cr','ppa','historique'];
+  pages.forEach(p => {
+    const el = document.getElementById('page-'+p);
+    if (el) el.style.display = p === page ? 'block' : 'none';
+  });
+
+  // Nav active state
+  ['dashboard','cr','ppa','historique'].forEach(p => {
+    const btn = document.getElementById('nav-'+p);
+    if (btn) btn.classList.toggle('active', p === page);
+  });
+}
+
+// ── AXES PPA ──
+function toggleAxe(el) {
+  el.classList.toggle('selected');
+}
+
+// ── GENERATE CR ──
+function generateCR() {
+  const notes = document.getElementById('cr-notes').value;
+  if (!notes.trim()) { alert('Veuillez saisir vos notes.'); return; }
+
+  const loading = document.getElementById('cr-loading');
+  const result = document.getElementById('cr-result');
+  result.classList.remove('visible');
+  loading.classList.add('visible');
+
+  setTimeout(() => {
+    loading.classList.remove('visible');
+    document.getElementById('cr-output').innerHTML = buildCROutput();
+    result.classList.add('visible');
+    result.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, 2200);
+}
+
+function buildCROutput() {
+  return `<span class="result-section-title">CONTEXTE</span>
+Dans le cadre du suivi réalisé au sein du SESSAD, une visite à domicile a été effectuée auprès de l'enfant suivi sous la référence 2024-047. La rencontre s'est déroulée en présence de la mère et de la sœur aînée.
+
+<span class="result-section-title">DÉROULEMENT DE L'INTERVENTION</span>
+L'enfant s'est montré calme et nettement plus communicant qu'habituellement, ce qui constitue un élément notable d'évolution positive. Il a spontanément présenté ses réalisations graphiques, manifestant une fierté et un désir de partage qui méritent d'être soulignés.
+
+La mère a fait part de troubles du sommeil persistants depuis environ trois semaines, dont il convient de tenir compte dans le suivi global. Elle s'est montrée coopérante et engagée dans la discussion concernant la prochaine rentrée scolaire, bien qu'exprimant des inquiétudes légitimes sur lesquelles il conviendra de continuer à la soutenir.
+
+<span class="result-section-title">OBSERVATIONS CLINIQUES ET ÉDUCATIVES</span>
+L'enfant présente une évolution favorable sur le plan de la communication et de l'expression de soi. La dynamique familiale observée lors de cette visite est globalement positive, avec une mère impliquée et un environnement sécurisant. Les troubles du sommeil signalés constituent un point de vigilance à documenter et à aborder en équipe pluridisciplinaire.
+
+<span class="result-section-title">PERSPECTIVES ET SUIVI</span>
+Un contact avec l'établissement scolaire est prévu dans les prochains jours afin de préparer au mieux la transition. Il sera utile d'évoquer la question du sommeil lors de la prochaine concertation d'équipe et, si nécessaire, d'orienter vers un professionnel de santé adapté.`;
+}
+
+// ── GENERATE PPA ──
+function generatePPA() {
+  const loading = document.getElementById('ppa-loading');
+  const result = document.getElementById('ppa-result');
+  result.classList.remove('visible');
+  loading.classList.add('visible');
+
+  setTimeout(() => {
+    loading.classList.remove('visible');
+    document.getElementById('ppa-output').innerHTML = buildPPAOutput();
+    result.classList.add('visible');
+    result.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, 3000);
+}
+
+function buildPPAOutput() {
+  return `<span class="result-section-title">PROJET PERSONNALISÉ D'ACCOMPAGNEMENT — SYNTHÈSE</span>
+Document généré dans le cadre du suivi SESSAD · Période : 12 mois · Référentiel SERAFIN-PH
+
+<span class="result-section-title">AXE 1 — MOBILITÉ ET DÉPLACEMENTS</span>
+<strong>Situation actuelle :</strong> La personne accompagnée a développé une capacité d'autonomie sur les transports en commun diurnes et sur les trajets familiers, notamment le bus. Des difficultés subsistent sur les déplacements nocturnes et les itinéraires non maîtrisés.
+
+<strong>Objectif SMART :</strong> D'ici 6 mois, la personne sera en capacité d'effectuer de manière autonome au moins 3 trajets en métro préalablement identifiés, avec un accompagnement progressif décroissant de l'équipe éducative.
+
+<strong>Moyens :</strong> Séances d'apprentissage pratique avec éducateur référent (2/mois) · Cartographie personnalisée des trajets · Fiche outil « Mes transports »
+
+<span class="result-section-title">AXE 2 — AUTONOMIE QUOTIDIENNE</span>
+<strong>Situation actuelle :</strong> Les compétences culinaires de base sont acquises. Des difficultés persistent concernant la gestion budgétaire et l'organisation des courses. Le soutien familial reste nécessaire et est à valoriser.
+
+<strong>Objectif SMART :</strong> D'ici 9 mois, la personne gèrera de manière autonome un budget hebdomadaire d'alimentation (courses + repas) sur une période test de 4 semaines consécutives.
+
+<strong>Moyens :</strong> Atelier gestion du budget (mensuel) · Accompagnement aux courses 1×/semaine les 3 premiers mois · Outil de suivi budgétaire adapté
+
+<span class="result-section-title">AXE 3 — EMPLOI ET ACTIVITÉ</span>
+<strong>Situation actuelle :</strong> Intégration en ESAT depuis janvier avec un bilan positif. Appétence marquée pour les activités manuelles. La perspective d'un renouvellement de convention est à consolider.
+
+<strong>Objectif SMART :</strong> D'ici 3 mois, renouvellement de la convention de stage ESAT avec un plan de progression formalisé incluant de nouvelles responsabilités adaptées aux compétences identifiées.
+
+<strong>Moyens :</strong> Réunion de bilan avec l'équipe ESAT · Fiche de poste évolutive · Point mensuel éducateur-personne-ESAT`;
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,12 @@
+services:
+  frontend-prod:
+    build:
+      context: ./frontend
+      dockerfile: DOCKERFILE.prod
+    container_name: synapses-frontend
+    ports:
+      - "127.0.0.1:8083:80"
+    restart: unless-stopped
+    profiles: [prod]
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
