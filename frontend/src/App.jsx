@@ -9,9 +9,9 @@ import MobileMenu from './components/MenuSidebar/MobileMenu';
 import TopBar from './components/MenuSidebar/TopBar';
 import Login from './features/Login';
 import Dashboard from './features/Dashboard';
-import CompteRendu from './features/CompteRendu';
-import ProjetPersonnalise from './features/ProjetPersonnalise';
-import Historique from './features/Historique';
+import InterventionReport from './features/InterventionReport';
+import PersonalizedProject from './features/PersonalizedProject';
+import History from './features/History';
 
 function ThemeToggle() {
   const dispatch = useDispatch();
@@ -59,12 +59,9 @@ function App() {
         <div className="h-[calc(100dvh-3.5rem-3.75rem-env(safe-area-inset-bottom))] md:h-[calc(100dvh-4rem)]">
           <Routes>
             <Route path="/" element={<Dashboard />} />
-            <Route path="/compte-rendu" element={<CompteRendu />} />
-            <Route
-              path="/projet-personnalise"
-              element={<ProjetPersonnalise />}
-            />
-            <Route path="/historique" element={<Historique />} />
+            <Route path="/compte-rendu" element={<InterventionReport />} />
+            <Route path="/projet-personnalise" element={<PersonalizedProject />} />
+            <Route path="/historique" element={<History />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </div>

@@ -1,7 +1,11 @@
 import { useState } from 'react';
+import { useSelector } from 'react-redux';
 import { Lock, RefreshCw, ClipboardCopy, FileDown, CircleCheck } from 'lucide-react';
 import Input from '../components/Input';
+import WordPreview from '../components/WordPreview';
 import structureTypes from '../data/structureTypes.json';
+import { generateInterventionReport } from '../services/aiService';
+import { downloadDocx } from '../utils/wordExport';
 
 const cardClass = 'rounded-2xl border border-(--border) bg-(--bg-primary) p-5 md:p-8 shadow-sm';
 
@@ -19,9 +23,11 @@ function StepCard({ step, title, children }) {
   );
 }
 
-function CompteRendu() {
-  const [typeStructure, setTypeStructure] = useState('');
-  const [typeIntervention, setTypeIntervention] = useState('');
+function InterventionReport() {
+  const user = useSelector((state) => state.auth.user);
+
+  const [structureType, setStructureType] = useState('');
+  const [interventionType, setInterventionType] = useState('');
   const [reference, setReference] = useState('');
   const [date, setDate] = useState(() => new Date().toISOString().slice(0, 10));
   const [notes, setNotes] = useState('');
@@ -29,19 +35,30 @@ function CompteRendu() {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState('');
   const [validated, setValidated] = useState(false);
+  const [elapsed, setElapsed] = useState(null);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setResult('');
     setValidated(false);
-    setTimeout(() => {
+    setElapsed(null);
+    const start = Date.now();
+    try {
+      const text = await generateInterventionReport({ structureType, interventionType, reference, date, notes, educatorName: user?.name });
+      setResult(text);
+      setElapsed(((Date.now() - start) / 1000).toFixed(1));
+    } catch (err) {
+      setResult(`Erreur : ${err.message}`);
+    } finally {
       setLoading(false);
-      setResult('[ Résultat de l\'IA à venir ]');
-    }, 1500);
+    }
   };
 
   const handleCopy = () => navigator.clipboard.writeText(result);
+
+  const handleWordDownload = () =>
+    downloadDocx({ text: result, reference, date, structureType, interventionType });
 
   return (
     <div id="cr-page" className="h-full overflow-y-auto py-6 px-3 md:px-8 md:py-8">
@@ -56,8 +73,8 @@ function CompteRendu() {
                 id="cr-type-structure"
                 label="Type de structure"
                 type="combobox"
-                value={typeStructure}
-                onChange={setTypeStructure}
+                value={structureType}
+                onChange={setStructureType}
                 placeholder="Rechercher ou sélectionner…"
                 categories={structureTypes.categories}
                 required
@@ -66,8 +83,8 @@ function CompteRendu() {
                 id="cr-type-intervention"
                 label="Type d'intervention"
                 type="select"
-                value={typeIntervention}
-                onChange={setTypeIntervention}
+                value={interventionType}
+                onChange={setInterventionType}
                 placeholder="Choisir..."
                 options={['Visite à domicile', 'Entretien individuel', 'Entretien famille', 'Accompagnement extérieur', 'Autre']}
                 required
@@ -128,6 +145,9 @@ function CompteRendu() {
             {!loading && !result && (
               <span className="text-xs text-(--text-muted)">Temps estimé : 5–10 secondes</span>
             )}
+            {!loading && elapsed && (
+              <span className="text-xs text-(--text-muted)">Généré en {elapsed}s</span>
+            )}
           </div>
 
         </form>
@@ -167,6 +187,7 @@ function CompteRendu() {
                 </button>
                 <button
                   type="button"
+                  onClick={handleWordDownload}
                   className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-(--border) text-xs text-(--text-secondary) hover:bg-(--bg-tertiary) transition-colors cursor-pointer"
                 >
                   <FileDown size={13} /> Word
@@ -174,12 +195,9 @@ function CompteRendu() {
               </div>
             </div>
 
-            {/* Texte généré */}
-            <div
-              id="cr-output"
-              className="whitespace-pre-wrap text-sm text-(--text-primary) leading-7 bg-(--bg-secondary) rounded-xl px-4 py-4 border border-(--border) min-h-32"
-            >
-              {result}
+            {/* Texte généré — rendu Word */}
+            <div id="cr-output">
+              <WordPreview text={result} />
             </div>
 
             {/* Validation obligatoire */}
@@ -207,4 +225,4 @@ function CompteRendu() {
   );
 }
 
-export default CompteRendu;
+export default InterventionReport;

@@ -12,36 +12,40 @@ function DashboardItem({ article }) {
     className = '',
   } = article;
 
-  return (
-    <article
-      id={`card-${article.id}`}
-      className={`rounded-2xl border border-(--border) bg-(--bg-primary) p-3 md:p-5 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md ${className}`.trim()}
-      style={{ borderTop: `4px solid ${color || 'var(--border)'}` }}
-    >
+  const inner = (
+    <>
       <h2 className="mt-2 text-lg md:text-xl">{title}</h2>
       <p className="mt-2 text-xs md:text-sm leading-6 text-(--text-secondary)">
         {description}
       </p>
-
-      {disabled ? (
-        <span className="mt-4 inline-flex rounded-full bg-(--bg-tertiary) px-3 py-1 text-xs font-medium text-(--text-muted)">
-          {ctaText}
-        </span>
-      ) : (
-        <Link
-          id={`card-${article.id}-cta`}
-          className="mt-4 inline-flex text-sm font-semibold hover:underline"
-          style={{ color: color || 'var(--bleu-fonce)' }}
-          to={to}
-        >
-          {ctaText}
-        </Link>
-      )}
-
+      <span
+        className="mt-4 inline-flex text-sm font-semibold"
+        style={{ color: disabled ? 'var(--text-muted)' : (color || 'var(--bleu-fonce)') }}
+      >
+        {ctaText}
+      </span>
       {badge && (
         <p className="mt-3 text-xs font-medium text-(--text-muted)">{badge}</p>
       )}
+    </>
+  );
+
+  const cardClass = `rounded-2xl border border-(--border) bg-(--bg-primary) p-3 md:p-5 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md ${className}`.trim();
+  const cardStyle = { borderTop: `4px solid ${color || 'var(--border)'}` };
+
+  return disabled ? (
+    <article id={`card-${article.id}`} className={cardClass} style={cardStyle}>
+      {inner}
     </article>
+  ) : (
+    <Link
+      id={`card-${article.id}`}
+      to={to}
+      className={`block ${cardClass}`}
+      style={cardStyle}
+    >
+      {inner}
+    </Link>
   );
 }
 

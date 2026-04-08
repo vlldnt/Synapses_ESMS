@@ -1,4 +1,4 @@
-function Historique() {
+function History() {
   return (
     <div className="flex items-center justify-center h-full text-center">
       <h1 className="text-2xl font-semibold text-(--text-primary)">
@@ -8,4 +8,4 @@ function Historique() {
   );
 }
 
-export default Historique;
+export default History;
