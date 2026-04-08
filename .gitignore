@@ -1,0 +1,27 @@
+# Frontend
+frontend/node_modules/
+frontend/dist/
+frontend/dist-ssr/
+frontend/build/
+frontend/.env
+frontend/.env.*
+!frontend/.env.example
+
+# Backend
+backend/node_modules/
+backend/__pycache__/
+backend/*.pyc
+backend/*.pyo
+backend/.env
+backend/.env.*
+!backend/.env.example
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editors
+.idea/
+*.suo
+*.sw?
