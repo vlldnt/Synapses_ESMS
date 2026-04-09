@@ -2,7 +2,8 @@ import { useState, useRef, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { setLogged } from '../../store/authSlice';
 import { setTheme } from '../../store/themeSlice';
-import { User, LogOut, Sun, Moon, ChevronDown } from 'lucide-react';
+import { User, LogOut, Sun, Moon, ChevronDown, Download } from 'lucide-react';
+import { PWAInstallModal } from '../PWAInstallGuide';
 
 function ProfileDropdown({
   initials = 'AV',
@@ -12,6 +13,7 @@ function ProfileDropdown({
   mobile = false,
 }) {
   const [open, setOpen] = useState(false);
+  const [showInstall, setShowInstall] = useState(false);
   const dropdownRef = useRef(null);
   const dispatch = useDispatch();
   const theme = useSelector((state) => state.theme.theme);
@@ -39,6 +41,7 @@ function ProfileDropdown({
   };
 
   return (
+    <>
     <div id={mobile ? 'profile-dropdown-mobile' : 'profile-dropdown'} className="relative" ref={dropdownRef}>
       {/* Trigger */}
       <button
@@ -118,6 +121,15 @@ function ProfileDropdown({
             <span className="font-medium text-xs md:text-sm">Paramètres</span>
           </a>
 
+          <button
+            id="profile-install-pwa"
+            onClick={() => { setOpen(false); setShowInstall(true); }}
+            className="flex items-center gap-3 px-4 py-2.5 w-full text-(--text-primary) hover:bg-(--bg-tertiary) transition-colors duration-150 cursor-pointer"
+          >
+            <Download size={18} className="text-(--vert-fonce)" />
+            <span className="font-medium text-xs md:text-sm">Installer l'application</span>
+          </button>
+
           <div className="mx-3 my-1 border-t border-(--border)" />
 
           <button
@@ -144,6 +156,8 @@ function ProfileDropdown({
         </div>
       )}
     </div>
+    {showInstall && <PWAInstallModal onClose={() => setShowInstall(false)} />}
+    </>
   );
 }
 

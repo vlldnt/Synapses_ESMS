@@ -7,7 +7,6 @@ import './App.css';
 import Sidebar from './components/MenuSidebar/Sidebar';
 import MobileMenu from './components/MenuSidebar/MobileMenu';
 import TopBar from './components/MenuSidebar/TopBar';
-import PWAInstallGuide from './components/PWAInstallGuide';
 import Login from './features/Login';
 import Dashboard from './features/Dashboard';
 import InterventionReport from './features/InterventionReport';
@@ -49,7 +48,6 @@ function App() {
   return (
     <>
       <ThemeToggle />
-      <PWAInstallGuide />
       <div className="hidden md:block">
         <Sidebar />
       </div>

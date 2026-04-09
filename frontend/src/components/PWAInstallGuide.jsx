@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { X, Share, Plus, Menu } from 'lucide-react';
 
 function useInstallState() {
-  const [platform, setPlatform] = useState(null); // 'ios' | 'android' | null
+  const [platform, setPlatform] = useState(null); // 'ios' | 'android' | 'desktop'
   const [isInstalled, setIsInstalled] = useState(false);
   const [deferredPrompt, setDeferredPrompt] = useState(null);
 
@@ -15,11 +15,9 @@ function useInstallState() {
       window.navigator.standalone === true;
 
     setIsInstalled(standalone);
-
-    if (!standalone) {
-      if (isIOS) setPlatform('ios');
-      else if (isAndroid) setPlatform('android');
-    }
+    if (isIOS) setPlatform('ios');
+    else if (isAndroid) setPlatform('android');
+    else setPlatform('desktop');
 
     const handler = (e) => {
       e.preventDefault();
@@ -32,122 +30,91 @@ function useInstallState() {
   return { platform, isInstalled, deferredPrompt };
 }
 
-export default function PWAInstallGuide() {
-  const { platform, isInstalled, deferredPrompt } = useInstallState();
-  const [dismissed, setDismissed] = useState(
-    () => sessionStorage.getItem('pwa-dismissed') === '1'
+function Step({ n, children }) {
+  return (
+    <li className="flex items-start gap-3">
+      <span className="flex items-center justify-center w-6 h-6 rounded-full bg-(--bleu-fonce) text-white text-xs font-bold shrink-0 mt-0.5">{n}</span>
+      <span className="text-sm text-(--text-secondary)">{children}</span>
+    </li>
   );
-  const [showIOSGuide, setShowIOSGuide] = useState(false);
+}
 
-  if (isInstalled || dismissed || !platform) return null;
-
-  const dismiss = () => {
-    sessionStorage.setItem('pwa-dismissed', '1');
-    setDismissed(true);
-  };
+export function PWAInstallModal({ onClose }) {
+  const { platform, isInstalled, deferredPrompt } = useInstallState();
 
   const handleAndroidInstall = async () => {
     if (deferredPrompt) {
       deferredPrompt.prompt();
       const { outcome } = await deferredPrompt.userChoice;
-      if (outcome === 'accepted') dismiss();
-    } else {
-      // Pas de prompt dispo (Brave, etc.) → guide manuel
-      setShowIOSGuide(true);
+      if (outcome === 'accepted') onClose();
     }
   };
 
-  /* ── Bannière Android ── */
-  if (platform === 'android' && !showIOSGuide) {
-    return (
-      <div className="fixed bottom-[3.75rem] left-0 right-0 z-50 mx-3 mb-2">
-        <div className="flex items-center gap-3 rounded-2xl bg-(--bg-primary) border border-(--border) shadow-lg px-4 py-3">
-          <img src="/synapses/icon-192.png" alt="Synapses" className="w-10 h-10 rounded-xl shrink-0" />
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-semibold text-(--text-primary)">Installer Synapses</p>
-            <p className="text-xs text-(--text-muted)">Accès rapide, sans barre d'URL</p>
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={onClose}>
+      <div
+        className="w-full max-w-md rounded-2xl bg-(--bg-primary) p-6 shadow-xl border border-(--border)"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Header */}
+        <div className="flex items-center justify-between mb-5">
+          <div className="flex items-center gap-2">
+            <img src="/synapses/icon-192.png" alt="Synapses" className="w-8 h-8 rounded-xl" />
+            <p className="font-semibold text-(--text-primary)">Installer Synapses</p>
           </div>
-          <button
-            onClick={handleAndroidInstall}
-            className="shrink-0 px-3 py-1.5 rounded-lg bg-[#0D66D4] text-white text-xs font-medium cursor-pointer"
-          >
-            Installer
-          </button>
-          <button onClick={dismiss} className="shrink-0 text-(--text-muted) cursor-pointer">
-            <X size={16} />
+          <button onClick={onClose} className="text-(--text-muted) cursor-pointer hover:text-(--text-primary)">
+            <X size={20} />
           </button>
         </div>
-      </div>
-    );
-  }
 
-  /* ── Guide Android manuel (Brave etc.) ── */
-  if (platform === 'android' && showIOSGuide) {
-    return (
-      <div className="fixed inset-0 z-50 flex items-end bg-black/40" onClick={dismiss}>
-        <div
-          className="w-full rounded-t-2xl bg-(--bg-primary) p-6 pb-10"
-          onClick={(e) => e.stopPropagation()}
-        >
-          <div className="flex items-center justify-between mb-4">
-            <p className="font-semibold text-(--text-primary)">Installer sur Android</p>
-            <button onClick={dismiss} className="text-(--text-muted) cursor-pointer"><X size={20} /></button>
-          </div>
-          <ol className="flex flex-col gap-4 text-sm text-(--text-secondary)">
-            <li className="flex items-start gap-3">
-              <span className="flex items-center justify-center w-6 h-6 rounded-full bg-[#0D66D4] text-white text-xs font-bold shrink-0 mt-0.5">1</span>
-              <span>Appuie sur le menu <Menu size={14} className="inline" /> (3 points) en haut à droite</span>
-            </li>
-            <li className="flex items-start gap-3">
-              <span className="flex items-center justify-center w-6 h-6 rounded-full bg-[#0D66D4] text-white text-xs font-bold shrink-0 mt-0.5">2</span>
-              <span>Sélectionne <strong className="text-(--text-primary)">"Ajouter à l'écran d'accueil"</strong> ou <strong className="text-(--text-primary)">"Installer l'application"</strong></span>
-            </li>
-            <li className="flex items-start gap-3">
-              <span className="flex items-center justify-center w-6 h-6 rounded-full bg-[#0D66D4] text-white text-xs font-bold shrink-0 mt-0.5">3</span>
-              <span>Confirme en appuyant sur <strong className="text-(--text-primary)">"Ajouter"</strong></span>
-            </li>
-          </ol>
-        </div>
-      </div>
-    );
-  }
+        {isInstalled ? (
+          <p className="text-sm text-(--text-secondary)">L'application est déjà installée sur cet appareil.</p>
+        ) : (
+          <>
+            {/* iOS */}
+            {platform === 'ios' && (
+              <ol className="flex flex-col gap-4">
+                <Step n="1">Appuie sur le bouton Partager <Share size={14} className="inline mx-1" /> en bas de Safari</Step>
+                <Step n="2">Fais défiler et appuie sur <strong className="text-(--text-primary)">"Sur l'écran d'accueil"</strong> <Plus size={14} className="inline mx-1" /></Step>
+                <Step n="3">Appuie sur <strong className="text-(--text-primary)">"Ajouter"</strong> en haut à droite</Step>
+              </ol>
+            )}
 
-  /* ── Guide iOS ── */
-  if (platform === 'ios') {
-    return (
-      <div className="fixed inset-0 z-50 flex items-end bg-black/40" onClick={dismiss}>
-        <div
-          className="w-full rounded-t-2xl bg-(--bg-primary) p-6 pb-10"
-          onClick={(e) => e.stopPropagation()}
-        >
-          <div className="flex items-center justify-between mb-4">
-            <p className="font-semibold text-(--text-primary)">Installer sur iPhone / iPad</p>
-            <button onClick={dismiss} className="text-(--text-muted) cursor-pointer"><X size={20} /></button>
-          </div>
-          <ol className="flex flex-col gap-4 text-sm text-(--text-secondary)">
-            <li className="flex items-start gap-3">
-              <span className="flex items-center justify-center w-6 h-6 rounded-full bg-[#0D66D4] text-white text-xs font-bold shrink-0 mt-0.5">1</span>
-              <span>Appuie sur le bouton Partager <Share size={14} className="inline" /> en bas de Safari</span>
-            </li>
-            <li className="flex items-start gap-3">
-              <span className="flex items-center justify-center w-6 h-6 rounded-full bg-[#0D66D4] text-white text-xs font-bold shrink-0 mt-0.5">2</span>
-              <span>Fais défiler et appuie sur <strong className="text-(--text-primary)">"Sur l'écran d'accueil"</strong> <Plus size={14} className="inline" /></span>
-            </li>
-            <li className="flex items-start gap-3">
-              <span className="flex items-center justify-center w-6 h-6 rounded-full bg-[#0D66D4] text-white text-xs font-bold shrink-0 mt-0.5">3</span>
-              <span>Appuie sur <strong className="text-(--text-primary)">"Ajouter"</strong> en haut à droite</span>
-            </li>
-          </ol>
-          {/* Flèche vers le bas pointant la barre Safari */}
-          <div className="mt-6 flex justify-center">
-            <div className="flex items-center gap-2 text-xs text-(--text-muted)">
-              <span>↓ Le bouton partager est en bas de l'écran</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
+            {/* Android avec prompt natif */}
+            {platform === 'android' && deferredPrompt && (
+              <>
+                <p className="text-sm text-(--text-secondary) mb-4">Installe l'app pour un accès rapide sans barre d'URL.</p>
+                <button
+                  onClick={handleAndroidInstall}
+                  className="w-full py-2.5 rounded-lg bg-(--bleu-fonce) hover:bg-(--bleu-clair) text-white text-sm font-medium transition-colors cursor-pointer"
+                >
+                  Installer l'application
+                </button>
+              </>
+            )}
 
-  return null;
+            {/* Android sans prompt (Brave, Firefox…) */}
+            {platform === 'android' && !deferredPrompt && (
+              <ol className="flex flex-col gap-4">
+                <Step n="1">Appuie sur le menu <Menu size={14} className="inline mx-1" /> (3 points) en haut à droite</Step>
+                <Step n="2">Sélectionne <strong className="text-(--text-primary)">"Ajouter à l'écran d'accueil"</strong> ou <strong className="text-(--text-primary)">"Installer l'application"</strong></Step>
+                <Step n="3">Confirme en appuyant sur <strong className="text-(--text-primary)">"Ajouter"</strong></Step>
+              </ol>
+            )}
+
+            {/* Desktop */}
+            {platform === 'desktop' && (
+              <ol className="flex flex-col gap-4">
+                <Step n="1">Clique sur l'icône d'installation <strong className="text-(--text-primary)">⊕</strong> dans la barre d'adresse de Chrome/Edge</Step>
+                <Step n="2">Clique sur <strong className="text-(--text-primary)">"Installer"</strong> dans la popup</Step>
+                <Step n="3">L'app s'ouvre dans sa propre fenêtre, sans barre de navigateur</Step>
+              </ol>
+            )}
+          </>
+        )}
+      </div>
+    </div>
+  );
 }
+
+export default PWAInstallModal;
