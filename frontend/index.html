@@ -16,7 +16,23 @@
   <script type="module" src="/src/main.jsx"></script>
   <script>
     window.addEventListener('load', function () {
-      setTimeout(function () { window.scrollTo(0, 1); }, 100);
+      setTimeout(function () {
+        var html = document.documentElement;
+        html.style.height = 'calc(100vh + 1px)';
+        window.scrollTo(0, 1);
+        setTimeout(function () {
+          html.style.height = '';
+        }, 200);
+      }, 300);
+    });
+
+    /* Fix iOS zoom après fermeture du clavier */
+    document.addEventListener('focusout', function (e) {
+      if (e.target.matches('input, textarea, select')) {
+        setTimeout(function () {
+          window.scrollTo(window.scrollX, window.scrollY);
+        }, 50);
+      }
     });
   </script>
 </body>

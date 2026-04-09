@@ -56,7 +56,7 @@ function App() {
       </div>
       <main id="main-content" className="md:ml-64 min-h-dvh pb-[calc(3.75rem+env(safe-area-inset-bottom))] md:pb-0 bg-(--bg-secondary) text-(--text-primary)">
         <TopBar />
-        <div className="h-[calc(100dvh-3.5rem-3.75rem-env(safe-area-inset-bottom))] md:h-[calc(100dvh-4rem)]">
+        <div className="min-h-[calc(100dvh-3.5rem-3.75rem-env(safe-area-inset-bottom))] md:h-[calc(100dvh-4rem)]">
           <Routes>
             <Route path="/" element={<Dashboard />} />
             <Route path="/compte-rendu" element={<InterventionReport />} />
