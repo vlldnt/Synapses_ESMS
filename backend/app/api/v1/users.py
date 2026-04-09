@@ -1,4 +1,5 @@
 from flask_restx import Namespace, Resource, fields
+from flask_jwt_extended import get_jwt_identity, jwt_required
 from app.services import facade
 
 api = Namespace('users', description="User operations")
@@ -73,18 +74,24 @@ class UserResource(Resource):
         return user.to_dict(), 200
 
     @api.expect(user_update)
+    @jwt_required()
     @api.response(201, 'User successfully updated')
     @api.response(400, 'Invalid input data')
     @api.response(403, 'Unauthorized action')
+    @api.doc(security="token")
     @api.response(404, 'User not found')
 
     def put(self, user_id):
         """Update user details by ID"""
 
-        user = facade.get_user(user_id)
+        current_user = get_jwt_identity()
+        user = facade.get_user(current_user)
 
         if not user:
             api.abort(404, "User not found")
+
+        if user_id != user.id:
+            api.abort(403, "Unauthorized action")
         
         user_data = api.payload
 
