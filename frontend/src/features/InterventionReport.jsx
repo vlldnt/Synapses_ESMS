@@ -30,7 +30,17 @@ function InterventionReport() {
   const [interventionType, setInterventionType] = useState('');
   const [reference, setReference] = useState('');
   const [date, setDate] = useState(() => new Date().toISOString().slice(0, 10));
-  const [notes, setNotes] = useState('');
+  const [notes, setNotes] = useState({
+    identification: '',
+    contexte: '',
+    deroulement: '',
+    analyse: '',
+    plan: '',
+    suivi: '',
+    conclusion: '',
+  });
+
+  const setNote = (key) => (e) => setNotes((prev) => ({ ...prev, [key]: e.target.value }));
 
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState('');
@@ -45,7 +55,7 @@ function InterventionReport() {
     setElapsed(null);
     const start = Date.now();
     try {
-      const text = await generateInterventionReport({ structureType, interventionType, reference, date, notes, educatorName: user?.name });
+      const text = await generateInterventionReport({ structureType, interventionType, reference, date, notes, educatorName: user?.name  });
       setResult(text);
       setElapsed(((Date.now() - start) / 1000).toFixed(1));
     } catch (err) {
@@ -111,16 +121,30 @@ function InterventionReport() {
 
           {/* ── Étape 2 : Notes brutes ── */}
           <StepCard step="2" title="Vos notes brutes">
-            <Input
-              id="cr-notes"
-              label="Ce qui s'est passé (saisie libre)"
-              type="textarea"
-              value={notes}
-              onChange={setNotes}
-              placeholder="Notez librement ce que vous avez observé, ce qui a été dit, les difficultés rencontrées, les points positifs…"
-              rows={7}
-              required
-            />
+            <p className="text-xs text-(--text-muted) mb-4">Ce qui s'est passé (saisie libre)</p>
+            <div className="rounded-xl bg-(--bg-secondary) border border-(--border) divide-y divide-(--border)/40 px-4">
+              {[
+                { key: 'identification', label: "Identification de l'intervention" },
+                { key: 'contexte',       label: 'Contexte et objectif' },
+                { key: 'deroulement',    label: 'Déroulement' },
+                { key: 'analyse',        label: 'Analyse professionnelle' },
+                { key: 'plan',           label: "Plan d'actions" },
+                { key: 'suivi',          label: 'Suivi et indicateurs' },
+                { key: 'conclusion',     label: 'Conclusion' },
+              ].map(({ key, label }) => (
+                <div key={key} className="flex flex-col md:flex-row md:items-start md:gap-2 py-3">
+                  <span className="text-xs text-(--text-secondary) shrink-0 mb-1 md:mb-0 md:pt-1">{label} :</span>
+                  <textarea
+                    value={notes[key]}
+                    onChange={setNote(key)}
+                    rows={1}
+                    className="w-full md:flex-1 bg-transparent outline-none text-sm text-(--text-primary) placeholder:text-(--text-muted) resize-none overflow-hidden min-w-0"
+                    placeholder="Saisissez ici…"
+                    onInput={(e) => { e.target.style.height = 'auto'; e.target.style.height = e.target.scrollHeight + 'px'; }}
+                  />
+                </div>
+              ))}
+            </div>
 
             {/* Notice RGPD */}
             <div className="mt-4 flex items-start gap-3 rounded-xl bg-(--bg-secondary) border border-(--border) px-4 py-3">

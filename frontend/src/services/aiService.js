@@ -48,16 +48,23 @@ export async function generateInterventionReport({
   educatorName,
 }) {
   const userMessage = `
+--- CONTEXTE (généré automatiquement) ---
 Type de structure : ${structureType || 'Non précisé'}
 Type d'intervention : ${interventionType || 'Non précisé'}
 Référence dossier : ${reference || 'Non renseignée'}
 Date de l'intervention : ${date || 'Non renseignée'}
 Professionnel rédacteur : ${educatorName || 'Non renseigné'}
 
-Notes de terrain anonymisées :
-${notes}
+--- NOTES DE TERRAIN (saisie libre par section) ---
+1. Identification de l'intervention : ${notes.identification || 'Non renseigné'}
+2. Contexte et objectif : ${notes.contexte || 'Non renseigné'}
+3. Déroulement : ${notes.deroulement || 'Non renseigné'}
+4. Analyse professionnelle : ${notes.analyse || 'Non renseigné'}
+5. Plan d'actions : ${notes.plan || 'Non renseigné'}
+6. Suivi et indicateurs : ${notes.suivi || 'Non renseigné'}
+7. Conclusion : ${notes.conclusion || 'Non renseigné'}
 
-Rédige un compte rendu complet selon la trame. Le nom du professionnel rédacteur doit apparaître dans la section d'identification.
+Rédige un compte rendu complet selon la trame. Appuie-toi sur le contexte et les notes par section pour enrichir chaque partie.
 `.trim();
 
   return getChatResponse({
