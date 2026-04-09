@@ -20,7 +20,7 @@ async function getChatResponse({
         { role: 'user', content: userMessage },
       ],
       temperature,
-      stream: true,
+      stream: false,
     }),
   });
 
