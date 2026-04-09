@@ -18,7 +18,7 @@ const COLORS = {
 const SIZES = {
   sm:  'py-1    px-2.5 text-xs  gap-1   md:py-1.5 md:px-3   md:gap-1',
   md:  'py-2    px-3.5 text-sm  gap-1.5 md:py-2.5 md:px-4   md:gap-1.5',
-  lg:  'py-2    px-4   text-sm  gap-1.5 md:py-2.5 md:px-6   md:text-base md:gap-2',
+  lg:  'py-1.5  px-3   text-xs  gap-1   sm:py-2   sm:px-4   sm:text-sm   md:py-2.5 md:px-6   md:text-base md:gap-2',
 };
 
 export default function Button({

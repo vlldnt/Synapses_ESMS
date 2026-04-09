@@ -263,7 +263,7 @@ function InterventionReport() {
           </StepCard>
 
           {/* ── Boutons ── */}
-          <div id="form-actions" className="flex flex-row items-center justify-between md:justify-start md:gap-4">
+          <div id="form-actions" className="flex flex-row items-center justify-around md:justify-start md:gap-4">
             <Button type="submit" color="blue" size="lg" disabled={loading}>
               {loading ? 'Génération en cours…' : '🤖 Générer le compte rendu'}
             </Button>
