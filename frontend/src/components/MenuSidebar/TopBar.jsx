@@ -5,33 +5,23 @@ import ProfileDropdown from './ProfileDropdown';
 const routeTitles = {
   '/': {
     title: 'Tableau de bord',
-    subtitle:
-      'Vue d’ensemble de votre activité et accès rapide aux fonctionnalités',
+    subtitle: "Vue d\u2019ensemble de votre activit\u00e9 et acc\u00e8s rapide aux fonctionnalit\u00e9s",
   },
-
-  '/compte-rendu': {
-    title: "Compte rendu d'intervention",
-    subtitle:
-      'Générez et structurez vos rapports d’intervention avec précision et efficacité',
+  '/agents': {
+    title: 'Agents IA',
+    subtitle: 'S\u00e9lectionnez un rapport pour commencer',
   },
-
-  '/projet-personnalise': {
-    title: 'Projet personnalisé',
-    subtitle:
-      'Créez des documents sur mesure adaptés à vos besoins professionnels',
-  },
-
   '/historique': {
     title: 'Historique',
-    subtitle:
-      'Consultez, gérez et retrouvez l’ensemble de vos documents générés',
+    subtitle: "Consultez, g\u00e9rez et retrouvez l\u2019ensemble de vos documents g\u00e9n\u00e9r\u00e9s",
   },
 };
 
 function TopBar() {
   const location = useLocation();
+  const agentsEntry = location.pathname.startsWith('/agents') ? routeTitles['/agents'] : null;
   const { title, subtitle } =
-    routeTitles[location.pathname] || routeTitles['/'];
+    agentsEntry || routeTitles[location.pathname] || routeTitles['/'];
 
   return (
     <header

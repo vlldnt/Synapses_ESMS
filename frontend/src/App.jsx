@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { setTheme } from './store/themeSlice';
+import { setRole } from './store/roleSlice';
 import { Sun, Moon } from 'lucide-react';
 import './App.css';
 import Sidebar from './components/MenuSidebar/Sidebar';
@@ -14,19 +15,43 @@ import InterventionReport from './features/InterventionReport';
 import PersonalizedProject from './features/PersonalizedProject';
 import History from './features/History';
 
-function ThemeToggle() {
+const ROLES = ['agent', 'direction', 'admin'];
+const ROLE_LABELS = { agent: 'Agent', direction: 'Direction', admin: 'Admin' };
+
+function TopControls() {
   const dispatch = useDispatch();
   const theme = useSelector((state) => state.theme.theme);
+  const role = useSelector((state) => state.role.role);
   const isDark = theme === 'dark';
 
   return (
-    <button
-      id="theme-toggle"
-      onClick={() => dispatch(setTheme(isDark ? 'light' : 'dark'))}
-      className="hidden md:flex fixed top-2 right-4 z-100 p-2.5 rounded-full bg-(--bg-primary)/80 backdrop-blur-sm shadow-lg border border-(--border) text-(--text-secondary) hover:bg-(--bg-tertiary) transition-colors duration-200 cursor-pointer"
-    >
-      {isDark ? <Sun size={20} /> : <Moon size={20} />}
-    </button>
+    <div className="hidden md:flex fixed top-2 right-4 z-100 items-center gap-2">
+      {/* Role switcher */}
+      <div className="flex rounded-full bg-(--bg-primary)/80 backdrop-blur-sm shadow-lg border border-(--border) overflow-hidden text-xs font-medium">
+        {ROLES.map((r) => (
+          <button
+            key={r}
+            onClick={() => dispatch(setRole(r))}
+            className={`px-3 py-1.5 transition-colors duration-150 cursor-pointer ${
+              role === r
+                ? 'bg-(--bleu-fonce) text-white'
+                : 'text-(--text-secondary) hover:bg-(--bg-tertiary)'
+            }`}
+          >
+            {ROLE_LABELS[r]}
+          </button>
+        ))}
+      </div>
+
+      {/* Theme toggle */}
+      <button
+        id="theme-toggle"
+        onClick={() => dispatch(setTheme(isDark ? 'light' : 'dark'))}
+        className="p-2.5 rounded-full bg-(--bg-primary)/80 backdrop-blur-sm shadow-lg border border-(--border) text-(--text-secondary) hover:bg-(--bg-tertiary) transition-colors duration-200 cursor-pointer"
+      >
+        {isDark ? <Sun size={20} /> : <Moon size={20} />}
+      </button>
+    </div>
   );
 }
 
@@ -41,14 +66,14 @@ function App() {
   if (!isLogged)
     return (
       <>
-        <ThemeToggle />
+        <TopControls />
         <Login />
       </>
     );
 
   return (
     <>
-      <ThemeToggle />
+      <TopControls />
       <div className="hidden md:block">
         <Sidebar />
       </div>
@@ -60,9 +85,10 @@ function App() {
         <div className="min-h-[calc(100dvh-3.5rem-3.75rem-env(safe-area-inset-bottom))] md:h-[calc(100dvh-4rem)]">
           <Routes>
             <Route path="/" element={<Dashboard />} />
-            <Route path="/agents" element={<DashboardAgents />} />
-            <Route path="/compte-rendu" element={<InterventionReport />} />
-            <Route path="/projet-personnalise" element={<PersonalizedProject />} />
+            <Route path="/agents" element={<DashboardAgents />}>
+              <Route path="compte-rendu" element={<InterventionReport />} />
+              <Route path="projet-personnalise" element={<PersonalizedProject />} />
+            </Route>
             <Route path="/historique" element={<History />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>

@@ -58,8 +58,15 @@ function timeAgo(isoDate) {
   return `Il y a ${days}j`;
 }
 
+const ROLE_LABEL = {
+  agent: 'Agent',
+  direction: 'Direction',
+  admin: 'Administrateur',
+};
+
 function Dashboard() {
   const user = useSelector((state) => state.auth.user);
+  const role = useSelector((state) => state.role.role);
   const [date, setDate] = useState('');
   const [history, setHistory] = useState([]);
 
@@ -100,7 +107,10 @@ function Dashboard() {
 
         {/* Header */}
         <div>
-          <h1 className="text-xl md:text-3xl text-(--text-primary)">Bonjour {prenom}</h1>
+          <h1 className="text-xl md:text-3xl text-(--text-primary)">
+            Bonjour {prenom}
+            <span className="ml-2 text-sm font-normal text-(--text-muted)">{ROLE_LABEL[role]}</span>
+          </h1>
           <p className="mt-1 text-xs md:text-sm text-(--text-muted)">{date} — {etablissement}</p>
         </div>
 

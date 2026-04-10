@@ -2,7 +2,11 @@ import { useState, useRef, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { setLogged } from '../../store/authSlice';
 import { setTheme } from '../../store/themeSlice';
-import { User, LogOut, Sun, Moon, ChevronDown, Download } from 'lucide-react';
+import { setRole } from '../../store/roleSlice';
+import { User, LogOut, Sun, Moon, ChevronDown, Download, ShieldCheck } from 'lucide-react';
+
+const ROLES = ['agent', 'direction', 'admin'];
+const ROLE_LABELS = { agent: 'Agent', direction: 'Direction', admin: 'Admin' };
 import { PWAInstallModal } from '../PWAInstallGuide';
 
 function ProfileDropdown({
@@ -17,6 +21,7 @@ function ProfileDropdown({
   const dropdownRef = useRef(null);
   const dispatch = useDispatch();
   const theme = useSelector((state) => state.theme.theme);
+  const role = useSelector((state) => state.role.role);
   const isDark = theme === 'dark';
 
   const toggleTheme = () => {
@@ -142,6 +147,27 @@ function ProfileDropdown({
               {isDark ? 'Mode clair' : 'Mode sombre'}
             </span>
           </button>
+
+          <div className="mx-3 my-1 border-t border-(--border)" />
+
+          <div className="px-4 py-2.5 flex items-center gap-3">
+            <ShieldCheck size={18} className="text-(--text-muted) shrink-0" />
+            <div className="flex gap-1">
+              {ROLES.map((r) => (
+                <button
+                  key={r}
+                  onClick={() => dispatch(setRole(r))}
+                  className={`px-2.5 py-1 rounded-full text-xs font-medium transition-colors cursor-pointer ${
+                    role === r
+                      ? 'bg-(--bleu-fonce) text-white'
+                      : 'bg-(--bg-tertiary) text-(--text-muted) hover:text-(--text-secondary)'
+                  }`}
+                >
+                  {ROLE_LABELS[r]}
+                </button>
+              ))}
+            </div>
+          </div>
 
           <div className="mx-3 my-1 border-t border-(--border)" />
 
