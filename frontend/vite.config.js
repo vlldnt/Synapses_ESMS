@@ -4,7 +4,7 @@ import tailwindcss from '@tailwindcss/vite';
 import { VitePWA } from 'vite-plugin-pwa';
 
 export default defineConfig({
-  base: '/synapses/',
+  base: './',
   plugins: [
     react(),
     tailwindcss(),
@@ -19,27 +19,27 @@ export default defineConfig({
         background_color: '#111827',
         display: 'standalone',
         orientation: 'portrait',
-        scope: '/synapses/',
-        start_url: '/synapses/',
+        scope: './',
+        start_url: './',
         icons: [
-          { src: '/synapses/icon-192.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
-          { src: '/synapses/icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'any' },
-          { src: '/synapses/icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
+          { src: './icon-192.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
+          { src: './icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'any' },
+          { src: './icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
         ],
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,png,svg,woff2}'],
-        navigateFallback: '/synapses/index.html',
+        navigateFallback: null,
       },
     }),
   ],
   server: {
     host: '0.0.0.0',
     proxy: {
-      '/synapses/ollama': {
+      '/ollama': {
         target: 'http://51.178.41.170:11434',
         changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/synapses\/ollama/, ''),
+        rewrite: (path) => path.replace(/^\/ollama/, ''),
       },
     },
   },

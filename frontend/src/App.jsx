@@ -9,6 +9,7 @@ import MobileMenu from './components/MenuSidebar/MobileMenu';
 import TopBar from './components/MenuSidebar/TopBar';
 import Login from './features/Login';
 import Dashboard from './features/Dashboard';
+import DashboardAgents from './features/DashboardAgents';
 import InterventionReport from './features/InterventionReport';
 import PersonalizedProject from './features/PersonalizedProject';
 import History from './features/History';
@@ -59,6 +60,7 @@ function App() {
         <div className="min-h-[calc(100dvh-3.5rem-3.75rem-env(safe-area-inset-bottom))] md:h-[calc(100dvh-4rem)]">
           <Routes>
             <Route path="/" element={<Dashboard />} />
+            <Route path="/agents" element={<DashboardAgents />} />
             <Route path="/compte-rendu" element={<InterventionReport />} />
             <Route path="/projet-personnalise" element={<PersonalizedProject />} />
             <Route path="/historique" element={<History />} />

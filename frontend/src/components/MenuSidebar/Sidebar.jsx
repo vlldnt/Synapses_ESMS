@@ -1,9 +1,7 @@
 import faviconUrl from '/favicon.png';
 import {
   LayoutDashboard,
-  ClipboardPen,
-  UserRoundPen,
-  CalendarDays,
+  BotMessageSquare,
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import NavItem from './NavItem';
@@ -38,19 +36,9 @@ function Sidebar() {
           <NavItem titre="Tableau de bord" link="/" icon={LayoutDashboard} />
         </ul>
 
-        <p className="flex text-(--text-muted) mb-2 px-3">Module IA</p>
+        <p className="flex text-(--text-muted) mb-2 px-3">Agents</p>
         <ul id="nav-modules-ia" className="flex flex-col gap-1 list-none mb-10">
-          <NavItem
-            titre="Compte rendu"
-            link="/compte-rendu"
-            icon={ClipboardPen}
-          />
-          <NavItem
-            titre="Projet Personnalisé"
-            link="/projet-personnalise"
-            icon={UserRoundPen}
-          />
-          <NavItem titre="Compte rendu réunion" icon={CalendarDays} disabled />
+          <NavItem titre="Agents IA" link="/agents" icon={BotMessageSquare} />
         </ul>
 
         <p className="flex text-(--text-muted) mb-2 px-3">Gestion</p>

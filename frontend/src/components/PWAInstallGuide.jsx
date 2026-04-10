@@ -59,7 +59,7 @@ export function PWAInstallModal({ onClose }) {
         {/* Header */}
         <div className="flex items-center justify-between mb-5">
           <div className="flex items-center gap-2">
-            <img src="/synapses/icon-192.png" alt="Synapses" className="w-8 h-8 rounded-xl" />
+            <img src="/icon-192.png" alt="Synapses" className="w-8 h-8 rounded-xl" />
             <p className="font-semibold text-(--text-primary)">Installer Synapses</p>
           </div>
           <button onClick={onClose} className="text-(--text-muted) cursor-pointer hover:text-(--text-primary)">
