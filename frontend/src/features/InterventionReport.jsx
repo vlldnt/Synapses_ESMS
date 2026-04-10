@@ -19,44 +19,37 @@ const NOTE_FIELDS = [
   {
     key: 'identification',
     label: "Identification de l'intervention",
-    placeholder:
-      "Ex : VAD par l'éducateur et la psychologue du SESSAD, domicile familial, 1h30",
+    placeholder: "Ex : VAD éducateur + psychologue, domicile familial, 1h30",
   },
   {
     key: 'contexte',
     label: 'Contexte et objectif',
-    placeholder:
-      'Ex : Faire le point sur la situation à domicile, suivi PPA en cours',
+    placeholder: "Ex : Faire le point à domicile, suivi PPA en cours",
   },
   {
     key: 'deroulement',
     label: 'Déroulement',
-    placeholder:
-      "Ex : Bilan psychométrique présenté aux parents, tensions évoquées autour de l'hygiène et du coucher",
+    placeholder: "Ex : Bilan présenté aux parents, tensions autour du coucher",
   },
   {
     key: 'analyse',
     label: 'Analyse professionnelle',
-    placeholder:
-      "Ex : Difficultés liées à la dynamique familiale, non à une opposition généralisée de l'usager",
+    placeholder: "Ex : Difficultés liées à la dynamique familiale",
   },
   {
     key: 'plan',
     label: "Plan d'actions",
-    placeholder:
-      'Ex : Aide éducative via services sociaux, parents demandeurs, démarches à initier',
+    placeholder: "Ex : Aide éducative, parents demandeurs, démarches à initier",
   },
   {
     key: 'suivi',
     label: 'Suivi et indicateurs',
-    placeholder:
-      'Ex : Réévaluation dans 3 mois, dossier à transmettre aux services sociaux',
+    placeholder: "Ex : Réévaluation 3 mois, dossier à transmettre",
   },
   {
     key: 'conclusion',
     label: 'Conclusion',
-    placeholder:
-      'Ex : Prochaine VAD avec accompagnement aux démarches administratives',
+    placeholder: "Ex : Prochaine VAD avec accompagnement administratif",
   },
 ];
 
@@ -169,7 +162,7 @@ function InterventionReport() {
   return (
     <div
       id="cr-page"
-      className="h-full overflow-y-auto py-6 px-3 md:px-8 md:py-8"
+      className="h-full overflow-y-auto py-6 px-2 md:px-5 md:py-8"
     >
       <div className="mx-auto flex w-full max-w-full flex-col gap-6">
         <form
@@ -178,7 +171,7 @@ function InterventionReport() {
           className="flex flex-col gap-6"
         >
           {/* ── Étape 1 : Contexte ── */}
-          <StepCard step="1" title="Contexte de l'intervention">
+          <StepCard step="1" title="Contexte de l'intervention" subtitle="Renseignez le cadre de l'intervention avant de saisir vos notes">
             <div
               id="context-fields"
               className="grid grid-cols-1 sm:grid-cols-2 gap-4"
@@ -230,10 +223,7 @@ function InterventionReport() {
           </StepCard>
 
           {/* ── Étape 2 : Notes brutes ── */}
-          <StepCard step="2" title="Vos notes brutes">
-            <p className="text-xs text-(--text-muted) mb-4">
-              Ce qui s'est passé (saisie libre)
-            </p>
+          <StepCard step="2" title="Vos notes brutes" subtitle="Ce qui s'est passé (saisie libre)">
             <div
               id="field-notes"
               className="rounded-xl bg-(--bg-secondary) border border-(--border) divide-y divide-(--border)/40 px-4"
@@ -241,16 +231,16 @@ function InterventionReport() {
               {NOTE_FIELDS.map(({ key, label, placeholder }) => (
                 <div
                   key={key}
-                  className="flex flex-col md:flex-row md:items-start md:gap-2 py-3"
+                  className="flex flex-col md:flex-row md:items-center md:gap-2 py-3"
                 >
-                  <span className="text-xs text-(--text-secondary) shrink-0 mb-1 md:mb-0 md:pt-1">
+                  <span className="text-[10px] md:text-xs text-(--text-secondary) shrink-0 mb-1 md:mb-0">
                     {label} :
                   </span>
                   <textarea
                     value={notes[key]}
                     onChange={setNote(key)}
                     rows={1}
-                    className="w-full md:flex-1 bg-transparent outline-none text-sm text-(--text-primary) placeholder:text-(--text-muted)/60 resize-none overflow-hidden min-w-0"
+                    className="w-full md:flex-1 bg-transparent outline-none text-[12px]! md:text-[14px]! text-(--text-primary) placeholder:text-[10px]! md:placeholder:text-[12px]! placeholder:text-(--text-muted)/60 placeholder:overflow-hidden resize-none overflow-hidden min-w-0 leading-tight"
                     placeholder={placeholder}
                     onInput={(e) => {
                       e.target.style.height = 'auto';

@@ -38,42 +38,42 @@ const PPA_FIELDS = [
   {
     key: 'situation',
     label: 'Présentation de la situation',
-    placeholder: "Ex : Enfant de 8 ans, diagnostic TSA léger, accompagné par le SESSAD depuis 2 ans, scolarisé en ULIS. Points d'appui : capacité à s'engager avec les adultes, passionné par les jeux de construction.",
+    placeholder: "Ex : Enfant 8 ans, TSA léger, SESSAD depuis 2 ans, ULIS",
   },
   {
     key: 'besoins_sante',
     label: 'Besoins – Santé somatique & psychique',
-    placeholder: "Ex : Régulation émotionnelle fragile lors des transitions, anxiété anticipatrice, sensibilité sensorielle aux changements inattendus.",
+    placeholder: "Ex : Anxiété lors des transitions, sensibilité sensorielle, besoin de cadre",
   },
   {
     key: 'besoins_autonomie',
     label: 'Besoins – Autonomie',
-    placeholder: "Ex : Aide pour la séquence habillage, motricité fine insuffisante pour la fourchette, communication orale limitée (écholalie, mots isolés).",
+    placeholder: "Ex : Aide séquence habillage, motricité fine, communication orale limitée",
   },
   {
     key: 'besoins_participation',
     label: 'Besoins – Participation sociale',
-    placeholder: "Ex : Jeu solitaire, aucune relation amicale structurée, difficultés à respecter les règles du groupe, intérêts spécifiques (lego, animaux) à mobiliser.",
+    placeholder: "Ex : Jeu solitaire, peu d'interactions en groupe, intérêts spécifiques lego",
   },
   {
     key: 'objectifs',
     label: 'Objectifs prioritaires',
-    placeholder: "Ex : Améliorer la communication, réduire l'anxiété lors des transitions, augmenter l'autonomie dans les actes d'hygiène, faciliter les interactions sociales.",
+    placeholder: "Ex : Améliorer communication, réduire anxiété aux transitions, autonomie hygiène",
   },
   {
     key: 'modalites',
     label: "Modalités d'accompagnement",
-    placeholder: "Ex : Éducateur spécialisé + psychologue, 2 séances/semaine au domicile (1h30), 1 séance ULIS/semaine, orthophonie 1-2x/semaine. Supports visuels, pictogrammes, emploi du temps.",
+    placeholder: "Ex : Éducateur + psychologue, 2 séances/semaine domicile, supports visuels",
   },
   {
     key: 'participation_personne',
     label: 'Participation & choix de la personne',
-    placeholder: "Ex : Exprime ses préférences par pointage, apprécie les activités manuelles et les animaux, consent par signes non verbaux. Parents mobilisés, demandeurs d'un soutien à la parentalité.",
+    placeholder: "Ex : Préférences par pointage, apprécie lego et animaux, parents impliqués",
   },
   {
     key: 'suivi',
     label: 'Suivi et réévaluation',
-    placeholder: "Ex : Évaluation intermédiaire à 3 mois, révision complète tous les 6 mois, réunion multi-partenaires annuelle (famille, école, SESSAD). Carnet de bord éducatif.",
+    placeholder: "Ex : Bilan à 3 mois, révision complète à 6 mois, famille",
   },
 ];
 
@@ -185,7 +185,7 @@ function PersonalizedProject() {
   return (
     <div
       id="ppa-page"
-      className="h-full overflow-y-auto py-6 px-3 md:px-8 md:py-8"
+      className="h-full overflow-y-auto py-6 px-2 md:px-5 md:py-8"
     >
       <div className="mx-auto flex w-full max-w-full flex-col gap-6">
         <form
@@ -194,7 +194,7 @@ function PersonalizedProject() {
           className="flex flex-col gap-6"
         >
           {/* ── Étape 1 : Identification anonymisée ── */}
-          <StepCard step="1" title="Identification anonymisée">
+          <StepCard step="1" title="Identification anonymisée" subtitle="Aucune donnée nominative — utilisez une référence ou des initiales">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <Input
                 id="ppa-reference"
@@ -237,10 +237,18 @@ function PersonalizedProject() {
           </StepCard>
 
           {/* ── Étape 2 : Axes SERAFIN-PH ── */}
-          <StepCard step="2" title="Axes SERAFIN-PH à travailler">
-            <p className="text-xs text-(--text-muted) mb-4">
-              Sélectionnez les axes prioritaires pour ce PPA
-            </p>
+          <StepCard step="2" title="Axes SERAFIN-PH à travailler" subtitle="Sélectionnez les axes prioritaires pour ce PPA">
+            <div className="flex items-center justify-between mb-3">
+              {selectedAxes.length > 0 && (
+                <button
+                  type="button"
+                  onClick={() => setSelectedAxes([])}
+                  className="text-xs text-(--text-muted) hover:text-(--text-primary) transition-colors cursor-pointer"
+                >
+                  Tout désélectionner
+                </button>
+              )}
+            </div>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
               {AXES.map(({ key, label }) => {
                 const active = selectedAxes.includes(key);
@@ -267,24 +275,21 @@ function PersonalizedProject() {
           </StepCard>
 
           {/* ── Étape 3 : Observations ── */}
-          <StepCard step="3" title="Vos observations">
-            <p className="text-xs text-(--text-muted) mb-4">
-              Situation de la personne accompagnée (saisie libre)
-            </p>
-            <div className="rounded-xl bg-(--bg-secondary) border border-(--border) divide-y divide-(--border)/40 px-4">
+          <StepCard step="3" title="Vos observations" subtitle="Situation de la personne accompagnée (saisie libre)">
+            <div className="rounded-xl bg-(--bg-secondary) border border-(--border) divide-y divide-(--border)/40 px-2">
               {PPA_FIELDS.map(({ key, label, placeholder }) => (
                 <div
                   key={key}
-                  className="flex flex-col md:flex-row md:items-start md:gap-2 py-3"
+                  className="flex flex-col md:flex-row md:items-center md:gap-2 py-3"
                 >
-                  <span className="text-[11px] sm:text-xs text-(--text-secondary) shrink-0 mb-1 md:mb-0 md:pt-1">
+                  <span className="text-[10px] md:text-xs text-(--text-secondary) shrink-0 mb-1 md:mb-0">
                     {label} :
                   </span>
                   <textarea
                     value={notes[key]}
                     onChange={setNote(key)}
                     rows={1}
-                    className="w-full md:flex-1 bg-transparent outline-none text-xs sm:text-sm text-(--text-primary) placeholder:text-(--text-muted)/60 resize-none overflow-hidden min-w-0"
+                    className="w-full md:flex-1 bg-transparent outline-none text-[12px]! md:text-[14px]! text-(--text-primary) placeholder:text-[10px]! md:placeholder:text-[12px]! placeholder:text-(--text-muted)/60 placeholder:overflow-hidden resize-none overflow-hidden min-w-0 leading-tight italic"
                     placeholder={placeholder}
                     onInput={(e) => {
                       e.target.style.height = 'auto';
