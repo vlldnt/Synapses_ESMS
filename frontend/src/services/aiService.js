@@ -32,6 +32,60 @@ async function getChatResponse({
   return text;
 }
 
+export async function generatePPA({
+  reference,
+  structureType,
+  ageGroup,
+  period,
+  selectedAxes = [],
+  notes,
+  educatorName,
+}) {
+  const userMessage = `
+--- CONTEXTE (généré automatiquement) ---
+Référence / Code usager : ${reference || 'Non renseignée'}
+Type de structure : ${structureType || 'Non précisé'}
+Tranche d'âge : ${ageGroup || 'Non précisée'}
+Période du PPA : ${period || 'Non précisée'}
+Professionnel rédacteur : ${educatorName || 'Non renseigné'}
+Axes SERAFIN-PH prioritaires : ${selectedAxes.length ? selectedAxes.join(', ') : 'Non précisés'}
+
+--- OBSERVATIONS ANONYMISÉES ---
+
+1. PRÉSENTATION DE LA SITUATION
+${notes.situation || 'Non renseigné'}
+
+2. BESOINS – SANTÉ SOMATIQUE & PSYCHIQUE
+${notes.besoins_sante || 'Non renseigné'}
+
+3. BESOINS – AUTONOMIE
+${notes.besoins_autonomie || 'Non renseigné'}
+
+4. BESOINS – PARTICIPATION SOCIALE
+${notes.besoins_participation || 'Non renseigné'}
+
+5. OBJECTIFS PRIORITAIRES
+${notes.objectifs || 'Non renseigné'}
+
+6. MODALITÉS D'ACCOMPAGNEMENT
+${notes.modalites || 'Non renseigné'}
+
+7. PARTICIPATION & CHOIX DE LA PERSONNE
+${notes.participation_personne || 'Non renseigné'}
+
+8. SUIVI ET RÉÉVALUATION
+${notes.suivi || 'Non renseigné'}
+
+Rédige un PPA complet en 10 sections selon la trame. Utilise les codes SERAFIN-PH officiels. Appuie-toi sur les observations pour chaque section.
+`.trim();
+
+  return getChatResponse({
+    systemPrompt: getPrompt('ppa_medico_social').content,
+    userMessage,
+    temperature: 0.4,
+  });
+}
+
 export async function generateInterventionReport({
   structureType,
   interventionType,

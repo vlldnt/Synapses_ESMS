@@ -3,16 +3,35 @@ import faviconUrl from '/favicon.png';
 import ProfileDropdown from './ProfileDropdown';
 
 const routeTitles = {
-  '/': { title: 'Tableau de bord' },
-  '/compte-rendu': { title: "Compte rendu d'intervention", subtitle: 'Rédaction professionnelle assistée par IA' },
-  '/projet-personnalise': { title: 'Projet Personnalisé' },
-  '/historique': { title: 'Historique' },
-  '/enfants': { title: 'Enfants' },
+  '/': {
+    title: 'Tableau de bord',
+    subtitle:
+      'Vue d’ensemble de votre activité et accès rapide aux fonctionnalités',
+  },
+
+  '/compte-rendu': {
+    title: "Compte rendu d'intervention",
+    subtitle:
+      'Générez et structurez vos rapports d’intervention avec précision et efficacité',
+  },
+
+  '/projet-personnalise': {
+    title: 'Projet personnalisé',
+    subtitle:
+      'Créez des documents sur mesure adaptés à vos besoins professionnels',
+  },
+
+  '/historique': {
+    title: 'Historique',
+    subtitle:
+      'Consultez, gérez et retrouvez l’ensemble de vos documents générés',
+  },
 };
 
 function TopBar() {
   const location = useLocation();
-  const { title, subtitle } = routeTitles[location.pathname] || routeTitles['/'];
+  const { title, subtitle } =
+    routeTitles[location.pathname] || routeTitles['/'];
 
   return (
     <header
@@ -30,9 +49,13 @@ function TopBar() {
           </span>
         </div>
         <div id="page-title" className="flex flex-col leading-tight">
-          <h1 className="text-lg md:text-2xl font-bold text-(--text-primary)">{title}</h1>
+          <h1 className="text-lg md:text-2xl font-bold text-(--text-primary)">
+            {title}
+          </h1>
           {subtitle && (
-            <p className="hidden md:block text-xs text-(--text-muted)">{subtitle}</p>
+            <p className="hidden md:block text-xs text-(--text-muted)">
+              {subtitle}
+            </p>
           )}
         </div>
         <div className="ml-auto md:hidden">
