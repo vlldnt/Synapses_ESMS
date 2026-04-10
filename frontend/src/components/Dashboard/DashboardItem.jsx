@@ -6,16 +6,19 @@ function DashboardItem({ article }) {
     description,
     ctaText,
     to,
-    badge,
     color,
     disabled = false,
     className = '',
   } = article;
 
+  const baseClass = `rounded-2xl border border-(--border) bg-(--bg-primary) p-3 md:p-5 shadow-sm transition-all duration-200 ${className}`.trim();
+
   const inner = (
     <>
-      <h2 className="mt-2 text-lg md:text-xl">{title}</h2>
-      <p className="mt-2 text-xs md:text-sm leading-6 text-(--text-secondary)">
+      <h2 className="mt-2 text-base md:text-lg font-semibold text-(--text-primary)">
+        {title}
+      </h2>
+      <p className="mt-2 text-xs md:text-sm leading-6 text-(--text-secondary) line-clamp-2">
         {description}
       </p>
       <span
@@ -24,25 +27,23 @@ function DashboardItem({ article }) {
       >
         {ctaText}
       </span>
-      {badge && (
-        <p className="mt-3 text-xs font-medium text-(--text-muted)">{badge}</p>
-      )}
     </>
   );
 
-  const cardClass = `rounded-2xl border border-(--border) bg-(--bg-primary) p-3 md:p-5 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md ${className}`.trim();
-  const cardStyle = { borderTop: `4px solid ${color || 'var(--border)'}` };
-
   return disabled ? (
-    <article id={`card-${article.id}`} className={cardClass} style={cardStyle}>
+    <article
+      id={`card-${article.id}`}
+      className={`${baseClass} opacity-60 cursor-not-allowed`}
+      style={{ borderTop: `4px solid ${color || 'var(--border)'}` }}
+    >
       {inner}
     </article>
   ) : (
     <Link
       id={`card-${article.id}`}
       to={to}
-      className={`block ${cardClass}`}
-      style={cardStyle}
+      className={`block ${baseClass} hover:-translate-y-0.5 hover:shadow-md`}
+      style={{ borderTop: `4px solid ${color || 'var(--border)'}` }}
     >
       {inner}
     </Link>
