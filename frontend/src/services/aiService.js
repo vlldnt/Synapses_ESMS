@@ -1,40 +1,33 @@
+import { OpenRouter } from '@openrouter/sdk';
 import prompts from '../data/prompts/prompts.json';
 
 const getPrompt = (name) => prompts.find((p) => p.name === name);
 
-const API_URL = `${import.meta.env.BASE_URL}ollama/v1/chat/completions`;
-const MODEL = 'qwen3:0.6b';
+const MODEL = 'mistralai/voxtral-small-24b-2507';
+
+const openrouter = new OpenRouter({
+  apiKey: import.meta.env.VITE_OPENROUTER_API_KEY,
+  dangerouslyAllowBrowser: true,
+});
 
 async function getChatResponse({
   systemPrompt,
   userMessage,
   temperature = 0.4,
 }) {
-  const response = await fetch(API_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
+  const completion = await openrouter.chat.send({
+    chatRequest: {
       model: MODEL,
       messages: [
         { role: 'system', content: systemPrompt },
         { role: 'user', content: userMessage },
       ],
       temperature,
-      stream: false,
-    }),
+    },
   });
 
-  if (!response.ok) {
-    const err = await response.json().catch(() => ({}));
-    throw new Error(
-      err?.error?.message || `Erreur Ollama : ${response.status}`,
-    );
-  }
-
-  const data = await response.json();
-  const text = data?.choices?.[0]?.message?.content;
-
-  if (!text) throw new Error('Réponse Ollama vide ou inattendue.');
+  const text = completion.choices?.[0]?.message?.content;
+  if (!text) throw new Error('Réponse OpenRouter vide ou inattendue.');
 
   return text;
 }
