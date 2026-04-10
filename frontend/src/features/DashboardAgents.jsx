@@ -1,4 +1,4 @@
-import { Link, Outlet, useLocation, useSearchParams } from 'react-router-dom';
+import { Link, Outlet, useLocation, useSearchParams, useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 
 const AGENTS = [
@@ -20,27 +20,28 @@ const AGENTS = [
 
 function DashboardAgents() {
   const location = useLocation();
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   const role = useSelector((state) => state.role.role);
   const visibleAgents = AGENTS.filter((a) => a.roles.includes(role));
 
   const isOnChildRoute = location.pathname !== '/agents';
   const activeTabParam = searchParams.get('tab');
 
-  // Onglet actif : soit la route courante, soit le param ?tab=
+  // Onglet actif : route courante > param ?tab= > premier onglet visible par défaut
   const activeAgent = isOnChildRoute
     ? AGENTS.find((a) => a.to && location.pathname.startsWith(a.to))
-    : AGENTS.find((a) => a.id === activeTabParam);
+    : (AGENTS.find((a) => a.id === activeTabParam) ?? visibleAgents[0]);
 
+  // Clic sur un onglet fictif : toujours revenir sur /agents pour quitter la route enfant
   const handleTabClick = (agent) => {
-    if (!agent.to) {
-      setSearchParams({ tab: agent.id }, { replace: true });
-    }
+    navigate(`/agents?tab=${agent.id}`, { replace: true });
   };
 
   const isTabActive = (agent) => {
-    if (agent.to) return isOnChildRoute && location.pathname.startsWith(agent.to);
-    return !isOnChildRoute && activeTabParam === agent.id;
+    if (isOnChildRoute) return !!(agent.to && location.pathname.startsWith(agent.to));
+    if (activeTabParam) return agent.id === activeTabParam;
+    return agent.id === visibleAgents[0]?.id;
   };
 
   return (
@@ -55,6 +56,8 @@ function DashboardAgents() {
               className={`h-full inline-flex items-center px-4 text-xs font-medium whitespace-nowrap transition-all duration-150 ${
                 active
                   ? 'bg-(--bleu-fonce)/10 text-(--bleu-fonce) border-b-2 border-(--bleu-fonce)'
+                  : agent.to
+                  ? 'text-(--bleu-fonce)/70 hover:bg-(--bleu-fonce)/5 hover:text-(--bleu-fonce) cursor-pointer'
                   : 'text-(--text-muted) hover:bg-(--bg-tertiary) hover:text-(--text-secondary) cursor-pointer'
               }`}
             >
@@ -74,11 +77,14 @@ function DashboardAgents() {
       <div className="flex-1 overflow-hidden">
         {isOnChildRoute ? (
           <Outlet />
-        ) : activeAgent ? (
-          <div className="h-full flex items-center justify-center">
-            <p className="text-lg font-semibold text-(--text-muted)">{activeAgent.title}</p>
+        ) : (
+          <div className="h-full w-full flex flex-col items-center justify-center gap-3 select-none">
+            <p className="text-lg font-semibold text-(--text-muted)/25">
+              {activeAgent?.title}
+            </p>
+            <p className="text-xs text-(--text-muted)/20">Bientôt disponible</p>
           </div>
-        ) : null}
+        )}
       </div>
 
     </div>

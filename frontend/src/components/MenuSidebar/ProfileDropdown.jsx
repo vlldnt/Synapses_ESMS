@@ -4,24 +4,23 @@ import { setLogged } from '../../store/authSlice';
 import { setTheme } from '../../store/themeSlice';
 import { setRole } from '../../store/roleSlice';
 import { User, LogOut, Sun, Moon, ChevronDown, Download, ShieldCheck } from 'lucide-react';
-
-const ROLES = ['agent', 'direction', 'admin'];
-const ROLE_LABELS = { agent: 'Agent', direction: 'Direction', admin: 'Admin' };
 import { PWAInstallModal } from '../PWAInstallGuide';
 
-function ProfileDropdown({
-  initials = 'AV',
-  fullname = 'Adrien Vieilledent',
-  jobType = 'Éducateur Spécialisé',
-  photo = null,
-  mobile = false,
-}) {
+const ROLES = ['agent', 'direction', 'admin'];
+const ROLE_LABELS   = { agent: 'Agent', direction: 'Directeur', admin: 'Admin' };
+const ROLE_JOB      = { agent: 'Rôle : Agent', direction: 'Rôle : Directeur', admin: 'Rôle : Admin' };
+const ROLE_INITIALS = { agent: 'AG', direction: 'DR', admin: 'AD' };
+
+function ProfileDropdown({ photo = null, mobile = false }) {
   const [open, setOpen] = useState(false);
   const [showInstall, setShowInstall] = useState(false);
   const dropdownRef = useRef(null);
   const dispatch = useDispatch();
   const theme = useSelector((state) => state.theme.theme);
-  const role = useSelector((state) => state.role.role);
+  const role  = useSelector((state) => state.role.role);
+  const fullname = ROLE_LABELS[role]  ?? 'Agent';
+  const jobType  = ROLE_JOB[role]    ?? 'Rôle : Agent';
+  const initials = ROLE_INITIALS[role] ?? 'AG';
   const isDark = theme === 'dark';
 
   const toggleTheme = () => {
@@ -150,23 +149,21 @@ function ProfileDropdown({
 
           <div className="mx-3 my-1 border-t border-(--border)" />
 
-          <div className="px-4 py-2.5 flex items-center gap-3">
-            <ShieldCheck size={18} className="text-(--text-muted) shrink-0" />
-            <div className="flex gap-1">
-              {ROLES.map((r) => (
-                <button
-                  key={r}
-                  onClick={() => dispatch(setRole(r))}
-                  className={`px-2.5 py-1 rounded-full text-xs font-medium transition-colors cursor-pointer ${
-                    role === r
-                      ? 'bg-(--bleu-fonce) text-white'
-                      : 'bg-(--bg-tertiary) text-(--text-muted) hover:text-(--text-secondary)'
-                  }`}
-                >
-                  {ROLE_LABELS[r]}
-                </button>
-              ))}
-            </div>
+          <div className="px-4 py-2 flex flex-row items-center gap-2">
+            <ShieldCheck size={15} className="text-(--text-muted) shrink-0" />
+            {ROLES.map((r) => (
+              <button
+                key={r}
+                onClick={() => dispatch(setRole(r))}
+                className={`flex-1 py-1.5 rounded-lg text-xs font-semibold transition-colors cursor-pointer ${
+                  role === r
+                    ? 'bg-(--bleu-fonce) text-white shadow-sm'
+                    : 'bg-(--bg-tertiary) text-(--text-muted) hover:text-(--text-secondary) hover:bg-(--bg-secondary)'
+                }`}
+              >
+                {ROLE_LABELS[r]}
+              </button>
+            ))}
           </div>
 
           <div className="mx-3 my-1 border-t border-(--border)" />

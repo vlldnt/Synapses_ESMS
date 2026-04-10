@@ -15,7 +15,7 @@ function deleteCookie(name) {
 }
 
 // TODO: remplacer par les vraies données de l'utilisateur connecté (API auth)
-const MOCK_USER = { name: 'Adrien Vieilledent', role: 'Éducateur spécialisé' };
+const MOCK_USER = { name: '', role: '' };
 
 const authSlice = createSlice({
   name: 'auth',
