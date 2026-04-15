@@ -6,7 +6,6 @@ import GeneratedResult from '../components/GeneratedResult';
 import VoiceTextarea from '../components/VoiceTextarea';
 import StepCard from '../components/Dashboard/StepCard';
 import { generateInterventionReport } from '../services/aiService';
-import { downloadDocx } from '../utils/wordExport';
 import { useCurrentUser } from '../hooks/useCurrentUser';
 import { useSelector } from 'react-redux';
 
@@ -112,17 +111,6 @@ function InterventionReport() {
       setLoading(false);
     }
   };
-
-  const handleCopy = () => navigator.clipboard.writeText(result);
-
-  const handleWordDownload = () =>
-    downloadDocx({
-      text: result,
-      reference: '',
-      date: today,
-      structureType: company?.type ?? '',
-      interventionType,
-    });
 
   return (
     <div
@@ -254,9 +242,14 @@ function InterventionReport() {
             validated={validated}
             onValidatedChange={setValidated}
             onRegenerate={() => handleSubmit({ preventDefault: () => {} })}
-            onCopy={handleCopy}
-            onWordDownload={handleWordDownload}
             validationText="Je confirme avoir relu, vérifié et, si besoin, corrigé ce compte rendu. Je reste l'auteur et le responsable de ce document. L'IA est un outil d'assistance, non un substitut au jugement professionnel."
+            downloadMeta={{
+              interventionType,
+              structureType: company?.type ?? '',
+              companyName: company?.name ?? '',
+              educatorName: fullName,
+              date: today,
+            }}
           />
         )}
       </div>
