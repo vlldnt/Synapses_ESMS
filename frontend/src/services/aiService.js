@@ -3,7 +3,7 @@ import prompts from '../data/prompts/prompts.json';
 
 const getPrompt = (name) => prompts.find((p) => p.name === name);
 
-const MODEL = 'mistralai/voxtral-small-24b-2507';
+export const DEFAULT_MODEL = 'mistralai/voxtral-small-24b-2507';
 
 const openrouter = new OpenRouter({
   apiKey: import.meta.env.VITE_OPENROUTER_API_KEY,
@@ -14,10 +14,11 @@ async function getChatResponse({
   systemPrompt,
   userMessage,
   temperature = 0.4,
+  model = DEFAULT_MODEL,
 }) {
   const completion = await openrouter.chat.send({
     chatRequest: {
-      model: MODEL,
+      model,
       messages: [
         { role: 'system', content: systemPrompt },
         { role: 'user', content: userMessage },
@@ -101,6 +102,7 @@ Rédige un PPA complet en 10 sections selon la trame. Utilise les codes SERAFIN-
  * @param {string} params.educatorName      - Déduit du user.firstName + lastName (JSON)
  * @param {string} params.educatorRole      - Déduit du user.role (JSON)
  * @param {string} params.date              - Date automatique (now)
+ * @param {string} [params.model]           - ID modèle OpenRouter (défaut : DEFAULT_MODEL)
  */
 export async function generateInterventionReport({
   interventionType,
@@ -110,6 +112,7 @@ export async function generateInterventionReport({
   educatorName,
   educatorRole,
   date,
+  model = DEFAULT_MODEL,
 }) {
   const userMessage = `
 --- CONTEXTE PROFESSIONNEL (données automatiques, non saisies par l'utilisateur) ---
@@ -129,5 +132,6 @@ Extrais les informations pertinentes de cette transcription et rédige un compte
     systemPrompt: getPrompt('cr_intervention').content,
     userMessage,
     temperature: 0.4,
+    model,
   });
 }
