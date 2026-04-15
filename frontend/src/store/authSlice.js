@@ -1,4 +1,7 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import { getCurrentUser, getCompanyByUser } from '../services/userService';
+
+// ─── Cookie helpers ────────────────────────────────────────────────────────
 
 function getCookie(name) {
   const match = document.cookie.match(new RegExp(`(?:^|; )${name}=([^;]*)`));
@@ -14,15 +17,28 @@ function deleteCookie(name) {
   document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/`;
 }
 
-// TODO: remplacer par les vraies données de l'utilisateur connecté (API auth)
-const MOCK_USER = { name: '', role: '' };
+// ─── Thunk : récupère user + company depuis userService ───────────────────
+
+export const fetchCurrentUser = createAsyncThunk(
+  'auth/fetchCurrentUser',
+  async () => {
+    const user = await getCurrentUser();
+    const company = await getCompanyByUser(user);
+    return { user, company };
+  },
+);
+
+// ─── Slice ─────────────────────────────────────────────────────────────────
 
 const authSlice = createSlice({
   name: 'auth',
   initialState: {
     isLogged: getCookie('isLogged') === 'true',
     isLoading: false,
-    user: MOCK_USER,
+    /** @type {import('../types').User | null} */
+    user: null,
+    /** @type {import('../types').Company | null} */
+    company: null,
   },
   reducers: {
     setLoading(state, action) {
@@ -34,13 +50,24 @@ const authSlice = createSlice({
         setCookie('isLogged', 'true');
       } else {
         deleteCookie('isLogged');
+        state.user = null;
+        state.company = null;
       }
     },
     setUser(state, action) {
       state.user = action.payload;
     },
+    setCompany(state, action) {
+      state.company = action.payload;
+    },
+  },
+  extraReducers: (builder) => {
+    builder.addCase(fetchCurrentUser.fulfilled, (state, action) => {
+      state.user = action.payload.user;
+      state.company = action.payload.company;
+    });
   },
 });
 
-export const { setLoading, setLogged, setUser } = authSlice.actions;
+export const { setLoading, setLogged, setUser, setCompany } = authSlice.actions;
 export default authSlice.reducer;

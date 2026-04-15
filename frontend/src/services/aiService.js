@@ -86,32 +86,43 @@ Rédige un PPA complet en 10 sections selon la trame. Utilise les codes SERAFIN-
   });
 }
 
+/**
+ * Génère un compte rendu d'intervention à partir d'une transcription brute.
+ *
+ * Le contexte utilisateur (structure, nom, rôle) est injecté automatiquement
+ * depuis les données JSON / API — aucun champ n'est saisi manuellement sauf
+ * le type d'intervention et la transcription libre.
+ *
+ * @param {object} params
+ * @param {string} params.interventionType  - Sélection dropdown (ex: "Visite à domicile")
+ * @param {string} params.transcription     - Texte brut dicté ou saisi par le professionnel
+ * @param {string} params.structureType     - Déduit du company.type (JSON)
+ * @param {string} params.companyName       - Déduit du company.name (JSON)
+ * @param {string} params.educatorName      - Déduit du user.firstName + lastName (JSON)
+ * @param {string} params.educatorRole      - Déduit du user.role (JSON)
+ * @param {string} params.date              - Date automatique (now)
+ */
 export async function generateInterventionReport({
-  structureType,
   interventionType,
-  reference,
-  date,
-  notes,
+  transcription,
+  structureType,
+  companyName,
   educatorName,
+  educatorRole,
+  date,
 }) {
   const userMessage = `
---- CONTEXTE (généré automatiquement) ---
+--- CONTEXTE PROFESSIONNEL (données automatiques, non saisies par l'utilisateur) ---
+Établissement : ${companyName || 'Non précisé'}
 Type de structure : ${structureType || 'Non précisé'}
+Professionnel rédacteur : ${educatorName || 'Non renseigné'} — ${educatorRole || 'Non précisé'}
 Type d'intervention : ${interventionType || 'Non précisé'}
-Référence dossier : ${reference || 'Non renseignée'}
-Date de l'intervention : ${date || 'Non renseignée'}
-Professionnel rédacteur : ${educatorName || 'Non renseigné'}
+Date : ${date}
 
---- NOTES DE TERRAIN (saisie libre par section) ---
-1. Identification de l'intervention : ${notes.identification || 'Non renseigné'}
-2. Contexte et objectif : ${notes.contexte || 'Non renseigné'}
-3. Déroulement : ${notes.deroulement || 'Non renseigné'}
-4. Analyse professionnelle : ${notes.analyse || 'Non renseigné'}
-5. Plan d'actions : ${notes.plan || 'Non renseigné'}
-6. Suivi et indicateurs : ${notes.suivi || 'Non renseigné'}
-7. Conclusion : ${notes.conclusion || 'Non renseigné'}
+--- TRANSCRIPTION BRUTE DU PROFESSIONNEL ---
+${transcription?.trim() || 'Aucune transcription fournie.'}
 
-Rédige un compte rendu complet selon la trame. Appuie-toi sur le contexte et les notes par section pour enrichir chaque partie.
+Extrais les informations pertinentes de cette transcription et rédige un compte rendu complet en 7 sections selon la structure définie. Pour toute information manquante, indique « À compléter par le professionnel ».
 `.trim();
 
   return getChatResponse({

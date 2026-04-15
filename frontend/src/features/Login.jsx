@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import faviconUrl from '/favicon.png';
 import { useDispatch, useSelector } from 'react-redux';
-import { setLogged, setLoading } from '../store/authSlice';
+import { setLogged, setLoading, fetchCurrentUser } from '../store/authSlice';
 
 function Login() {
   const dispatch = useDispatch();
@@ -20,7 +20,8 @@ function Login() {
     e.preventDefault();
     if (!isFormValid) return;
     dispatch(setLoading(true));
-    setTimeout(() => {
+    setTimeout(async () => {
+      await dispatch(fetchCurrentUser());
       dispatch(setLogged(true));
       dispatch(setLoading(false));
     }, 400);

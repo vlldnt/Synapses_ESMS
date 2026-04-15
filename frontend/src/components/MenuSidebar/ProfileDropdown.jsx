@@ -3,13 +3,12 @@ import { useDispatch, useSelector } from 'react-redux';
 import { setLogged } from '../../store/authSlice';
 import { setTheme } from '../../store/themeSlice';
 import { setRole } from '../../store/roleSlice';
+import { useCurrentUser } from '../../hooks/useCurrentUser';
 import { User, LogOut, Sun, Moon, ChevronDown, Download, ShieldCheck } from 'lucide-react';
 import { PWAInstallModal } from '../PWAInstallGuide';
 
 const ROLES = ['agent', 'direction', 'admin'];
-const ROLE_LABELS   = { agent: 'Agent', direction: 'Directeur', admin: 'Admin' };
-const ROLE_JOB      = { agent: 'Rôle : Agent', direction: 'Rôle : Directeur', admin: 'Rôle : Admin' };
-const ROLE_INITIALS = { agent: 'AG', direction: 'DR', admin: 'AD' };
+const ROLE_LABELS = { agent: 'Agent', direction: 'Directeur', admin: 'Admin' };
 
 function ProfileDropdown({ photo = null, mobile = false }) {
   const [open, setOpen] = useState(false);
@@ -18,9 +17,12 @@ function ProfileDropdown({ photo = null, mobile = false }) {
   const dispatch = useDispatch();
   const theme = useSelector((state) => state.theme.theme);
   const role  = useSelector((state) => state.role.role);
-  const fullname = ROLE_LABELS[role]  ?? 'Agent';
-  const jobType  = ROLE_JOB[role]    ?? 'Rôle : Agent';
-  const initials = ROLE_INITIALS[role] ?? 'AG';
+  const { fullName, initials, company } = useCurrentUser();
+
+  const jobType = company
+    ? `${ROLE_LABELS[role] ?? role} · ${company.type}`
+    : ROLE_LABELS[role] ?? role;
+
   const isDark = theme === 'dark';
 
   const toggleTheme = () => {
@@ -82,7 +84,7 @@ function ProfileDropdown({ photo = null, mobile = false }) {
           <>
             <div className="flex flex-col items-start leading-tight">
               <span className="font-medium text-(--text-primary) text-sm">
-                {fullname}
+                {fullName}
               </span>
               <span className="text-(--text-muted) text-xs">{jobType}</span>
             </div>
@@ -107,7 +109,7 @@ function ProfileDropdown({ photo = null, mobile = false }) {
           {mobile && (
             <div className="px-4 py-2">
               <p className="font-medium text-(--text-primary) text-sm">
-                {fullname}
+                {fullName}
               </p>
               <p className="text-(--text-muted) text-xs">{jobType}</p>
             </div>

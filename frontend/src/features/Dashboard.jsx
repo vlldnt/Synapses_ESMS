@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { getHistory } from '../services/historyService';
+import { useCurrentUser } from '../hooks/useCurrentUser';
 import { FileText, Bot, Clock, ChevronRight } from 'lucide-react';
 
 const AGENT_COLORS = {
@@ -65,7 +66,7 @@ const ROLE_LABEL = {
 };
 
 function Dashboard() {
-  const user = useSelector((state) => state.auth.user);
+  const { firstName, company } = useCurrentUser();
   const role = useSelector((state) => state.role.role);
   const [date, setDate] = useState('');
   const [history, setHistory] = useState([]);
@@ -80,8 +81,7 @@ function Dashboard() {
     setHistory(getHistory());
   }, []);
 
-  const prenom = user?.name?.split(' ')[0] ?? 'Professionnel';
-  const etablissement = user?.etablissement ?? 'ESMS';
+  const etablissement = company?.name ?? 'ESMS';
 
   const total = history.length;
   const thisMonth = history.filter((e) => {
@@ -108,7 +108,7 @@ function Dashboard() {
         {/* Header */}
         <div>
           <h1 className="text-xl md:text-3xl text-(--text-primary)">
-            Bonjour {prenom}
+            Bonjour {firstName}
             <span className="ml-2 text-sm font-normal text-(--text-muted)">{ROLE_LABEL[role]}</span>
           </h1>
           <p className="mt-1 text-xs md:text-sm text-(--text-muted)">{date} — {etablissement}</p>

@@ -3,6 +3,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { setTheme } from './store/themeSlice';
 import { setRole } from './store/roleSlice';
+import { fetchCurrentUser } from './store/authSlice';
 import { Sun, Moon } from 'lucide-react';
 import './App.css';
 import Sidebar from './components/MenuSidebar/Sidebar';
@@ -56,12 +57,19 @@ function TopControls() {
 }
 
 function App() {
+  const dispatch = useDispatch();
   const isLogged = useSelector((state) => state.auth.isLogged);
   const theme = useSelector((state) => state.theme.theme);
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
   }, [theme]);
+
+  // Au chargement de la page, si la session cookie existe déjà,
+  // on récupère les données user/company depuis le service.
+  useEffect(() => {
+    if (isLogged) dispatch(fetchCurrentUser());
+  }, [isLogged, dispatch]);
 
   if (!isLogged)
     return (

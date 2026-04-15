@@ -1,66 +1,32 @@
 import { useState, useEffect } from 'react';
-import { useSelector } from 'react-redux';
-import { FilePlus } from 'lucide-react';
-import Input from '../components/Input';
+import { FilePlus, Building2, User, CalendarDays } from 'lucide-react';
 import Button from '../components/Button';
 import RgpdNotice from '../components/RgpdNotice';
 import GeneratedResult from '../components/GeneratedResult';
-import structureTypes from '../data/structureTypes.json';
+import VoiceTextarea from '../components/VoiceTextarea';
 import StepCard from '../components/Dashboard/StepCard';
 import { generateInterventionReport } from '../services/aiService';
 import { downloadDocx } from '../utils/wordExport';
+import { useCurrentUser } from '../hooks/useCurrentUser';
+import { useSelector } from 'react-redux';
+
+const STORAGE_KEY = 'cr_intervention_draft';
+
+const INTERVENTION_TYPES = [
+  'Visite à domicile',
+  'Entretien individuel',
+  'Entretien famille',
+  'Accompagnement extérieur',
+  'Autre',
+];
 
 const cardClass =
   'rounded-2xl border border-(--border) bg-(--bg-primary) p-5 md:p-8 shadow-sm';
 
-const STORAGE_KEY = 'cr_intervention_draft';
-
-const NOTE_FIELDS = [
-  {
-    key: 'identification',
-    label: "Identification de l'intervention",
-    placeholder: "Ex : VAD éducateur + psychologue, domicile familial, 1h30",
-  },
-  {
-    key: 'contexte',
-    label: 'Contexte et objectif',
-    placeholder: "Ex : Faire le point à domicile, suivi PPA en cours",
-  },
-  {
-    key: 'deroulement',
-    label: 'Déroulement',
-    placeholder: "Ex : Bilan présenté aux parents, tensions autour du coucher",
-  },
-  {
-    key: 'analyse',
-    label: 'Analyse professionnelle',
-    placeholder: "Ex : Difficultés liées à la dynamique familiale",
-  },
-  {
-    key: 'plan',
-    label: "Plan d'actions",
-    placeholder: "Ex : Aide éducative, parents demandeurs, démarches à initier",
-  },
-  {
-    key: 'suivi',
-    label: 'Suivi et indicateurs',
-    placeholder: "Ex : Réévaluation 3 mois, dossier à transmettre",
-  },
-  {
-    key: 'conclusion',
-    label: 'Conclusion',
-    placeholder: "Ex : Prochaine VAD avec accompagnement administratif",
-  },
-];
-
-const EMPTY_NOTES = {
-  identification: '',
-  contexte: '',
-  deroulement: '',
-  analyse: '',
-  plan: '',
-  suivi: '',
-  conclusion: '',
+const ROLE_LABELS = {
+  agent: 'Agent éducatif',
+  direction: 'Directeur / Directrice',
+  admin: 'Administrateur',
 };
 
 function loadDraft() {
@@ -71,53 +37,50 @@ function loadDraft() {
   }
 }
 
+function ContextBadge({ icon: Icon, label, value }) {
+  return (
+    <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-(--bg-tertiary) border border-(--border)">
+      <Icon size={13} className="text-(--text-muted) shrink-0" />
+      <div className="flex flex-col leading-tight">
+        <span className="text-[9px] text-(--text-muted) uppercase tracking-wide">{label}</span>
+        <span className="text-xs font-medium text-(--text-primary)">{value}</span>
+      </div>
+    </div>
+  );
+}
+
 function InterventionReport() {
-  const user = useSelector((state) => state.auth.user);
+  const { fullName, company } = useCurrentUser();
+  const role = useSelector((state) => state.role.role);
   const draft = loadDraft();
 
-  const [structureType, setStructureType] = useState(draft.structureType || '');
-  const [interventionType, setInterventionType] = useState(
-    draft.interventionType || '',
-  );
-  const [reference, setReference] = useState(draft.reference || '');
-  const [date, setDate] = useState(
-    draft.date || new Date().toISOString().slice(0, 10),
-  );
-  const [notes, setNotes] = useState(draft.notes || EMPTY_NOTES);
+  const today = new Date().toISOString().slice(0, 10);
+  const dateLabel = new Intl.DateTimeFormat('fr-FR', {
+    day: '2-digit',
+    month: 'long',
+    year: 'numeric',
+  }).format(new Date());
+
+  const [interventionType, setInterventionType] = useState(draft.interventionType || '');
+  const [transcription, setTranscription] = useState(draft.transcription || '');
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState('');
   const [validated, setValidated] = useState(false);
   const [elapsed, setElapsed] = useState(null);
 
+  // Persistance brouillon
   useEffect(() => {
     localStorage.setItem(
       STORAGE_KEY,
-      JSON.stringify({
-        structureType,
-        interventionType,
-        reference,
-        date,
-        notes,
-      }),
+      JSON.stringify({ interventionType, transcription }),
     );
-  }, [structureType, interventionType, reference, date, notes]);
-
-  const setNote = (key) => (e) =>
-    setNotes((prev) => ({ ...prev, [key]: e.target.value }));
+  }, [interventionType, transcription]);
 
   const handleReset = () => {
-    if (
-      !window.confirm(
-        'Commencer un nouveau rapport ? Les données actuelles seront effacées.',
-      )
-    )
-      return;
+    if (!window.confirm('Commencer un nouveau rapport ? Le brouillon sera effacé.')) return;
     localStorage.removeItem(STORAGE_KEY);
-    setStructureType('');
     setInterventionType('');
-    setReference('');
-    setDate(new Date().toISOString().slice(0, 10));
-    setNotes(EMPTY_NOTES);
+    setTranscription('');
     setResult('');
     setValidated(false);
     setElapsed(null);
@@ -125,6 +88,7 @@ function InterventionReport() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!interventionType || !transcription.trim()) return;
     setLoading(true);
     setResult('');
     setValidated(false);
@@ -132,12 +96,13 @@ function InterventionReport() {
     const start = Date.now();
     try {
       const text = await generateInterventionReport({
-        structureType,
         interventionType,
-        reference,
-        date,
-        notes,
-        educatorName: user?.name,
+        transcription,
+        structureType: company?.type ?? '',
+        companyName: company?.name ?? '',
+        educatorName: fullName,
+        educatorRole: ROLE_LABELS[role] ?? role,
+        date: today,
       });
       setResult(text);
       setElapsed(((Date.now() - start) / 1000).toFixed(1));
@@ -153,9 +118,9 @@ function InterventionReport() {
   const handleWordDownload = () =>
     downloadDocx({
       text: result,
-      reference,
-      date,
-      structureType,
+      reference: '',
+      date: today,
+      structureType: company?.type ?? '',
       interventionType,
     });
 
@@ -165,100 +130,87 @@ function InterventionReport() {
       className="h-full overflow-y-auto py-6 px-2 md:px-5 md:py-8"
     >
       <div className="mx-auto flex w-full max-w-full flex-col gap-6">
-        <form
-          id="cr-form"
-          onSubmit={handleSubmit}
-          className="flex flex-col gap-6"
-        >
-          {/* ── Étape 1 : Contexte ── */}
-          <StepCard step="1" title="Contexte de l'intervention" subtitle="Renseignez le cadre de l'intervention avant de saisir vos notes">
-            <div
-              id="context-fields"
-              className="grid grid-cols-1 sm:grid-cols-2 gap-4"
-            >
-              <Input
-                id="cr-type-structure"
-                label="Type de structure"
-                type="combobox"
-                value={structureType}
-                onChange={setStructureType}
-                placeholder="Rechercher ou sélectionner…"
-                categories={structureTypes.categories}
-                required
+        <form id="cr-form" onSubmit={handleSubmit} className="flex flex-col gap-6">
+
+          {/* ── Étape 1 : Contexte automatique ── */}
+          <StepCard
+            step="1"
+            title="Contexte automatique"
+            subtitle="Rempli depuis votre profil — aucune saisie requise"
+          >
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <ContextBadge
+                icon={Building2}
+                label="Établissement"
+                value={company?.name ?? '—'}
               />
-              <Input
-                id="cr-type-intervention"
-                label="Type d'intervention"
-                type="select"
-                value={interventionType}
-                onChange={setInterventionType}
-                placeholder="Choisir..."
-                options={[
-                  'Visite à domicile',
-                  'Entretien individuel',
-                  'Entretien famille',
-                  'Accompagnement extérieur',
-                  'Autre',
-                ]}
-                required
+              <ContextBadge
+                icon={User}
+                label="Professionnel"
+                value={`${fullName} · ${ROLE_LABELS[role] ?? role}`}
               />
-              <Input
-                id="cr-reference"
-                label="Référence dossier (anonymisé)"
-                type="text"
-                value={reference}
-                onChange={setReference}
-                placeholder="Ex : Réf. 2024-047 ou initiales B.L."
-                hint="⚠️ Pas de nom complet — utilisez une référence ou des initiales."
-              />
-              <Input
-                id="cr-date"
-                label="Date de l'intervention"
-                type="date"
-                value={date}
-                onChange={setDate}
-                max={new Date().toISOString().slice(0, 10)}
+              <ContextBadge
+                icon={CalendarDays}
+                label="Date"
+                value={dateLabel}
               />
             </div>
           </StepCard>
 
-          {/* ── Étape 2 : Notes brutes ── */}
-          <StepCard step="2" title="Vos notes brutes" subtitle="Ce qui s'est passé (saisie libre)">
-            <div
-              id="field-notes"
-              className="rounded-xl bg-(--bg-secondary) border border-(--border) divide-y divide-(--border)/40 px-4"
-            >
-              {NOTE_FIELDS.map(({ key, label, placeholder }) => (
-                <div
-                  key={key}
-                  className="flex flex-col md:flex-row md:items-center md:gap-2 py-3"
+          {/* ── Étape 2 : Type d'intervention ── */}
+          <StepCard
+            step="2"
+            title="Type d'intervention"
+            subtitle="Sélectionnez la nature de l'intervention"
+          >
+            <div className="flex flex-wrap gap-2">
+              {INTERVENTION_TYPES.map((type) => (
+                <button
+                  key={type}
+                  type="button"
+                  onClick={() => setInterventionType(type)}
+                  className={[
+                    'px-4 py-2 rounded-xl text-sm font-medium border transition-all duration-150 cursor-pointer',
+                    interventionType === type
+                      ? 'bg-(--bleu-fonce) text-white border-(--bleu-fonce) shadow-sm'
+                      : 'bg-(--bg-secondary) text-(--text-secondary) border-(--border) hover:border-(--bleu-fonce)/50 hover:text-(--text-primary)',
+                  ].join(' ')}
                 >
-                  <span className="text-[10px] md:text-xs text-(--text-secondary) shrink-0 mb-1 md:mb-0">
-                    {label} :
-                  </span>
-                  <textarea
-                    value={notes[key]}
-                    onChange={setNote(key)}
-                    rows={1}
-                    className="w-full md:flex-1 bg-transparent outline-none text-[12px]! md:text-[14px]! text-(--text-primary) placeholder:text-[10px]! md:placeholder:text-[12px]! placeholder:text-(--text-muted)/60 placeholder:overflow-hidden resize-none overflow-hidden min-w-0 leading-tight"
-                    placeholder={placeholder}
-                    onInput={(e) => {
-                      e.target.style.height = 'auto';
-                      e.target.style.height = e.target.scrollHeight + 'px';
-                    }}
-                  />
-                </div>
+                  {type}
+                </button>
               ))}
+            </div>
+          </StepCard>
+
+          {/* ── Étape 3 : Transcription ── */}
+          <StepCard
+            step="3"
+            title="Transcription"
+            subtitle="Dictez ou saisissez vos notes — l'IA extrait et structure les 7 sections"
+          >
+            <div className="rounded-xl border border-(--border) bg-(--bg-secondary) px-4 py-3 min-h-32">
+              <VoiceTextarea
+                value={transcription}
+                onChange={setTranscription}
+                placeholder="Dictez ou saisissez vos observations, le déroulement, les éléments d'analyse, les suites prévues… L'IA se charge du reste."
+                rows={6}
+                disabled={loading}
+              />
             </div>
             <RgpdNotice message="Vos notes sont anonymisées automatiquement avant d'être envoyées à l'IA. Aucun nom, prénom ou donnée nominative n'est transmis." />
           </StepCard>
 
-          {/* ── Boutons ── */}
+          {/* ── Actions ── */}
           <div
             id="form-actions"
             className="flex flex-row items-center justify-around md:justify-start md:gap-4"
           >
-            <Button type="submit" color="blue" size="lg" disabled={loading}>
+            <Button
+              type="submit"
+              color="blue"
+              size="lg"
+              disabled={loading || !interventionType || !transcription.trim()}
+            >
               {loading ? 'Génération en cours…' : 'Générer le compte rendu'}
             </Button>
             {!loading && !result && (
@@ -288,7 +240,7 @@ function InterventionReport() {
           <div className={`${cardClass} flex items-center gap-4`}>
             <div className="w-5 h-5 rounded-full border-2 border-[#0D66D4] border-t-transparent animate-spin shrink-0" />
             <span className="text-sm text-(--text-secondary)">
-              L'IA structure votre compte rendu…
+              L'IA analyse votre transcription et structure le compte rendu…
             </span>
           </div>
         )}
