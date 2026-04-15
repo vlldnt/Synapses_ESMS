@@ -23,6 +23,15 @@ const INTERVENTION_TYPES = [
   'Autre',
 ];
 
+const LOADING_MESSAGES = [
+  "L'IA analyse votre transcription et structure le compte rendu…",
+  'Analyse en cours : extraction des informations essentielles…',
+  'Mise en forme du compte rendu selon la trame professionnelle…',
+  'Organisation des faits, observations et actions de suivi…',
+  'Verification de la coherence du contenu genere…',
+  'Finalisation du document avant affichage…',
+];
+
 const cardClass =
   'rounded-2xl border border-(--border) bg-(--bg-primary) p-5 md:p-8 shadow-sm';
 
@@ -225,6 +234,7 @@ function InterventionReport() {
   const [result, setResult] = useState('');
   const [validated, setValidated] = useState(false);
   const [elapsed, setElapsed] = useState(null);
+  const [loadingMessageIndex, setLoadingMessageIndex] = useState(0);
 
   // Modèle sélectionné (DEV only — toujours DEFAULT_MODEL en prod)
   const [selectedModelId, setSelectedModelId] = useState(DEFAULT_MODEL);
@@ -244,6 +254,26 @@ function InterventionReport() {
       JSON.stringify({ interventionType, transcription }),
     );
   }, [interventionType, transcription]);
+
+  // Pendant le chargement, alterne un message aléatoire toutes les 2 secondes.
+  useEffect(() => {
+    if (!loading) return undefined;
+
+    setLoadingMessageIndex(Math.floor(Math.random() * LOADING_MESSAGES.length));
+
+    const intervalId = window.setInterval(() => {
+      setLoadingMessageIndex((prev) => {
+        if (LOADING_MESSAGES.length <= 1) return 0;
+        let next = prev;
+        while (next === prev) {
+          next = Math.floor(Math.random() * LOADING_MESSAGES.length);
+        }
+        return next;
+      });
+    }, 2000);
+
+    return () => window.clearInterval(intervalId);
+  }, [loading]);
 
   const handleReset = () => {
     if (!window.confirm('Commencer un nouveau rapport ? Le brouillon sera effacé.')) return;
@@ -408,8 +438,11 @@ function InterventionReport() {
           <div className={`${cardClass} flex items-center gap-4`}>
             <div className="w-5 h-5 rounded-full border-2 border-[#0D66D4] border-t-transparent animate-spin shrink-0" />
             <div className="flex flex-col gap-0.5">
-              <span className="text-sm text-(--text-secondary)">
-                L'IA analyse votre transcription et structure le compte rendu…
+              <span
+                key={loadingMessageIndex}
+                className="text-sm text-(--text-secondary) animate-pulse transition-opacity duration-300"
+              >
+                {LOADING_MESSAGES[loadingMessageIndex]}
               </span>
               {import.meta.env.DEV && (
                 <span className="text-[10px] text-(--text-muted) font-mono">

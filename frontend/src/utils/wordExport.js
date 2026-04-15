@@ -333,6 +333,8 @@ function buildDocumentHeader({ companyName, interventionType, educatorName, date
  * @param {string} [params.structureType]
  * @param {string} [params.companyName]
  * @param {string} [params.educatorName]
+ * @param {string} [params.modelId]
+ * @param {string} [params.modelName]
  */
 export async function downloadDocx({
   text,
@@ -341,12 +343,16 @@ export async function downloadDocx({
   structureType,
   companyName,
   educatorName,
+  modelId,
+  modelName,
 }) {
   const today = date || new Date().toISOString().slice(0, 10);
   const blocks = parseMarkdown(text);
 
   const header = buildDocumentHeader({ companyName, interventionType, educatorName, date });
   const body = blocksToDocx(blocks);
+
+  const usedModel = modelName || modelId || 'mistralai/voxtral-small-24b-2507';
 
   // Mention RGPD en pied de document
   const footer = [
@@ -361,6 +367,14 @@ export async function downloadDocx({
           color: '9CA3AF',
           italics: true,
         }),
+      ],
+    }),
+    new Paragraph({
+      spacing: { before: 20, after: 0 },
+      alignment: AlignmentType.CENTER,
+      children: [
+        new TextRun({ text: 'Genere par modele : ', size: 16, color: '9CA3AF', italics: true }),
+        new TextRun({ text: usedModel, size: 16, color: '6B7280', italics: true, bold: true }),
       ],
     }),
   ];

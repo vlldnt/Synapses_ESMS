@@ -76,6 +76,7 @@ export default function GeneratedResult({
   onValidatedChange,
   onRegenerate,
   validationText,
+  generatedByModel,
   downloadMeta = {},
 }) {
   // ── État local ─────────────────────────────────────────────────────────
@@ -127,7 +128,12 @@ export default function GeneratedResult({
   const handleDownload = async () => {
     setDlState('loading');
     try {
-      await downloadDocx({ text: editedText, ...downloadMeta });
+      await downloadDocx({
+        text: editedText,
+        ...downloadMeta,
+        modelId: downloadMeta.modelId ?? generatedByModel?.id,
+        modelName: downloadMeta.modelName ?? generatedByModel?.name,
+      });
       setDlState('done');
       setTimeout(() => setDlState('idle'), 3000);
     } catch {
@@ -292,6 +298,11 @@ export default function GeneratedResult({
               </div>
             )}
             <WordPreview text={editedText} />
+            {generatedByModel?.id && (
+              <p className="mt-4 text-xs text-(--text-muted) italic">
+                Genere par modele : <strong>{generatedByModel.name || generatedByModel.id}</strong>
+              </p>
+            )}
           </div>
         )}
       </div>
