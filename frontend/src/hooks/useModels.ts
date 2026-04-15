@@ -53,19 +53,19 @@ async function fetchModels(apiKey: string): Promise<OpenRouterModel[]> {
 /**
  * Récupère la liste des modèles OpenRouter disponibles.
  *
- * ⚠️ Mode DEV uniquement. En production, retourne une liste vide.
+ * Disponible en DEV et en production si la clé API est présente.
  * Utilise un cache module-level pour ne faire qu'un seul appel réseau.
  */
 export function useModels(): UseModelsResult {
-  const isDev = import.meta.env.DEV;
   const apiKey = import.meta.env.VITE_OPENROUTER_API_KEY as string | undefined;
+  const canFetch = Boolean(apiKey);
 
   const [models, setModels] = useState<OpenRouterModel[]>(_cache ?? []);
-  const [isLoading, setIsLoading] = useState(isDev && !_cache);
+  const [isLoading, setIsLoading] = useState(canFetch && !_cache);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!isDev || !apiKey || _cache !== null) {
+    if (!apiKey || _cache !== null) {
       setIsLoading(false);
       return;
     }
@@ -74,7 +74,7 @@ export function useModels(): UseModelsResult {
       .then((list) => setModels(list))
       .catch((err: Error) => setError(err.message))
       .finally(() => setIsLoading(false));
-  }, [isDev, apiKey]);
+  }, [apiKey]);
 
   /** Retire le préfixe "Provider: " souvent présent dans les noms OpenRouter */
   const getModelName = (id: string): string => {

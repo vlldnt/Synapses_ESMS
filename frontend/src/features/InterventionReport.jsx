@@ -92,7 +92,7 @@ function ContextBadge({ icon: Icon, label, value }) {
   );
 }
 
-// ─── ModelSelector (DEV uniquement) ───────────────────────────────────────
+// ─── ModelSelector ────────────────────────────────────────────────────────
 
 function ModelSelector({ value, onChange }) {
   const { models, isLoading, getModelName } = useModels();
@@ -108,8 +108,6 @@ function ModelSelector({ value, onChange }) {
     document.addEventListener('mousedown', handler);
     return () => document.removeEventListener('mousedown', handler);
   }, []);
-
-  if (!import.meta.env.DEV) return null;
 
   const filtered = search.trim()
     ? models.filter(
@@ -129,16 +127,12 @@ function ModelSelector({ value, onChange }) {
         onClick={() => setOpen((v) => !v)}
         className={[
           'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium',
-          'border border-amber-300 bg-amber-50 text-amber-800',
-          'dark:border-amber-700 dark:bg-amber-900/20 dark:text-amber-400',
-          'hover:bg-amber-100 dark:hover:bg-amber-900/30 transition-colors cursor-pointer',
+          'border border-(--border) bg-(--bg-primary) text-(--text-secondary)',
+          'hover:bg-(--bg-tertiary) transition-colors cursor-pointer',
           'max-w-[220px]',
         ].join(' ')}
-        title="Changer de modèle IA (mode DEV uniquement)"
+        title="Changer de modèle IA"
       >
-        <span className="shrink-0 text-[9px] font-bold tracking-wide bg-amber-300 dark:bg-amber-700 text-amber-900 dark:text-amber-200 rounded px-1 py-0.5">
-          DEV
-        </span>
         <Cpu size={12} className="shrink-0" />
         <span className="truncate">
           {isLoading ? 'Chargement…' : currentName}
@@ -276,7 +270,7 @@ function InterventionReport() {
   );
   const [archivedCount, setArchivedCount] = useState(getHistory().length);
 
-  // Modèle sélectionné (DEV only — toujours DEFAULT_MODEL en prod)
+  // Modèle sélectionné pour la génération
   const [selectedModelId, setSelectedModelId] = useState(draft.selectedModelId || DEFAULT_MODEL);
   const [selectedModelName, setSelectedModelName] = useState(draft.selectedModelName || 'Voxtral Small 24B');
   // Modèle effectivement utilisé pour la dernière génération
@@ -513,7 +507,7 @@ function InterventionReport() {
               {loading ? 'Génération en cours…' : 'Générer le compte rendu'}
             </Button>
 
-            {/* Sélecteur de modèle — DEV uniquement */}
+            {/* Sélecteur de modèle */}
             <ModelSelector value={selectedModelId} onChange={handleModelChange} />
 
             {/* Feedback timing */}
@@ -551,11 +545,9 @@ function InterventionReport() {
               >
                 {LOADING_MESSAGES[loadingMessageIndex]}
               </span>
-              {import.meta.env.DEV && (
-                <span className="text-[10px] text-(--text-muted) font-mono">
-                  {selectedModelId}
-                </span>
-              )}
+              <span className="text-[10px] text-(--text-muted) font-mono">
+                {selectedModelId}
+              </span>
             </div>
           </div>
         )}
