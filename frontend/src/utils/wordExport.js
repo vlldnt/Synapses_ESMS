@@ -324,7 +324,7 @@ function buildDocumentHeader({ companyName, interventionType, educatorName, date
 // ─── Export principal ─────────────────────────────────────────────────────
 
 /**
- * Génère et télécharge le fichier .docx, puis sauvegarde dans l'historique.
+ * Génère et télécharge le fichier .docx, puis l'ajoute aux archives mock.
  *
  * @param {object} params
  * @param {string} params.text           - Texte Markdown du compte rendu
@@ -335,6 +335,7 @@ function buildDocumentHeader({ companyName, interventionType, educatorName, date
  * @param {string} [params.educatorName]
  * @param {string} [params.modelId]
  * @param {string} [params.modelName]
+ * @param {boolean} [params.addToHistory]
  */
 export async function downloadDocx({
   text,
@@ -345,6 +346,7 @@ export async function downloadDocx({
   educatorName,
   modelId,
   modelName,
+  addToHistory = true,
 }) {
   const today = date || new Date().toISOString().slice(0, 10);
   const blocks = parseMarkdown(text);
@@ -418,13 +420,17 @@ export async function downloadDocx({
   a.click();
   URL.revokeObjectURL(url);
 
-  saveToHistory({
-    text,
-    date: today,
-    interventionType,
-    structureType,
-    companyName,
-    educatorName,
-    filename,
-  });
+  if (addToHistory) {
+    saveToHistory({
+      text,
+      date: today,
+      interventionType,
+      structureType,
+      companyName,
+      educatorName,
+      filename,
+      modelId,
+      modelName,
+    });
+  }
 }

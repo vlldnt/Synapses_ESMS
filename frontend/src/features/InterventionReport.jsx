@@ -12,6 +12,7 @@ import { generateInterventionReport, DEFAULT_MODEL } from '../services/aiService
 import { useCurrentUser } from '../hooks/useCurrentUser';
 import { useModels } from '../hooks/useModels';
 import { useSelector } from 'react-redux';
+import { getHistory } from '../services/historyService';
 
 const STORAGE_KEY = 'cr_intervention_draft';
 
@@ -40,6 +41,34 @@ const ROLE_LABELS = {
   direction: 'Directeur / Directrice',
   admin: 'Administrateur',
 };
+
+const REPORT_STATUS = {
+  DRAFT: 'draft',
+  IN_PROGRESS: 'in_progress',
+  ARCHIVED: 'archived',
+};
+
+const STATUS_META = {
+  [REPORT_STATUS.DRAFT]: {
+    label: 'Brouillon',
+    className: 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300',
+  },
+  [REPORT_STATUS.IN_PROGRESS]: {
+    label: 'En cours',
+    className: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300',
+  },
+  [REPORT_STATUS.ARCHIVED]: {
+    label: 'Archive',
+    className: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300',
+  },
+};
+
+function inferStatus({ interventionType, transcription, result, isArchived }) {
+  if (isArchived) return REPORT_STATUS.ARCHIVED;
+  if (result?.trim()) return REPORT_STATUS.IN_PROGRESS;
+  if (interventionType || transcription?.trim()) return REPORT_STATUS.DRAFT;
+  return REPORT_STATUS.DRAFT;
+}
 
 function loadDraft() {
   try {
@@ -231,29 +260,71 @@ function InterventionReport() {
   const [interventionType, setInterventionType] = useState(draft.interventionType || '');
   const [transcription, setTranscription] = useState(draft.transcription || '');
   const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState('');
-  const [validated, setValidated] = useState(false);
-  const [elapsed, setElapsed] = useState(null);
+  const [result, setResult] = useState(draft.result || '');
+  const [validated, setValidated] = useState(Boolean(draft.validated));
+  const [elapsed, setElapsed] = useState(draft.elapsed || null);
   const [loadingMessageIndex, setLoadingMessageIndex] = useState(0);
+  const [isArchived, setIsArchived] = useState(Boolean(draft.isArchived));
+  const [lastSavedAt, setLastSavedAt] = useState(draft.updatedAt || null);
+  const [reportStatus, setReportStatus] = useState(
+    draft.status || inferStatus({
+      interventionType: draft.interventionType,
+      transcription: draft.transcription,
+      result: draft.result,
+      isArchived: draft.isArchived,
+    }),
+  );
+  const [archivedCount, setArchivedCount] = useState(getHistory().length);
 
   // Modèle sélectionné (DEV only — toujours DEFAULT_MODEL en prod)
-  const [selectedModelId, setSelectedModelId] = useState(DEFAULT_MODEL);
-  const [selectedModelName, setSelectedModelName] = useState('Voxtral Small 24B');
+  const [selectedModelId, setSelectedModelId] = useState(draft.selectedModelId || DEFAULT_MODEL);
+  const [selectedModelName, setSelectedModelName] = useState(draft.selectedModelName || 'Voxtral Small 24B');
   // Modèle effectivement utilisé pour la dernière génération
-  const [usedModel, setUsedModel] = useState(null);
+  const [usedModel, setUsedModel] = useState(draft.usedModel || null);
 
   const handleModelChange = (model) => {
     setSelectedModelId(model.id);
     setSelectedModelName(model.name?.replace(/^[^:]+:\s*/, '') ?? model.id.split('/').pop() ?? model.id);
   };
 
-  // Persistance brouillon
+  // Persistance du rapport en local pour reprise après refresh/fermeture
   useEffect(() => {
+    const nextStatus = inferStatus({
+      interventionType,
+      transcription,
+      result,
+      isArchived,
+    });
+    setReportStatus(nextStatus);
+
     localStorage.setItem(
       STORAGE_KEY,
-      JSON.stringify({ interventionType, transcription }),
+      JSON.stringify({
+        interventionType,
+        transcription,
+        result,
+        validated,
+        elapsed,
+        selectedModelId,
+        selectedModelName,
+        usedModel,
+        isArchived,
+        status: nextStatus,
+        updatedAt: new Date().toISOString(),
+      }),
     );
-  }, [interventionType, transcription]);
+    setLastSavedAt(new Date().toISOString());
+  }, [
+    interventionType,
+    transcription,
+    result,
+    validated,
+    elapsed,
+    selectedModelId,
+    selectedModelName,
+    usedModel,
+    isArchived,
+  ]);
 
   // Pendant le chargement, alterne un message aléatoire toutes les 2 secondes.
   useEffect(() => {
@@ -284,6 +355,14 @@ function InterventionReport() {
     setValidated(false);
     setElapsed(null);
     setUsedModel(null);
+    setIsArchived(false);
+    setReportStatus(REPORT_STATUS.DRAFT);
+  };
+
+  const handleArchived = () => {
+    setIsArchived(true);
+    setReportStatus(REPORT_STATUS.ARCHIVED);
+    setArchivedCount(getHistory().length);
   };
 
   const handleSubmit = async (e) => {
@@ -294,6 +373,8 @@ function InterventionReport() {
     setValidated(false);
     setElapsed(null);
     setUsedModel(null);
+    setIsArchived(false);
+    setReportStatus(REPORT_STATUS.IN_PROGRESS);
     const start = Date.now();
     try {
       const text = await generateInterventionReport({
@@ -309,8 +390,10 @@ function InterventionReport() {
       setResult(text);
       setUsedModel({ id: selectedModelId, name: selectedModelName });
       setElapsed(((Date.now() - start) / 1000).toFixed(1));
+      setReportStatus(REPORT_STATUS.IN_PROGRESS);
     } catch (err) {
       setResult(`Erreur : ${err.message}`);
+      setReportStatus(REPORT_STATUS.DRAFT);
     } finally {
       setLoading(false);
     }
@@ -322,6 +405,30 @@ function InterventionReport() {
       className="h-full overflow-y-auto py-6 px-2 md:px-5 md:py-8"
     >
       <div className="mx-auto flex w-full max-w-full flex-col gap-6">
+        <div className={`${cardClass} py-4 md:py-5`}>
+          <div className="flex flex-wrap items-center gap-3">
+            <span className="text-sm font-medium text-(--text-secondary)">Statut du rapport :</span>
+            <span
+              className={[
+                'inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold',
+                STATUS_META[reportStatus]?.className,
+              ].join(' ')}
+            >
+              {STATUS_META[reportStatus]?.label}
+            </span>
+            <span className="text-xs text-(--text-muted)">
+              Archives: {archivedCount}
+            </span>
+            {lastSavedAt && (
+              <span className="text-xs text-(--text-muted)">
+                Derniere reprise locale: {new Intl.DateTimeFormat('fr-FR', {
+                  day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit',
+                }).format(new Date(lastSavedAt))}
+              </span>
+            )}
+          </div>
+        </div>
+
         <form id="cr-form" onSubmit={handleSubmit} className="flex flex-col gap-6">
 
           {/* ── Étape 1 : Contexte automatique ── */}
@@ -462,6 +569,7 @@ function InterventionReport() {
             validated={validated}
             onValidatedChange={setValidated}
             onRegenerate={() => handleSubmit({ preventDefault: () => {} })}
+            onArchived={handleArchived}
             validationText="Je confirme avoir relu, vérifié et, si besoin, corrigé ce compte rendu. Je reste l'auteur et le responsable de ce document. L'IA est un outil d'assistance, non un substitut au jugement professionnel."
             generatedByModel={usedModel}
             downloadMeta={{

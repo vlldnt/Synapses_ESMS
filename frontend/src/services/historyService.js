@@ -1,4 +1,6 @@
-const STORAGE_KEY = 'synapses_history';
+import mockArchive from '../data/historyArchive.json';
+
+const mockDb = [...mockArchive];
 
 /**
  * @typedef {object} HistoryEntry
@@ -21,33 +23,38 @@ export function saveToHistory({
   companyName,
   educatorName,
   filename,
+  reference,
+  modelId,
+  modelName,
 }) {
-  const existing = getHistory();
-  /** @type {HistoryEntry} */
+  /** @type {HistoryEntry & { status: string, reference?: string, modelId?: string, modelName?: string }} */
   const entry = {
     id: Date.now(),
+    status: 'archived',
     filename: filename || `CR_${date || 'intervention'}.docx`,
     date: date || new Date().toISOString().slice(0, 10),
     interventionType: interventionType || '—',
     structureType: structureType || '—',
     companyName: companyName || '—',
     educatorName: educatorName || '—',
-    text,
+    reference: reference || '—',
+    modelId: modelId || 'mistralai/voxtral-small-24b-2507',
+    modelName: modelName || 'Voxtral Small 24B',
+    text: text || '',
     createdAt: new Date().toISOString(),
   };
-  localStorage.setItem(STORAGE_KEY, JSON.stringify([entry, ...existing]));
+
+  mockDb.unshift(entry);
 }
 
 /** @returns {HistoryEntry[]} */
 export function getHistory() {
-  try {
-    return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
-  } catch {
-    return [];
-  }
+  return [...mockDb].sort(
+    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+  );
 }
 
 export function deleteFromHistory(id) {
-  const updated = getHistory().filter((e) => e.id !== id);
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+  const index = mockDb.findIndex((entry) => entry.id === id);
+  if (index >= 0) mockDb.splice(index, 1);
 }

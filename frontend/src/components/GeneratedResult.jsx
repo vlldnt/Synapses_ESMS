@@ -75,6 +75,7 @@ export default function GeneratedResult({
   validated,
   onValidatedChange,
   onRegenerate,
+  onArchived,
   validationText,
   generatedByModel,
   downloadMeta = {},
@@ -134,6 +135,7 @@ export default function GeneratedResult({
         modelId: downloadMeta.modelId ?? generatedByModel?.id,
         modelName: downloadMeta.modelName ?? generatedByModel?.name,
       });
+      onArchived?.();
       setDlState('done');
       setTimeout(() => setDlState('idle'), 3000);
     } catch {
@@ -226,15 +228,17 @@ export default function GeneratedResult({
           />
 
           {/* Télécharger Word */}
-          <ActionButton
-            onClick={handleDownload}
-            loading={dlState === 'loading'}
-            icon={dlState === 'done' ? Check : FileDown}
-            loadingIcon={Loader2}
-            label={dlState === 'loading' ? 'Génération…' : dlState === 'done' ? 'Téléchargé !' : 'Word'}
-            variant={dlState === 'done' ? 'success' : 'blue'}
-            title="Télécharger en format Word (.docx)"
-          />
+          {validated && (
+            <ActionButton
+              onClick={handleDownload}
+              loading={dlState === 'loading'}
+              icon={dlState === 'done' ? Check : FileDown}
+              loadingIcon={Loader2}
+              label={dlState === 'loading' ? 'Génération…' : dlState === 'done' ? 'Téléchargé !' : 'Word'}
+              variant={dlState === 'done' ? 'success' : 'blue'}
+              title="Télécharger en format Word (.docx)"
+            />
+          )}
         </div>
       </div>
 
