@@ -1,0 +1,27 @@
+# Context local — non versionné
+CONTEXT_APP.MD
+
+# Dependencies
+frontend/node_modules/
+
+# Build output
+frontend/dist/
+
+# Environment variables
+frontend/.env
+frontend/.env.local
+frontend/.env.*.local
+
+# Logs
+*.log
+npm-debug.log*
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
