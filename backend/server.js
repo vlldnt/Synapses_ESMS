@@ -10,6 +10,23 @@ const PORT = 3001;
 app.use(cors());
 app.use(express.json({ limit: '50mb' }));
 
+// Logger middleware
+app.use((req, res, next) => {
+  console.log(`\n📨 [${new Date().toLocaleTimeString()}] ${req.method} ${req.path}`);
+  if (req.method === 'POST' || req.method === 'PUT') {
+    console.log('  Body:', JSON.stringify(req.body, null, 2).substring(0, 500) + '...');
+  }
+
+  // Capturer la réponse
+  const originalJson = res.json;
+  res.json = function(data) {
+    console.log(`  ✅ Response: ${res.statusCode}`, JSON.stringify(data).substring(0, 200) + '...');
+    return originalJson.call(this, data);
+  };
+
+  next();
+});
+
 // Chemin du fichier d'archives
 const archivePath = path.join(__dirname, 'data', 'historyArchive.json');
 

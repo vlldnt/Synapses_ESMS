@@ -9,6 +9,8 @@ const BACKEND_URL = 'http://localhost:3001/api/archive';
  */
 export async function saveArchiveToBackend(archiveData) {
   try {
+    console.log('📤 Envoi vers backend:', BACKEND_URL, archiveData);
+
     const response = await fetch(`${BACKEND_URL}/save`, {
       method: 'POST',
       headers: {
@@ -17,14 +19,17 @@ export async function saveArchiveToBackend(archiveData) {
       body: JSON.stringify(archiveData),
     });
 
+    console.log('📥 Réponse du backend:', response.status, response.statusText);
+
     if (!response.ok) {
       throw new Error(`Erreur ${response.status}: ${response.statusText}`);
     }
 
     const result = await response.json();
-    console.log('✓ Archive sauvegardée au backend:', result);
+    console.log('✅ Archive sauvegardée au backend:', result);
     return result;
   } catch (err) {
+    console.error('❌ Erreur backend:', err.message);
     console.warn('⚠️ Backend non disponible, sauvegarde en localStorage:', err.message);
     // Fallback: sauvegarder en localStorage si le backend n'est pas disponible
     return { success: false, fallback: true, error: err.message };

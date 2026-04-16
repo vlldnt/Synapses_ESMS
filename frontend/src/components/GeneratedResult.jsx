@@ -131,23 +131,31 @@ export default function GeneratedResult({
   };
 
   const handleDownload = async (skipArchive = false) => {
+    console.log('🔵 handleDownload appelée avec skipArchive:', skipArchive);
     setDlState('loading');
     try {
+      console.log('🔵 Appel downloadDocx...');
       const result = await downloadDocx({
         text: editedText,
         ...downloadMeta,
         modelId: downloadMeta.modelId ?? generatedByModel?.id,
         modelName: downloadMeta.modelName ?? generatedByModel?.name,
       });
+      console.log('🔵 downloadDocx retourné:', result);
 
       // Convertir le blob en base64
       return new Promise((resolve) => {
         const reader = new FileReader();
         reader.onload = () => {
+          console.log('🔵 FileReader.onload déclenché');
           const base64String = reader.result.split(',')[1];
+          console.log('🔵 Base64 créée, longueur:', base64String.length);
 
           // Sauvegarder aux archives si ce n'est pas depuis le modal
+          console.log('🔵 Vérification condition: !skipArchive =', !skipArchive);
           if (!skipArchive) {
+            console.log('🔄 Sauvegarde de l\'archive en cours...');
+
             const archiveData = {
               id: Date.now(),
               status: 'archived',
@@ -157,22 +165,36 @@ export default function GeneratedResult({
               structureType: result.structureType,
               companyName: result.companyName,
               educatorName: result.educatorName,
+              childName: downloadMeta.childName || '',
               modelId: result.modelId,
               modelName: result.modelName,
               text: editedText,
-              docxBase64: base64String,
+              docxBase64: base64String, // Base64 COMPLET du DOCX
               createdAt: new Date().toISOString(),
             };
 
-            // Sauvegarder en localStorage (fallback)
-            saveToHistory(archiveData);
-
-            // Sauvegarder au backend
-            saveArchiveToBackend(archiveData).catch((err) => {
-              console.warn('Archive sauvegardée localement (backend indisponible):', err);
+            console.log('💾 Données à archiver (base64 length:', archiveData.docxBase64.length, '):', {
+              ...archiveData,
+              docxBase64: archiveData.docxBase64.substring(0, 50) + '...' // Afficher juste pour le debug
             });
 
+            // Sauvegarder en localStorage (fallback)
+            console.log('🔵 Appel saveToHistory...');
+            saveToHistory(archiveData);
+            console.log('✅ Sauvegardé en localStorage');
+
+            // Sauvegarder au backend
+            console.log('🔵 Appel saveArchiveToBackend...');
+            saveArchiveToBackend(archiveData).then((result) => {
+              console.log('🎉 Résultat backend:', result);
+            }).catch((err) => {
+              console.error('❌ Erreur archivage backend:', err);
+            });
+
+            console.log('🔵 Appel onArchived...');
             onArchived?.();
+          } else {
+            console.log('🔵 skipArchive est true, pas d\'archivage');
           }
 
           // Montrer le modal de succès
@@ -286,7 +308,7 @@ export default function GeneratedResult({
           {/* Télécharger Word */}
           {validated && (
             <ActionButton
-              onClick={handleDownload}
+              onClick={() => handleDownload()}
               loading={dlState === 'loading'}
               icon={dlState === 'done' ? Check : FileDown}
               loadingIcon={Loader2}
@@ -407,7 +429,7 @@ export default function GeneratedResult({
             </div>
             <div className="shrink-0 flex items-center gap-1.5">
               <ActionButton
-                onClick={handleDownload}
+                onClick={() => handleDownload()}
                 loading={dlState === 'loading'}
                 icon={dlState === 'done' ? Check : FileDown}
                 loadingIcon={Loader2}

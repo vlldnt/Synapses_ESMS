@@ -163,6 +163,10 @@ function InterventionReport() {
     });
     setReportStatus(nextStatus);
 
+    // Récupérer le nom de l'enfant sélectionné
+    const selectedChild = children.find((c) => c.id === selectedChildId);
+    const childName = selectedChild ? formatChildName(selectedChild) : '';
+
     localStorage.setItem(
       STORAGE_KEY,
       JSON.stringify({
@@ -178,6 +182,9 @@ function InterventionReport() {
         isArchived,
         status: nextStatus,
         updatedAt: new Date().toISOString(),
+        // Ajouter les infos de contexte pour l'affichage du brouillon
+        structureType: company?.type ?? '',
+        childName: childName, // Nom de l'enfant au lieu du professionnel
       }),
     );
     setLastSavedAt(new Date().toISOString());
@@ -234,25 +241,20 @@ function InterventionReport() {
   };
 
   const handleArchived = () => {
-    setIsArchived(true);
-    setReportStatus(REPORT_STATUS.ARCHIVED);
-    setArchivedCount(getHistory().length);
-
-    // Nettoyer le brouillon du localStorage une fois archivé
+    // Nettoyer le brouillon du localStorage IMMÉDIATEMENT
     localStorage.removeItem(STORAGE_KEY);
 
-    // Vider tous les states du rapport après un court délai
-    setTimeout(() => {
-      setInterventionType('');
-      setSelectedChildId('');
-      setTranscription('');
-      setResult('');
-      setValidated(false);
-      setElapsed(null);
-      setUsedModel(null);
-      setIsArchived(false);
-      setReportStatus(REPORT_STATUS.DRAFT);
-    }, 1500);
+    // Vider tous les states du rapport IMMÉDIATEMENT
+    setInterventionType('');
+    setSelectedChildId('');
+    setTranscription('');
+    setResult('');
+    setValidated(false);
+    setElapsed(null);
+    setUsedModel(null);
+    setIsArchived(false);
+    setReportStatus(REPORT_STATUS.DRAFT);
+    setArchivedCount(getHistory().length);
   };
 
   const handleSubmit = async (e) => {
@@ -531,6 +533,9 @@ function InterventionReport() {
               structureType: company?.type ?? '',
               companyName: company?.name ?? '',
               educatorName: fullName,
+              childName: selectedChildId
+                ? formatChildName(children.find((c) => c.id === selectedChildId) || {})
+                : '',
               date: today,
               modelId: usedModel?.id,
               modelName: usedModel?.name,

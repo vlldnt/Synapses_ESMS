@@ -38,7 +38,8 @@ function History() {
     return backendArchives.length > 0 ? backendArchives : localHistory;
   }, [backendArchives]);
 
-  const draft = useMemo(() => getDraft(), []);
+  // Recharger le brouillon à chaque render (pas de useMemo!)
+  const draft = getDraft();
   const hasDraft = Boolean(draft?.transcription?.trim() || draft?.interventionType || draft?.result?.trim());
   const draftStatus = draft?.result?.trim() ? 'En cours' : 'Brouillon';
 
@@ -97,10 +98,17 @@ function History() {
               </span>
               <div className="min-w-0 flex-1">
                 <p className="text-sm font-semibold text-(--text-primary) truncate">
-                  {draft?.interventionType || 'Compte rendu en preparation'}
+                  {draft?.structureType && draft?.educatorName
+                    ? formatReportName({
+                        structureType: draft.structureType,
+                        educatorName: draft.educatorName,
+                        date: new Date().toISOString().slice(0, 10),
+                      })
+                    : draft?.interventionType || 'Compte rendu en preparation'
+                  }
                 </p>
                 <p className="text-xs text-(--text-muted) truncate">
-                  Texte deja saisi conserve · reprise possible sans perte
+                  {draft?.interventionType} · Texte deja saisi conserve
                 </p>
               </div>
               <span className="text-[10px] px-2 py-1 rounded-full bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300">
