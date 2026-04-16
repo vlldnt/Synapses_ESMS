@@ -4,7 +4,7 @@
  * Utilise le nom de l'enfant si disponible, sinon le nom du professionnel
  */
 export function formatReportName(entry) {
-  const structureType = entry.structureType || 'DOC';
+  const structureType = entry.reportType || 'Rapport';
 
   // Priorité au nom de l'enfant, sinon au nom du professionnel
   const nameToFormat = entry.childName || entry.educatorName || '';

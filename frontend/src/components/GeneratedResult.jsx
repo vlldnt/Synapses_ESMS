@@ -131,38 +131,30 @@ export default function GeneratedResult({
   };
 
   const handleDownload = async (skipArchive = false) => {
-    console.log('🔵 handleDownload appelée avec skipArchive:', skipArchive);
     setDlState('loading');
     try {
-      console.log('🔵 Appel downloadDocx...');
       const result = await downloadDocx({
         text: editedText,
         ...downloadMeta,
         modelId: downloadMeta.modelId ?? generatedByModel?.id,
         modelName: downloadMeta.modelName ?? generatedByModel?.name,
       });
-      console.log('🔵 downloadDocx retourné:', result);
 
       // Convertir le blob en base64
       return new Promise((resolve) => {
         const reader = new FileReader();
         reader.onload = () => {
-          console.log('🔵 FileReader.onload déclenché');
           const base64String = reader.result.split(',')[1];
-          console.log('🔵 Base64 créée, longueur:', base64String.length);
 
           // Sauvegarder aux archives si ce n'est pas depuis le modal
-          console.log('🔵 Vérification condition: !skipArchive =', !skipArchive);
           if (!skipArchive) {
-            console.log('🔄 Sauvegarde de l\'archive en cours...');
-
             const archiveData = {
               id: Date.now(),
               status: 'archived',
               filename: result.filename,
               date: result.date,
               interventionType: result.interventionType,
-              structureType: result.structureType,
+              reportType: 'CRI',
               companyName: result.companyName,
               educatorName: result.educatorName,
               childName: downloadMeta.childName || '',
@@ -173,28 +165,15 @@ export default function GeneratedResult({
               createdAt: new Date().toISOString(),
             };
 
-            console.log('💾 Données à archiver (base64 length:', archiveData.docxBase64.length, '):', {
-              ...archiveData,
-              docxBase64: archiveData.docxBase64.substring(0, 50) + '...' // Afficher juste pour le debug
-            });
-
             // Sauvegarder en localStorage (fallback)
-            console.log('🔵 Appel saveToHistory...');
             saveToHistory(archiveData);
-            console.log('✅ Sauvegardé en localStorage');
 
             // Sauvegarder au backend
-            console.log('🔵 Appel saveArchiveToBackend...');
-            saveArchiveToBackend(archiveData).then((result) => {
-              console.log('🎉 Résultat backend:', result);
-            }).catch((err) => {
-              console.error('❌ Erreur archivage backend:', err);
+            saveArchiveToBackend(archiveData).catch((err) => {
+              console.error('Erreur archivage backend:', err);
             });
 
-            console.log('🔵 Appel onArchived...');
             onArchived?.();
-          } else {
-            console.log('🔵 skipArchive est true, pas d\'archivage');
           }
 
           // Montrer le modal de succès
@@ -215,7 +194,6 @@ export default function GeneratedResult({
         reader.readAsDataURL(result.blob);
       });
     } catch (err) {
-      console.error('Erreur lors du téléchargement:', err);
       setShowSuccessModal(false);
       setDlState('idle');
     }

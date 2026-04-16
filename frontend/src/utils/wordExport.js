@@ -407,9 +407,9 @@ export async function downloadDocx({
 
   const blob = await Packer.toBlob(doc);
 
-  // Format: TYPE_Prenom_NomInitiale-Date(format FR).docx
+  // Format: CRI_Prenom_NomInitiale-Date(format FR).docx
   // Ex: CRI_Adrien_V-16-04-2026.docx
-  const typePrefix = structureType || 'DOC';
+  const typePrefix = 'CRI';
   const nameParts = educatorName?.split(/\s+/) || [];
   const firstName = nameParts[0] || '';
   const lastNameInitial = nameParts.length > 1 ? nameParts[nameParts.length - 1][0].toUpperCase() : '';

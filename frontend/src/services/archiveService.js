@@ -9,8 +9,6 @@ const BACKEND_URL = 'http://localhost:3001/api/archive';
  */
 export async function saveArchiveToBackend(archiveData) {
   try {
-    console.log('📤 Envoi vers backend:', BACKEND_URL, archiveData);
-
     const response = await fetch(`${BACKEND_URL}/save`, {
       method: 'POST',
       headers: {
@@ -19,14 +17,11 @@ export async function saveArchiveToBackend(archiveData) {
       body: JSON.stringify(archiveData),
     });
 
-    console.log('📥 Réponse du backend:', response.status, response.statusText);
-
     if (!response.ok) {
       throw new Error(`Erreur ${response.status}: ${response.statusText}`);
     }
 
     const result = await response.json();
-    console.log('✅ Archive sauvegardée au backend:', result);
     return result;
   } catch (err) {
     console.error('❌ Erreur backend:', err.message);
@@ -67,7 +62,6 @@ export async function deleteArchiveFromBackend(id) {
       throw new Error(`Erreur ${response.status}`);
     }
 
-    console.log('✓ Archive supprimée du backend');
     return await response.json();
   } catch (err) {
     console.warn('⚠️ Erreur suppression:', err.message);

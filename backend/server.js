@@ -12,15 +12,9 @@ app.use(express.json({ limit: '50mb' }));
 
 // Logger middleware
 app.use((req, res, next) => {
-  console.log(`\n📨 [${new Date().toLocaleTimeString()}] ${req.method} ${req.path}`);
-  if (req.method === 'POST' || req.method === 'PUT') {
-    console.log('  Body:', JSON.stringify(req.body, null, 2).substring(0, 500) + '...');
-  }
-
-  // Capturer la réponse
   const originalJson = res.json;
   res.json = function(data) {
-    console.log(`  ✅ Response: ${res.statusCode}`, JSON.stringify(data).substring(0, 200) + '...');
+    console.log(`[${new Date().toLocaleTimeString()}] ${req.method} ${req.path} - Response: ${res.statusCode}`);
     return originalJson.call(this, data);
   };
 
@@ -118,6 +112,5 @@ app.get('/health', (req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`🚀 Serveur ESMS lancé sur http://localhost:${PORT}`);
-  console.log(`📁 Archives stockées dans: ${archivePath}`);
+  console.log(`Server running on http://localhost:${PORT}`);
 });

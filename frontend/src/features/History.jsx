@@ -26,9 +26,17 @@ function History() {
 
   // Charger les archives du backend au montage
   useEffect(() => {
+    let isMounted = true;
+
     getArchivesFromBackend().then((archives) => {
-      setBackendArchives(archives);
+      if (isMounted) {
+        setBackendArchives(archives);
+      }
     });
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   // Combiner les archives du backend avec celles du localStorage
@@ -62,7 +70,6 @@ function History() {
           text: selectedEntry.text,
           date: selectedEntry.date,
           interventionType: selectedEntry.interventionType,
-          structureType: selectedEntry.structureType,
           companyName: selectedEntry.companyName,
           educatorName: selectedEntry.educatorName,
           modelId: selectedEntry.modelId,
