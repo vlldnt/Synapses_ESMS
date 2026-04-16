@@ -53,7 +53,7 @@ function DashboardAgents() {
           const active = isTabActive(agent);
           const tab = (
             <span
-              className={`h-full inline-flex items-center px-4 text-xs font-medium whitespace-nowrap transition-all duration-150 ${
+              className={`h-full inline-flex items-center px-4 text-sm font-semibold whitespace-nowrap transition-all duration-150 ${
                 active
                   ? 'bg-(--bleu-fonce)/10 text-(--bleu-fonce) border-b-2 border-(--bleu-fonce)'
                   : agent.to

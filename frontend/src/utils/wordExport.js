@@ -146,6 +146,7 @@ function parseMarkdown(text) {
 
 function buildDocxTable({ headers, rows }) {
   const colCount = headers.length || 1;
+  // Largeur en twips pour chaque colonne
   const colWidth = Math.floor(PAGE_WIDTH_TWIPS / colCount);
 
   const headerRow = new TableRow({
@@ -155,12 +156,14 @@ function buildDocxTable({ headers, rows }) {
         width: { size: colWidth, type: WidthType.DXA },
         borders: CELL_BORDERS,
         shading: { type: ShadingType.SOLID, fill: BRAND_BLUE_BG, color: BRAND_BLUE_BG },
+        margins: { top: 60, bottom: 60, left: 80, right: 80 },
+        verticalAlign: 'center',
         children: [
           new Paragraph({
             alignment: AlignmentType.CENTER,
-            spacing: { before: 80, after: 80 },
+            spacing: { before: 40, after: 40 },
             children: [
-              new TextRun({ text: h, bold: true, size: 18, color: BRAND_BLUE }),
+              new TextRun({ text: h, bold: true, size: 16, color: BRAND_BLUE }),
             ],
           }),
         ],
@@ -174,14 +177,17 @@ function buildDocxTable({ headers, rows }) {
         new TableCell({
           width: { size: colWidth, type: WidthType.DXA },
           borders: CELL_BORDERS,
+          margins: { top: 60, bottom: 60, left: 80, right: 80 },
+          verticalAlign: 'top',
           shading:
             ri % 2 === 1
               ? { type: ShadingType.SOLID, fill: ALT_ROW_BG, color: ALT_ROW_BG }
               : undefined,
           children: [
             new Paragraph({
-              spacing: { before: 80, after: 80 },
-              children: inlineRuns(cell, 18),
+              spacing: { before: 40, after: 40 },
+              alignment: AlignmentType.LEFT,
+              children: inlineRuns(cell, 13),
             }),
           ],
         }),
@@ -274,7 +280,7 @@ function blocksToDocx(blocks) {
 
 // ─── En-tête professionnel du document ───────────────────────────────────
 
-function buildDocumentHeader({ companyName, interventionType, educatorName, date }) {
+function buildDocumentHeader({ companyName, interventionType, educatorName, date, modelName, modelId }) {
   const formattedDate = date
     ? new Intl.DateTimeFormat('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' })
         .format(new Date(date))
@@ -312,10 +318,25 @@ function buildDocumentHeader({ companyName, interventionType, educatorName, date
         ] : []),
       ],
     }),
+    // Modèle utilisé
+    ...(modelName || modelId ? [
+      new Paragraph({
+        alignment: AlignmentType.CENTER,
+        spacing: { before: 0, after: 80 },
+        children: [
+          new TextRun({
+            text: `Assisté par IA · ${modelName || modelId}`,
+            size: 16,
+            color: '9CA3AF',
+            italics: true,
+          }),
+        ],
+      }),
+    ] : []),
     // Séparateur
     new Paragraph({
       border: { bottom: { style: BorderStyle.SINGLE, size: 8, color: BRAND_BLUE } },
-      spacing: { before: 80, after: 240 },
+      spacing: { before: 80, after: 120 },
       text: '',
     }),
   ];
@@ -351,35 +372,10 @@ export async function downloadDocx({
   const today = date || new Date().toISOString().slice(0, 10);
   const blocks = parseMarkdown(text);
 
-  const header = buildDocumentHeader({ companyName, interventionType, educatorName, date });
+  const header = buildDocumentHeader({ companyName, interventionType, educatorName, date, modelName, modelId });
   const body = blocksToDocx(blocks);
 
-  const usedModel = modelName || modelId || 'mistralai/voxtral-small-24b-2507';
-
-  // Mention RGPD en pied de document
-  const footer = [
-    new Paragraph({
-      border: { top: { style: BorderStyle.SINGLE, size: 4, color: 'E5E7EB' } },
-      spacing: { before: 320, after: 80 },
-      alignment: AlignmentType.CENTER,
-      children: [
-        new TextRun({
-          text: 'Rédigé avec l\'aide de l\'IA · Validation humaine obligatoire avant diffusion · Conforme RGPD',
-          size: 16,
-          color: '9CA3AF',
-          italics: true,
-        }),
-      ],
-    }),
-    new Paragraph({
-      spacing: { before: 20, after: 0 },
-      alignment: AlignmentType.CENTER,
-      children: [
-        new TextRun({ text: 'Genere par modele : ', size: 16, color: '9CA3AF', italics: true }),
-        new TextRun({ text: usedModel, size: 16, color: '6B7280', italics: true, bold: true }),
-      ],
-    }),
-  ];
+  // Pas de footer - le document s'arrête à la conclusion
 
   const doc = new Document({
     styles: {
@@ -404,33 +400,49 @@ export async function downloadDocx({
             margin: { top: 1134, right: 1134, bottom: 1134, left: 1134 },
           },
         },
-        children: [...header, ...body, ...footer],
+        children: [...header, ...body],
       },
     ],
   });
 
   const blob = await Packer.toBlob(doc);
-  const slug = (companyName || 'CR').replace(/\s+/g, '-').slice(0, 30);
-  const filename = `CR_${slug}_${today}.docx`;
 
+  // Format: TYPE_Prenom_NomInitiale-Date(format FR).docx
+  // Ex: CRI_Adrien_V-16-04-2026.docx
+  const typePrefix = structureType || 'DOC';
+  const nameParts = educatorName?.split(/\s+/) || [];
+  const firstName = nameParts[0] || '';
+  const lastNameInitial = nameParts.length > 1 ? nameParts[nameParts.length - 1][0].toUpperCase() : '';
+
+  // Convertir la date en format français JJ-MM-YYYY
+  const [year, month, day] = today.split('-');
+  const dateFR = `${day}-${month}-${year}`;
+
+  const filename = `${typePrefix}_${firstName}_${lastNameInitial}-${dateFR}.docx`;
+
+  // Retourner le blob et le filename pour que le caller gère le téléchargement et la sauvegarde
+  return {
+    blob,
+    filename,
+    date: today,
+    text,
+    interventionType,
+    structureType,
+    companyName,
+    educatorName,
+    modelId,
+    modelName,
+  };
+}
+
+/**
+ * Télécharge un fichier (blob) avec le nom spécifié
+ */
+export function triggerDownload(blob, filename) {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
   a.download = filename;
   a.click();
   URL.revokeObjectURL(url);
-
-  if (addToHistory) {
-    saveToHistory({
-      text,
-      date: today,
-      interventionType,
-      structureType,
-      companyName,
-      educatorName,
-      filename,
-      modelId,
-      modelName,
-    });
-  }
 }

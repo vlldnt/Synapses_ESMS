@@ -1,10 +1,12 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FileText, Download, X, Clock3 } from 'lucide-react';
 import Button from '../components/Button';
 import WordPreview from '../components/WordPreview';
 import { getHistory } from '../services/historyService';
-import { downloadDocx } from '../utils/wordExport';
+import { downloadDocx, triggerDownload } from '../utils/wordExport';
+import { formatReportName } from '../utils/reportNameFormatter';
+import { getArchivesFromBackend } from '../services/archiveService';
 
 const DRAFT_STORAGE_KEY = 'cr_intervention_draft';
 
@@ -20,8 +22,22 @@ function History() {
   const navigate = useNavigate();
   const [selectedEntry, setSelectedEntry] = useState(null);
   const [isDownloading, setIsDownloading] = useState(false);
+  const [backendArchives, setBackendArchives] = useState([]);
 
-  const history = useMemo(() => getHistory(), []);
+  // Charger les archives du backend au montage
+  useEffect(() => {
+    getArchivesFromBackend().then((archives) => {
+      setBackendArchives(archives);
+    });
+  }, []);
+
+  // Combiner les archives du backend avec celles du localStorage
+  const history = useMemo(() => {
+    const localHistory = getHistory();
+    // Prioriser les archives du backend
+    return backendArchives.length > 0 ? backendArchives : localHistory;
+  }, [backendArchives]);
+
   const draft = useMemo(() => getDraft(), []);
   const hasDraft = Boolean(draft?.transcription?.trim() || draft?.interventionType || draft?.result?.trim());
   const draftStatus = draft?.result?.trim() ? 'En cours' : 'Brouillon';
@@ -30,17 +46,29 @@ function History() {
     if (!selectedEntry) return;
     setIsDownloading(true);
     try {
-      await downloadDocx({
-        text: selectedEntry.text,
-        date: selectedEntry.date,
-        interventionType: selectedEntry.interventionType,
-        structureType: selectedEntry.structureType,
-        companyName: selectedEntry.companyName,
-        educatorName: selectedEntry.educatorName,
-        modelId: selectedEntry.modelId,
-        modelName: selectedEntry.modelName,
-        addToHistory: false,
-      });
+      // Si on a le docxBase64 stocké, l'utiliser directement
+      if (selectedEntry.docxBase64) {
+        const binaryString = atob(selectedEntry.docxBase64);
+        const bytes = new Uint8Array(binaryString.length);
+        for (let i = 0; i < binaryString.length; i++) {
+          bytes[i] = binaryString.charCodeAt(i);
+        }
+        const blob = new Blob([bytes], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
+        triggerDownload(blob, selectedEntry.filename);
+      } else {
+        // Sinon, régénérer depuis le texte Markdown
+        const result = await downloadDocx({
+          text: selectedEntry.text,
+          date: selectedEntry.date,
+          interventionType: selectedEntry.interventionType,
+          structureType: selectedEntry.structureType,
+          companyName: selectedEntry.companyName,
+          educatorName: selectedEntry.educatorName,
+          modelId: selectedEntry.modelId,
+          modelName: selectedEntry.modelName,
+        });
+        triggerDownload(result.blob, result.filename);
+      }
     } finally {
       setIsDownloading(false);
     }
@@ -108,12 +136,10 @@ function History() {
                   </span>
                   <div className="min-w-0 flex-1">
                     <p className="text-sm font-semibold text-(--text-primary) truncate">
-                      {entry.interventionType || 'Compte rendu'}
+                      {formatReportName(entry)}
                     </p>
                     <p className="text-xs text-(--text-muted) truncate">
-                      {entry.companyName} · {entry.structureType} · {new Intl.DateTimeFormat('fr-FR', {
-                        day: '2-digit', month: '2-digit', year: 'numeric',
-                      }).format(new Date(entry.date || entry.createdAt))}
+                      {entry.interventionType} • {entry.companyName}
                     </p>
                   </div>
                   <span className="text-[10px] px-2 py-1 rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300">
@@ -132,7 +158,7 @@ function History() {
             <div className="px-4 py-3 border-b border-(--border) flex items-center gap-3">
               <div className="min-w-0 flex-1">
                 <p className="text-sm font-semibold text-(--text-primary) truncate">
-                  {selectedEntry.filename}
+                  {formatReportName(selectedEntry)}
                 </p>
                 <p className="text-xs text-(--text-muted) truncate">
                   Apercu en lecture seule · telechargement uniquement

@@ -1,6 +1,15 @@
 import mockArchive from '../data/historyArchive.json';
 
-const mockDb = [...mockArchive];
+const HISTORY_STORAGE_KEY = 'synapses_archived_reports';
+
+// Initialiser mockDb avec les données de historyArchive.json + localStorage
+function initializeDb() {
+  const stored = localStorage.getItem(HISTORY_STORAGE_KEY);
+  const localArchive = stored ? JSON.parse(stored) : [];
+  return [...mockArchive, ...localArchive];
+}
+
+const mockDb = initializeDb();
 
 /**
  * @typedef {object} HistoryEntry
@@ -26,8 +35,9 @@ export function saveToHistory({
   reference,
   modelId,
   modelName,
+  docxBase64,
 }) {
-  /** @type {HistoryEntry & { status: string, reference?: string, modelId?: string, modelName?: string }} */
+  /** @type {HistoryEntry & { status: string, reference?: string, modelId?: string, modelName?: string, docxBase64?: string }} */
   const entry = {
     id: Date.now(),
     status: 'archived',
@@ -41,10 +51,20 @@ export function saveToHistory({
     modelId: modelId || 'mistralai/voxtral-small-24b-2507',
     modelName: modelName || 'Voxtral Small 24B',
     text: text || '',
+    docxBase64: docxBase64 || '',
     createdAt: new Date().toISOString(),
   };
 
   mockDb.unshift(entry);
+
+  // Persister dans localStorage
+  try {
+    // Garder uniquement les archives (pas historyArchive.json initial)
+    const localArchives = mockDb.filter((e) => !mockArchive.find((m) => m.id === e.id));
+    localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(localArchives));
+  } catch (err) {
+    console.warn('Impossible de sauvegarder en localStorage:', err);
+  }
 }
 
 /** @returns {HistoryEntry[]} */
@@ -56,5 +76,15 @@ export function getHistory() {
 
 export function deleteFromHistory(id) {
   const index = mockDb.findIndex((entry) => entry.id === id);
-  if (index >= 0) mockDb.splice(index, 1);
+  if (index >= 0) {
+    mockDb.splice(index, 1);
+
+    // Mettre à jour localStorage
+    try {
+      const localArchives = mockDb.filter((e) => !mockArchive.find((m) => m.id === e.id));
+      localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(localArchives));
+    } catch (err) {
+      console.warn('Impossible de mettre à jour localStorage:', err);
+    }
+  }
 }

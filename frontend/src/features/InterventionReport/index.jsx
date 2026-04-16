@@ -1,18 +1,20 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
+import { FilePlus, Building2, User, CalendarDays } from 'lucide-react';
+import Button from '../../components/Button';
+import RgpdNotice from '../../components/RgpdNotice';
+import GeneratedResult from '../../components/GeneratedResult';
+import VoiceTextarea from '../../components/VoiceTextarea';
+import StepCard from '../../components/Dashboard/StepCard';
 import {
-  FilePlus, Building2, User, CalendarDays,
-  Cpu, ChevronDown, Search, X,
-} from 'lucide-react';
-import Button from '../components/Button';
-import RgpdNotice from '../components/RgpdNotice';
-import GeneratedResult from '../components/GeneratedResult';
-import VoiceTextarea from '../components/VoiceTextarea';
-import StepCard from '../components/Dashboard/StepCard';
-import { generateInterventionReport, DEFAULT_MODEL } from '../services/aiService';
-import { useCurrentUser } from '../hooks/useCurrentUser';
-import { useModels } from '../hooks/useModels';
+  generateInterventionReport,
+  DEFAULT_MODEL,
+} from '../../services/aiService';
+import { getChildren, formatChildName } from '../../services/childrenService';
+import { useCurrentUser } from '../../hooks/useCurrentUser';
 import { useSelector } from 'react-redux';
-import { getHistory } from '../services/historyService';
+import { getHistory } from '../../services/historyService';
+import ContextBadge from './components/ContextBadge';
+import ModelSelector from './components/ModelSelector';
 
 const STORAGE_KEY = 'cr_intervention_draft';
 
@@ -51,15 +53,18 @@ const REPORT_STATUS = {
 const STATUS_META = {
   [REPORT_STATUS.DRAFT]: {
     label: 'Brouillon',
-    className: 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300',
+    className:
+      'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300',
   },
   [REPORT_STATUS.IN_PROGRESS]: {
     label: 'En cours',
-    className: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300',
+    className:
+      'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300',
   },
   [REPORT_STATUS.ARCHIVED]: {
     label: 'Archive',
-    className: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300',
+    className:
+      'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300',
   },
 };
 
@@ -78,167 +83,6 @@ function loadDraft() {
   }
 }
 
-// ─── ContextBadge ─────────────────────────────────────────────────────────
-
-function ContextBadge({ icon: Icon, label, value }) {
-  return (
-    <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-(--bg-tertiary) border border-(--border)">
-      <Icon size={13} className="text-(--text-muted) shrink-0" />
-      <div className="flex flex-col leading-tight">
-        <span className="text-[9px] text-(--text-muted) uppercase tracking-wide">{label}</span>
-        <span className="text-xs font-medium text-(--text-primary)">{value}</span>
-      </div>
-    </div>
-  );
-}
-
-// ─── ModelSelector ────────────────────────────────────────────────────────
-
-function ModelSelector({ value, onChange }) {
-  const { models, isLoading, getModelName } = useModels();
-  const [open, setOpen] = useState(false);
-  const [search, setSearch] = useState('');
-  const ref = useRef(null);
-
-  // Fermeture au clic extérieur
-  useEffect(() => {
-    function handler(e) {
-      if (ref.current && !ref.current.contains(e.target)) setOpen(false);
-    }
-    document.addEventListener('mousedown', handler);
-    return () => document.removeEventListener('mousedown', handler);
-  }, []);
-
-  const filtered = search.trim()
-    ? models.filter(
-        (m) =>
-          m.id.toLowerCase().includes(search.toLowerCase()) ||
-          (m.name ?? '').toLowerCase().includes(search.toLowerCase()),
-      )
-    : models;
-
-  const currentName = getModelName(value);
-
-  return (
-    <div className="relative" ref={ref}>
-      {/* Trigger */}
-      <button
-        type="button"
-        onClick={() => setOpen((v) => !v)}
-        className={[
-          'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium',
-          'border border-(--border) bg-(--bg-primary) text-(--text-secondary)',
-          'hover:bg-(--bg-tertiary) transition-colors cursor-pointer',
-          'max-w-[220px]',
-        ].join(' ')}
-        title="Changer de modèle IA"
-      >
-        <Cpu size={12} className="shrink-0" />
-        <span className="truncate">
-          {isLoading ? 'Chargement…' : currentName}
-        </span>
-        <ChevronDown
-          size={11}
-          className={`shrink-0 transition-transform ${open ? 'rotate-180' : ''}`}
-        />
-      </button>
-
-      {/* Dropdown */}
-      {open && (
-        <div
-          className={[
-            'absolute bottom-full mb-2 left-0 z-50',
-            'w-80 bg-(--bg-primary) border border-(--border) rounded-xl shadow-xl',
-            'overflow-hidden',
-          ].join(' ')}
-        >
-          {/* Search */}
-          <div className="flex items-center gap-2 px-3 py-2 border-b border-(--border)">
-            <Search size={13} className="text-(--text-muted) shrink-0" />
-            <input
-              type="text"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Rechercher un modèle…"
-              className="flex-1 bg-transparent text-xs text-(--text-primary) placeholder:text-(--text-muted) outline-none"
-              autoFocus
-            />
-            {search && (
-              <button
-                type="button"
-                onClick={() => setSearch('')}
-                className="text-(--text-muted) hover:text-(--text-primary) cursor-pointer"
-              >
-                <X size={12} />
-              </button>
-            )}
-          </div>
-
-          {/* Model list */}
-          <div className="max-h-64 overflow-y-auto">
-            {isLoading && (
-              <p className="text-xs text-(--text-muted) px-4 py-6 text-center">
-                Chargement des modèles…
-              </p>
-            )}
-            {!isLoading && filtered.length === 0 && (
-              <p className="text-xs text-(--text-muted) px-4 py-6 text-center">
-                Aucun modèle trouvé
-              </p>
-            )}
-            {filtered.map((model) => (
-              <button
-                key={model.id}
-                type="button"
-                onClick={() => {
-                  onChange(model);
-                  setOpen(false);
-                  setSearch('');
-                }}
-                className={[
-                  'w-full text-left px-4 py-2.5 flex flex-col gap-0.5',
-                  'hover:bg-(--bg-tertiary) transition-colors cursor-pointer',
-                  value === model.id
-                    ? 'bg-(--bleu-fonce)/8 border-l-2 border-(--bleu-fonce)'
-                    : 'border-l-2 border-transparent',
-                ].join(' ')}
-              >
-                <span className="text-xs font-medium text-(--text-primary) truncate">
-                  {model.name?.replace(/^[^:]+:\s*/, '') ?? model.id}
-                </span>
-                <span className="text-[10px] text-(--text-muted) font-mono truncate">
-                  {model.id}
-                </span>
-              </button>
-            ))}
-          </div>
-
-          {/* Footer: modèle actuel */}
-          <div className="border-t border-(--border) px-4 py-2 flex items-center justify-between">
-            <span className="text-[10px] text-(--text-muted) truncate font-mono max-w-[180px]">
-              {value}
-            </span>
-            {value !== DEFAULT_MODEL && (
-              <button
-                type="button"
-                onClick={() => {
-                  onChange({ id: DEFAULT_MODEL, name: 'Voxtral Small 24B' });
-                  setOpen(false);
-                }}
-                className="text-[10px] text-(--bleu-fonce) hover:underline cursor-pointer shrink-0 ml-2"
-              >
-                Réinitialiser
-              </button>
-            )}
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
-
-// ─── Page principale ───────────────────────────────────────────────────────
-
 function InterventionReport() {
   const { fullName, company } = useCurrentUser();
   const role = useSelector((state) => state.role.role);
@@ -251,7 +95,13 @@ function InterventionReport() {
     year: 'numeric',
   }).format(new Date());
 
-  const [interventionType, setInterventionType] = useState(draft.interventionType || '');
+  const [interventionType, setInterventionType] = useState(
+    draft.interventionType || '',
+  );
+  const [selectedChildId, setSelectedChildId] = useState(
+    draft.selectedChildId || '',
+  );
+  const [children, setChildren] = useState([]);
   const [transcription, setTranscription] = useState(draft.transcription || '');
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(draft.result || '');
@@ -261,24 +111,46 @@ function InterventionReport() {
   const [isArchived, setIsArchived] = useState(Boolean(draft.isArchived));
   const [lastSavedAt, setLastSavedAt] = useState(draft.updatedAt || null);
   const [reportStatus, setReportStatus] = useState(
-    draft.status || inferStatus({
-      interventionType: draft.interventionType,
-      transcription: draft.transcription,
-      result: draft.result,
-      isArchived: draft.isArchived,
-    }),
+    draft.status ||
+      inferStatus({
+        interventionType: draft.interventionType,
+        transcription: draft.transcription,
+        result: draft.result,
+        isArchived: draft.isArchived,
+      }),
   );
   const [archivedCount, setArchivedCount] = useState(getHistory().length);
 
   // Modèle sélectionné pour la génération
-  const [selectedModelId, setSelectedModelId] = useState(draft.selectedModelId || DEFAULT_MODEL);
-  const [selectedModelName, setSelectedModelName] = useState(draft.selectedModelName || 'Voxtral Small 24B');
+  const [selectedModelId, setSelectedModelId] = useState(
+    draft.selectedModelId || DEFAULT_MODEL,
+  );
+  const [selectedModelName, setSelectedModelName] = useState(
+    draft.selectedModelName || 'Voxtral Small 24B',
+  );
   // Modèle effectivement utilisé pour la dernière génération
   const [usedModel, setUsedModel] = useState(draft.usedModel || null);
 
+  // Charger les enfants à charge
+  useEffect(() => {
+    const fetchChildren = async () => {
+      try {
+        const data = await getChildren();
+        setChildren(data);
+      } catch (err) {
+        console.error('Erreur lors du chargement des enfants:', err);
+      }
+    };
+    fetchChildren();
+  }, []);
+
   const handleModelChange = (model) => {
     setSelectedModelId(model.id);
-    setSelectedModelName(model.name?.replace(/^[^:]+:\s*/, '') ?? model.id.split('/').pop() ?? model.id);
+    setSelectedModelName(
+      model.name?.replace(/^[^:]+:\s*/, '') ??
+        model.id.split('/').pop() ??
+        model.id,
+    );
   };
 
   // Persistance du rapport en local pour reprise après refresh/fermeture
@@ -295,6 +167,7 @@ function InterventionReport() {
       STORAGE_KEY,
       JSON.stringify({
         interventionType,
+        selectedChildId,
         transcription,
         result,
         validated,
@@ -310,6 +183,7 @@ function InterventionReport() {
     setLastSavedAt(new Date().toISOString());
   }, [
     interventionType,
+    selectedChildId,
     transcription,
     result,
     validated,
@@ -341,9 +215,15 @@ function InterventionReport() {
   }, [loading]);
 
   const handleReset = () => {
-    if (!window.confirm('Commencer un nouveau rapport ? Le brouillon sera effacé.')) return;
+    if (
+      !window.confirm(
+        'Commencer un nouveau rapport ? Le brouillon sera effacé.',
+      )
+    )
+      return;
     localStorage.removeItem(STORAGE_KEY);
     setInterventionType('');
+    setSelectedChildId('');
     setTranscription('');
     setResult('');
     setValidated(false);
@@ -357,6 +237,22 @@ function InterventionReport() {
     setIsArchived(true);
     setReportStatus(REPORT_STATUS.ARCHIVED);
     setArchivedCount(getHistory().length);
+
+    // Nettoyer le brouillon du localStorage une fois archivé
+    localStorage.removeItem(STORAGE_KEY);
+
+    // Vider tous les states du rapport après un court délai
+    setTimeout(() => {
+      setInterventionType('');
+      setSelectedChildId('');
+      setTranscription('');
+      setResult('');
+      setValidated(false);
+      setElapsed(null);
+      setUsedModel(null);
+      setIsArchived(false);
+      setReportStatus(REPORT_STATUS.DRAFT);
+    }, 1500);
   };
 
   const handleSubmit = async (e) => {
@@ -401,7 +297,9 @@ function InterventionReport() {
       <div className="mx-auto flex w-full max-w-full flex-col gap-6">
         <div className={`${cardClass} py-4 md:py-5`}>
           <div className="flex flex-wrap items-center gap-3">
-            <span className="text-sm font-medium text-(--text-secondary)">Statut du rapport :</span>
+            <span className="text-sm font-medium text-(--text-secondary)">
+              Statut du rapport :
+            </span>
             <span
               className={[
                 'inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold',
@@ -415,23 +313,32 @@ function InterventionReport() {
             </span>
             {lastSavedAt && (
               <span className="text-xs text-(--text-muted)">
-                Derniere reprise locale: {new Intl.DateTimeFormat('fr-FR', {
-                  day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit',
+                Derniere reprise locale:{' '}
+                {new Intl.DateTimeFormat('fr-FR', {
+                  day: '2-digit',
+                  month: '2-digit',
+                  year: 'numeric',
+                  hour: '2-digit',
+                  minute: '2-digit',
                 }).format(new Date(lastSavedAt))}
               </span>
             )}
           </div>
         </div>
 
-        <form id="cr-form" onSubmit={handleSubmit} className="flex flex-col gap-6">
-
+        <form
+          id="cr-form"
+          onSubmit={handleSubmit}
+          className="flex flex-col gap-6"
+        >
           {/* ── Étape 1 : Contexte automatique ── */}
           <StepCard
             step="1"
             title="Contexte automatique"
             subtitle="Rempli depuis votre profil — aucune saisie requise"
           >
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            {/* Desktop: Grid layout with badges */}
+            <div className="hidden sm:grid grid-cols-3 gap-3">
               <ContextBadge
                 icon={Building2}
                 label="Établissement"
@@ -448,6 +355,24 @@ function InterventionReport() {
                 value={dateLabel}
               />
             </div>
+
+            {/* Mobile: Compact single-line layout */}
+            <div className="sm:hidden flex flex-col gap-2 text-xs">
+              <div className="flex flex-wrap gap-3 items-baseline">
+                <span>
+                  <span className="font-bold text-(--text-primary)">
+                    {fullName}
+                  </span>
+                </span>
+                <span className="text-(--text-secondary)">
+                  {company?.type ?? '—'} - {company?.name ?? '—'}
+                </span>
+                <span className="text-(--text-muted)">
+                  {ROLE_LABELS[role] ?? role}
+                </span>
+                <span className="text-(--text-muted)">{dateLabel}</span>
+              </div>
+            </div>
           </StepCard>
 
           {/* ── Étape 2 : Type d'intervention ── */}
@@ -456,22 +381,52 @@ function InterventionReport() {
             title="Type d'intervention"
             subtitle="Sélectionnez la nature de l'intervention"
           >
-            <div className="flex flex-wrap gap-2">
-              {INTERVENTION_TYPES.map((type) => (
-                <button
-                  key={type}
-                  type="button"
-                  onClick={() => setInterventionType(type)}
-                  className={[
-                    'px-4 py-2 rounded-xl text-sm font-medium border transition-all duration-150 cursor-pointer',
-                    interventionType === type
-                      ? 'bg-(--bleu-fonce) text-white border-(--bleu-fonce) shadow-sm'
-                      : 'bg-(--bg-secondary) text-(--text-secondary) border-(--border) hover:border-(--bleu-fonce)/50 hover:text-(--text-primary)',
-                  ].join(' ')}
+            <div className="flex flex-col gap-4">
+              {/* Sélection de l'enfant à charge */}
+              <div className="flex flex-col gap-2">
+                <label
+                  htmlFor="child-select"
+                  className="text-[10px] md:text-sm font-medium text-(--text-primary)"
                 >
-                  {type}
-                </button>
-              ))}
+                  Enfant concerné
+                </label>
+                <select
+                  id="child-select"
+                  value={selectedChildId}
+                  onChange={(e) => setSelectedChildId(e.target.value)}
+                  className="rounded-xl border border-(--border) bg-(--bg-secondary) text-(--text-primary) px-4 py-2 md:text-base text-[10px] focus:outline-none focus:border-(--bleu-fonce) transition-colors w-full md:w-60"
+                >
+                  <option className="text-[10px]" value="">
+                    Sélectionnez un enfant…
+                  </option>
+                  {children.map((child) => (
+                    <option
+                      key={child.id}
+                      value={child.id}
+                      className="text-[10px]"
+                    >
+                      {formatChildName(child)}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {INTERVENTION_TYPES.map((type) => (
+                  <button
+                    key={type}
+                    type="button"
+                    onClick={() => setInterventionType(type)}
+                    className={[
+                      'px-4 py-2 rounded-xl text-[10px] md:text-sm font-medium border transition-all duration-150 cursor-pointer',
+                      interventionType === type
+                        ? 'bg-(--bleu-fonce) text-white border-(--bleu-fonce) shadow-sm'
+                        : 'bg-(--bg-secondary) text-(--text-secondary) border-(--border) hover:border-(--bleu-fonce)/50 hover:text-(--text-primary)',
+                    ].join(' ')}
+                  >
+                    {type}
+                  </button>
+                ))}
+              </div>
             </div>
           </StepCard>
 
@@ -494,43 +449,50 @@ function InterventionReport() {
           </StepCard>
 
           {/* ── Actions ── */}
-          <div
-            id="form-actions"
-            className="flex flex-row items-center flex-wrap gap-3"
-          >
-            <Button
-              type="submit"
-              color="blue"
-              size="lg"
-              disabled={loading || !interventionType || !transcription.trim()}
-            >
-              {loading ? 'Génération en cours…' : 'Générer le compte rendu'}
-            </Button>
+          <div id="form-actions" className="flex flex-col gap-4">
+            {/* Ligne 1: Boutons d'actions */}
+            <div className="flex flex-col sm:flex-row gap-3 w-full">
+              <Button
+                type="submit"
+                color="blue"
+                size="lg"
+                disabled={loading || !interventionType || !transcription.trim()}
+                className="flex-1"
+              >
+                {loading ? 'Génération en cours…' : 'Générer le compte rendu'}
+              </Button>
 
-            {/* Sélecteur de modèle */}
-            <ModelSelector value={selectedModelId} onChange={handleModelChange} />
+              <Button
+                color="green"
+                size="lg"
+                icon={FilePlus}
+                onClick={handleReset}
+                className="flex-1"
+              >
+                Nouveau rapport
+              </Button>
+            </div>
 
-            {/* Feedback timing */}
-            {!loading && !result && (
-              <span className="text-xs text-(--text-muted)">
-                Temps estimé : 5–10 s
-              </span>
-            )}
-            {!loading && elapsed && (
-              <span className="text-xs text-(--text-muted)">
-                Généré en {elapsed}s
-              </span>
-            )}
+            {/* Ligne 2: Sélecteur de modèle et infos */}
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+              {/* Sélecteur de modèle */}
+              <ModelSelector
+                value={selectedModelId}
+                onChange={handleModelChange}
+              />
 
-            <Button
-              color="green"
-              size="lg"
-              icon={FilePlus}
-              onClick={handleReset}
-              className="ml-auto"
-            >
-              Nouveau rapport
-            </Button>
+              {/* Feedback timing */}
+              {!loading && !result && (
+                <span className="text-xs text-(--text-muted)">
+                  Temps estimé : 5–10 s
+                </span>
+              )}
+              {!loading && elapsed && (
+                <span className="text-xs text-(--text-muted)">
+                  Généré en {elapsed}s
+                </span>
+              )}
+            </div>
           </div>
         </form>
 

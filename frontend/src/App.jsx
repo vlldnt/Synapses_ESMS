@@ -94,6 +94,7 @@ function App() {
           <Routes>
             <Route path="/" element={<Dashboard />} />
             <Route path="/agents" element={<DashboardAgents />}>
+              <Route index element={<Navigate to="/agents/compte-rendu" replace />} />
               <Route path="compte-rendu" element={<InterventionReport />} />
               <Route path="projet-personnalise" element={<PersonalizedProject />} />
             </Route>

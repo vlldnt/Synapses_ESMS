@@ -11,6 +11,14 @@ const routeTitles = {
     title: 'Agents IA',
     subtitle: 'S\u00e9lectionnez un rapport pour commencer',
   },
+  '/agents/compte-rendu': {
+    title: 'Compte Rendu d\u2019Intervention',
+    subtitle: 'G\u00e9n\u00e9rez un compte rendu d\u2019intervention',
+  },
+  '/agents/projet-personnalise': {
+    title: 'PPA M\u00e9dico-Social',
+    subtitle: 'G\u00e9n\u00e9rez un projet personnalis\u00e9',
+  },
   '/historique': {
     title: 'Historique',
     subtitle: "Consultez, g\u00e9rez et retrouvez l\u2019ensemble de vos documents g\u00e9n\u00e9r\u00e9s",
@@ -19,9 +27,8 @@ const routeTitles = {
 
 function TopBar() {
   const location = useLocation();
-  const agentsEntry = location.pathname.startsWith('/agents') ? routeTitles['/agents'] : null;
   const { title, subtitle } =
-    agentsEntry || routeTitles[location.pathname] || routeTitles['/'];
+    routeTitles[location.pathname] || routeTitles['/'];
 
   return (
     <header

@@ -38,7 +38,7 @@ function Sidebar() {
 
         <p className="flex text-(--text-muted) mb-2 px-3">Agents</p>
         <ul id="nav-modules-ia" className="flex flex-col gap-1 list-none mb-10">
-          <NavItem titre="Agents IA" link="/agents" icon={BotMessageSquare} />
+          <NavItem titre="Générer un document" link="/agents/compte-rendu" icon={BotMessageSquare} />
         </ul>
 
         <p className="flex text-(--text-muted) mb-2 px-3">Gestion</p>

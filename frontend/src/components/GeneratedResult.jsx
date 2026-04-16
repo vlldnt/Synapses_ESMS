@@ -6,7 +6,10 @@ import {
   ShieldCheck, LockKeyhole, RotateCcw,
 } from 'lucide-react';
 import WordPreview from './WordPreview';
-import { downloadDocx } from '../utils/wordExport';
+import DownloadSuccessModal from './DownloadSuccessModal';
+import { downloadDocx, triggerDownload } from '../utils/wordExport';
+import { saveToHistory } from '../services/historyService';
+import { saveArchiveToBackend } from '../services/archiveService';
 
 // ─── Sous-composants ────────────────────────────────────────────────────────
 
@@ -86,6 +89,7 @@ export default function GeneratedResult({
   const [draftText, setDraftText]  = useState(result);   // tampon pendant l'édition
   const [copyState, setCopyState]  = useState('idle');   // idle | copied
   const [dlState, setDlState]      = useState('idle');   // idle | loading | done
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
   const textareaRef = useRef(null);
 
   // Sync quand l'IA génère un nouveau résultat (régénération)
@@ -126,19 +130,71 @@ export default function GeneratedResult({
     setTimeout(() => setCopyState('idle'), 2000);
   };
 
-  const handleDownload = async () => {
+  const handleDownload = async (skipArchive = false) => {
     setDlState('loading');
     try {
-      await downloadDocx({
+      const result = await downloadDocx({
         text: editedText,
         ...downloadMeta,
         modelId: downloadMeta.modelId ?? generatedByModel?.id,
         modelName: downloadMeta.modelName ?? generatedByModel?.name,
       });
-      onArchived?.();
-      setDlState('done');
-      setTimeout(() => setDlState('idle'), 3000);
-    } catch {
+
+      // Convertir le blob en base64
+      return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+          const base64String = reader.result.split(',')[1];
+
+          // Sauvegarder aux archives si ce n'est pas depuis le modal
+          if (!skipArchive) {
+            const archiveData = {
+              id: Date.now(),
+              status: 'archived',
+              filename: result.filename,
+              date: result.date,
+              interventionType: result.interventionType,
+              structureType: result.structureType,
+              companyName: result.companyName,
+              educatorName: result.educatorName,
+              modelId: result.modelId,
+              modelName: result.modelName,
+              text: editedText,
+              docxBase64: base64String,
+              createdAt: new Date().toISOString(),
+            };
+
+            // Sauvegarder en localStorage (fallback)
+            saveToHistory(archiveData);
+
+            // Sauvegarder au backend
+            saveArchiveToBackend(archiveData).catch((err) => {
+              console.warn('Archive sauvegardée localement (backend indisponible):', err);
+            });
+
+            onArchived?.();
+          }
+
+          // Montrer le modal de succès
+          setShowSuccessModal(true);
+
+          // Télécharger le fichier après 1.5 secondes
+          setTimeout(() => {
+            triggerDownload(result.blob, result.filename);
+          }, 1500);
+
+          // Fermer le modal après 2 secondes
+          setTimeout(() => {
+            setShowSuccessModal(false);
+            setDlState('idle');
+            resolve();
+          }, 2000);
+        };
+        reader.readAsDataURL(result.blob);
+      });
+    } catch (err) {
+      console.error('Erreur lors du téléchargement:', err);
+      setShowSuccessModal(false);
       setDlState('idle');
     }
   };
@@ -349,17 +405,31 @@ export default function GeneratedResult({
                 . Téléchargez le fichier Word pour l'intégrer dans le dossier.
               </span>
             </div>
-            <button
-              type="button"
-              onClick={handleUnvalidate}
-              className="shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs text-(--text-muted) hover:text-red-500 border border-(--border) hover:border-red-300 transition-colors cursor-pointer"
-            >
-              <RotateCcw size={12} />
-              Annuler la validation
-            </button>
+            <div className="shrink-0 flex items-center gap-1.5">
+              <ActionButton
+                onClick={handleDownload}
+                loading={dlState === 'loading'}
+                icon={dlState === 'done' ? Check : FileDown}
+                loadingIcon={Loader2}
+                label={dlState === 'loading' ? 'Génération…' : dlState === 'done' ? 'Téléchargé !' : 'Télécharger'}
+                variant={dlState === 'done' ? 'success' : 'green'}
+                title="Télécharger en format Word (.docx)"
+              />
+              <button
+                type="button"
+                onClick={handleUnvalidate}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs text-(--text-muted) hover:text-red-500 border border-(--border) hover:border-red-300 transition-colors cursor-pointer"
+              >
+                <RotateCcw size={12} />
+                Annuler la validation
+              </button>
+            </div>
           </div>
         )}
       </div>
+
+      {/* Modal de succès */}
+      <DownloadSuccessModal isOpen={showSuccessModal} onClose={() => setShowSuccessModal(false)} />
     </div>
   );
 }
