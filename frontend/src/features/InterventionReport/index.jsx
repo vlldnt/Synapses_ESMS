@@ -349,58 +349,38 @@ function InterventionReport() {
           onSubmit={handleSubmit}
           className="flex flex-col gap-6"
         >
-          {/* ── Étape 1 : Contexte automatique ── */}
+          {/* ── Étape 1 : Contexte ── */}
           <StepCard
             step="1"
-            title="Contexte automatique"
+            title="Contexte"
             subtitle="Rempli depuis votre profil — aucune saisie requise"
           >
-            {/* Desktop: Grid layout with badges */}
-            <div className="hidden sm:grid grid-cols-3 gap-3">
-              <ContextBadge
-                icon={Building2}
-                label="Établissement"
-                value={organization?.name ?? '—'}
-              />
-              <ContextBadge
-                icon={User}
-                label="Professionnel"
-                value={`${fullName} · ${ROLE_LABELS[role] ?? role}`}
-              />
-              <ContextBadge
-                icon={CalendarDays}
-                label="Date"
-                value={dateLabel}
-              />
-            </div>
-
-            {/* Mobile: Compact single-line layout */}
-            <div className="sm:hidden flex flex-col gap-2 text-xs">
-              <div className="flex flex-wrap gap-3 items-baseline">
-                <span>
-                  <span className="font-bold text-(--text-primary)">
-                    {fullName}
-                  </span>
-                </span>
-                <span className="text-(--text-secondary)">
-                  {organization?.type ?? '—'} - {organization?.name ?? '—'}
-                </span>
-                <span className="text-(--text-muted)">
-                  {ROLE_LABELS[role] ?? role}
-                </span>
-                <span className="text-(--text-muted)">{dateLabel}</span>
-              </div>
-            </div>
-          </StepCard>
-
-          {/* ── Étape 2 : Type d'intervention ── */}
-          <StepCard
-            step="2"
-            title="Type d'intervention"
-            subtitle="Sélectionnez la nature de l'intervention"
-          >
             <div className="flex flex-col gap-4">
-              {/* Sélection de l'enfant à charge */}
+              {/* Professionnel et structure */}
+              <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+                <div className="flex flex-col gap-3 flex-1">
+                  {/* Professionnel et rôle */}
+                  <div>
+                    <p className="text-sm md:text-base font-semibold text-(--text-primary)">
+                      {fullName} <span className="font-normal text-(--text-muted)">- {ROLE_LABELS[role] ?? role}</span>
+                    </p>
+                  </div>
+
+                  {/* Type de structure et établissement */}
+                  <div>
+                    <p className="text-sm text-(--text-secondary)">
+                      <span className="font-medium">{organization?.type ?? '—'}</span> - {organization?.name ?? '—'}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Date à droite */}
+                <div className="sm:text-right">
+                  <p className="text-sm text-(--text-muted)">{dateLabel}</p>
+                </div>
+              </div>
+
+              {/* Enfant concerné */}
               <div className="flex flex-col gap-2">
                 <label
                   htmlFor="reference-select"
@@ -428,6 +408,16 @@ function InterventionReport() {
                   ))}
                 </select>
               </div>
+            </div>
+          </StepCard>
+
+          {/* ── Étape 2 : Type d'intervention ── */}
+          <StepCard
+            step="2"
+            title="Type d'intervention"
+            subtitle="Sélectionnez la nature de l'intervention"
+          >
+            <div className="flex flex-col gap-4">
               <div className="flex flex-wrap gap-2">
                 {INTERVENTION_TYPES.map((type) => (
                   <button
