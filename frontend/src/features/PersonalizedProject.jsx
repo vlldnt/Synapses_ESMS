@@ -6,7 +6,7 @@ import Button from '../components/Button';
 import RgpdNotice from '../components/RgpdNotice';
 import GeneratedResult from '../components/GeneratedResult';
 import StepCard from '../components/Dashboard/StepCard';
-import { generatePPA } from '../services/aiService';
+// import { generatePPA } from '../services/aiService'; // TODO: À réactiver quand generatePPA sera implémenté
 import { getStructureTypeCategories } from '../services/structureType.service';
 import { downloadDocx } from '../utils/wordExport';
 
@@ -160,28 +160,8 @@ function PersonalizedProject() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
-    setResult('');
-    setValidated(false);
-    setElapsed(null);
-    const start = Date.now();
-    try {
-      const text = await generatePPA({
-        reference,
-        structureType,
-        ageGroup,
-        period,
-        selectedAxes,
-        notes,
-        educatorName: user?.name,
-      });
-      setResult(text);
-      setElapsed(((Date.now() - start) / 1000).toFixed(1));
-    } catch (err) {
-      setResult(`Erreur : ${err.message}`);
-    } finally {
-      setLoading(false);
-    }
+    // TODO: generatePPA à réactiver quand implémenté
+    setResult(`Erreur : La génération de PPA n'est pas encore disponible. Utilisez la fonction "Compte rendu d'intervention" pour le moment.`);
   };
 
   const handleCopy = () => navigator.clipboard.writeText(result);

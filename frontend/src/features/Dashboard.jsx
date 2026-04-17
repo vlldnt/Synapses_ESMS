@@ -77,7 +77,16 @@ function Dashboard() {
     const month = new Intl.DateTimeFormat('fr-FR', { month: '2-digit' }).format(now);
     const year = new Intl.DateTimeFormat('fr-FR', { year: 'numeric' }).format(now);
     setDate(`${weekday} ${day}/${month}/${year}`);
-    setHistory(getHistory());
+
+    (async () => {
+      try {
+        const archives = await getHistory();
+        setHistory(archives);
+      } catch (err) {
+        console.error('Failed to load history:', err);
+        setHistory([]);
+      }
+    })();
   }, []);
 
   const etablissementName = organization?.name ?? 'ESMS';

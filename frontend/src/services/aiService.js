@@ -23,13 +23,23 @@ const getPrompt = async (name) => {
   if (promptsCache.length === 0) {
     await fetchPrompts();
   }
-  return promptsCache.find((p) => p.name === name);
+  const prompt = promptsCache.find((p) => p.name === name);
+  if (!prompt) {
+    console.warn(`Prompt not found: ${name}. Available:`, promptsCache.map(p => p.name));
+  }
+  return prompt;
 };
 
+// Modèle par défaut - utilise Voxtral Small 24B
 export const DEFAULT_MODEL = 'mistralai/voxtral-small-24b-2507';
 
+const apiKey = import.meta.env.VITE_OPENROUTER_API_KEY;
+if (!apiKey) {
+  console.error('❌ VITE_OPENROUTER_API_KEY not configured in .env.local');
+}
+
 const openrouter = new OpenRouter({
-  apiKey: import.meta.env.VITE_OPENROUTER_API_KEY,
+  apiKey: apiKey,
   dangerouslyAllowBrowser: true,
 });
 
@@ -39,85 +49,46 @@ async function getChatResponse({
   temperature = 0.4,
   model = DEFAULT_MODEL,
 }) {
-  const completion = await openrouter.chat.send({
-    chatRequest: {
-      model,
-      messages: [
-        { role: 'system', content: systemPrompt },
-        { role: 'user', content: userMessage },
-      ],
-      temperature,
-    },
-  });
+  try {
+    if (!systemPrompt) throw new Error('Prompt système non trouvé');
 
-  let text = completion.choices?.[0]?.message?.content;
-  if (!text) throw new Error('Réponse OpenRouter vide ou inattendue.');
+    const completion = await openrouter.chat.send({
+      chatRequest: {
+        model,
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: userMessage },
+        ],
+        temperature,
+      },
+    });
 
-  // Nettoyer les mentions d'IA qu'on ne veut pas
-  text = text
-    .replace(/⚠️\s*Aide IA\s*--\s*Validation humaine obligatoire avant diffusion[^\n]*/gi, '')
-    .replace(/Rédigé avec l'aide de l'IA\s*--\s*à relire et valider[^\n]*/gi, '')
-    .replace(/Texte généré avec l'aide d'une intelligence artificielle[^\n]*/gi, '')
-    .replace(/généré avec l'aide d'une intelligence artificielle[^\n]*/gi, '')
-    .replace(/Assisté par IA[^\n]*/gi, '')
-    .trim();
+    let text = completion.choices?.[0]?.message?.content;
+    if (!text) throw new Error('Réponse OpenRouter vide ou inattendue.');
 
-  return text;
-}
+    // Nettoyer les mentions d'IA qu'on ne veut pas
+    text = text
+      .replace(/⚠️\s*Aide IA\s*--\s*Validation humaine obligatoire avant diffusion[^\n]*/gi, '')
+      .replace(/Rédigé avec l'aide de l'IA\s*--\s*à relire et valider[^\n]*/gi, '')
+      .replace(/Texte généré avec l'aide d'une intelligence artificielle[^\n]*/gi, '')
+      .replace(/généré avec l'aide d'une intelligence artificielle[^\n]*/gi, '')
+      .replace(/Assisté par IA[^\n]*/gi, '')
+      .trim();
 
-export async function generatePPA({
-  reference,
-  structureType,
-  ageGroup,
-  period,
-  selectedAxes = [],
-  notes,
-  educatorName,
-}) {
-  const userMessage = `
---- CONTEXTE (généré automatiquement) ---
-Référence / Code usager : ${reference || 'Non renseignée'}
-Type de structure : ${structureType || 'Non précisé'}
-Tranche d'âge : ${ageGroup || 'Non précisée'}
-Période du PPA : ${period || 'Non précisée'}
-Professionnel rédacteur : ${educatorName || 'Non renseigné'}
-Axes SERAFIN-PH prioritaires : ${selectedAxes.length ? selectedAxes.join(', ') : 'Non précisés'}
+    return text;
+  } catch (err) {
+    console.error('❌ getChatResponse Error:');
+    console.error('  Message:', err.message);
+    console.error('  Full error:', err);
 
---- OBSERVATIONS ANONYMISÉES ---
+    // Si c'est une erreur OpenRouter, affiche les détails
+    if (err.response) {
+      console.error('  API Response:', err.response.status, err.response.statusText);
+      console.error('  API Body:', err.response.data);
+    }
 
-1. PRÉSENTATION DE LA SITUATION
-${notes.situation || 'Non renseigné'}
-
-2. BESOINS – SANTÉ SOMATIQUE & PSYCHIQUE
-${notes.besoins_sante || 'Non renseigné'}
-
-3. BESOINS – AUTONOMIE
-${notes.besoins_autonomie || 'Non renseigné'}
-
-4. BESOINS – PARTICIPATION SOCIALE
-${notes.besoins_participation || 'Non renseigné'}
-
-5. OBJECTIFS PRIORITAIRES
-${notes.objectifs || 'Non renseigné'}
-
-6. MODALITÉS D'ACCOMPAGNEMENT
-${notes.modalites || 'Non renseigné'}
-
-7. PARTICIPATION & CHOIX DE LA PERSONNE
-${notes.participation_personne || 'Non renseigné'}
-
-8. SUIVI ET RÉÉVALUATION
-${notes.suivi || 'Non renseigné'}
-
-Rédige un PPA complet en 10 sections selon la trame. Utilise les codes SERAFIN-PH officiels. Appuie-toi sur les observations pour chaque section.
-`.trim();
-
-  const promptData = await getPrompt('ppa_medico_social');
-  return getChatResponse({
-    systemPrompt: promptData?.content,
-    userMessage,
-    temperature: 0.4,
-  });
+    throw new Error(`Erreur OpenRouter: ${err.message}`);
+  }
 }
 
 /**

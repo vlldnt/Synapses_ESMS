@@ -318,7 +318,37 @@ function blocksToDocx(blocks) {
 // 📦 EXPORT DOCX
 // ───────────────────────────────────────────────────────────
 
-export async function downloadDocx({ text }) {
+/**
+ * Generate filename in format: CRI_Hugo_O-05-05-2029.docx
+ * And displayName: CRI Hugo O 05-05-2029
+ * Utilise le nom de l'enfant par priorité, sinon le nom du professionnel
+ */
+function generateReportFilename(childName, educatorName, date) {
+  // Priorité au nom de l'enfant, fallback au nom du professionnel
+  const nameToUse = childName || educatorName || 'Document';
+
+  // Parse name: "Hugo O." or "Hugo Olivier" -> firstName, lastName
+  const parts = (nameToUse || '').trim().split(/\s+/);
+  const firstName = parts[0] || 'Document';
+  const lastName = parts[parts.length - 1] || '';
+  // Extract first letter, remove trailing period if present
+  const firstLetterLastName = lastName[0]?.toUpperCase() || 'X';
+
+  // Parse date: YYYY-MM-DD -> DD-MM-YYYY
+  const dateObj = new Date(date);
+  const day = String(dateObj.getDate()).padStart(2, '0');
+  const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+  const year = dateObj.getFullYear();
+  const formattedDate = `${day}-${month}-${year}`;
+
+  const type = 'CRI';
+  const filename = `${type}_${firstName}_${firstLetterLastName}-${formattedDate}.docx`;
+  const displayName = `${type} ${firstName} ${firstLetterLastName} ${formattedDate}`;
+
+  return { filename, displayName };
+}
+
+export async function downloadDocx({ text, childName, educatorName, date, ...rest }) {
   const blocks = parseMarkdown(text);
   const body = blocksToDocx(blocks);
 
@@ -332,10 +362,18 @@ export async function downloadDocx({ text }) {
   });
 
   const blob = await Packer.toBlob(doc);
+  const { filename, displayName } = generateReportFilename(childName, educatorName, date);
 
   return {
     blob,
-    filename: `document.docx`,
+    filename,
+    displayName,
+    date,
+    interventionType: rest.interventionType,
+    companyName: rest.companyName,
+    educatorName,
+    modelId: rest.modelId,
+    modelName: rest.modelName,
   };
 }
 

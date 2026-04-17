@@ -121,7 +121,7 @@ function InterventionReport() {
         isArchived: draft.isArchived,
       }),
   );
-  const [archivedCount, setArchivedCount] = useState(getHistory().length);
+  const [archivedCount, setArchivedCount] = useState(0);
 
   // Modèle sélectionné pour la génération
   const [selectedModelId, setSelectedModelId] = useState(
@@ -133,17 +133,20 @@ function InterventionReport() {
   // Modèle effectivement utilisé pour la dernière génération
   const [usedModel, setUsedModel] = useState(draft.usedModel || null);
 
-  // Charger les enfants à charge
+  // Charger les enfants à charge et le compte des archives
   useEffect(() => {
-    const fetchChildren = async () => {
+    const fetchData = async () => {
       try {
-        const data = await getReferences();
-        setReferences(data);
+        const children = await getReferences();
+        setReferences(children);
+
+        const archives = await getHistory();
+        setArchivedCount(archives.length);
       } catch (err) {
-        console.error('Erreur lors du chargement des enfants:', err);
+        console.error('Erreur lors du chargement des données:', err);
       }
     };
-    fetchChildren();
+    fetchData();
   }, []);
 
   const handleModelChange = (model) => {
@@ -246,7 +249,7 @@ function InterventionReport() {
     setReportStatus(REPORT_STATUS.DRAFT);
   };
 
-  const handleArchived = () => {
+  const handleArchived = async () => {
     // Nettoyer le brouillon du localStorage IMMÉDIATEMENT
     localStorage.removeItem(STORAGE_KEY);
 
@@ -260,7 +263,14 @@ function InterventionReport() {
     setUsedModel(null);
     setIsArchived(false);
     setReportStatus(REPORT_STATUS.DRAFT);
-    setArchivedCount(getHistory().length);
+
+    // Recharger le compte des archives
+    try {
+      const archives = await getHistory();
+      setArchivedCount(archives.length);
+    } catch (err) {
+      console.error('Erreur lors du chargement des archives:', err);
+    }
   };
 
   const handleSubmit = async (e) => {

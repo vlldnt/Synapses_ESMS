@@ -56,7 +56,7 @@ export async function getReferencesByOrganization(organizationId) {
  * Ex: Hugo Olivier → "Hugo O."
  */
 export function formatReferenceName(reference) {
-  if (!reference) return '';
+  if (!reference || !reference.lastName || !reference.firstName) return '';
   const initial = reference.lastName[0].toUpperCase();
   return `${reference.firstName} ${initial}.`;
 }
