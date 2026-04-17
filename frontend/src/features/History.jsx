@@ -6,7 +6,7 @@ import WordPreview from '../components/WordPreview';
 import { getHistory } from '../services/historyService';
 import { downloadDocx, triggerDownload } from '../utils/wordExport';
 import { formatReportName } from '../utils/reportNameFormatter';
-import { getArchivesFromBackend } from '../services/archiveService';
+import { getArchives } from '../services/archive.service';
 
 const DRAFT_STORAGE_KEY = 'cr_intervention_draft';
 
@@ -22,15 +22,17 @@ function History() {
   const navigate = useNavigate();
   const [selectedEntry, setSelectedEntry] = useState(null);
   const [isDownloading, setIsDownloading] = useState(false);
-  const [backendArchives, setBackendArchives] = useState([]);
+  const [archives, setArchives] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Charger les archives du backend au montage
+  // Charger les archives du localStorage au montage
   useEffect(() => {
     let isMounted = true;
 
-    getArchivesFromBackend().then((archives) => {
+    getArchives().then((loadedArchives) => {
       if (isMounted) {
-        setBackendArchives(archives);
+        setArchives(loadedArchives);
+        setIsLoading(false);
       }
     });
 
@@ -39,12 +41,10 @@ function History() {
     };
   }, []);
 
-  // Combiner les archives du backend avec celles du localStorage
+  // Utiliser les archives depuis localStorage uniquement
   const history = useMemo(() => {
-    const localHistory = getHistory();
-    // Prioriser les archives du backend
-    return backendArchives.length > 0 ? backendArchives : localHistory;
-  }, [backendArchives]);
+    return archives.length > 0 ? archives : getHistory();
+  }, [archives]);
 
   // Recharger le brouillon à chaque render (pas de useMemo!)
   const draft = getDraft();

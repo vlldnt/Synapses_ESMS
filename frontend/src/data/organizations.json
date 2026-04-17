@@ -1,0 +1,17 @@
+[
+  {
+    "id": "org_001",
+    "type": "IME",
+    "name": "Les Colibris"
+  },
+  {
+    "id": "org_002",
+    "type": "ESMS",
+    "name": "Centre Horizon"
+  },
+  {
+    "id": "org_003",
+    "type": "EHPAD",
+    "name": "Maison du Bien-Être"
+  }
+]

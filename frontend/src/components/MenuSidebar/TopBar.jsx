@@ -19,6 +19,10 @@ const routeTitles = {
     title: 'PPA M\u00e9dico-Social',
     subtitle: 'G\u00e9n\u00e9rez un projet personnalis\u00e9',
   },
+  '/interventions': {
+    title: 'Interventions',
+    subtitle: 'Consultez l\u2019historique de vos interventions',
+  },
   '/historique': {
     title: 'Historique',
     subtitle: "Consultez, g\u00e9rez et retrouvez l\u2019ensemble de vos documents g\u00e9n\u00e9r\u00e9s",

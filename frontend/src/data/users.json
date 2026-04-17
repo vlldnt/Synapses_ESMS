@@ -1,0 +1,32 @@
+[
+  {
+    "id": "usr_001",
+    "firstName": "Marie",
+    "lastName": "Dupont",
+    "email": "marie.dupont@synapses.fr",
+    "job": "Admin",
+    "organizationId": "org_001",
+    "is_admin": true,
+    "status": "active"
+  },
+  {
+    "id": "usr_002",
+    "firstName": "Thomas",
+    "lastName": "Martin",
+    "email": "thomas.martin@synapses.fr",
+    "job": "Éducateur spécialisé",
+    "organizationId": "org_002",
+    "is_admin": false,
+    "status": "active"
+  },
+  {
+    "id": "usr_003",
+    "firstName": "Laure",
+    "lastName": "Lefebvre",
+    "email": "laure.lefebvre@synapses.fr",
+    "job": "Directrice",
+    "organizationId": "org_003",
+    "is_admin": false,
+    "status": "active"
+  }
+]

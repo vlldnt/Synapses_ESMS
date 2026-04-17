@@ -8,23 +8,26 @@ export interface User {
   lastName: string;
   email: string;
   role: Role;
-  companyId: string;
+  job: string;
+  organizationId: string;
 }
 
-export interface Company {
+export interface Organization {
   id: string;
   name: string;
   /** Type court affiché dans l'UI — ex: "IME", "EHPAD", "CHRS" */
   type: string;
-  /** Description longue pour l'affichage UI */
-  description: string;
+  description?: string;
 }
+
+/** Alias pour compatibilité rétroactive */
+export type Company = Organization;
 
 // ─── Auth ──────────────────────────────────────────────────────────────────
 
 export interface AuthPayload {
   user: User;
-  company: Company;
+  organization: Organization;
 }
 
 // ─── Redux state partiel (pour typage des hooks) ──────────────────────────
@@ -33,7 +36,7 @@ export interface AuthState {
   isLogged: boolean;
   isLoading: boolean;
   user: User | null;
-  company: Company | null;
+  organization: Organization | null;
 }
 
 export interface RootState {

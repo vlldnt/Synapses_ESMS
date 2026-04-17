@@ -1,0 +1,44 @@
+[
+  {
+    "id": "ref_001",
+    "firstName": "Yousra",
+    "lastName": "Meddah",
+    "educator": "usr_002",
+    "organizationId": "org_001"
+  },
+  {
+    "id": "ref_002",
+    "firstName": "Lucas",
+    "lastName": "Durand",
+    "educator": "usr_002",
+    "organizationId": "org_001"
+  },
+  {
+    "id": "ref_003",
+    "firstName": "Emma",
+    "lastName": "Bernard",
+    "educator": "usr_003",
+    "organizationId": "org_001"
+  },
+  {
+    "id": "ref_004",
+    "firstName": "Chen",
+    "lastName": "Kwong",
+    "educator": "usr_002",
+    "organizationId": "org_001"
+  },
+  {
+    "id": "ref_005",
+    "firstName": "Erwan",
+    "lastName": "Janssen",
+    "educator": "usr_003",
+    "organizationId": "org_001"
+  },
+  {
+    "id": "ref_006",
+    "firstName": "Hugo",
+    "lastName": "Olivier",
+    "educator": "usr_002",
+    "organizationId": "org_001"
+  }
+]

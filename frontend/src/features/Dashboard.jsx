@@ -66,8 +66,7 @@ const ROLE_LABEL = {
 };
 
 function Dashboard() {
-  const { firstName, company } = useCurrentUser();
-  const role = useSelector((state) => state.role.role);
+  const { firstName, job, organization } = useCurrentUser();
   const [date, setDate] = useState('');
   const [history, setHistory] = useState([]);
 
@@ -81,7 +80,8 @@ function Dashboard() {
     setHistory(getHistory());
   }, []);
 
-  const etablissement = company?.name ?? 'ESMS';
+  const etablissementName = organization?.name ?? 'ESMS';
+  const organisationType = organization?.type ?? '';
 
   const total = history.length;
   const thisMonth = history.filter((e) => {
@@ -109,9 +109,11 @@ function Dashboard() {
         <div>
           <h1 className="text-xl md:text-3xl text-(--text-primary)">
             Bonjour {firstName}
-            <span className="ml-2 text-sm font-normal text-(--text-muted)">{ROLE_LABEL[role]}</span>
+            {job && <span className="ml-2 text-sm font-normal text-(--text-muted)">{job}</span>}
           </h1>
-          <p className="mt-1 text-xs md:text-sm text-(--text-muted)">{date} — {etablissement}</p>
+          <p className="mt-1 text-xs md:text-sm text-(--text-muted)">
+            {date} — {organisationType && `${organisationType} - `}{etablissementName}
+          </p>
         </div>
 
         {/* Stats row */}

@@ -9,7 +9,7 @@ import WordPreview from './WordPreview';
 import DownloadSuccessModal from './DownloadSuccessModal';
 import { downloadDocx, triggerDownload } from '../utils/wordExport';
 import { saveToHistory } from '../services/historyService';
-import { saveArchiveToBackend } from '../services/archiveService';
+import { saveArchive } from '../services/archive.service';
 
 // ─── Sous-composants ────────────────────────────────────────────────────────
 
@@ -169,7 +169,7 @@ export default function GeneratedResult({
             saveToHistory(archiveData);
 
             // Sauvegarder au backend
-            saveArchiveToBackend(archiveData).catch((err) => {
+            saveArchive(archiveData).catch((err) => {
               console.error('Erreur archivage backend:', err);
             });
 

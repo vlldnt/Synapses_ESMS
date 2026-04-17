@@ -1,0 +1,26 @@
+[
+  {
+    "id": "dashboard",
+    "label": "Tableau de bord",
+    "route": "/",
+    "icon": "LayoutDashboard",
+    "section": "Menu",
+    "roleAccess": ["agent", "direction", "admin"]
+  },
+  {
+    "id": "agents",
+    "label": "Générer un document",
+    "route": "/agents/compte-rendu",
+    "icon": "BotMessageSquare",
+    "section": "Agents",
+    "roleAccess": ["agent", "direction", "admin"]
+  },
+  {
+    "id": "historique",
+    "label": "Historique",
+    "route": "/historique",
+    "icon": "History",
+    "section": "Gestion",
+    "roleAccess": ["agent", "direction", "admin"]
+  }
+]

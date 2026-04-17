@@ -9,7 +9,7 @@ import {
   generateInterventionReport,
   DEFAULT_MODEL,
 } from '../../services/aiService';
-import { getChildren, formatChildName } from '../../services/childrenService';
+import { getReferences, formatReferenceName } from '../../services/reference.service';
 import { useCurrentUser } from '../../hooks/useCurrentUser';
 import { useSelector } from 'react-redux';
 import { getHistory } from '../../services/historyService';
@@ -84,7 +84,7 @@ function loadDraft() {
 }
 
 function InterventionReport() {
-  const { fullName, company } = useCurrentUser();
+  const { fullName, organization } = useCurrentUser();
   const role = useSelector((state) => state.role.role);
   const draft = loadDraft();
 
@@ -98,10 +98,10 @@ function InterventionReport() {
   const [interventionType, setInterventionType] = useState(
     draft.interventionType || '',
   );
-  const [selectedChildId, setSelectedChildId] = useState(
-    draft.selectedChildId || '',
+  const [selectedReferenceId, setSelectedChildId] = useState(
+    draft.selectedReferenceId || '',
   );
-  const [children, setChildren] = useState([]);
+  const [references, setReferences] = useState([]);
   const [transcription, setTranscription] = useState(draft.transcription || '');
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(draft.result || '');
@@ -135,8 +135,8 @@ function InterventionReport() {
   useEffect(() => {
     const fetchChildren = async () => {
       try {
-        const data = await getChildren();
-        setChildren(data);
+        const data = await getReferences();
+        setReferences(data);
       } catch (err) {
         console.error('Erreur lors du chargement des enfants:', err);
       }
@@ -164,14 +164,14 @@ function InterventionReport() {
     setReportStatus(nextStatus);
 
     // Récupérer le nom de l'enfant sélectionné
-    const selectedChild = children.find((c) => c.id === selectedChildId);
-    const childName = selectedChild ? formatChildName(selectedChild) : '';
+    const selectedReference = references.find((c) => c.id === selectedReferenceId);
+    const childName = selectedReference ? formatReferenceName(selectedReference) : '';
 
     localStorage.setItem(
       STORAGE_KEY,
       JSON.stringify({
         interventionType,
-        selectedChildId,
+        selectedReferenceId,
         transcription,
         result,
         validated,
@@ -183,14 +183,14 @@ function InterventionReport() {
         status: nextStatus,
         updatedAt: new Date().toISOString(),
         // Ajouter les infos de contexte pour l'affichage du brouillon
-        structureType: company?.type ?? '',
+        structureType: organization?.type ?? '',
         childName: childName, // Nom de l'enfant au lieu du professionnel
       }),
     );
     setLastSavedAt(new Date().toISOString());
   }, [
     interventionType,
-    selectedChildId,
+    selectedReferenceId,
     transcription,
     result,
     validated,
@@ -272,8 +272,8 @@ function InterventionReport() {
       const text = await generateInterventionReport({
         interventionType,
         transcription,
-        structureType: company?.type ?? '',
-        companyName: company?.name ?? '',
+        structureType: organization?.type ?? '',
+        companyName: organization?.name ?? '',
         educatorName: fullName,
         educatorRole: ROLE_LABELS[role] ?? role,
         date: today,
@@ -344,7 +344,7 @@ function InterventionReport() {
               <ContextBadge
                 icon={Building2}
                 label="Établissement"
-                value={company?.name ?? '—'}
+                value={organization?.name ?? '—'}
               />
               <ContextBadge
                 icon={User}
@@ -367,7 +367,7 @@ function InterventionReport() {
                   </span>
                 </span>
                 <span className="text-(--text-secondary)">
-                  {company?.type ?? '—'} - {company?.name ?? '—'}
+                  {organization?.type ?? '—'} - {organization?.name ?? '—'}
                 </span>
                 <span className="text-(--text-muted)">
                   {ROLE_LABELS[role] ?? role}
@@ -387,27 +387,27 @@ function InterventionReport() {
               {/* Sélection de l'enfant à charge */}
               <div className="flex flex-col gap-2">
                 <label
-                  htmlFor="child-select"
+                  htmlFor="reference-select"
                   className="text-[10px] md:text-sm font-medium text-(--text-primary)"
                 >
                   Enfant concerné
                 </label>
                 <select
-                  id="child-select"
-                  value={selectedChildId}
+                  id="reference-select"
+                  value={selectedReferenceId}
                   onChange={(e) => setSelectedChildId(e.target.value)}
                   className="rounded-xl border border-(--border) bg-(--bg-secondary) text-(--text-primary) px-4 py-2 md:text-base text-[10px] focus:outline-none focus:border-(--bleu-fonce) transition-colors w-full md:w-60"
                 >
                   <option className="text-[10px]" value="">
                     Sélectionnez un enfant…
                   </option>
-                  {children.map((child) => (
+                  {references.map((child) => (
                     <option
                       key={child.id}
                       value={child.id}
                       className="text-[10px]"
                     >
-                      {formatChildName(child)}
+                      {formatReferenceName(child)}
                     </option>
                   ))}
                 </select>
@@ -530,11 +530,11 @@ function InterventionReport() {
             generatedByModel={usedModel}
             downloadMeta={{
               interventionType,
-              structureType: company?.type ?? '',
-              companyName: company?.name ?? '',
+              structureType: organization?.type ?? '',
+              companyName: organization?.name ?? '',
               educatorName: fullName,
-              childName: selectedChildId
-                ? formatChildName(children.find((c) => c.id === selectedChildId) || {})
+              childName: selectedReferenceId
+                ? formatReferenceName(references.find((c) => c.id === selectedReferenceId) || {})
                 : '',
               date: today,
               modelId: usedModel?.id,

@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { getCurrentUser, getCompanyByUser } from '../services/userService';
+import { getCurrentUser } from '../services/user.service';
+import { getOrganizationByUser } from '../services/organization.service';
 
 // ─── Cookie helpers ────────────────────────────────────────────────────────
 
@@ -19,12 +20,16 @@ function deleteCookie(name) {
 
 // ─── Thunk : récupère user + company depuis userService ───────────────────
 
+/**
+ * Charge l'utilisateur courant selon le rôle sélectionné
+ * @param {string} role - Le rôle ('agent', 'direction', 'admin')
+ */
 export const fetchCurrentUser = createAsyncThunk(
   'auth/fetchCurrentUser',
-  async () => {
-    const user = await getCurrentUser();
-    const company = await getCompanyByUser(user);
-    return { user, company };
+  async (role = 'agent') => {
+    const user = await getCurrentUser(role);
+    const organization = await getOrganizationByUser(user);
+    return { user, organization };
   },
 );
 
@@ -37,8 +42,8 @@ const authSlice = createSlice({
     isLoading: false,
     /** @type {import('../types').User | null} */
     user: null,
-    /** @type {import('../types').Company | null} */
-    company: null,
+    /** @type {import('../types').Organization | null} */
+    organization: null,
   },
   reducers: {
     setLoading(state, action) {
@@ -51,23 +56,23 @@ const authSlice = createSlice({
       } else {
         deleteCookie('isLogged');
         state.user = null;
-        state.company = null;
+        state.organization = null;
       }
     },
     setUser(state, action) {
       state.user = action.payload;
     },
-    setCompany(state, action) {
-      state.company = action.payload;
+    setOrganization(state, action) {
+      state.organization = action.payload;
     },
   },
   extraReducers: (builder) => {
     builder.addCase(fetchCurrentUser.fulfilled, (state, action) => {
       state.user = action.payload.user;
-      state.company = action.payload.company;
+      state.organization = action.payload.organization;
     });
   },
 });
 
-export const { setLoading, setLogged, setUser, setCompany } = authSlice.actions;
+export const { setLoading, setLogged, setUser, setOrganization } = authSlice.actions;
 export default authSlice.reducer;

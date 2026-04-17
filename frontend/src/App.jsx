@@ -60,16 +60,17 @@ function App() {
   const dispatch = useDispatch();
   const isLogged = useSelector((state) => state.auth.isLogged);
   const theme = useSelector((state) => state.theme.theme);
+  const role = useSelector((state) => state.role.role);
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
   }, [theme]);
 
-  // Au chargement de la page, si la session cookie existe déjà,
-  // on récupère les données user/company depuis le service.
+  // Au chargement de la page ou changement de rôle, si la session cookie existe déjà,
+  // on récupère les données user/organization selon le rôle sélectionné.
   useEffect(() => {
-    if (isLogged) dispatch(fetchCurrentUser());
-  }, [isLogged, dispatch]);
+    if (isLogged) dispatch(fetchCurrentUser(role));
+  }, [isLogged, role, dispatch]);
 
   if (!isLogged)
     return (

@@ -1,11 +1,13 @@
 import { useSelector } from 'react-redux';
-import type { User, Company, RootState } from '../types';
+import type { User, Organization, RootState } from '../types';
 
 interface UseCurrentUserResult {
   user: User | null;
-  company: Company | null;
+  organization: Organization | null;
   /** Prénom seul, avec fallback sécurisé */
   firstName: string;
+  /** Métier/poste de l'utilisateur */
+  job: string;
   /** "Prénom Nom" complet, avec fallback */
   fullName: string;
   /** Initiales "PD" dérivées du nom complet */
@@ -18,9 +20,10 @@ interface UseCurrentUserResult {
  */
 export function useCurrentUser(): UseCurrentUserResult {
   const user = useSelector((state: RootState) => state.auth.user);
-  const company = useSelector((state: RootState) => state.auth.company);
+  const organization = useSelector((state: RootState) => state.auth.organization);
 
   const firstName = user?.firstName ?? 'Professionnel';
+  const job = user?.job ?? '';
   const fullName =
     user ? `${user.firstName} ${user.lastName}` : 'Professionnel';
 
@@ -29,5 +32,5 @@ export function useCurrentUser(): UseCurrentUserResult {
       ? `${user.firstName[0]}${user.lastName[0]}`.toUpperCase()
       : 'PR';
 
-  return { user, company, firstName, fullName, initials };
+  return { user, organization, firstName, job, fullName, initials };
 }

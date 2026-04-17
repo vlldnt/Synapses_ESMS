@@ -17,10 +17,10 @@ function ProfileDropdown({ photo = null, mobile = false }) {
   const dispatch = useDispatch();
   const theme = useSelector((state) => state.theme.theme);
   const role  = useSelector((state) => state.role.role);
-  const { fullName, initials, company } = useCurrentUser();
+  const { fullName, initials, organization } = useCurrentUser();
 
-  const jobType = company
-    ? `${ROLE_LABELS[role] ?? role} · ${company.type}`
+  const jobType = organization
+    ? `${ROLE_LABELS[role] ?? role} · ${organization.name}`
     : ROLE_LABELS[role] ?? role;
 
   const isDark = theme === 'dark';
