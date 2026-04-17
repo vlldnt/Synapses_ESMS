@@ -5,9 +5,9 @@ import Input from '../components/Input';
 import Button from '../components/Button';
 import RgpdNotice from '../components/RgpdNotice';
 import GeneratedResult from '../components/GeneratedResult';
-import structureTypes from '../data/structureTypes.json';
 import StepCard from '../components/Dashboard/StepCard';
 import { generatePPA } from '../services/aiService';
+import { getStructureTypeCategories } from '../services/structureType.service';
 import { downloadDocx } from '../utils/wordExport';
 
 const cardClass =
@@ -100,16 +100,29 @@ function PersonalizedProject() {
   const user = useSelector((state) => state.auth.user);
   const draft = loadDraft();
 
-  const [reference,     setReference]     = useState(draft.reference     || '');
-  const [structureType, setStructureType] = useState(draft.structureType || '');
-  const [ageGroup,      setAgeGroup]      = useState(draft.ageGroup      || '');
-  const [period,        setPeriod]        = useState(draft.period        || '');
-  const [selectedAxes,  setSelectedAxes]  = useState(draft.selectedAxes  || []);
-  const [notes,         setNotes]         = useState(draft.notes         || EMPTY_NOTES);
-  const [loading,       setLoading]       = useState(false);
-  const [result,        setResult]        = useState('');
-  const [validated,     setValidated]     = useState(false);
-  const [elapsed,       setElapsed]       = useState(null);
+  const [reference,              setReference]              = useState(draft.reference             || '');
+  const [structureType,          setStructureType]          = useState(draft.structureType         || '');
+  const [ageGroup,               setAgeGroup]               = useState(draft.ageGroup              || '');
+  const [period,                 setPeriod]                 = useState(draft.period                || '');
+  const [selectedAxes,           setSelectedAxes]           = useState(draft.selectedAxes          || []);
+  const [notes,                  setNotes]                  = useState(draft.notes                 || EMPTY_NOTES);
+  const [loading,                setLoading]                = useState(false);
+  const [result,                 setResult]                 = useState('');
+  const [validated,              setValidated]              = useState(false);
+  const [elapsed,                setElapsed]                = useState(null);
+  const [structureTypeCategories, setStructureTypeCategories] = useState([]);
+
+  // Load structure type categories
+  useEffect(() => {
+    (async () => {
+      try {
+        const categories = await getStructureTypeCategories();
+        setStructureTypeCategories(categories);
+      } catch (err) {
+        console.error('Failed to load structure types:', err);
+      }
+    })();
+  }, []);
 
   useEffect(() => {
     localStorage.setItem(
@@ -212,7 +225,7 @@ function PersonalizedProject() {
                 value={structureType}
                 onChange={setStructureType}
                 placeholder="Rechercher ou sélectionner…"
-                categories={structureTypes.categories}
+                categories={structureTypeCategories}
                 required
               />
               <Input

@@ -1,31 +1,54 @@
-import references from '../data/references.json';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+
+let referencesCache = [];
+
+/**
+ * Fetch references from API
+ */
+async function fetchReferences() {
+  try {
+    const response = await fetch(`${API_URL}/api/references`);
+    if (!response.ok) throw new Error(`API error: ${response.status}`);
+    referencesCache = await response.json();
+    return referencesCache;
+  } catch (err) {
+    console.warn('Error fetching references:', err);
+    return referencesCache;
+  }
+}
 
 /**
  * Retourne toutes les références (enfants suivis)
  */
 export async function getReferences() {
-  return references;
+  if (referencesCache.length === 0) {
+    await fetchReferences();
+  }
+  return referencesCache;
 }
 
 /**
  * Retourne une référence par ID
  */
 export async function getReferenceById(id) {
-  return references.find(r => r.id === id) || null;
+  const refs = await getReferences();
+  return refs.find(r => r.id === id) || null;
 }
 
 /**
  * Retourne les références assignées à un éducateur
  */
 export async function getReferencesByEducator(educatorId) {
-  return references.filter(r => r.educator === educatorId);
+  const refs = await getReferences();
+  return refs.filter(r => r.educator === educatorId);
 }
 
 /**
  * Retourne les références d'une organisation
  */
 export async function getReferencesByOrganization(organizationId) {
-  return references.filter(r => r.organizationId === organizationId);
+  const refs = await getReferences();
+  return refs.filter(r => r.organizationId === organizationId);
 }
 
 /**

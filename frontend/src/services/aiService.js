@@ -1,7 +1,30 @@
 import { OpenRouter } from '@openrouter/sdk';
-import prompts from '../data/prompts/prompts.json';
 
-const getPrompt = (name) => prompts.find((p) => p.name === name);
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+
+let promptsCache = [];
+
+/**
+ * Fetch prompts from API
+ */
+async function fetchPrompts() {
+  try {
+    const response = await fetch(`${API_URL}/api/prompts`);
+    if (!response.ok) throw new Error(`API error: ${response.status}`);
+    promptsCache = await response.json();
+    return promptsCache;
+  } catch (err) {
+    console.warn('Error fetching prompts:', err);
+    return promptsCache;
+  }
+}
+
+const getPrompt = async (name) => {
+  if (promptsCache.length === 0) {
+    await fetchPrompts();
+  }
+  return promptsCache.find((p) => p.name === name);
+};
 
 export const DEFAULT_MODEL = 'mistralai/voxtral-small-24b-2507';
 
@@ -27,8 +50,17 @@ async function getChatResponse({
     },
   });
 
-  const text = completion.choices?.[0]?.message?.content;
+  let text = completion.choices?.[0]?.message?.content;
   if (!text) throw new Error('Réponse OpenRouter vide ou inattendue.');
+
+  // Nettoyer les mentions d'IA qu'on ne veut pas
+  text = text
+    .replace(/⚠️\s*Aide IA\s*--\s*Validation humaine obligatoire avant diffusion[^\n]*/gi, '')
+    .replace(/Rédigé avec l'aide de l'IA\s*--\s*à relire et valider[^\n]*/gi, '')
+    .replace(/Texte généré avec l'aide d'une intelligence artificielle[^\n]*/gi, '')
+    .replace(/généré avec l'aide d'une intelligence artificielle[^\n]*/gi, '')
+    .replace(/Assisté par IA[^\n]*/gi, '')
+    .trim();
 
   return text;
 }
@@ -80,8 +112,9 @@ ${notes.suivi || 'Non renseigné'}
 Rédige un PPA complet en 10 sections selon la trame. Utilise les codes SERAFIN-PH officiels. Appuie-toi sur les observations pour chaque section.
 `.trim();
 
+  const promptData = await getPrompt('ppa_medico_social');
   return getChatResponse({
-    systemPrompt: getPrompt('ppa_medico_social').content,
+    systemPrompt: promptData?.content,
     userMessage,
     temperature: 0.4,
   });
@@ -128,8 +161,9 @@ ${transcription?.trim() || 'Aucune transcription fournie.'}
 Extrais les informations pertinentes de cette transcription et rédige un compte rendu complet en 7 sections selon la structure définie. Pour toute information manquante, indique « À compléter par le professionnel ».
 `.trim();
 
+  const promptData = await getPrompt('cr_intervention');
   return getChatResponse({
-    systemPrompt: getPrompt('cr_intervention').content,
+    systemPrompt: promptData?.content,
     userMessage,
     temperature: 0.4,
     model,

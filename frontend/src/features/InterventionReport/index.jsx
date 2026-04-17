@@ -3,6 +3,7 @@ import { FilePlus, Building2, User, CalendarDays } from 'lucide-react';
 import Button from '../../components/Button';
 import RgpdNotice from '../../components/RgpdNotice';
 import GeneratedResult from '../../components/GeneratedResult';
+import GeneratingReportModal from '../../components/GeneratingReportModal';
 import VoiceTextarea from '../../components/VoiceTextarea';
 import StepCard from '../../components/Dashboard/StepCard';
 import {
@@ -104,10 +105,11 @@ function InterventionReport() {
   const [references, setReferences] = useState([]);
   const [transcription, setTranscription] = useState(draft.transcription || '');
   const [loading, setLoading] = useState(false);
+  const [loadingMessageIndex, setLoadingMessageIndex] = useState(0);
+  const [showGeneratingModal, setShowGeneratingModal] = useState(false);
   const [result, setResult] = useState(draft.result || '');
   const [validated, setValidated] = useState(Boolean(draft.validated));
   const [elapsed, setElapsed] = useState(draft.elapsed || null);
-  const [loadingMessageIndex, setLoadingMessageIndex] = useState(0);
   const [isArchived, setIsArchived] = useState(Boolean(draft.isArchived));
   const [lastSavedAt, setLastSavedAt] = useState(draft.updatedAt || null);
   const [reportStatus, setReportStatus] = useState(
@@ -203,8 +205,12 @@ function InterventionReport() {
 
   // Pendant le chargement, alterne un message aléatoire toutes les 2 secondes.
   useEffect(() => {
-    if (!loading) return undefined;
+    if (!loading) {
+      setShowGeneratingModal(false);
+      return undefined;
+    }
 
+    setShowGeneratingModal(true);
     setLoadingMessageIndex(Math.floor(Math.random() * LOADING_MESSAGES.length));
 
     const intervalId = window.setInterval(() => {
@@ -527,7 +533,7 @@ function InterventionReport() {
             onRegenerate={() => handleSubmit({ preventDefault: () => {} })}
             onArchived={handleArchived}
             validationText="Je confirme avoir relu, vérifié et, si besoin, corrigé ce compte rendu. Je reste l'auteur et le responsable de ce document. L'IA est un outil d'assistance, non un substitut au jugement professionnel."
-            generatedByModel={usedModel}
+            generatedByModel={usedModel || { id: selectedModelId, name: selectedModelName }}
             downloadMeta={{
               interventionType,
               structureType: organization?.type ?? '',
@@ -537,11 +543,17 @@ function InterventionReport() {
                 ? formatReferenceName(references.find((c) => c.id === selectedReferenceId) || {})
                 : '',
               date: today,
-              modelId: usedModel?.id,
-              modelName: usedModel?.name,
+              modelId: usedModel?.id || selectedModelId,
+              modelName: usedModel?.name || selectedModelName,
             }}
           />
         )}
+
+        {/* Modal de génération */}
+        <GeneratingReportModal
+          isOpen={showGeneratingModal}
+          message={LOADING_MESSAGES[loadingMessageIndex]}
+        />
       </div>
     </div>
   );

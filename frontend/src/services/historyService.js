@@ -1,15 +1,7 @@
-import mockArchive from '../data/historyArchive.json';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
-const HISTORY_STORAGE_KEY = 'synapses_archived_reports';
-
-// Initialiser mockDb avec les données de historyArchive.json + localStorage
-function initializeDb() {
-  const stored = localStorage.getItem(HISTORY_STORAGE_KEY);
-  const localArchive = stored ? JSON.parse(stored) : [];
-  return [...mockArchive, ...localArchive];
-}
-
-const mockDb = initializeDb();
+// In-memory cache for instant UI updates
+let historyCache = [];
 
 /**
  * @typedef {object} HistoryEntry
@@ -24,7 +16,10 @@ const mockDb = initializeDb();
  * @property {string}  createdAt        - ISO datetime de création
  */
 
-export function saveToHistory({
+/**
+ * Save a new archive to the backend
+ */
+export async function saveToHistory({
   text,
   date,
   interventionType,
@@ -37,9 +32,7 @@ export function saveToHistory({
   modelName,
   docxBase64,
 }) {
-  /** @type {HistoryEntry & { status: string, reference?: string, modelId?: string, modelName?: string, docxBase64?: string }} */
   const entry = {
-    id: Date.now(),
     status: 'archived',
     filename: filename || `CR_${date || 'intervention'}.docx`,
     date: date || new Date().toISOString().slice(0, 10),
@@ -52,39 +45,72 @@ export function saveToHistory({
     modelName: modelName || 'Voxtral Small 24B',
     text: text || '',
     docxBase64: docxBase64 || '',
-    createdAt: new Date().toISOString(),
   };
 
-  mockDb.unshift(entry);
-
-  // Persister dans localStorage
   try {
-    // Garder uniquement les archives (pas historyArchive.json initial)
-    const localArchives = mockDb.filter((e) => !mockArchive.find((m) => m.id === e.id));
-    localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(localArchives));
+    const response = await fetch(`${API_URL}/api/archives`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(entry),
+    });
+
+    if (!response.ok) throw new Error(`API error: ${response.status}`);
+
+    const savedEntry = await response.json();
+
+    // Update cache
+    historyCache.unshift(savedEntry);
+
+    return savedEntry;
   } catch (err) {
-    console.warn('Impossible de sauvegarder en localStorage:', err);
+    console.error('Error saving archive:', err);
+    throw err;
   }
 }
 
-/** @returns {HistoryEntry[]} */
-export function getHistory() {
-  return [...mockDb].sort(
-    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
-  );
+/**
+ * Fetch all archives from the backend
+ */
+export async function getHistory() {
+  try {
+    const response = await fetch(`${API_URL}/api/archives`);
+
+    if (!response.ok) throw new Error(`API error: ${response.status}`);
+
+    const archives = await response.json();
+
+    // Update cache
+    historyCache = archives;
+
+    return archives.sort(
+      (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+    );
+  } catch (err) {
+    console.warn('Error fetching archives, falling back to cache:', err);
+    // Fallback to cache if backend is unavailable
+    return historyCache.sort(
+      (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+    );
+  }
 }
 
-export function deleteFromHistory(id) {
-  const index = mockDb.findIndex((entry) => entry.id === id);
-  if (index >= 0) {
-    mockDb.splice(index, 1);
+/**
+ * Delete an archive from the backend
+ */
+export async function deleteFromHistory(id) {
+  try {
+    const response = await fetch(`${API_URL}/api/archives/${id}`, {
+      method: 'DELETE',
+    });
 
-    // Mettre à jour localStorage
-    try {
-      const localArchives = mockDb.filter((e) => !mockArchive.find((m) => m.id === e.id));
-      localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(localArchives));
-    } catch (err) {
-      console.warn('Impossible de mettre à jour localStorage:', err);
-    }
+    if (!response.ok) throw new Error(`API error: ${response.status}`);
+
+    // Update cache
+    historyCache = historyCache.filter((e) => e.id !== id);
+
+    return true;
+  } catch (err) {
+    console.error('Error deleting archive:', err);
+    throw err;
   }
 }

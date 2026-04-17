@@ -1,207 +1,258 @@
 import {
-  Document, Packer, Paragraph, TextRun, HeadingLevel,
-  BorderStyle, Table, TableRow, TableCell, WidthType,
-  ShadingType, AlignmentType,
+  Document,
+  Packer,
+  Paragraph,
+  TextRun,
+  HeadingLevel,
+  BorderStyle,
+  Table,
+  TableRow,
+  TableCell,
+  WidthType,
+  TableLayoutType,
+  ShadingType,
+  AlignmentType,
 } from 'docx';
-import { saveToHistory } from '../services/historyService';
 
-// ─── Constantes de style ────────────────────────────────────────────────────
+// ───────────────────────────────────────────────────────────
+// 🎨 Styles
+// ───────────────────────────────────────────────────────────
 
-// Largeur utile en twips pour A4 avec marges 2 cm de chaque côté
-// A4 = 11906 twips, marges = 1134 twips × 2 → utile ≈ 9638 twips
-const PAGE_WIDTH_TWIPS = 9638;
-
-const BRAND_BLUE   = '0D66D4';
-const BRAND_BLUE_BG = 'DBEAFE'; // fond en-tête tableau
+const BRAND_BLUE = '0D66D4';
+const BRAND_BLUE_BG = 'DBEAFE';
 const BORDER_COLOR = 'C8D9EF';
-const ALT_ROW_BG   = 'F8FAFC';
+const ALT_ROW_BG = 'F8FAFC';
 
 const CELL_BORDER = {
   style: BorderStyle.SINGLE,
   size: 4,
   color: BORDER_COLOR,
 };
+
 const CELL_BORDERS = {
-  top: CELL_BORDER, bottom: CELL_BORDER,
-  left: CELL_BORDER, right: CELL_BORDER,
+  top: CELL_BORDER,
+  bottom: CELL_BORDER,
+  left: CELL_BORDER,
+  right: CELL_BORDER,
 };
 
-// ─── Helpers inline (bold **…**) ────────────────────────────────────────────
+// ───────────────────────────────────────────────────────────
+// ✏️ Inline bold (**text**)
+// ───────────────────────────────────────────────────────────
 
-function inlineRuns(text, baseSize = 20) {
-  const parts = text.split(/(\*\*.+?\*\*)/g);
-  return parts
-    .filter((p) => p !== '')
+function inlineRuns(text, size = 20) {
+  return text
+    .split(/(\*\*.+?\*\*)/g)
+    .filter(Boolean)
     .map((part) => {
-      const m = part.match(/^\*\*(.+)\*\*$/);
-      return m
-        ? new TextRun({ text: m[1], bold: true, size: baseSize })
-        : new TextRun({ text: part, size: baseSize });
+      const match = part.match(/^\*\*(.+)\*\*$/);
+      return new TextRun({
+        text: match ? match[1] : part,
+        bold: !!match,
+        size,
+      });
     });
 }
 
-// ─── Parser Markdown → blocs sémantiques ─────────────────────────────────
+// ───────────────────────────────────────────────────────────
+// 🧠 Markdown Parser SAFE
+// ───────────────────────────────────────────────────────────
 
-/**
- * Convertit une chaîne Markdown en tableau de blocs typés.
- * Gère : titres (#/##/###), **gras**, ----, listes, tableaux GFM, paragraphes.
- */
 function parseMarkdown(text) {
-  const rawLines = text.split('\n');
+  const lines = text.split('\n');
   const blocks = [];
   let i = 0;
 
-  while (i < rawLines.length) {
-    const line = rawLines[i];
-    const trimmed = line.trim();
+  while (i < lines.length) {
+    const line = lines[i].trim();
 
-    // ── Tableau Markdown (lignes | … |) ─────────────────────────────────
-    if (trimmed.startsWith('|') && trimmed.endsWith('|') && trimmed.length > 2) {
+    // ── TABLE ─────────────────────────────
+    if (line.startsWith('|') && line.endsWith('|')) {
       const tableLines = [];
-      while (i < rawLines.length) {
-        const t = rawLines[i].trim();
-        if (t.startsWith('|') && t.endsWith('|')) {
-          tableLines.push(t);
-          i++;
-        } else {
-          break;
-        }
+
+      while (i < lines.length && lines[i].trim().startsWith('|')) {
+        tableLines.push(lines[i].trim());
+        i++;
       }
-      // Filtrer la ligne séparateur (|---|---|)
-      const contentLines = tableLines.filter(
-        (l) => !/^\|[-:| ]+\|$/.test(l),
-      );
-      if (contentLines.length > 0) {
-        const parseRow = (l) =>
-          l
-            .slice(1, -1)
-            .split('|')
-            .map((c) => c.trim());
+
+      const clean = tableLines.filter((l) => !/^\|[-:| ]+\|$/.test(l));
+
+      const parseRow = (l) => {
+        const cells = l
+          .slice(1, -1)
+          .split('|')
+          .map((c) => c.trim())
+          .filter((c) => c !== '');
+
+        // 🔥 sécurité anti PDF cassé
+        if (cells.length > 10) {
+          return [l.replace(/\|/g, '').trim()];
+        }
+
+        return cells;
+      };
+
+      if (clean.length) {
+        // Convert table to structured list format instead of table
         blocks.push({
-          type: 'table',
-          headers: parseRow(contentLines[0]),
-          rows: contentLines.slice(1).map(parseRow),
+          type: 'table-as-list',
+          headers: parseRow(clean[0]),
+          rows: clean.slice(1).map(parseRow),
         });
       }
+
       continue;
     }
 
-    // ── Titres # / ## / ### ─────────────────────────────────────────────
-    const headingMatch = trimmed.match(/^(#{1,3})\s+(.+)/);
-    if (headingMatch) {
-      blocks.push({
-        type: `h${headingMatch[1].length}`,
-        text: headingMatch[2],
-      });
+    // ── HEADINGS ──────────────────────────
+    const h = line.match(/^(#{1,3})\s+(.+)/);
+    if (h) {
+      blocks.push({ type: `h${h[1].length}`, text: h[2] });
       i++;
       continue;
     }
 
-    // ── Titre **gras seul** ───────────────────────────────────────────────
-    const boldTitle = trimmed.match(/^\*\*(.+)\*\*$/);
-    if (boldTitle) {
-      blocks.push({ type: 'h1', text: boldTitle[1] });
-      i++;
-      continue;
-    }
-
-    // ── Séparateur --- ────────────────────────────────────────────────────
-    if (/^-{3,}$/.test(trimmed)) {
+    // ── HR ────────────────────────────────
+    if (/^-{3,}$/.test(line)) {
       blocks.push({ type: 'hr' });
       i++;
       continue;
     }
 
-    // ── Bullet **label**: valeur ──────────────────────────────────────────
-    const bulletBold = trimmed.match(/^[*-]\s+\*\*(.+?):\*\*\s*(.*)/);
-    if (bulletBold) {
-      blocks.push({ type: 'bullet-bold', label: bulletBold[1], value: bulletBold[2] });
+    // ── BULLET ───────────────────────────
+    if (line.startsWith('- ') || line.startsWith('* ')) {
+      blocks.push({ type: 'bullet', text: line.slice(2) });
       i++;
       continue;
     }
 
-    // ── Bullet simple ─────────────────────────────────────────────────────
-    if (trimmed.startsWith('- ') || trimmed.startsWith('* ')) {
-      blocks.push({ type: 'bullet', text: trimmed.slice(2) });
-      i++;
-      continue;
-    }
-
-    // ── Ligne vide ────────────────────────────────────────────────────────
-    if (trimmed === '') {
+    // ── EMPTY ────────────────────────────
+    if (!line) {
       blocks.push({ type: 'empty' });
       i++;
       continue;
     }
 
-    // ── Paragraphe ───────────────────────────────────────────────────────
-    blocks.push({ type: 'paragraph', text: trimmed });
+    // ── PARAGRAPH ────────────────────────
+    blocks.push({ type: 'paragraph', text: line });
     i++;
   }
 
   return blocks;
 }
 
-// ─── Rendu DOCX d'un tableau Markdown ────────────────────────────────────
+// ───────────────────────────────────────────────────────────
+// 📊 TABLE DOCX FULL WIDTH
+// ───────────────────────────────────────────────────────────
 
 function buildDocxTable({ headers, rows }) {
   const colCount = headers.length || 1;
-  // Largeur en twips pour chaque colonne
-  const colWidth = Math.floor(PAGE_WIDTH_TWIPS / colCount);
 
   const headerRow = new TableRow({
     tableHeader: true,
-    children: headers.map((h) =>
-      new TableCell({
-        width: { size: colWidth, type: WidthType.DXA },
-        borders: CELL_BORDERS,
-        shading: { type: ShadingType.SOLID, fill: BRAND_BLUE_BG, color: BRAND_BLUE_BG },
-        margins: { top: 60, bottom: 60, left: 80, right: 80 },
-        verticalAlign: 'center',
-        children: [
-          new Paragraph({
-            alignment: AlignmentType.CENTER,
-            spacing: { before: 40, after: 40 },
-            children: [
-              new TextRun({ text: h, bold: true, size: 16, color: BRAND_BLUE }),
-            ],
-          }),
-        ],
-      }),
-    ),
-  });
-
-  const dataRows = rows.map((row, ri) =>
-    new TableRow({
-      children: row.map((cell) =>
+    children: headers.map(
+      (h) =>
         new TableCell({
-          width: { size: colWidth, type: WidthType.DXA },
+          width: { size: 100 / colCount, type: WidthType.PERCENTAGE },
           borders: CELL_BORDERS,
-          margins: { top: 60, bottom: 60, left: 80, right: 80 },
-          verticalAlign: 'top',
-          shading:
-            ri % 2 === 1
-              ? { type: ShadingType.SOLID, fill: ALT_ROW_BG, color: ALT_ROW_BG }
-              : undefined,
+          shading: {
+            type: ShadingType.SOLID,
+            fill: BRAND_BLUE_BG,
+          },
           children: [
             new Paragraph({
-              spacing: { before: 40, after: 40 },
-              alignment: AlignmentType.LEFT,
-              children: inlineRuns(cell, 13),
+              alignment: AlignmentType.CENTER,
+              children: [
+                new TextRun({
+                  text: h,
+                  bold: true,
+                  size: 20,
+                  color: BRAND_BLUE,
+                }),
+              ],
             }),
           ],
         }),
-      ),
-    }),
+    ),
+  });
+
+  const dataRows = rows.map(
+    (row, i) =>
+      new TableRow({
+        children: row.map(
+          (cell) =>
+            new TableCell({
+              width: { size: 100 / colCount, type: WidthType.PERCENTAGE },
+              borders: CELL_BORDERS,
+              shading:
+                i % 2
+                  ? { type: ShadingType.SOLID, fill: ALT_ROW_BG }
+                  : undefined,
+              children: [
+                new Paragraph({
+                  children: inlineRuns(cell, 20),
+                }),
+              ],
+            }),
+        ),
+      }),
   );
 
   return new Table({
-    width: { size: 100, type: WidthType.PERCENTAGE },
+    width: { size: 100, type: WidthType.PERCENTAGE }, // ✅ FULL WIDTH
+    layout: TableLayoutType.AUTOFIT,
     rows: [headerRow, ...dataRows],
   });
 }
 
-// ─── Blocs Markdown → éléments DOCX ─────────────────────────────────────
+// ───────────────────────────────────────────────────────────
+// 📋 TABLE AS LIST (structured paragraphs)
+// ───────────────────────────────────────────────────────────
+
+function buildDocxTableAsList({ headers, rows }) {
+  const paragraphs = [];
+
+  // Add header row as intro line
+  if (headers && headers.length > 0) {
+    paragraphs.push(
+      new Paragraph({
+        children: [
+          new TextRun({
+            text: headers.join(' • '),
+            bold: true,
+            size: 20,
+            color: BRAND_BLUE,
+          }),
+        ],
+        spacing: { line: 360, after: 200 },
+      }),
+    );
+  }
+
+  // Add data rows as structured paragraphs
+  rows.forEach((row, idx) => {
+    const rowText = row
+      .map((cell, colIdx) => {
+        const header = headers[colIdx] || '';
+        return header ? `${header}: ${cell}` : cell;
+      })
+      .join('\n');
+
+    paragraphs.push(
+      new Paragraph({
+        bullet: { level: 0 },
+        children: inlineRuns(rowText),
+        spacing: { line: 360, after: 240 },
+      }),
+    );
+  });
+
+  return paragraphs;
+}
+
+// ───────────────────────────────────────────────────────────
+// 📄 Blocks → DOCX
+// ───────────────────────────────────────────────────────────
 
 function blocksToDocx(blocks) {
   return blocks.flatMap((block) => {
@@ -209,28 +260,19 @@ function blocksToDocx(blocks) {
       case 'h1':
         return new Paragraph({
           heading: HeadingLevel.HEADING_1,
-          spacing: { before: 320, after: 120 },
-          children: [
-            new TextRun({ text: block.text, bold: true, size: 28, color: BRAND_BLUE }),
-          ],
+          children: [new TextRun({ text: block.text, bold: true, size: 32 })],
         });
 
       case 'h2':
         return new Paragraph({
           heading: HeadingLevel.HEADING_2,
-          spacing: { before: 240, after: 80 },
-          children: [
-            new TextRun({ text: block.text, bold: true, size: 22 }),
-          ],
+          children: [new TextRun({ text: block.text, bold: true, size: 26 })],
         });
 
       case 'h3':
         return new Paragraph({
           heading: HeadingLevel.HEADING_3,
-          spacing: { before: 160, after: 60 },
-          children: [
-            new TextRun({ text: block.text, bold: true, size: 20 }),
-          ],
+          children: [new TextRun({ text: block.text, bold: true, size: 22 })],
         });
 
       case 'hr':
@@ -238,206 +280,69 @@ function blocksToDocx(blocks) {
           border: {
             bottom: { style: BorderStyle.SINGLE, size: 6, color: BRAND_BLUE },
           },
-          spacing: { before: 120, after: 120 },
-          text: '',
-        });
-
-      case 'bullet-bold':
-        return new Paragraph({
-          bullet: { level: 0 },
-          spacing: { before: 60, after: 60 },
-          children: [
-            new TextRun({ text: `${block.label} : `, bold: true, size: 20 }),
-            new TextRun({ text: block.value, size: 20 }),
-          ],
         });
 
       case 'bullet':
         return new Paragraph({
           bullet: { level: 0 },
-          spacing: { before: 60, after: 60 },
           children: inlineRuns(block.text),
         });
 
       case 'table':
         return [
-          new Paragraph({ text: '', spacing: { before: 160 } }),
-          buildDocxTable({ headers: block.headers, rows: block.rows }),
-          new Paragraph({ text: '', spacing: { after: 160 } }),
+          new Paragraph({ text: '' }),
+          buildDocxTable(block),
+          new Paragraph({ text: '' }),
+        ];
+
+      case 'table-as-list':
+        // Convert table to structured list format
+        return [
+          new Paragraph({ text: '' }),
+          ...buildDocxTableAsList(block),
+          new Paragraph({ text: '' }),
         ];
 
       case 'empty':
-        return new Paragraph({ text: '', spacing: { before: 60 } });
+        return new Paragraph({ text: '' });
 
       default:
         return new Paragraph({
-          spacing: { before: 80, after: 80 },
           children: inlineRuns(block.text),
         });
     }
   });
 }
 
-// ─── En-tête professionnel du document ───────────────────────────────────
+// ───────────────────────────────────────────────────────────
+// 📦 EXPORT DOCX
+// ───────────────────────────────────────────────────────────
 
-function buildDocumentHeader({ companyName, interventionType, educatorName, date, modelName, modelId }) {
-  const formattedDate = date
-    ? new Intl.DateTimeFormat('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' })
-        .format(new Date(date))
-    : new Intl.DateTimeFormat('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' })
-        .format(new Date());
-
-  return [
-    // Nom de l'établissement
-    new Paragraph({
-      alignment: AlignmentType.CENTER,
-      spacing: { before: 0, after: 80 },
-      children: [
-        new TextRun({ text: companyName || 'Établissement ESMS', bold: true, size: 28, color: BRAND_BLUE }),
-      ],
-    }),
-    // Titre document
-    new Paragraph({
-      alignment: AlignmentType.CENTER,
-      spacing: { before: 40, after: 80 },
-      children: [
-        new TextRun({ text: 'COMPTE RENDU D\'INTERVENTION', bold: true, size: 24, color: '374151' }),
-      ],
-    }),
-    // Métadonnées
-    new Paragraph({
-      alignment: AlignmentType.CENTER,
-      spacing: { before: 0, after: 60 },
-      children: [
-        new TextRun({ text: interventionType || '', size: 18, color: '6B7280' }),
-        new TextRun({ text: '  ·  ', size: 18, color: 'D1D5DB' }),
-        new TextRun({ text: formattedDate, size: 18, color: '6B7280' }),
-        ...(educatorName ? [
-          new TextRun({ text: '  ·  ', size: 18, color: 'D1D5DB' }),
-          new TextRun({ text: educatorName, size: 18, color: '6B7280' }),
-        ] : []),
-      ],
-    }),
-    // Modèle utilisé
-    ...(modelName || modelId ? [
-      new Paragraph({
-        alignment: AlignmentType.CENTER,
-        spacing: { before: 0, after: 80 },
-        children: [
-          new TextRun({
-            text: `Assisté par IA · ${modelName || modelId}`,
-            size: 16,
-            color: '9CA3AF',
-            italics: true,
-          }),
-        ],
-      }),
-    ] : []),
-    // Séparateur
-    new Paragraph({
-      border: { bottom: { style: BorderStyle.SINGLE, size: 8, color: BRAND_BLUE } },
-      spacing: { before: 80, after: 120 },
-      text: '',
-    }),
-  ];
-}
-
-// ─── Export principal ─────────────────────────────────────────────────────
-
-/**
- * Génère et télécharge le fichier .docx, puis l'ajoute aux archives mock.
- *
- * @param {object} params
- * @param {string} params.text           - Texte Markdown du compte rendu
- * @param {string} [params.date]         - Date de l'intervention (ISO)
- * @param {string} [params.interventionType]
- * @param {string} [params.structureType]
- * @param {string} [params.companyName]
- * @param {string} [params.educatorName]
- * @param {string} [params.modelId]
- * @param {string} [params.modelName]
- * @param {boolean} [params.addToHistory]
- */
-export async function downloadDocx({
-  text,
-  date,
-  interventionType,
-  structureType,
-  companyName,
-  educatorName,
-  modelId,
-  modelName,
-  addToHistory = true,
-}) {
-  const today = date || new Date().toISOString().slice(0, 10);
+export async function downloadDocx({ text }) {
   const blocks = parseMarkdown(text);
-
-  const header = buildDocumentHeader({ companyName, interventionType, educatorName, date, modelName, modelId });
   const body = blocksToDocx(blocks);
 
-  // Pas de footer - le document s'arrête à la conclusion
-
   const doc = new Document({
-    styles: {
-      paragraphStyles: [
-        {
-          id: 'Normal',
-          name: 'Normal',
-          run: { font: 'Calibri', size: 20 },
-        },
-        {
-          id: 'Heading1',
-          name: 'Heading 1',
-          basedOn: 'Normal',
-          run: { bold: true, size: 28, color: BRAND_BLUE, font: 'Calibri' },
-        },
-      ],
-    },
     sections: [
       {
-        properties: {
-          page: {
-            margin: { top: 1134, right: 1134, bottom: 1134, left: 1134 },
-          },
-        },
-        children: [...header, ...body],
+        properties: {},
+        children: body,
       },
     ],
   });
 
   const blob = await Packer.toBlob(doc);
 
-  // Format: CRI_Prenom_NomInitiale-Date(format FR).docx
-  // Ex: CRI_Adrien_V-16-04-2026.docx
-  const typePrefix = 'CRI';
-  const nameParts = educatorName?.split(/\s+/) || [];
-  const firstName = nameParts[0] || '';
-  const lastNameInitial = nameParts.length > 1 ? nameParts[nameParts.length - 1][0].toUpperCase() : '';
-
-  // Convertir la date en format français JJ-MM-YYYY
-  const [year, month, day] = today.split('-');
-  const dateFR = `${day}-${month}-${year}`;
-
-  const filename = `${typePrefix}_${firstName}_${lastNameInitial}-${dateFR}.docx`;
-
-  // Retourner le blob et le filename pour que le caller gère le téléchargement et la sauvegarde
   return {
     blob,
-    filename,
-    date: today,
-    text,
-    interventionType,
-    structureType,
-    companyName,
-    educatorName,
-    modelId,
-    modelName,
+    filename: `document.docx`,
   };
 }
 
-/**
- * Télécharge un fichier (blob) avec le nom spécifié
- */
+// ───────────────────────────────────────────────────────────
+// ⬇️ DOWNLOAD
+// ───────────────────────────────────────────────────────────
+
 export function triggerDownload(blob, filename) {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');

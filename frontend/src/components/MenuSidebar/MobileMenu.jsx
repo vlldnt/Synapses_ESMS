@@ -24,9 +24,15 @@ function MobileMenu() {
   const role = useSelector((state) => state.role.role);
 
   useEffect(() => {
-    const allMenus = getMenusByRole(role);
-    // Limiter à 3 items principaux pour le mobile
-    setMenus(allMenus.slice(0, 3));
+    (async () => {
+      try {
+        const allMenus = await getMenusByRole(role);
+        // Limiter à 3 items principaux pour le mobile
+        setMenus(allMenus.slice(0, 3));
+      } catch (err) {
+        console.error('Failed to load menus:', err);
+      }
+    })();
   }, [role]);
 
   return (

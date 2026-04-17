@@ -14,7 +14,7 @@ export default function DownloadSuccessModal({ isOpen, onClose }) {
           clearInterval(interval);
           return 100;
         }
-        return prev + (100 / 20); // 20 ticks = 2 secondes
+        return prev + (100 / 10); // 10 ticks = 1 seconde
       });
     }, 100);
 

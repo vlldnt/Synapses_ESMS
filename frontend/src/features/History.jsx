@@ -3,10 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import { FileText, Download, X, Clock3 } from 'lucide-react';
 import Button from '../components/Button';
 import WordPreview from '../components/WordPreview';
-import { getHistory } from '../services/historyService';
+import { getHistory, deleteFromHistory } from '../services/historyService';
 import { downloadDocx, triggerDownload } from '../utils/wordExport';
 import { formatReportName } from '../utils/reportNameFormatter';
-import { getArchives } from '../services/archive.service';
 
 const DRAFT_STORAGE_KEY = 'cr_intervention_draft';
 
@@ -22,29 +21,23 @@ function History() {
   const navigate = useNavigate();
   const [selectedEntry, setSelectedEntry] = useState(null);
   const [isDownloading, setIsDownloading] = useState(false);
-  const [archives, setArchives] = useState([]);
+  const [history, setHistory] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Charger les archives du localStorage au montage
+  // Fetch archives on mount
   useEffect(() => {
-    let isMounted = true;
-
-    getArchives().then((loadedArchives) => {
-      if (isMounted) {
-        setArchives(loadedArchives);
+    (async () => {
+      try {
+        const archives = await getHistory();
+        setHistory(archives);
+      } catch (err) {
+        console.error('Failed to load history:', err);
+        setHistory([]);
+      } finally {
         setIsLoading(false);
       }
-    });
-
-    return () => {
-      isMounted = false;
-    };
+    })();
   }, []);
-
-  // Utiliser les archives depuis localStorage uniquement
-  const history = useMemo(() => {
-    return archives.length > 0 ? archives : getHistory();
-  }, [archives]);
 
   // Recharger le brouillon à chaque render (pas de useMemo!)
   const draft = getDraft();

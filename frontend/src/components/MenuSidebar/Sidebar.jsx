@@ -27,8 +27,14 @@ function Sidebar() {
   const role = useSelector((state) => state.role.role);
 
   useEffect(() => {
-    const menus = getMenusBySection(role);
-    setMenusBySection(menus);
+    (async () => {
+      try {
+        const menus = await getMenusBySection(role);
+        setMenusBySection(menus);
+      } catch (err) {
+        console.error('Failed to load menus:', err);
+      }
+    })();
   }, [role]);
 
   return (

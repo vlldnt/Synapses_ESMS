@@ -1,10 +1,30 @@
-import menus from '../data/menus.json';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+
+let menusCache = [];
+
+/**
+ * Fetch menus from API
+ */
+async function fetchMenus() {
+  try {
+    const response = await fetch(`${API_URL}/api/menus`);
+    if (!response.ok) throw new Error(`API error: ${response.status}`);
+    menusCache = await response.json();
+    return menusCache;
+  } catch (err) {
+    console.warn('Error fetching menus:', err);
+    return menusCache;
+  }
+}
 
 /**
  * Retourne tous les menus
  */
-export function getMenus() {
-  return menus;
+export async function getMenus() {
+  if (menusCache.length === 0) {
+    await fetchMenus();
+  }
+  return menusCache;
 }
 
 /**
@@ -12,7 +32,8 @@ export function getMenus() {
  * @param {string} role - Le rôle de l'utilisateur ('agent', 'direction', 'admin', etc.)
  * @returns {Array} Les menus accessibles pour ce rôle
  */
-export function getMenusByRole(role) {
+export async function getMenusByRole(role) {
+  const menus = await getMenus();
   if (!role) return menus;
   return menus.filter(menu =>
     menu.roleAccess && menu.roleAccess.includes(role)
@@ -24,8 +45,8 @@ export function getMenusByRole(role) {
  * @param {string} role - Le rôle de l'utilisateur
  * @returns {Object} Objet avec sections comme clés
  */
-export function getMenusBySection(role) {
-  const filtered = role ? getMenusByRole(role) : menus;
+export async function getMenusBySection(role) {
+  const filtered = role ? await getMenusByRole(role) : await getMenus();
 
   const grouped = {};
   filtered.forEach(menu => {
@@ -42,14 +63,15 @@ export function getMenusBySection(role) {
 /**
  * Retourne un menu par son ID
  */
-export function getMenuById(id) {
+export async function getMenuById(id) {
+  const menus = await getMenus();
   return menus.find(m => m.id === id) || null;
 }
 
 /**
  * Retourne la route d'un menu
  */
-export function getMenuRoute(menuId) {
-  const menu = getMenuById(menuId);
+export async function getMenuRoute(menuId) {
+  const menu = await getMenuById(menuId);
   return menu ? menu.route : null;
 }

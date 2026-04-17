@@ -1,4 +1,6 @@
-import users from '../data/users.json';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+
+let usersCache = [];
 
 /**
  * Map rôles → user IDs
@@ -9,6 +11,21 @@ const ROLE_TO_USER = {
   direction: 'usr_003',  // Laure Lefebvre
   admin: 'usr_001',      // Marie Dupont
 };
+
+/**
+ * Fetch users from API
+ */
+async function fetchUsers() {
+  try {
+    const response = await fetch(`${API_URL}/api/users`);
+    if (!response.ok) throw new Error(`API error: ${response.status}`);
+    usersCache = await response.json();
+    return usersCache;
+  } catch (err) {
+    console.warn('Error fetching users:', err);
+    return usersCache;
+  }
+}
 
 /**
  * Retourne l'utilisateur courant connecté selon le rôle
@@ -24,19 +41,28 @@ export async function getCurrentUser(role = 'agent') {
  * Retourne un utilisateur par ID
  */
 export async function getUserById(id) {
-  return users.find(u => u.id === id) || null;
+  if (usersCache.length === 0) {
+    await fetchUsers();
+  }
+  return usersCache.find(u => u.id === id) || null;
 }
 
 /**
  * Retourne tous les utilisateurs
  */
 export async function getAllUsers() {
-  return users;
+  if (usersCache.length === 0) {
+    await fetchUsers();
+  }
+  return usersCache;
 }
 
 /**
  * Retourne les utilisateurs d'une organisation
  */
 export async function getUsersByOrganization(organizationId) {
-  return users.filter(u => u.organizationId === organizationId);
+  if (usersCache.length === 0) {
+    await fetchUsers();
+  }
+  return usersCache.filter(u => u.organizationId === organizationId);
 }

@@ -9,7 +9,6 @@ import WordPreview from './WordPreview';
 import DownloadSuccessModal from './DownloadSuccessModal';
 import { downloadDocx, triggerDownload } from '../utils/wordExport';
 import { saveToHistory } from '../services/historyService';
-import { saveArchive } from '../services/archive.service';
 
 // ─── Sous-composants ────────────────────────────────────────────────────────
 
@@ -132,7 +131,14 @@ export default function GeneratedResult({
 
   const handleDownload = async (skipArchive = false) => {
     setDlState('loading');
+
+    // Montrer le modal AVANT la conversion
+    setShowSuccessModal(true);
+
     try {
+      // Attendre 1 seconde avant de faire la conversion
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
       const result = await downloadDocx({
         text: editedText,
         ...downloadMeta,
@@ -165,35 +171,24 @@ export default function GeneratedResult({
               createdAt: new Date().toISOString(),
             };
 
-            // Sauvegarder en localStorage (fallback)
+            // Sauvegarder en localStorage
             saveToHistory(archiveData);
-
-            // Sauvegarder au backend
-            saveArchive(archiveData).catch((err) => {
-              console.error('Erreur archivage backend:', err);
-            });
 
             onArchived?.();
           }
 
-          // Montrer le modal de succès
-          setShowSuccessModal(true);
+          // Télécharger le fichier
+          triggerDownload(result.blob, result.filename);
 
-          // Télécharger le fichier après 1.5 secondes
-          setTimeout(() => {
-            triggerDownload(result.blob, result.filename);
-          }, 1500);
-
-          // Fermer le modal après 2 secondes
-          setTimeout(() => {
-            setShowSuccessModal(false);
-            setDlState('idle');
-            resolve();
-          }, 2000);
+          // Fermer le modal et réinitialiser l'état
+          setShowSuccessModal(false);
+          setDlState('idle');
+          resolve();
         };
         reader.readAsDataURL(result.blob);
       });
     } catch (err) {
+      console.error('Erreur téléchargement:', err);
       setShowSuccessModal(false);
       setDlState('idle');
     }
