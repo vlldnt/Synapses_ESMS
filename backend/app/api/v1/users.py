@@ -4,17 +4,19 @@ from app.services import facade
 
 api = Namespace('users', description="User operations")
 
-ROLES = ["SA", "CO", "EM"]
-POSTS = ["ED", "PS", "AS"]
+STATUS = ["active", "absent", "no_actif"]
+JOBS = ["ED", "PS", "AS"]
 
 """ User Model for input"""
 user_model = api.model("user", {
-    'first_name': fields.String(required=True, description="User first name", example="user"),
+    'first_name': fields.String(required=True, git ="User first name", example="user"),
     'last_name': fields.String(required=True, description="User last name", example="test"),
     'email': fields.String(required=True, description="User email", example="user@email.com"),
     'password': fields.String(required=True, description="User password", example="Johnd0e!"),
-    'role': fields.String(required=True, description="User role", enum=ROLES, example="EM"),
-    'post': fields.String(required=True, description="User post", enum=POSTS, exemple="ED")
+    'job': fields.String(required=True, description="User job", enum=JOBS, exemple="ED"),
+    'status': fields.String(required=True, description="User status", enum=STATUS, exemple="active"),
+    "is_admin": fields.String(required=True, description="user controle", example=False),
+    'organisation_id': fields.String(required=True, description="User organisation_id", example=""),
 })
 
 user_update = api.model("user update", {
@@ -39,12 +41,10 @@ class UserList(Resource):
             if existing_user:
                 api.abort(400, 'Email already in use')
 
-            valid_inputs = ['first_name', 'last_name', 'email', 'password', "role", "post"]
+            valid_inputs = ['first_name', 'last_name', 'email', 'password', 'job', 'is_admin', 'organisation_id', 'status']
             for key in user_data:
                 if key not in valid_inputs:
                     api.abort(400, f'Invalid input data: {key}')
-                if existing_user:
-                    return {'error': 'Email already registered'}, 400
             
             new_user = facade.create_user(user_data)
             return new_user.to_dict(), 201

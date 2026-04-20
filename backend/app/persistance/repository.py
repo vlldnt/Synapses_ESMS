@@ -60,6 +60,7 @@ class SQLAlchemyRepository(Repository):
     def add(self, obj):
         db.session.add(obj)
         db.session.commit()
+        return obj
 
     def get(self, obj_id):
         return self.model.query.get(obj_id)
