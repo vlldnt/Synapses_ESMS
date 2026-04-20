@@ -1,12 +1,28 @@
 services:
-  frontend-prod:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: synapses-backend
+    restart: unless-stopped
+    volumes:
+      - ./backend/data:/app/data
+    networks:
+      - synapses
+
+  frontend:
     build:
       context: ./frontend
-      dockerfile: DOCKERFILE.prod
+      dockerfile: DOCKERFILE
     container_name: synapses-frontend
     ports:
       - "8083:80"
     restart: unless-stopped
-    profiles: [prod]
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
+    depends_on:
+      - backend
+    networks:
+      - synapses
+
+networks:
+  synapses:
+    driver: bridge
