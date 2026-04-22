@@ -5,21 +5,29 @@ services:
       dockerfile: Dockerfile
     container_name: synapses-backend
     restart: unless-stopped
+    ports:
+      - "3001:3001"
     volumes:
       - ./backend/data:/app/data
+      - ./backend/data/google-key.json:/app/data/google-key.json:ro
+    environment:
+      - PORT=3001
+      - NODE_ENV=production
     networks:
       - synapses
 
   frontend:
     build:
       context: ./frontend
-      dockerfile: DOCKERFILE
+      dockerfile: Dockerfile
     container_name: synapses-frontend
     ports:
       - "8083:80"
     restart: unless-stopped
     depends_on:
       - backend
+    environment:
+      - VITE_BACKEND_URL=http://backend:3001
     networks:
       - synapses
 
