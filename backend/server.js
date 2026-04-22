@@ -3,6 +3,8 @@ import cors from 'cors';
 import fs from 'fs/promises';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import speech from '@google-cloud/speech';
+import multer from 'multer';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
@@ -11,6 +13,15 @@ const PORT = process.env.PORT || 3001;
 // Data file paths
 const DOCUMENTS_FILE = path.join(__dirname, 'data', 'documents.json');
 const ARCHIVES_FILE = path.join(__dirname, 'data', 'archives.json');
+const GOOGLE_KEY_FILE = path.join(__dirname, 'data', 'google-key.json');
+
+// Initialize Google Cloud Speech client
+const speechClient = new speech.SpeechClient({
+  keyFilename: GOOGLE_KEY_FILE,
+});
+
+// Multer setup for audio file handling
+const upload = multer({ storage: multer.memoryStorage() });
 
 // Middleware
 app.use(cors());
@@ -270,6 +281,41 @@ app.get('/api/reference', async (req, res) => {
     res.json(ref);
   } catch (err) {
     res.status(500).json({ error: 'Failed to load reference' });
+  }
+});
+
+// ─── Speech-to-Text ─────────────────────────────────────────────────
+
+// POST /transcribe — Transcribe audio using Google Cloud Speech API
+app.post('/transcribe', upload.single('audio'), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: 'No audio file provided' });
+    }
+
+    const audioBuffer = req.file.buffer;
+    const audioBase64 = audioBuffer.toString('base64');
+
+    const request = {
+      config: {
+        encoding: 'WEBM_OPUS',
+        sampleRateHertz: 48000,
+        languageCode: 'fr-FR',
+      },
+      audio: {
+        content: audioBase64,
+      },
+    };
+
+    const [response] = await speechClient.recognize(request);
+    const transcription = response.results
+      ?.map((result) => result.alternatives?.[0]?.transcript)
+      ?.join('\n');
+
+    res.json({ transcript: transcription || '' });
+  } catch (err) {
+    console.error('Transcription error:', err);
+    res.status(500).json({ error: 'Transcription failed' });
   }
 });
 
