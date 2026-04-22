@@ -407,7 +407,7 @@ export function VoiceTextarea({
           className={[
             "w-full flex-1 bg-transparent outline-none",
             "text-[12px] md:text-[14px] text-black",
-            "resize-none overflow-hidden",
+            "resize-none overflow-hidden dark:text-white",
             className,
           ].join(" ")}
           onChange={(e) => onChange(e.target.value)}

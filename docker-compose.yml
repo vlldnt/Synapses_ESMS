@@ -6,7 +6,7 @@ services:
     container_name: synapses-backend
     restart: unless-stopped
     ports:
-      - "3001:3001"
+      - "127.0.0.1:3002:3001"
     volumes:
       - ./backend/data:/app/data
       - ./backend/data/google-key.json:/app/data/google-key.json:ro
@@ -28,6 +28,8 @@ services:
       - backend
     environment:
       - VITE_BACKEND_URL=http://backend:3001
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     networks:
       - synapses
 
