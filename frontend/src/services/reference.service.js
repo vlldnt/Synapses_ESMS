@@ -1,4 +1,4 @@
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+const API_URL = './api';
 
 let referencesCache = [];
 
@@ -7,7 +7,7 @@ let referencesCache = [];
  */
 async function fetchReferences() {
   try {
-    const response = await fetch(`${API_URL}/api/references`);
+    const response = await fetch(`${API_URL}/references`);
     if (!response.ok) throw new Error(`API error: ${response.status}`);
     referencesCache = await response.json();
     return referencesCache;

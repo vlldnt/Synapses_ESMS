@@ -1,4 +1,4 @@
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+const API_URL = './api';
 
 let menusCache = [];
 
@@ -7,7 +7,7 @@ let menusCache = [];
  */
 async function fetchMenus() {
   try {
-    const response = await fetch(`${API_URL}/api/menus`);
+    const response = await fetch(`${API_URL}/menus`);
     if (!response.ok) throw new Error(`API error: ${response.status}`);
     menusCache = await response.json();
     return menusCache;

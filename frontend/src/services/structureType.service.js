@@ -1,4 +1,4 @@
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+const API_URL = './api';
 
 let structureTypesCache = null;
 
@@ -7,7 +7,7 @@ let structureTypesCache = null;
  */
 async function fetchStructureTypes() {
   try {
-    const response = await fetch(`${API_URL}/api/structure-types`);
+    const response = await fetch(`${API_URL}/structure-types`);
     if (!response.ok) throw new Error(`API error: ${response.status}`);
     structureTypesCache = await response.json();
     return structureTypesCache;

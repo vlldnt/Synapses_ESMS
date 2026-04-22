@@ -1,4 +1,4 @@
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+const API_URL = './api';
 
 let organizationsCache = [];
 
@@ -7,7 +7,7 @@ let organizationsCache = [];
  */
 async function fetchOrganizations() {
   try {
-    const response = await fetch(`${API_URL}/api/organizations`);
+    const response = await fetch(`${API_URL}/organizations`);
     if (!response.ok) throw new Error(`API error: ${response.status}`);
     organizationsCache = await response.json();
     return organizationsCache;

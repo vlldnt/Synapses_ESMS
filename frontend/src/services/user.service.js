@@ -1,4 +1,4 @@
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+const API_URL = './api';
 
 let usersCache = [];
 
@@ -17,7 +17,7 @@ const ROLE_TO_USER = {
  */
 async function fetchUsers() {
   try {
-    const response = await fetch(`${API_URL}/api/users`);
+    const response = await fetch(`${API_URL}/users`);
     if (!response.ok) throw new Error(`API error: ${response.status}`);
     usersCache = await response.json();
     return usersCache;

@@ -1,6 +1,6 @@
 import { OpenRouter } from '@openrouter/sdk';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+const API_URL = './api';
 
 let promptsCache = [];
 
@@ -9,7 +9,7 @@ let promptsCache = [];
  */
 async function fetchPrompts() {
   try {
-    const response = await fetch(`${API_URL}/api/prompts`);
+    const response = await fetch(`${API_URL}/prompts`);
     if (!response.ok) throw new Error(`API error: ${response.status}`);
     promptsCache = await response.json();
     return promptsCache;
