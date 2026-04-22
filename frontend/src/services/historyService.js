@@ -22,7 +22,7 @@ function getEntryTimestamp(entry) {
  * @property {string}  companyName
  * @property {object}  educator         - {name, id}
  * @property {string}  educatorName     - Legacy field (fallback)
- * @property {string}  text             - Markdown complet du CR
+ * @property {string}  docxBase64       - Source principale de contenu
  * @property {string}  createdAt        - ISO datetime de création
  */
 
@@ -30,7 +30,6 @@ function getEntryTimestamp(entry) {
  * Save a new archive to the backend
  */
 export async function saveToHistory({
-  text,
   date,
   interventionType,
   structureType,
@@ -68,7 +67,6 @@ export async function saveToHistory({
     reference: reference || '—',
     modelId: modelId || 'mistralai/voxtral-small-24b-2507',
     modelName: modelName || 'Voxtral Small 24B',
-    text: text || '',
     docxBase64: docxBase64 || '',
     userId: resolvedUserId,
     creatorId: resolvedUserId,

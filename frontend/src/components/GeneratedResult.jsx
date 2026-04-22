@@ -180,7 +180,6 @@ export default function GeneratedResult({
               modelId: result.modelId,
               modelName: result.modelName,
               docxBase64: base64String,
-              text: editedText, // Pour l'affichage dans WordPreview
               creatorId: user?.id,
               userId: user?.id,
               childName: downloadMeta.childName || '',

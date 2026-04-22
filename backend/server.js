@@ -143,7 +143,6 @@ app.post('/api/archives', async (req, res) => {
       ...safeData,
       status: 'archived',
       creatorId: resolvedCreatorId,
-      text: text || '', // Keep text for display in WordPreview
       createdAt: nowIso,
       created_at: nowIso,
     };
