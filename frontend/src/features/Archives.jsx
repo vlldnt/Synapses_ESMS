@@ -1,11 +1,12 @@
 import { useMemo, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FileText, Download, X, Clock3 } from 'lucide-react';
+import { Download, X, Clock3 } from 'lucide-react';
 import Button from '../components/Button';
 import WordPreview from '../components/WordPreview';
 import { getHistory, deleteFromHistory } from '../services/historyService';
 import { downloadDocx, triggerDownload } from '../utils/wordExport';
 import { formatReportName } from '../utils/reportNameFormatter';
+import { getDocTypeLabel, getDocColorFromLabel } from '../utils/docTypeBadge';
 
 const DRAFT_STORAGE_KEY = 'cr_intervention_draft';
 
@@ -17,7 +18,7 @@ function getDraft() {
   }
 }
 
-function History() {
+function Archives() {
   const navigate = useNavigate();
   const [selectedEntry, setSelectedEntry] = useState(null);
   const [isDownloading, setIsDownloading] = useState(false);
@@ -79,10 +80,7 @@ function History() {
     <div className="h-full overflow-y-auto py-6 px-2 md:px-5 md:py-8">
       <div className="mx-auto w-full max-w-5xl flex flex-col gap-5">
         <div>
-          <h1 className="text-xl md:text-2xl font-semibold text-(--text-primary)">Historique archive</h1>
-          <p className="mt-1 text-sm text-(--text-muted)">
-            Documents charges depuis un JSON simule (lecture seule).
-          </p>
+          <h1 className="text-xl md:text-2xl font-semibold text-(--text-primary)">Documents archivés</h1>
         </div>
 
         <div className="rounded-2xl border border-(--border) bg-(--bg-primary) shadow-sm overflow-hidden">
@@ -117,7 +115,7 @@ function History() {
               <Button
                 color="blue"
                 size="sm"
-                onClick={() => navigate('/agents/compte-rendu')}
+                onClick={() => navigate('/cri')}
               >
                 Reprendre
               </Button>
@@ -132,29 +130,50 @@ function History() {
             </div>
           ) : (
             <div className="divide-y divide-(--border)">
-              {history.map((entry) => (
-                <button
-                  key={entry.id}
-                  type="button"
-                  onClick={() => setSelectedEntry(entry)}
-                  className="w-full text-left px-5 py-4 flex items-center gap-3 hover:bg-(--bg-secondary) transition-colors cursor-pointer"
-                >
-                  <span className="w-9 h-9 rounded-xl bg-(--bleu-fonce)/10 text-(--bleu-fonce) flex items-center justify-center shrink-0">
-                    <FileText size={16} />
-                  </span>
-                  <div className="min-w-0 flex-1">
-                    <p className="text-sm font-semibold text-(--text-primary) truncate">
-                      {formatReportName(entry)}
-                    </p>
-                    <p className="text-xs text-(--text-muted) truncate">
-                      {entry.interventionType} • {entry.companyName}
-                    </p>
-                  </div>
-                  <span className="text-[10px] px-2 py-1 rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300">
-                    Archive
-                  </span>
-                </button>
-              ))}
+              {history.map((entry) => {
+                const typeLabel = getDocTypeLabel(entry);
+                const docColor = getDocColorFromLabel(typeLabel);
+                return (
+                  <button
+                    key={entry.id}
+                    type="button"
+                    onClick={() => setSelectedEntry(entry)}
+                    className="w-full text-left px-5 py-4 flex items-center gap-3 hover:bg-(--bg-secondary) transition-colors cursor-pointer"
+                  >
+                    <span
+                      className="inline-flex items-center justify-center px-2.5 h-7 rounded-full text-[11px] font-bold shrink-0 min-w-11 text-white"
+                      style={{ background: docColor }}
+                    >
+                      {typeLabel}
+                    </span>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-semibold text-(--text-primary) truncate">
+                        {formatReportName(entry)}
+                      </p>
+                      <p className="text-xs text-(--text-muted) truncate">
+                        {entry.interventionType} · {entry.companyName}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-3 shrink-0">
+                      <div className="flex flex-col items-end gap-0.5">
+                        {entry.childName && (
+                          <span className="text-xs text-(--text-muted)/70 font-medium">
+                            {entry.childName}
+                          </span>
+                        )}
+                        {(entry.date || entry.createdAt) && (
+                          <span className="text-[11px] text-(--text-muted)/50">
+                            {new Intl.DateTimeFormat('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' }).format(new Date(entry.date || entry.createdAt))}
+                          </span>
+                        )}
+                      </div>
+                      <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300">
+                        Archive
+                      </span>
+                    </div>
+                  </button>
+                );
+              })}
             </div>
           )}
         </div>
@@ -203,4 +222,4 @@ function History() {
   );
 }
 
-export default History;
+export default Archives;

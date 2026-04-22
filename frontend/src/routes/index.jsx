@@ -1,8 +1,7 @@
 import Dashboard from '../features/Dashboard';
-import DashboardAgents from '../features/DashboardAgents';
 import InterventionReport from '../features/InterventionReport';
 import PersonalizedProject from '../features/PersonalizedProject';
-import History from '../features/History';
+import Archives from '../features/Archives';
 
 /**
  * Configuration centralisée des routes
@@ -19,26 +18,18 @@ export const routes = [
     title: 'Tableau de bord',
   },
   {
-    path: '/agents',
-    element: <DashboardAgents />,
-    title: 'Agents IA',
-    children: [
-      {
-        index: true,
-        path: 'compte-rendu',
-        element: <InterventionReport />,
-        title: 'Compte rendu',
-      },
-      {
-        path: 'projet-personnalise',
-        element: <PersonalizedProject />,
-        title: 'PPA',
-      },
-    ],
+    path: '/cri',
+    element: <InterventionReport />,
+    title: "Compte Rendu d'Intervention",
   },
   {
-    path: '/historique',
-    element: <History />,
-    title: 'Historique',
+    path: '/ppa',
+    element: <PersonalizedProject />,
+    title: 'PPA Médico-Social',
+  },
+  {
+    path: '/archives',
+    element: <Archives />,
+    title: 'Archives',
   },
 ];

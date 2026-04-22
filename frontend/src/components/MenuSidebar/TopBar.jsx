@@ -5,34 +5,25 @@ import ProfileDropdown from './ProfileDropdown';
 const routeTitles = {
   '/': {
     title: 'Tableau de bord',
-    subtitle: "Vue d\u2019ensemble de votre activit\u00e9 et acc\u00e8s rapide aux fonctionnalit\u00e9s",
+    subtitle: "Vue d'ensemble de votre activité et accès rapide aux fonctionnalités",
   },
-  '/agents': {
-    title: 'Agents IA',
-    subtitle: 'S\u00e9lectionnez un rapport pour commencer',
+  '/cri': {
+    title: "Compte Rendu d'Intervention",
+    subtitle: "Générez un compte rendu d'intervention",
   },
-  '/agents/compte-rendu': {
-    title: 'Compte Rendu d\u2019Intervention',
-    subtitle: 'G\u00e9n\u00e9rez un compte rendu d\u2019intervention',
+  '/ppa': {
+    title: 'PPA Médico-Social',
+    subtitle: 'Générez un projet personnalisé',
   },
-  '/agents/projet-personnalise': {
-    title: 'PPA M\u00e9dico-Social',
-    subtitle: 'G\u00e9n\u00e9rez un projet personnalis\u00e9',
-  },
-  '/interventions': {
-    title: 'Interventions',
-    subtitle: 'Consultez l\u2019historique de vos interventions',
-  },
-  '/historique': {
-    title: 'Historique',
-    subtitle: "Consultez, g\u00e9rez et retrouvez l\u2019ensemble de vos documents g\u00e9n\u00e9r\u00e9s",
+  '/archives': {
+    title: 'Archives',
+    subtitle: "Consultez, gérez et retrouvez l'ensemble de vos documents générés",
   },
 };
 
 function TopBar() {
   const location = useLocation();
-  const { title, subtitle } =
-    routeTitles[location.pathname] || routeTitles['/'];
+  const { title, subtitle } = routeTitles[location.pathname] || routeTitles['/'];
 
   return (
     <header

@@ -3,48 +3,60 @@ import { Link } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { getHistory } from '../services/historyService';
 import { useCurrentUser } from '../hooks/useCurrentUser';
-import { FileText, Bot, Clock, ChevronRight } from 'lucide-react';
+import { downloadDocx, triggerDownload } from '../utils/wordExport';
+import { formatReportName } from '../utils/reportNameFormatter';
+import Button from '../components/Button';
+import WordPreview from '../components/WordPreview';
+import { AGENTS, AGENT_CARD_COLORS } from '../constants/agents';
+import { getDocTypeLabel, getDocColorFromLabel } from '../utils/docTypeBadge';
+import { FileText, ChevronRight, Download, X } from 'lucide-react';
 
-const AGENT_COLORS = {
-  'Compte rendu': '#0D66D4',
-  'PPA': '#16a34a',
-  'Autre': '#94a3b8',
-};
-
-function getAgentColor(type) {
-  if (!type) return AGENT_COLORS['Autre'];
-  if (type.toLowerCase().includes('ppa')) return AGENT_COLORS['PPA'];
-  if (type.toLowerCase().includes('compte rendu') || type.toLowerCase().includes('intervention')) return AGENT_COLORS['Compte rendu'];
-  return AGENT_COLORS['Autre'];
+function getAgentAccentColor(agent) {
+  return AGENT_CARD_COLORS[agent.id] || '#0D66D4';
 }
 
-function StatCard({ icon: Icon, label, value, sub, color }) {
-  return (
-    <div className="rounded-2xl border border-(--border) bg-(--bg-primary) p-5 md:p-6 shadow-sm flex flex-col gap-3">
-      <div className="flex items-center justify-between">
-        <span className="text-xs md:text-sm text-(--text-muted)">{label}</span>
-        <span className="flex items-center justify-center w-8 h-8 rounded-xl" style={{ background: `${color}18` }}>
-          <Icon size={16} style={{ color }} />
+
+function AgentCard({ agent }) {
+  const isAvailable = !!agent.to;
+  const color = getAgentAccentColor(agent);
+
+  const inner = (
+    <div
+      className={`rounded-2xl bg-(--bg-primary) p-4 h-full flex flex-col gap-3 transition-all duration-200 ${
+        isAvailable
+          ? 'border border-(--border) hover:shadow-lg hover:-translate-y-0.5 cursor-pointer'
+          : 'border border-(--border) opacity-35 cursor-default'
+      }`}
+      style={isAvailable ? { borderLeftColor: color, borderLeftWidth: '3px' } : {}}
+    >
+      <div className="flex items-center justify-between gap-2">
+        <span
+          className="inline-flex items-center justify-center px-2 h-6 rounded-full text-[10px] font-bold text-white shrink-0"
+          style={{ background: isAvailable ? color : '#94a3b8' }}
+        >
+          {agent.badge}
         </span>
+        {!isAvailable && (
+          <span className="text-[10px] px-1.5 py-0.5 rounded-md bg-(--bg-tertiary) text-(--text-muted) font-medium shrink-0">
+            Bientôt
+          </span>
+        )}
       </div>
-      <p className="text-3xl md:text-4xl font-bold text-(--text-primary)">{value}</p>
-      {sub && <p className="text-xs text-(--text-muted)">{sub}</p>}
+      <p className={`text-xs md:text-sm font-semibold leading-snug flex-1 ${isAvailable ? 'text-(--text-primary)' : 'text-(--text-muted)'}`}>
+        {agent.title}
+      </p>
+      {isAvailable && (
+        <div className="flex items-center gap-1 text-xs font-medium" style={{ color }}>
+          Ouvrir <ChevronRight size={11} />
+        </div>
+      )}
     </div>
   );
-}
 
-function AgentBar({ label, count, total, color }) {
-  const pct = total > 0 ? Math.round((count / total) * 100) : 0;
-  return (
-    <div className="flex flex-col gap-1">
-      <div className="flex items-center justify-between text-xs">
-        <span className="text-(--text-secondary)">{label}</span>
-        <span className="font-semibold text-(--text-primary)">{count} <span className="text-(--text-muted) font-normal">({pct}%)</span></span>
-      </div>
-      <div className="h-1.5 rounded-full bg-(--bg-tertiary) overflow-hidden">
-        <div className="h-full rounded-full transition-all duration-500" style={{ width: `${pct}%`, background: color }} />
-      </div>
-    </div>
+  return isAvailable ? (
+    <Link to={agent.to} className="block h-full">{inner}</Link>
+  ) : (
+    <div className="h-full">{inner}</div>
   );
 }
 
@@ -59,16 +71,15 @@ function timeAgo(isoDate) {
   return `Il y a ${days}j`;
 }
 
-const ROLE_LABEL = {
-  agent: 'Agent',
-  direction: 'Direction',
-  admin: 'Administrateur',
-};
-
 function Dashboard() {
   const { firstName, job, organization } = useCurrentUser();
+  const role = useSelector((state) => state.role.role);
   const [date, setDate] = useState('');
   const [history, setHistory] = useState([]);
+  const [selectedEntry, setSelectedEntry] = useState(null);
+  const [isDownloading, setIsDownloading] = useState(false);
+
+  const visibleAgents = AGENTS.filter((a) => a.roles.includes(role));
 
   useEffect(() => {
     const now = new Date();
@@ -89,25 +100,37 @@ function Dashboard() {
     })();
   }, []);
 
+  const handleDownload = async () => {
+    if (!selectedEntry) return;
+    setIsDownloading(true);
+    try {
+      if (selectedEntry.docxBase64) {
+        const binaryString = atob(selectedEntry.docxBase64);
+        const bytes = new Uint8Array(binaryString.length);
+        for (let i = 0; i < binaryString.length; i++) {
+          bytes[i] = binaryString.charCodeAt(i);
+        }
+        const blob = new Blob([bytes], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
+        triggerDownload(blob, selectedEntry.filename);
+      } else {
+        const result = await downloadDocx({
+          text: selectedEntry.text,
+          date: selectedEntry.date,
+          interventionType: selectedEntry.interventionType,
+          companyName: selectedEntry.companyName,
+          educatorName: selectedEntry.educatorName,
+          modelId: selectedEntry.modelId,
+          modelName: selectedEntry.modelName,
+        });
+        triggerDownload(result.blob, result.filename);
+      }
+    } finally {
+      setIsDownloading(false);
+    }
+  };
+
   const etablissementName = organization?.name ?? 'ESMS';
   const organisationType = organization?.type ?? '';
-
-  const total = history.length;
-  const thisMonth = history.filter((e) => {
-    const d = new Date(e.createdAt);
-    const now = new Date();
-    return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
-  }).length;
-
-  // répartition par type
-  const byType = history.reduce((acc, e) => {
-    const key = e.interventionType?.toLowerCase().includes('ppa') ? 'PPA'
-      : e.interventionType?.toLowerCase().includes('compte rendu') || e.interventionType?.toLowerCase().includes('intervention') ? 'Compte rendu'
-      : 'Autre';
-    acc[key] = (acc[key] || 0) + 1;
-    return acc;
-  }, {});
-
   const recent = history.slice(0, 5);
 
   return (
@@ -125,105 +148,108 @@ function Dashboard() {
           </p>
         </div>
 
-        {/* Stats row */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <StatCard
-            icon={FileText}
-            label="Documents générés"
-            value={total}
-            sub="Total depuis le début"
-            color="#0D66D4"
-          />
-          <StatCard
-            icon={Clock}
-            label="Ce mois-ci"
-            value={thisMonth}
-            sub={`Sur ${total} document${total > 1 ? 's' : ''} au total`}
-            color="#ea580c"
-          />
-          <StatCard
-            icon={Bot}
-            label="Agents disponibles"
-            value="14"
-            sub="2 actifs · 12 bientôt disponibles"
-            color="#16a34a"
-          />
+        {/* Agent cards */}
+        <div className="rounded-2xl border border-(--border) bg-(--bg-primary) shadow-sm overflow-hidden">
+          <div className="flex items-center justify-between px-5 pt-5 pb-3 border-b border-(--border)">
+            <h2 className="text-sm md:text-base font-semibold text-(--text-primary)">Mes agents</h2>
+            <Link to="/cri" className="text-xs text-(--bleu-fonce) hover:underline flex items-center gap-0.5">
+              Voir tout <ChevronRight size={12} />
+            </Link>
+          </div>
+          <div className="p-4 md:p-5 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
+            {visibleAgents.map((agent) => (
+              <AgentCard key={agent.id} agent={agent} />
+            ))}
+          </div>
         </div>
 
-        {/* Main row */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-
-          {/* Derniers documents */}
-          <div className="lg:col-span-2 rounded-2xl border border-(--border) bg-(--bg-primary) shadow-sm">
-            <div className="flex items-center justify-between px-5 pt-5 pb-3 border-b border-(--border)">
-              <h2 className="text-sm md:text-base font-semibold text-(--text-primary)">Derniers documents</h2>
-              <Link to="/historique" className="text-xs text-(--bleu-fonce) hover:underline flex items-center gap-0.5">
-                Voir tout <ChevronRight size={12} />
-              </Link>
-            </div>
-            <div className="divide-y divide-(--border)/50">
-              {recent.length === 0 ? (
-                <div className="px-5 py-10 text-center text-sm text-(--text-muted)">
-                  Aucun document généré pour l'instant.<br />
-                  <Link to="/agents" className="text-(--bleu-fonce) hover:underline">Utiliser un agent →</Link>
-                </div>
-              ) : (
-                recent.map((entry) => (
-                  <div key={entry.id} className="flex items-center gap-3 px-5 py-3">
+        {/* Derniers documents */}
+        <div className="rounded-2xl border border-(--border) bg-(--bg-primary) shadow-sm">
+          <div className="flex items-center justify-between px-5 pt-5 pb-3 border-b border-(--border)">
+            <h2 className="text-sm md:text-base font-semibold text-(--text-primary)">Derniers documents</h2>
+            <Link to="/archives" className="text-xs text-(--bleu-fonce) hover:underline flex items-center gap-0.5">
+              Voir tout <ChevronRight size={12} />
+            </Link>
+          </div>
+          <div className="divide-y divide-(--border)/50">
+            {recent.length === 0 ? (
+              <div className="px-5 py-10 text-center text-sm text-(--text-muted)">
+                Aucun document généré pour l'instant.<br />
+                <Link to="/cri" className="text-(--bleu-fonce) hover:underline">Utiliser un agent →</Link>
+              </div>
+            ) : (
+              recent.map((entry) => {
+                const typeLabel = getDocTypeLabel(entry);
+                const docColor = getDocColorFromLabel(typeLabel);
+                return (
+                  <button
+                    key={entry.id}
+                    type="button"
+                    onClick={() => setSelectedEntry(entry)}
+                    className="w-full text-left flex items-center gap-3 px-5 py-3.5 hover:bg-(--bg-secondary) transition-colors cursor-pointer"
+                  >
                     <span
-                      className="flex items-center justify-center w-8 h-8 rounded-xl shrink-0"
-                      style={{ background: `${getAgentColor(entry.interventionType)}18` }}
+                      className="inline-flex items-center justify-center px-2.5 h-7 rounded-full text-[11px] font-bold shrink-0 min-w-11 text-white"
+                      style={{ background: docColor }}
                     >
-                      <FileText size={14} style={{ color: getAgentColor(entry.interventionType) }} />
+                      {typeLabel}
                     </span>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium text-(--text-primary) truncate">
-                        {entry.interventionType || 'Document'}
+                        {formatReportName(entry)}
                       </p>
                       <p className="text-xs text-(--text-muted) truncate">
-                        Réf. {entry.reference} · {entry.structureType}
+                        {entry.companyName || entry.structureType}
                       </p>
                     </div>
                     <span className="text-xs text-(--text-muted) shrink-0">{timeAgo(entry.createdAt)}</span>
-                  </div>
-                ))
-              )}
-            </div>
+                  </button>
+                );
+              })
+            )}
           </div>
-
-          {/* Répartition agents */}
-          <div className="rounded-2xl border border-(--border) bg-(--bg-primary) shadow-sm">
-            <div className="px-5 pt-5 pb-3 border-b border-(--border)">
-              <h2 className="text-sm md:text-base font-semibold text-(--text-primary)">Répartition par agent</h2>
-            </div>
-            <div className="px-5 py-5 flex flex-col gap-4">
-              {total === 0 ? (
-                <p className="text-sm text-(--text-muted) text-center py-6">Aucune donnée</p>
-              ) : (
-                Object.entries(AGENT_COLORS).map(([label, color]) => (
-                  <AgentBar
-                    key={label}
-                    label={label}
-                    count={byType[label] || 0}
-                    total={total}
-                    color={color}
-                  />
-                ))
-              )}
-            </div>
-            <div className="px-5 pb-5">
-              <Link
-                to="/agents"
-                className="block w-full text-center rounded-xl py-2.5 text-sm font-medium text-white transition-colors"
-                style={{ background: '#0D66D4' }}
-              >
-                Accéder aux agents →
-              </Link>
-            </div>
-          </div>
-
         </div>
+
       </div>
+
+      {/* Modal aperçu document — même que dans Historique */}
+      {selectedEntry && (
+        <div className="fixed inset-0 z-90 bg-black/55 backdrop-blur-[1px] p-3 md:p-6">
+          <div className="mx-auto w-full max-w-5xl h-full flex flex-col rounded-2xl border border-(--border) bg-(--bg-primary) shadow-2xl overflow-hidden">
+            <div className="px-4 py-3 border-b border-(--border) flex items-center gap-3">
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-semibold text-(--text-primary) truncate">
+                  {formatReportName(selectedEntry)}
+                </p>
+                <p className="text-xs text-(--text-muted)">Aperçu en lecture seule · téléchargement uniquement</p>
+              </div>
+              <Button
+                color="blue"
+                size="sm"
+                icon={Download}
+                onClick={handleDownload}
+                disabled={isDownloading}
+              >
+                {isDownloading ? 'Génération...' : 'Télécharger'}
+              </Button>
+              <button
+                type="button"
+                onClick={() => setSelectedEntry(null)}
+                className="w-8 h-8 rounded-lg border border-(--border) text-(--text-muted) hover:text-(--text-primary) hover:bg-(--bg-secondary) flex items-center justify-center cursor-pointer"
+                aria-label="Fermer"
+              >
+                <X size={15} />
+              </button>
+            </div>
+            <div className="flex-1 overflow-y-auto p-4 md:p-6 bg-(--bg-secondary)">
+              <div className="rounded-xl border border-(--border) bg-(--bg-primary) p-4 md:p-6">
+                <WordPreview text={selectedEntry.text} />
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }

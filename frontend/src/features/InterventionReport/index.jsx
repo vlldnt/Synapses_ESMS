@@ -16,58 +16,14 @@ import { useSelector } from 'react-redux';
 import { getHistory } from '../../services/historyService';
 import ContextBadge from './components/ContextBadge';
 import ModelSelector from './components/ModelSelector';
-
-const STORAGE_KEY = 'cr_intervention_draft';
-
-const INTERVENTION_TYPES = [
-  'Visite à domicile',
-  'Entretien individuel',
-  'Entretien famille',
-  'Accompagnement extérieur',
-  'Autre',
-];
-
-const LOADING_MESSAGES = [
-  "L'IA analyse votre transcription et structure le compte rendu…",
-  'Analyse en cours : extraction des informations essentielles…',
-  'Mise en forme du compte rendu selon la trame professionnelle…',
-  'Organisation des faits, observations et actions de suivi…',
-  'Verification de la coherence du contenu genere…',
-  'Finalisation du document avant affichage…',
-];
-
-const cardClass =
-  'rounded-2xl border border-(--border) bg-(--bg-primary) p-5 md:p-8 shadow-sm';
-
-const ROLE_LABELS = {
-  agent: 'Agent éducatif',
-  direction: 'Directeur / Directrice',
-  admin: 'Administrateur',
-};
-
-const REPORT_STATUS = {
-  DRAFT: 'draft',
-  IN_PROGRESS: 'in_progress',
-  ARCHIVED: 'archived',
-};
-
-const STATUS_META = {
-  [REPORT_STATUS.DRAFT]: {
-    label: 'Brouillon',
-    className:
-      'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300',
-  },
-  [REPORT_STATUS.IN_PROGRESS]: {
-    label: 'En cours',
-    className:
-      'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300',
-  },
-  [REPORT_STATUS.ARCHIVED]: {
-    label: 'Archive',
-    className:
-      'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300',
-  },
-};
+import {
+  STORAGE_KEY,
+  INTERVENTION_TYPES,
+  LOADING_MESSAGES,
+  REPORT_STATUS,
+  STATUS_META,
+} from '../../constants/intervention';
+import { CARD_CLASS, ROLE_LABELS } from '../../constants/shared';
 
 function inferStatus({ interventionType, transcription, result, isArchived }) {
   if (isArchived) return REPORT_STATUS.ARCHIVED;
@@ -313,7 +269,7 @@ function InterventionReport() {
       className="h-full overflow-y-auto py-6 px-2 md:px-5 md:py-8"
     >
       <div className="mx-auto flex w-full max-w-full flex-col gap-6">
-        <div className={`${cardClass} py-4 md:py-5`}>
+        <div className={`${CARD_CLASS} py-4 md:py-5`}>
           <div className="flex flex-wrap items-center gap-3">
             <span className="text-sm font-medium text-(--text-secondary)">
               Statut du rapport :
@@ -506,7 +462,7 @@ function InterventionReport() {
 
         {/* ── Loading ── */}
         {loading && (
-          <div className={`${cardClass} flex items-center gap-4`}>
+          <div className={`${CARD_CLASS} flex items-center gap-4`}>
             <div className="w-5 h-5 rounded-full border-2 border-[#0D66D4] border-t-transparent animate-spin shrink-0" />
             <div className="flex flex-col gap-0.5">
               <span

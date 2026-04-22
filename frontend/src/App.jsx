@@ -11,10 +11,9 @@ import MobileMenu from './components/MenuSidebar/MobileMenu';
 import TopBar from './components/MenuSidebar/TopBar';
 import Login from './features/Login';
 import Dashboard from './features/Dashboard';
-import DashboardAgents from './features/DashboardAgents';
 import InterventionReport from './features/InterventionReport';
 import PersonalizedProject from './features/PersonalizedProject';
-import History from './features/History';
+import Archives from './features/Archives';
 
 const ROLES = ['agent', 'direction', 'admin'];
 const ROLE_LABELS = { agent: 'Agent', direction: 'Direction', admin: 'Admin' };
@@ -94,12 +93,9 @@ function App() {
         <div className="min-h-[calc(100dvh-3.5rem-3.75rem-env(safe-area-inset-bottom))] md:h-[calc(100dvh-4rem)]">
           <Routes>
             <Route path="/" element={<Dashboard />} />
-            <Route path="/agents" element={<DashboardAgents />}>
-              <Route index element={<Navigate to="/agents/compte-rendu" replace />} />
-              <Route path="compte-rendu" element={<InterventionReport />} />
-              <Route path="projet-personnalise" element={<PersonalizedProject />} />
-            </Route>
-            <Route path="/historique" element={<History />} />
+            <Route path="/cri" element={<InterventionReport />} />
+            <Route path="/ppa" element={<PersonalizedProject />} />
+            <Route path="/archives" element={<Archives />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </div>

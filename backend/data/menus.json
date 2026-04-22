@@ -10,15 +10,15 @@
   {
     "id": "agents",
     "label": "Générer un document",
-    "route": "/agents/compte-rendu",
+    "route": "/cri",
     "icon": "BotMessageSquare",
     "section": "Agents",
     "roleAccess": ["agent", "direction", "admin"]
   },
   {
     "id": "historique",
-    "label": "Historique",
-    "route": "/historique",
+    "label": "Archives",
+    "route": "/archives",
     "icon": "History",
     "section": "Gestion",
     "roleAccess": ["agent", "direction", "admin"]
