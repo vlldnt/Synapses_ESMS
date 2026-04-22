@@ -4,7 +4,7 @@ import Button from "../../components/Button";
 import RgpdNotice from "../../components/RgpdNotice";
 import GeneratedResult from "../../components/GeneratedResult";
 import GeneratingReportModal from "../../components/GeneratingReportModal";
-import VoiceTextarea from "../../components/VoiceTextarea";
+import VoiceTextarea from "../../components/VoiceTextarea.jsx";
 import StepCard from "../../components/Dashboard/StepCard";
 import {
   generateInterventionReport,
@@ -307,7 +307,7 @@ function InterventionReport() {
               </div>
               <div className="w-px h-10 bg-(--border)" />
               <div className="flex flex-col gap-2">
-                <label htmlFor="reference-select" className="text-xs font-medium text-(--text-primary)">Enfant concerné</label>
+                <label htmlFor="reference-select" className="text-xs font-medium text-(--text-primary)">Référence: </label>
                 <select
                   id="reference-select"
                   value={selectedReferenceId}

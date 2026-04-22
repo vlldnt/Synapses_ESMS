@@ -7,7 +7,7 @@ import remarkGfm from 'remark-gfm';
  */
 export default function WordPreview({ text }) {
   return (
-    <div className="bg-white text-[#1a1a1a] font-['Calibri',_'Georgia',_serif] text-[15px] leading-7 px-8 md:px-12 py-8 md:py-10 rounded-xl shadow-[0_2px_16px_rgba(0,0,0,0.10)] border border-[#e0e0e0] min-h-32">
+    <div className="bg-white text-[#1a1a1a] font-['Calibri','Georgia',serif] text-[15px] leading-7 px-8 md:px-12 py-8 md:py-10 rounded-xl shadow-[0_2px_16px_rgba(0,0,0,0.10)] border border-[#e0e0e0] min-h-32">
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
         components={{
