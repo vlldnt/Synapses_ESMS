@@ -40,6 +40,7 @@ function MobileMenu() {
       <ul id="mobile-menu-list" className="grid grid-cols-3 gap-0 list-none m-0 p-0">
         {menus.map((menu) => {
           const IconComponent = ICON_MAP[menu.icon] || LayoutDashboard;
+          const activeRoutes = menu.id === 'agents' ? ['/cri', '/ppa'] : [];
           return (
             <NavItem
               key={menu.id}
@@ -47,6 +48,7 @@ function MobileMenu() {
               link={menu.route}
               icon={IconComponent}
               mobile
+              activeRoutes={activeRoutes}
             />
           );
         })}

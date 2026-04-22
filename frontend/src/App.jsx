@@ -9,6 +9,7 @@ import './App.css';
 import Sidebar from './components/MenuSidebar/Sidebar';
 import MobileMenu from './components/MenuSidebar/MobileMenu';
 import TopBar from './components/MenuSidebar/TopBar';
+import AgentTabs from './components/MenuSidebar/AgentTabs';
 import Login from './features/Login';
 import Dashboard from './features/Dashboard';
 import InterventionReport from './features/InterventionReport';
@@ -90,6 +91,7 @@ function App() {
       </div>
       <main id="main-content" className="md:ml-64 min-h-dvh pb-[calc(3.75rem+env(safe-area-inset-bottom))] md:pb-0 bg-(--bg-secondary) text-(--text-primary)">
         <TopBar />
+        <AgentTabs />
         <div className="min-h-[calc(100dvh-3.5rem-3.75rem-env(safe-area-inset-bottom))] md:h-[calc(100dvh-4rem)]">
           <Routes>
             <Route path="/" element={<Dashboard />} />
