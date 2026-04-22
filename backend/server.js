@@ -286,7 +286,79 @@ app.get('/api/reference', async (req, res) => {
 
 // ─── Speech-to-Text ─────────────────────────────────────────────────
 
-// POST /transcribe — Transcribe audio using Google Cloud Speech API
+// POST /transcribe-stream — Transcribe and stream results progressively via SSE
+app.post('/transcribe-stream', (req, res) => {
+  res.setHeader('Content-Type', 'text/event-stream');
+  res.setHeader('Cache-Control', 'no-cache');
+  res.setHeader('Connection', 'keep-alive');
+  res.setHeader('Access-Control-Allow-Origin', '*');
+
+  let audioChunks = [];
+
+  req.on('data', (chunk) => {
+    audioChunks.push(chunk);
+  });
+
+  req.on('end', async () => {
+    try {
+      const audioBuffer = Buffer.concat(audioChunks);
+      console.log(`🎙️ Total audio: ${audioBuffer.length} bytes`);
+
+      if (audioBuffer.length === 0) {
+        res.write(`data: ${JSON.stringify({ error: 'No audio' })}\n\n`);
+        res.write('data: [DONE]\n\n');
+        res.end();
+        return;
+      }
+
+      const audioBase64 = audioBuffer.toString('base64');
+
+      const request = {
+        config: {
+          encoding: 'WEBM_OPUS',
+          sampleRateHertz: 48000,
+          languageCode: 'fr-FR',
+        },
+        audio: { content: audioBase64 },
+      };
+
+      console.log('🔄 Calling Google Cloud Speech...');
+      const [response] = await speechClient.recognize(request);
+
+      console.log(`✅ Got ${response.results?.length || 0} results`);
+
+      if (response.results && response.results.length > 0) {
+        for (const result of response.results) {
+          const transcript = result.alternatives?.[0]?.transcript || '';
+          if (transcript) {
+            console.log(`📝 Result: "${transcript}"`);
+            res.write(`data: ${JSON.stringify({
+              text: transcript,
+              isFinal: result.isFinal,
+            })}\n\n`);
+
+            // Delay for streaming effect
+            await new Promise(r => setTimeout(r, 150));
+          }
+        }
+      }
+
+      res.write('data: [DONE]\n\n');
+      res.end();
+    } catch (err) {
+      console.error('❌ Error:', err.message);
+      res.write(`data: ${JSON.stringify({ error: err.message })}\n\n`);
+      res.end();
+    }
+  });
+
+  req.on('error', (err) => {
+    console.error('❌ Request error:', err);
+    res.end();
+  });
+});
+
+// POST /transcribe — Fallback transcribe (non-streaming)
 app.post('/transcribe', upload.single('audio'), async (req, res) => {
   try {
     if (!req.file) {
