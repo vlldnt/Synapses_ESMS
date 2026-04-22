@@ -1,29 +1,32 @@
-import { useState, useEffect } from 'react';
-import { FilePlus, Building2, User, CalendarDays } from 'lucide-react';
-import Button from '../../components/Button';
-import RgpdNotice from '../../components/RgpdNotice';
-import GeneratedResult from '../../components/GeneratedResult';
-import GeneratingReportModal from '../../components/GeneratingReportModal';
-import VoiceTextarea from '../../components/VoiceTextarea';
-import StepCard from '../../components/Dashboard/StepCard';
+import { useState, useEffect } from "react";
+import { FilePlus, Building2, User, CalendarDays } from "lucide-react";
+import Button from "../../components/Button";
+import RgpdNotice from "../../components/RgpdNotice";
+import GeneratedResult from "../../components/GeneratedResult";
+import GeneratingReportModal from "../../components/GeneratingReportModal";
+import VoiceTextarea from "../../components/VoiceTextarea";
+import StepCard from "../../components/Dashboard/StepCard";
 import {
   generateInterventionReport,
   DEFAULT_MODEL,
-} from '../../services/aiService';
-import { getReferences, formatReferenceName } from '../../services/reference.service';
-import { useCurrentUser } from '../../hooks/useCurrentUser';
-import { useSelector } from 'react-redux';
-import { getHistory } from '../../services/historyService';
-import ContextBadge from './components/ContextBadge';
-import ModelSelector from './components/ModelSelector';
+} from "../../services/aiService";
+import {
+  getReferences,
+  formatReferenceName,
+} from "../../services/reference.service";
+import { useCurrentUser } from "../../hooks/useCurrentUser";
+import { useSelector } from "react-redux";
+import { getHistory } from "../../services/historyService";
+import ContextBadge from "./components/ContextBadge";
+import ModelSelector from "./components/ModelSelector";
 import {
   STORAGE_KEY,
   INTERVENTION_TYPES,
   LOADING_MESSAGES,
   REPORT_STATUS,
   STATUS_META,
-} from '../../constants/intervention';
-import { CARD_CLASS, ROLE_LABELS } from '../../constants/shared';
+} from "../../constants/intervention";
+import { CARD_CLASS, ROLE_LABELS } from "../../constants/shared";
 
 function inferStatus({ interventionType, transcription, result, isArchived }) {
   if (isArchived) return REPORT_STATUS.ARCHIVED;
@@ -46,24 +49,24 @@ function InterventionReport() {
   const draft = loadDraft();
 
   const today = new Date().toISOString().slice(0, 10);
-  const dateLabel = new Intl.DateTimeFormat('fr-FR', {
-    day: '2-digit',
-    month: 'long',
-    year: 'numeric',
+  const dateLabel = new Intl.DateTimeFormat("fr-FR", {
+    day: "2-digit",
+    month: "long",
+    year: "numeric",
   }).format(new Date());
 
   const [interventionType, setInterventionType] = useState(
-    draft.interventionType || '',
+    draft.interventionType || "",
   );
   const [selectedReferenceId, setSelectedChildId] = useState(
-    draft.selectedReferenceId || '',
+    draft.selectedReferenceId || "",
   );
   const [references, setReferences] = useState([]);
-  const [transcription, setTranscription] = useState(draft.transcription || '');
+  const [transcription, setTranscription] = useState(draft.transcription || "");
   const [loading, setLoading] = useState(false);
   const [loadingMessageIndex, setLoadingMessageIndex] = useState(0);
   const [showGeneratingModal, setShowGeneratingModal] = useState(false);
-  const [result, setResult] = useState(draft.result || '');
+  const [result, setResult] = useState(draft.result || "");
   const [validated, setValidated] = useState(Boolean(draft.validated));
   const [elapsed, setElapsed] = useState(draft.elapsed || null);
   const [isArchived, setIsArchived] = useState(Boolean(draft.isArchived));
@@ -84,7 +87,7 @@ function InterventionReport() {
     draft.selectedModelId || DEFAULT_MODEL,
   );
   const [selectedModelName, setSelectedModelName] = useState(
-    draft.selectedModelName || 'Voxtral Small 24B',
+    draft.selectedModelName || "Voxtral Small 24B",
   );
   // Modèle effectivement utilisé pour la dernière génération
   const [usedModel, setUsedModel] = useState(draft.usedModel || null);
@@ -99,7 +102,7 @@ function InterventionReport() {
         const archives = await getHistory();
         setArchivedCount(archives.length);
       } catch (err) {
-        console.error('Erreur lors du chargement des données:', err);
+        console.error("Erreur lors du chargement des données:", err);
       }
     };
     fetchData();
@@ -108,8 +111,8 @@ function InterventionReport() {
   const handleModelChange = (model) => {
     setSelectedModelId(model.id);
     setSelectedModelName(
-      model.name?.replace(/^[^:]+:\s*/, '') ??
-        model.id.split('/').pop() ??
+      model.name?.replace(/^[^:]+:\s*/, "") ??
+        model.id.split("/").pop() ??
         model.id,
     );
   };
@@ -125,8 +128,12 @@ function InterventionReport() {
     setReportStatus(nextStatus);
 
     // Récupérer le nom de l'enfant sélectionné
-    const selectedReference = references.find((c) => c.id === selectedReferenceId);
-    const childName = selectedReference ? formatReferenceName(selectedReference) : '';
+    const selectedReference = references.find(
+      (c) => c.id === selectedReferenceId,
+    );
+    const childName = selectedReference
+      ? formatReferenceName(selectedReference)
+      : "";
 
     localStorage.setItem(
       STORAGE_KEY,
@@ -144,7 +151,7 @@ function InterventionReport() {
         status: nextStatus,
         updatedAt: new Date().toISOString(),
         // Ajouter les infos de contexte pour l'affichage du brouillon
-        structureType: organization?.type ?? '',
+        structureType: organization?.type ?? "",
         childName: childName, // Nom de l'enfant au lieu du professionnel
       }),
     );
@@ -189,15 +196,15 @@ function InterventionReport() {
   const handleReset = () => {
     if (
       !window.confirm(
-        'Commencer un nouveau rapport ? Le brouillon sera effacé.',
+        "Commencer un nouveau rapport ? Le brouillon sera effacé.",
       )
     )
       return;
     localStorage.removeItem(STORAGE_KEY);
-    setInterventionType('');
-    setSelectedChildId('');
-    setTranscription('');
-    setResult('');
+    setInterventionType("");
+    setSelectedChildId("");
+    setTranscription("");
+    setResult("");
     setValidated(false);
     setElapsed(null);
     setUsedModel(null);
@@ -210,10 +217,10 @@ function InterventionReport() {
     localStorage.removeItem(STORAGE_KEY);
 
     // Vider tous les states du rapport IMMÉDIATEMENT
-    setInterventionType('');
-    setSelectedChildId('');
-    setTranscription('');
-    setResult('');
+    setInterventionType("");
+    setSelectedChildId("");
+    setTranscription("");
+    setResult("");
     setValidated(false);
     setElapsed(null);
     setUsedModel(null);
@@ -225,15 +232,15 @@ function InterventionReport() {
       const archives = await getHistory();
       setArchivedCount(archives.length);
     } catch (err) {
-      console.error('Erreur lors du chargement des archives:', err);
+      console.error("Erreur lors du chargement des archives:", err);
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!interventionType || !transcription.trim()) return;
+    if (!transcription.trim()) return;
     setLoading(true);
-    setResult('');
+    setResult("");
     setValidated(false);
     setElapsed(null);
     setUsedModel(null);
@@ -244,8 +251,8 @@ function InterventionReport() {
       const text = await generateInterventionReport({
         interventionType,
         transcription,
-        structureType: organization?.type ?? '',
-        companyName: organization?.name ?? '',
+        structureType: organization?.type ?? "",
+        companyName: organization?.name ?? "",
         educatorName: fullName,
         educatorRole: ROLE_LABELS[role] ?? role,
         date: today,
@@ -269,37 +276,6 @@ function InterventionReport() {
       className="h-full overflow-y-auto py-6 px-2 md:px-5 md:py-8"
     >
       <div className="mx-auto flex w-full max-w-full flex-col gap-6">
-        <div className={`${CARD_CLASS} py-4 md:py-5`}>
-          <div className="flex flex-wrap items-center gap-3">
-            <span className="text-sm font-medium text-(--text-secondary)">
-              Statut du rapport :
-            </span>
-            <span
-              className={[
-                'inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold',
-                STATUS_META[reportStatus]?.className,
-              ].join(' ')}
-            >
-              {STATUS_META[reportStatus]?.label}
-            </span>
-            <span className="text-xs text-(--text-muted)">
-              Archives: {archivedCount}
-            </span>
-            {lastSavedAt && (
-              <span className="text-xs text-(--text-muted)">
-                Derniere reprise locale:{' '}
-                {new Intl.DateTimeFormat('fr-FR', {
-                  day: '2-digit',
-                  month: '2-digit',
-                  year: 'numeric',
-                  hour: '2-digit',
-                  minute: '2-digit',
-                }).format(new Date(lastSavedAt))}
-              </span>
-            )}
-          </div>
-        </div>
-
         <form
           id="cr-form"
           onSubmit={handleSubmit}
@@ -309,103 +285,92 @@ function InterventionReport() {
           <StepCard
             step="1"
             title="Contexte"
-            subtitle="Rempli depuis votre profil — aucune saisie requise"
+            subtitle="Compte rendu d'intervention"
           >
-            <div className="flex flex-col gap-4">
-              {/* Professionnel et structure */}
-              <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
-                <div className="flex flex-col gap-3 flex-1">
-                  {/* Professionnel et rôle */}
-                  <div>
-                    <p className="text-sm md:text-base font-semibold text-(--text-primary)">
-                      {fullName} <span className="font-normal text-(--text-muted)">- {ROLE_LABELS[role] ?? role}</span>
-                    </p>
-                  </div>
-
-                  {/* Type de structure et établissement */}
-                  <div>
-                    <p className="text-sm text-(--text-secondary)">
-                      <span className="font-medium">{organization?.type ?? '—'}</span> - {organization?.name ?? '—'}
-                    </p>
-                  </div>
-                </div>
-
-                {/* Date à droite */}
-                <div className="sm:text-right">
-                  <p className="text-sm text-(--text-muted)">{dateLabel}</p>
-                </div>
+            {/* Desktop */}
+            <div className="hidden md:flex md:flex-row md:items-center gap-6 text-sm">
+              <div className="flex flex-col">
+                <p className="text-(--text-muted) text-xs">Professionnel</p>
+                <p className="font-semibold text-(--text-primary)">{fullName}</p>
+                <p className="text-xs text-(--text-secondary)">{ROLE_LABELS[role] ?? role}</p>
               </div>
-
-              {/* Enfant concerné */}
+              <div className="w-px h-10 bg-(--border)" />
+              <div className="flex flex-col">
+                <p className="text-(--text-muted) text-xs">Structure</p>
+                <p className="font-semibold text-(--text-primary)">{organization?.name ?? "—"}</p>
+                <p className="text-xs text-(--text-secondary)">{organization?.type ?? "—"}</p>
+              </div>
+              <div className="w-px h-10 bg-(--border)" />
+              <div className="flex flex-col">
+                <p className="text-(--text-muted) text-xs">Date</p>
+                <p className="font-semibold text-(--text-primary)">{dateLabel}</p>
+              </div>
+              <div className="w-px h-10 bg-(--border)" />
               <div className="flex flex-col gap-2">
-                <label
-                  htmlFor="reference-select"
-                  className="text-[10px] md:text-sm font-medium text-(--text-primary)"
-                >
-                  Enfant concerné
-                </label>
+                <label htmlFor="reference-select" className="text-xs font-medium text-(--text-primary)">Enfant concerné</label>
                 <select
                   id="reference-select"
                   value={selectedReferenceId}
                   onChange={(e) => setSelectedChildId(e.target.value)}
-                  className="rounded-xl border border-(--border) bg-(--bg-secondary) text-(--text-primary) px-4 py-2 md:text-base text-[10px] focus:outline-none focus:border-(--bleu-fonce) transition-colors w-full md:w-60"
+                  className="rounded-xl border border-(--border) bg-(--bg-secondary) text-(--text-primary) px-4 py-2 text-base focus:outline-none focus:border-(--bleu-fonce) transition-colors w-60"
                 >
-                  <option className="text-[10px]" value="">
-                    Sélectionnez un enfant…
-                  </option>
+                  <option value="">Sélectionnez un enfant…</option>
                   {references.map((child) => (
-                    <option
-                      key={child.id}
-                      value={child.id}
-                      className="text-[10px]"
-                    >
-                      {formatReferenceName(child)}
-                    </option>
+                    <option key={child.id} value={child.id}>{formatReferenceName(child)}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            {/* Mobile */}
+            <div className="flex md:hidden flex-col gap-4 text-[10px]">
+              <div className="flex flex-row gap-2">
+                <div className="flex flex-col flex-1">
+                  <p className="text-(--text-muted) font-medium">Professionnel</p>
+                  <p className="font-semibold text-(--text-primary)">{fullName}</p>
+                  <p className="text-(--text-secondary)">{ROLE_LABELS[role] ?? role}</p>
+                </div>
+                <div className="w-px bg-(--border)" />
+                <div className="flex flex-col flex-1">
+                  <p className="text-(--text-muted) font-medium">Structure</p>
+                  <p className="font-semibold text-(--text-primary)">{organization?.name ?? "—"}</p>
+                  <p className="text-(--text-secondary)">{organization?.type ?? "—"}</p>
+                </div>
+                <div className="w-px bg-(--border)" />
+                <div className="flex flex-col flex-1">
+                  <p className="text-(--text-muted) font-medium">Date</p>
+                  <p className="font-semibold text-(--text-primary)">{dateLabel}</p>
+                </div>
+              </div>
+              <div className="flex flex-col gap-1 pt-2 border-t border-(--border)/50">
+                <label htmlFor="reference-select" className="font-medium text-(--text-primary)">Enfant concerné</label>
+                <select
+                  id="reference-select"
+                  value={selectedReferenceId}
+                  onChange={(e) => setSelectedChildId(e.target.value)}
+                  className="rounded-lg border border-(--border) bg-(--bg-secondary) text-(--text-primary) px-3 py-1.5 focus:outline-none focus:border-(--bleu-fonce) transition-colors w-full"
+                >
+                  <option value="">Sélectionnez un enfant…</option>
+                  {references.map((child) => (
+                    <option key={child.id} value={child.id}>{formatReferenceName(child)}</option>
                   ))}
                 </select>
               </div>
             </div>
           </StepCard>
 
-          {/* ── Étape 2 : Type d'intervention ── */}
+          {/* ── Étape 2 : Transcription ── */}
           <StepCard
             step="2"
-            title="Type d'intervention"
-            subtitle="Sélectionnez la nature de l'intervention"
-          >
-            <div className="flex flex-col gap-4">
-              <div className="flex flex-wrap gap-2">
-                {INTERVENTION_TYPES.map((type) => (
-                  <button
-                    key={type}
-                    type="button"
-                    onClick={() => setInterventionType(type)}
-                    className={[
-                      'px-4 py-2 rounded-xl text-[10px] md:text-sm font-medium border transition-all duration-150 cursor-pointer',
-                      interventionType === type
-                        ? 'bg-(--bleu-fonce) text-white border-(--bleu-fonce) shadow-sm'
-                        : 'bg-(--bg-secondary) text-(--text-secondary) border-(--border) hover:border-(--bleu-fonce)/50 hover:text-(--text-primary)',
-                    ].join(' ')}
-                  >
-                    {type}
-                  </button>
-                ))}
-              </div>
-            </div>
-          </StepCard>
-
-          {/* ── Étape 3 : Transcription ── */}
-          <StepCard
-            step="3"
             title="Transcription"
-            subtitle="Dictez ou saisissez vos notes — l'IA extrait et structure les 7 sections"
+            subtitle="Dictez ou saisissez vos observations — l'IA détermine le type et structure le compte rendu"
           >
-            <div className="rounded-xl border border-(--border) bg-(--bg-secondary) px-4 py-3 min-h-32">
+            <div className="rounded-xl border border-(--border) bg-(--bg-secondary) px-4 py-3 min-h-56">
               <VoiceTextarea
                 value={transcription}
                 onChange={setTranscription}
                 placeholder="Dictez ou saisissez vos observations, le déroulement, les éléments d'analyse, les suites prévues… L'IA se charge du reste."
-                rows={6}
+                rows={8}
                 disabled={loading}
               />
             </div>
@@ -420,10 +385,10 @@ function InterventionReport() {
                 type="submit"
                 color="blue"
                 size="lg"
-                disabled={loading || !interventionType || !transcription.trim()}
+                disabled={loading || !transcription.trim()}
                 className="flex-1"
               >
-                {loading ? 'Génération en cours…' : 'Générer le compte rendu'}
+                {loading ? "Génération en cours…" : "Générer le compte rendu"}
               </Button>
 
               <Button
@@ -489,15 +454,19 @@ function InterventionReport() {
             onRegenerate={() => handleSubmit({ preventDefault: () => {} })}
             onArchived={handleArchived}
             validationText="Je confirme avoir relu, vérifié et, si besoin, corrigé ce compte rendu. Je reste l'auteur et le responsable de ce document. L'IA est un outil d'assistance, non un substitut au jugement professionnel."
-            generatedByModel={usedModel || { id: selectedModelId, name: selectedModelName }}
+            generatedByModel={
+              usedModel || { id: selectedModelId, name: selectedModelName }
+            }
             downloadMeta={{
               interventionType,
-              structureType: organization?.type ?? '',
-              companyName: organization?.name ?? '',
+              structureType: organization?.type ?? "",
+              companyName: organization?.name ?? "",
               educatorName: fullName,
               childName: selectedReferenceId
-                ? formatReferenceName(references.find((c) => c.id === selectedReferenceId) || {})
-                : '',
+                ? formatReferenceName(
+                    references.find((c) => c.id === selectedReferenceId) || {},
+                  )
+                : "",
               date: today,
               modelId: usedModel?.id || selectedModelId,
               modelName: usedModel?.name || selectedModelName,
