@@ -5,6 +5,8 @@ import { getHistory } from '../services/historyService';
 import { useCurrentUser } from '../hooks/useCurrentUser';
 import { downloadDocx, triggerDownload } from '../utils/wordExport';
 import { formatReportName } from '../utils/reportNameFormatter';
+import { getEnrichedInfo } from '../utils/documentEnricher';
+import { extractPreviewTextFromDocxBase64 } from '../utils/docxPreview';
 import Button from '../components/Button';
 import WordPreview from '../components/WordPreview';
 import { AGENTS, AGENT_CARD_COLORS } from '../constants/agents';
@@ -72,12 +74,16 @@ function timeAgo(isoDate) {
 }
 
 function Dashboard() {
-  const { firstName, job, organization } = useCurrentUser();
+  const { firstName, job, organization, user } = useCurrentUser();
   const role = useSelector((state) => state.role.role);
   const [date, setDate] = useState('');
   const [history, setHistory] = useState([]);
+  const [users, setUsers] = useState([]);
+  const [organizations, setOrganizations] = useState([]);
   const [selectedEntry, setSelectedEntry] = useState(null);
   const [isDownloading, setIsDownloading] = useState(false);
+  const [previewText, setPreviewText] = useState('');
+  const [isPreviewLoading, setIsPreviewLoading] = useState(false);
 
   const visibleAgents = AGENTS.filter((a) => a.roles.includes(role));
 
@@ -91,14 +97,20 @@ function Dashboard() {
 
     (async () => {
       try {
-        const archives = await getHistory();
+        const [archives, usersData, orgsData] = await Promise.all([
+          getHistory(user?.id),
+          fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api/users`).then(r => r.json()),
+          fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api/organizations`).then(r => r.json()),
+        ]);
         setHistory(archives);
+        setUsers(usersData);
+        setOrganizations(orgsData);
       } catch (err) {
-        console.error('Failed to load history:', err);
+        console.error('Failed to load data:', err);
         setHistory([]);
       }
     })();
-  }, []);
+  }, [user?.id]);
 
   const handleDownload = async () => {
     if (!selectedEntry) return;
@@ -112,17 +124,6 @@ function Dashboard() {
         }
         const blob = new Blob([bytes], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
         triggerDownload(blob, selectedEntry.filename);
-      } else {
-        const result = await downloadDocx({
-          text: selectedEntry.text,
-          date: selectedEntry.date,
-          interventionType: selectedEntry.interventionType,
-          companyName: selectedEntry.companyName,
-          educatorName: selectedEntry.educatorName,
-          modelId: selectedEntry.modelId,
-          modelName: selectedEntry.modelName,
-        });
-        triggerDownload(result.blob, result.filename);
       }
     } finally {
       setIsDownloading(false);
@@ -132,6 +133,53 @@ function Dashboard() {
   const etablissementName = organization?.name ?? 'ESMS';
   const organisationType = organization?.type ?? '';
   const recent = history.slice(0, 5);
+
+  // Fermer le modal à l'Échap
+  useEffect(() => {
+    const handleEscape = (e) => {
+      if (e.key === 'Escape' && selectedEntry) {
+        setSelectedEntry(null);
+      }
+    };
+    window.addEventListener('keydown', handleEscape);
+    return () => window.removeEventListener('keydown', handleEscape);
+  }, [selectedEntry]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadPreview() {
+      if (!selectedEntry) {
+        setPreviewText('');
+        setIsPreviewLoading(false);
+        return;
+      }
+
+      if (selectedEntry.text?.trim()) {
+        setPreviewText(selectedEntry.text);
+        setIsPreviewLoading(false);
+        return;
+      }
+
+      if (!selectedEntry.docxBase64) {
+        setPreviewText('');
+        setIsPreviewLoading(false);
+        return;
+      }
+
+      setIsPreviewLoading(true);
+      const extracted = await extractPreviewTextFromDocxBase64(selectedEntry.docxBase64);
+      if (!cancelled) {
+        setPreviewText(extracted);
+        setIsPreviewLoading(false);
+      }
+    }
+
+    loadPreview();
+    return () => {
+      cancelled = true;
+    };
+  }, [selectedEntry]);
 
   return (
     <div id="dashboard-page" className="h-full overflow-y-auto py-6 px-3 md:px-8 md:py-8">
@@ -181,6 +229,7 @@ function Dashboard() {
               recent.map((entry) => {
                 const typeLabel = getDocTypeLabel(entry);
                 const docColor = getDocColorFromLabel(typeLabel);
+                const enriched = getEnrichedInfo(entry, users, organizations);
                 return (
                   <button
                     key={entry.id}
@@ -199,10 +248,10 @@ function Dashboard() {
                         {formatReportName(entry)}
                       </p>
                       <p className="text-xs text-(--text-muted) truncate">
-                        {entry.companyName || entry.structureType}
+                        {enriched.companyName}
                       </p>
                     </div>
-                    <span className="text-xs text-(--text-muted) shrink-0">{timeAgo(entry.createdAt)}</span>
+                    <span className="text-xs text-(--text-muted) shrink-0">{timeAgo(entry.createdAt || entry.created_at || entry.date)}</span>
                   </button>
                 );
               })
@@ -214,7 +263,10 @@ function Dashboard() {
 
       {/* Modal aperçu document — même que dans Historique */}
       {selectedEntry && (
-        <div className="fixed inset-0 z-90 bg-black/55 backdrop-blur-[1px] p-3 md:p-6">
+        <div
+          className="fixed inset-0 z-90 bg-black/55 backdrop-blur-[1px] p-3 md:p-6"
+          onClick={(e) => e.target === e.currentTarget && setSelectedEntry(null)}
+        >
           <div className="mx-auto w-full max-w-5xl h-full flex flex-col rounded-2xl border border-(--border) bg-(--bg-primary) shadow-2xl overflow-hidden">
             <div className="px-4 py-3 border-b border-(--border) flex items-center gap-3">
               <div className="min-w-0 flex-1">
@@ -243,7 +295,13 @@ function Dashboard() {
             </div>
             <div className="flex-1 overflow-y-auto p-4 md:p-6 bg-(--bg-secondary)">
               <div className="rounded-xl border border-(--border) bg-(--bg-primary) p-4 md:p-6">
-                <WordPreview text={selectedEntry.text} />
+                {isPreviewLoading ? (
+                  <p className="text-(--text-muted)">Chargement de l'aperçu du document...</p>
+                ) : previewText ? (
+                  <WordPreview text={previewText} />
+                ) : (
+                  <p className="text-(--text-muted)">Aucun contenu à afficher</p>
+                )}
               </div>
             </div>
           </div>

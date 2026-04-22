@@ -8,8 +8,9 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-// Data file path
-const ARCHIVES_FILE = path.join(__dirname, 'data', 'historyArchive.json');
+// Data file paths
+const DOCUMENTS_FILE = path.join(__dirname, 'data', 'documents.json');
+const ARCHIVES_FILE = path.join(__dirname, 'data', 'archives.json');
 
 // Middleware
 app.use(cors());
@@ -19,7 +20,12 @@ app.use(express.json({ limit: '50mb' }));
 async function ensureDataDir() {
   try {
     await fs.mkdir(path.join(__dirname, 'data'), { recursive: true });
-    // Initialize file if it doesn't exist
+    // Initialize files if they don't exist
+    try {
+      await fs.access(DOCUMENTS_FILE);
+    } catch {
+      await fs.writeFile(DOCUMENTS_FILE, '[]', 'utf8');
+    }
     try {
       await fs.access(ARCHIVES_FILE);
     } catch {
@@ -52,62 +58,132 @@ async function saveJsonFile(filename, data) {
   }
 }
 
-// Load archives from file
-async function loadArchives() {
-  return loadJsonFile('historyArchive.json');
+// Load documents from file
+async function loadDocuments() {
+  return loadJsonFile('documents.json');
 }
 
-// Save archives to file
-async function saveArchives(archives) {
-  return saveJsonFile('historyArchive.json', archives);
+// Save documents to file
+async function saveDocuments(documents) {
+  return saveJsonFile('documents.json', documents);
+}
+
+// Load archive references from file
+async function loadArchiveRefs() {
+  return loadJsonFile('archives.json');
+}
+
+// Save archive references to file
+async function saveArchiveRefs(archiveRefs) {
+  return saveJsonFile('archives.json', archiveRefs);
 }
 
 // ─── Routes ──────────────────────────────────────────────────────────
 
-// GET /api/archives — Fetch all archives
+// GET /api/archives — Fetch all documents (from documents.json)
 app.get('/api/archives', async (req, res) => {
   try {
-    const archives = await loadArchives();
-    res.json(archives);
+    const { userId } = req.query;
+    const documents = await loadDocuments();
+    const archiveRefs = await loadArchiveRefs();
+
+    const docs = Array.isArray(documents) ? documents : [];
+    const refs = Array.isArray(archiveRefs) ? archiveRefs : [];
+
+    if (!userId) {
+      res.json(docs);
+      return;
+    }
+
+    // Primary source of truth: archive refs (creatorId -> documentId)
+    const documentIds = new Set(
+      refs
+        .filter((ref) => ref?.creatorId === userId)
+        .map((ref) => ref?.documentId),
+    );
+
+    const linkedDocs = docs.filter((doc) => documentIds.has(doc?.id));
+
+    // Backward-compatibility for older documents that may not have ref entries yet
+    const legacyDocs = docs.filter(
+      (doc) => doc?.creatorId === userId && !documentIds.has(doc?.id),
+    );
+
+    res.json([...linkedDocs, ...legacyDocs]);
   } catch (err) {
     res.status(500).json({ error: 'Failed to load archives' });
   }
 });
 
-// POST /api/archives — Save a new archive
+// POST /api/archives — Save a new document and create archive reference
 app.post('/api/archives', async (req, res) => {
   try {
-    const archives = await loadArchives();
+    const documents = await loadDocuments();
+    const archiveRefs = await loadArchiveRefs();
 
-    // Create entry with timestamp-based ID
-    const entry = {
-      id: Date.now(),
+    // Create document entry with timestamp-based ID
+    const docId = Date.now();
+    const {
+      structureType,
+      companyName,
+      educator,
+      reference,
+      userId,
+      creatorId,
+      text,
+      ...safeData
+    } = req.body;
+
+    const resolvedCreatorId = userId || creatorId || educator?.id || 'unknown';
+
+    const nowIso = new Date().toISOString();
+
+    const document = {
+      id: docId,
+      ...safeData,
       status: 'archived',
-      ...req.body,
-      createdAt: new Date().toISOString(),
+      creatorId: resolvedCreatorId,
+      text: text || '', // Keep text for display in WordPreview
+      createdAt: nowIso,
+      created_at: nowIso,
     };
 
-    // Add to beginning of array (newest first)
-    archives.unshift(entry);
+    // Create archive reference (links creatorId to documentId)
+    const archiveRef = {
+      id: `arch_${docId}`,
+      creatorId: resolvedCreatorId,
+      documentId: docId,
+      createdAt: nowIso,
+      created_at: nowIso,
+    };
 
-    // Save updated archives
-    await saveArchives(archives);
+    // Add to beginning of arrays (newest first)
+    documents.unshift(document);
+    archiveRefs.unshift(archiveRef);
 
-    res.status(201).json(entry);
+    // Save both files
+    await saveDocuments(documents);
+    await saveArchiveRefs(archiveRefs);
+
+    res.status(201).json(document);
   } catch (err) {
     console.error('Error saving archive:', err);
     res.status(500).json({ error: 'Failed to save archive' });
   }
 });
 
-// DELETE /api/archives/:id — Delete an archive
+// DELETE /api/archives/:id — Delete a document and its archive reference
 app.delete('/api/archives/:id', async (req, res) => {
   try {
     const id = parseInt(req.params.id, 10);
-    let archives = await loadArchives();
+    let documents = await loadDocuments();
+    let archiveRefs = await loadArchiveRefs();
 
-    archives = archives.filter((e) => e.id !== id);
-    await saveArchives(archives);
+    documents = documents.filter((e) => e.id !== id);
+    archiveRefs = archiveRefs.filter((e) => e.documentId !== id);
+
+    await saveDocuments(documents);
+    await saveArchiveRefs(archiveRefs);
 
     res.json({ success: true, id });
   } catch (err) {

@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { useSelector } from 'react-redux';
 import {
   RefreshCw, Pencil, Check, X,
   ClipboardCopy, ClipboardCheck,
@@ -9,6 +10,7 @@ import WordPreview from './WordPreview';
 import DownloadSuccessModal from './DownloadSuccessModal';
 import { downloadDocx, triggerDownload } from '../utils/wordExport';
 import { saveToHistory } from '../services/historyService';
+import { useCurrentUser } from '../hooks/useCurrentUser';
 
 // ─── Sous-composants ────────────────────────────────────────────────────────
 
@@ -82,6 +84,7 @@ export default function GeneratedResult({
   generatedByModel,
   downloadMeta = {},
 }) {
+  const { user } = useCurrentUser();
   // ── État local ─────────────────────────────────────────────────────────
   const [editedText, setEditedText] = useState(result);
   const [isEditing, setIsEditing] = useState(false);
@@ -139,9 +142,19 @@ export default function GeneratedResult({
       // Attendre 1 seconde avant de faire la conversion
       await new Promise((resolve) => setTimeout(resolve, 1000));
 
+      // Récupérer le type d'intervention détecté par l'IA si disponible
+      const detectedType = typeof window !== 'undefined'
+        ? sessionStorage.getItem('detectedInterventionType')
+        : null;
+
+      const finalInterventionType = (downloadMeta.interventionType && downloadMeta.interventionType !== '—' && downloadMeta.interventionType !== '')
+        ? downloadMeta.interventionType
+        : (detectedType || 'Intervention');
+
       const result = await downloadDocx({
         text: editedText,
         ...downloadMeta,
+        interventionType: finalInterventionType,
         modelId: downloadMeta.modelId ?? generatedByModel?.id,
         modelName: downloadMeta.modelName ?? generatedByModel?.name,
       });
@@ -154,6 +167,8 @@ export default function GeneratedResult({
 
           // Sauvegarder aux archives si ce n'est pas depuis le modal
           if (!skipArchive) {
+            const reportType = downloadMeta.reportType || downloadMeta.type || 'CRI';
+
             const archiveData = {
               id: Date.now(),
               status: 'archived',
@@ -161,18 +176,16 @@ export default function GeneratedResult({
               displayName: result.displayName,
               date: result.date,
               interventionType: result.interventionType,
-              type: 'CRI', // Type du rapport (CRI ou PPA, pour l'affichage via formatReportName)
-              reportType: 'CRI',
-              companyName: result.companyName,
-              educatorName: result.educatorName,
-              childName: downloadMeta.childName || '',
-              reference: downloadMeta.childName || '',
-              structureType: downloadMeta.structureType || '',
+              type: reportType,
               modelId: result.modelId,
               modelName: result.modelName,
-              text: editedText,
-              docxBase64: base64String, // Base64 COMPLET du DOCX
+              docxBase64: base64String,
+              text: editedText, // Pour l'affichage dans WordPreview
+              creatorId: user?.id,
+              userId: user?.id,
+              childName: downloadMeta.childName || '',
               createdAt: new Date().toISOString(),
+              created_at: new Date().toISOString(),
             };
 
             // Sauvegarder en localStorage

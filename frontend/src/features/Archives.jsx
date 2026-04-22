@@ -1,12 +1,16 @@
 import { useMemo, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 import { Download, X, Clock3 } from 'lucide-react';
 import Button from '../components/Button';
 import WordPreview from '../components/WordPreview';
 import { getHistory, deleteFromHistory } from '../services/historyService';
+import { useCurrentUser } from '../hooks/useCurrentUser';
+import { getEnrichedInfo } from '../utils/documentEnricher';
 import { downloadDocx, triggerDownload } from '../utils/wordExport';
 import { formatReportName } from '../utils/reportNameFormatter';
 import { getDocTypeLabel, getDocColorFromLabel } from '../utils/docTypeBadge';
+import { extractPreviewTextFromDocxBase64 } from '../utils/docxPreview';
 
 const DRAFT_STORAGE_KEY = 'cr_intervention_draft';
 
@@ -20,17 +24,28 @@ function getDraft() {
 
 function Archives() {
   const navigate = useNavigate();
+  const { user } = useCurrentUser();
   const [selectedEntry, setSelectedEntry] = useState(null);
   const [isDownloading, setIsDownloading] = useState(false);
   const [history, setHistory] = useState([]);
+  const [users, setUsers] = useState([]);
+  const [organizations, setOrganizations] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [previewText, setPreviewText] = useState('');
+  const [isPreviewLoading, setIsPreviewLoading] = useState(false);
 
   // Fetch archives on mount
   useEffect(() => {
     (async () => {
       try {
-        const archives = await getHistory();
+        const [archives, usersData, orgsData] = await Promise.all([
+          getHistory(user?.id),
+          fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api/users`).then(r => r.json()),
+          fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api/organizations`).then(r => r.json()),
+        ]);
         setHistory(archives);
+        setUsers(usersData);
+        setOrganizations(orgsData);
       } catch (err) {
         console.error('Failed to load history:', err);
         setHistory([]);
@@ -38,39 +53,72 @@ function Archives() {
         setIsLoading(false);
       }
     })();
-  }, []);
+  }, [user?.id]);
+
+  // Fermer le modal à l'Échap
+  useEffect(() => {
+    const handleEscape = (e) => {
+      if (e.key === 'Escape' && selectedEntry) {
+        setSelectedEntry(null);
+      }
+    };
+    window.addEventListener('keydown', handleEscape);
+    return () => window.removeEventListener('keydown', handleEscape);
+  }, [selectedEntry]);
 
   // Recharger le brouillon à chaque render (pas de useMemo!)
   const draft = getDraft();
   const hasDraft = Boolean(draft?.transcription?.trim() || draft?.interventionType || draft?.result?.trim());
   const draftStatus = draft?.result?.trim() ? 'En cours' : 'Brouillon';
+  const userHistory = history;
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadPreview() {
+      if (!selectedEntry) {
+        setPreviewText('');
+        setIsPreviewLoading(false);
+        return;
+      }
+
+      if (selectedEntry.text?.trim()) {
+        setPreviewText(selectedEntry.text);
+        setIsPreviewLoading(false);
+        return;
+      }
+
+      if (!selectedEntry.docxBase64) {
+        setPreviewText('');
+        setIsPreviewLoading(false);
+        return;
+      }
+
+      setIsPreviewLoading(true);
+      const extracted = await extractPreviewTextFromDocxBase64(selectedEntry.docxBase64);
+      if (!cancelled) {
+        setPreviewText(extracted);
+        setIsPreviewLoading(false);
+      }
+    }
+
+    loadPreview();
+    return () => {
+      cancelled = true;
+    };
+  }, [selectedEntry]);
 
   const handleDownload = async () => {
-    if (!selectedEntry) return;
+    if (!selectedEntry || !selectedEntry.docxBase64) return;
     setIsDownloading(true);
     try {
-      // Si on a le docxBase64 stocké, l'utiliser directement
-      if (selectedEntry.docxBase64) {
-        const binaryString = atob(selectedEntry.docxBase64);
-        const bytes = new Uint8Array(binaryString.length);
-        for (let i = 0; i < binaryString.length; i++) {
-          bytes[i] = binaryString.charCodeAt(i);
-        }
-        const blob = new Blob([bytes], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
-        triggerDownload(blob, selectedEntry.filename);
-      } else {
-        // Sinon, régénérer depuis le texte Markdown
-        const result = await downloadDocx({
-          text: selectedEntry.text,
-          date: selectedEntry.date,
-          interventionType: selectedEntry.interventionType,
-          companyName: selectedEntry.companyName,
-          educatorName: selectedEntry.educatorName,
-          modelId: selectedEntry.modelId,
-          modelName: selectedEntry.modelName,
-        });
-        triggerDownload(result.blob, result.filename);
+      const binaryString = atob(selectedEntry.docxBase64);
+      const bytes = new Uint8Array(binaryString.length);
+      for (let i = 0; i < binaryString.length; i++) {
+        bytes[i] = binaryString.charCodeAt(i);
       }
+      const blob = new Blob([bytes], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
+      triggerDownload(blob, selectedEntry.filename);
     } finally {
       setIsDownloading(false);
     }
@@ -124,15 +172,16 @@ function Archives() {
         </div>
 
         <div className="rounded-2xl border border-(--border) bg-(--bg-primary) shadow-sm overflow-hidden">
-          {history.length === 0 ? (
+          {userHistory.length === 0 ? (
             <div className="px-6 py-12 text-center text-sm text-(--text-muted)">
               Aucun document archive.
             </div>
           ) : (
             <div className="divide-y divide-(--border)">
-              {history.map((entry) => {
+              {userHistory.map((entry) => {
                 const typeLabel = getDocTypeLabel(entry);
                 const docColor = getDocColorFromLabel(typeLabel);
+                const enriched = getEnrichedInfo(entry, users, organizations);
                 return (
                   <button
                     key={entry.id}
@@ -151,7 +200,7 @@ function Archives() {
                         {formatReportName(entry)}
                       </p>
                       <p className="text-xs text-(--text-muted) truncate">
-                        {entry.interventionType} · {entry.companyName}
+                        {entry.interventionType} · {enriched.companyName}
                       </p>
                     </div>
                     <div className="flex items-center gap-3 shrink-0">
@@ -163,7 +212,7 @@ function Archives() {
                         )}
                         {(entry.date || entry.createdAt) && (
                           <span className="text-[11px] text-(--text-muted)/50">
-                            {new Intl.DateTimeFormat('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' }).format(new Date(entry.date || entry.createdAt))}
+                            {new Intl.DateTimeFormat('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' }).format(new Date(entry.date || entry.createdAt || entry.created_at))}
                           </span>
                         )}
                       </div>
@@ -180,7 +229,10 @@ function Archives() {
       </div>
 
       {selectedEntry && (
-        <div className="fixed inset-0 z-90 bg-black/55 backdrop-blur-[1px] p-3 md:p-6">
+        <div
+          className="fixed inset-0 z-90 bg-black/55 backdrop-blur-[1px] p-3 md:p-6"
+          onClick={(e) => e.target === e.currentTarget && setSelectedEntry(null)}
+        >
           <div className="mx-auto w-full max-w-5xl h-full flex flex-col rounded-2xl border border-(--border) bg-(--bg-primary) shadow-2xl overflow-hidden">
             <div className="px-4 py-3 border-b border-(--border) flex items-center gap-3">
               <div className="min-w-0 flex-1">
@@ -212,7 +264,13 @@ function Archives() {
 
             <div className="flex-1 overflow-y-auto p-4 md:p-6 bg-(--bg-secondary)">
               <div className="rounded-xl border border-(--border) bg-(--bg-primary) p-4 md:p-6">
-                <WordPreview text={selectedEntry.text} />
+                {isPreviewLoading ? (
+                  <p className="text-(--text-muted)">Chargement de l'aperçu du document...</p>
+                ) : previewText ? (
+                  <WordPreview text={previewText} />
+                ) : (
+                  <p className="text-(--text-muted)">Aucun contenu à afficher</p>
+                )}
               </div>
             </div>
           </div>

@@ -44,7 +44,7 @@ function loadDraft() {
 }
 
 function InterventionReport() {
-  const { fullName, organization } = useCurrentUser();
+  const { fullName, organization, user } = useCurrentUser();
   const role = useSelector((state) => state.role.role);
   const draft = loadDraft();
 
@@ -99,14 +99,14 @@ function InterventionReport() {
         const children = await getReferences();
         setReferences(children);
 
-        const archives = await getHistory();
+        const archives = await getHistory(user?.id);
         setArchivedCount(archives.length);
       } catch (err) {
         console.error("Erreur lors du chargement des données:", err);
       }
     };
     fetchData();
-  }, []);
+  }, [user?.id]);
 
   const handleModelChange = (model) => {
     setSelectedModelId(model.id);
@@ -229,7 +229,7 @@ function InterventionReport() {
 
     // Recharger le compte des archives
     try {
-      const archives = await getHistory();
+      const archives = await getHistory(user?.id);
       setArchivedCount(archives.length);
     } catch (err) {
       console.error("Erreur lors du chargement des archives:", err);

@@ -133,10 +133,24 @@ Extrais les informations pertinentes de cette transcription et rédige un compte
 `.trim();
 
   const promptData = await getPrompt('cr_intervention');
-  return getChatResponse({
+  const result = await getChatResponse({
     systemPrompt: promptData?.content,
     userMessage,
     temperature: 0.4,
     model,
   });
+
+  // Extraire le type d'intervention généré par l'IA
+  const typeMatch = result.match(/\[TYPE_INTERVENTION:\s*(.+?)\]/);
+  const detectedType = typeMatch ? typeMatch[1].trim() : 'Intervention';
+
+  // Retourner le résultat avec le type détecté (supprimer la ligne de métadonnée du texte affiché)
+  const cleanedResult = result.replace(/\[TYPE_INTERVENTION:.+?\]\n?/g, '');
+
+  // Stocker le type détecté pour utilisation ultérieure (sauvegarder dans le localStorage ou l'état)
+  if (typeof window !== 'undefined') {
+    sessionStorage.setItem('detectedInterventionType', detectedType);
+  }
+
+  return cleanedResult;
 }

@@ -1,7 +1,16 @@
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
 // In-memory cache for instant UI updates
-let historyCache = [];
+const historyCacheByKey = new Map();
+
+function cacheKeyForUser(userId) {
+  return userId || '__all__';
+}
+
+function getEntryTimestamp(entry) {
+  const raw = entry?.createdAt || entry?.created_at || entry?.date;
+  return new Date(raw).getTime();
+}
 
 /**
  * @typedef {object} HistoryEntry
@@ -11,7 +20,8 @@ let historyCache = [];
  * @property {string}  interventionType
  * @property {string}  structureType
  * @property {string}  companyName
- * @property {string}  educatorName
+ * @property {object}  educator         - {name, id}
+ * @property {string}  educatorName     - Legacy field (fallback)
  * @property {string}  text             - Markdown complet du CR
  * @property {string}  createdAt        - ISO datetime de création
  */
@@ -26,6 +36,7 @@ export async function saveToHistory({
   structureType,
   companyName,
   educatorName,
+  educator,
   filename,
   displayName,
   reference,
@@ -34,23 +45,34 @@ export async function saveToHistory({
   docxBase64,
   type,
   childName,
+  userId,
+  creatorId,
 }) {
+  const resolvedUserId = userId || creatorId || educator?.id || 'unknown';
+
+  // Use educator object if provided, otherwise create from educatorName
+  const educatorObj = educator || { name: educatorName || '—', id: resolvedUserId };
+  const displayEducatorName = educatorObj.name || educatorName || '—';
+
   const entry = {
     status: 'archived',
     filename: filename || `CR_${date || 'intervention'}.docx`,
-    displayName: displayName || `CRI ${educatorName || '—'} ${new Date(date).toLocaleDateString('fr-FR')}`,
+    displayName: displayName || `CRI ${displayEducatorName} ${new Date(date).toLocaleDateString('fr-FR')}`,
     date: date || new Date().toISOString().slice(0, 10),
     interventionType: interventionType || '—',
     type: type || 'CRI',
     structureType: structureType || '—',
     companyName: companyName || '—',
-    educatorName: educatorName || '—',
+    educator: educatorObj,
     childName: childName || '—',
     reference: reference || '—',
     modelId: modelId || 'mistralai/voxtral-small-24b-2507',
     modelName: modelName || 'Voxtral Small 24B',
     text: text || '',
     docxBase64: docxBase64 || '',
+    userId: resolvedUserId,
+    creatorId: resolvedUserId,
+    created_at: new Date().toISOString(),
   };
 
   try {
@@ -64,8 +86,14 @@ export async function saveToHistory({
 
     const savedEntry = await response.json();
 
-    // Update cache
-    historyCache.unshift(savedEntry);
+    // Update cache for this user and global cache
+    const userKey = cacheKeyForUser(resolvedUserId);
+    const userCache = historyCacheByKey.get(userKey) || [];
+    historyCacheByKey.set(userKey, [savedEntry, ...userCache]);
+
+    const allKey = cacheKeyForUser();
+    const allCache = historyCacheByKey.get(allKey) || [];
+    historyCacheByKey.set(allKey, [savedEntry, ...allCache]);
 
     return savedEntry;
   } catch (err) {
@@ -75,27 +103,34 @@ export async function saveToHistory({
 }
 
 /**
- * Fetch all archives from the backend
+ * Fetch user archives from the backend
  */
-export async function getHistory() {
+export async function getHistory(userId) {
+  const key = cacheKeyForUser(userId);
+
   try {
-    const response = await fetch(`${API_URL}/api/archives`);
+    const params = new URLSearchParams();
+    if (userId) params.set('userId', userId);
+    const query = params.toString();
+
+    const response = await fetch(`${API_URL}/api/archives${query ? `?${query}` : ''}`);
 
     if (!response.ok) throw new Error(`API error: ${response.status}`);
 
     const archives = await response.json();
 
     // Update cache
-    historyCache = archives;
+    historyCacheByKey.set(key, archives);
 
     return archives.sort(
-      (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+      (a, b) => getEntryTimestamp(b) - getEntryTimestamp(a),
     );
   } catch (err) {
     console.warn('Error fetching archives, falling back to cache:', err);
     // Fallback to cache if backend is unavailable
-    return historyCache.sort(
-      (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+    const fallback = historyCacheByKey.get(key) || [];
+    return fallback.sort(
+      (a, b) => getEntryTimestamp(b) - getEntryTimestamp(a),
     );
   }
 }
@@ -111,8 +146,10 @@ export async function deleteFromHistory(id) {
 
     if (!response.ok) throw new Error(`API error: ${response.status}`);
 
-    // Update cache
-    historyCache = historyCache.filter((e) => e.id !== id);
+    // Update all caches
+    for (const [key, entries] of historyCacheByKey.entries()) {
+      historyCacheByKey.set(key, entries.filter((e) => e.id !== id));
+    }
 
     return true;
   } catch (err) {

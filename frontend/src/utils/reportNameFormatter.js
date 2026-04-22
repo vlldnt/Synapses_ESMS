@@ -15,7 +15,8 @@ export function formatReportName(entry) {
   const type = entry.type || entry.reportType || 'Rapport';
 
   // Priorité au nom de l'enfant, sinon au nom du professionnel
-  const nameToFormat = entry.childName || entry.educatorName || '';
+  const educatorName = entry.educator?.name || entry.educatorName || '';
+  const nameToFormat = entry.childName || educatorName || '';
   const nameParts = nameToFormat.split(/\s+/) || [];
   const firstName = nameParts[0] || '';
   const lastNameInitial = nameParts.length > 1 ? nameParts[nameParts.length - 1][0].toUpperCase() : '';
