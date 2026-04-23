@@ -1,14 +1,14 @@
-import { useState, useEffect } from 'react';
-import { useSelector } from 'react-redux';
-import { FilePlus } from 'lucide-react';
-import Input from '../components/Input';
-import Button from '../components/Button';
-import RgpdNotice from '../components/RgpdNotice';
-import GeneratedResult from '../components/GeneratedResult';
-import StepCard from '../components/Dashboard/StepCard';
+import { useState, useEffect } from "react";
+import { useSelector } from "react-redux";
+import { FilePlus } from "lucide-react";
+import Input from "../components/Input";
+import Button from "../components/Button";
+import RgpdNotice from "../components/RgpdNotice";
+import GeneratedResult from "../components/GeneratedResult";
+import StepCard from "../components/Dashboard/StepCard";
 // import { generatePPA } from '../services/aiService'; // TODO: À réactiver quand generatePPA sera implémenté
-import { getStructureTypeCategories } from '../services/structureType.service';
-import { downloadDocx } from '../utils/wordExport';
+import { getStructureTypeCategories } from "../services/structureType.service";
+import { downloadDocx } from "../utils/wordExport";
 import {
   STORAGE_KEY,
   AGE_GROUPS,
@@ -16,8 +16,8 @@ import {
   AXES,
   PPA_FIELDS,
   EMPTY_NOTES,
-} from '../constants/ppa';
-import { CARD_CLASS } from '../constants/shared';
+} from "../constants/ppa";
+import { CARD_CLASS } from "../constants/shared";
 
 function loadDraft() {
   try {
@@ -31,16 +31,16 @@ function PersonalizedProject() {
   const user = useSelector((state) => state.auth.user);
   const draft = loadDraft();
 
-  const [reference,              setReference]              = useState(draft.reference             || '');
-  const [structureType,          setStructureType]          = useState(draft.structureType         || '');
-  const [ageGroup,               setAgeGroup]               = useState(draft.ageGroup              || '');
-  const [period,                 setPeriod]                 = useState(draft.period                || '');
-  const [selectedAxes,           setSelectedAxes]           = useState(draft.selectedAxes          || []);
-  const [notes,                  setNotes]                  = useState(draft.notes                 || EMPTY_NOTES);
-  const [loading,                setLoading]                = useState(false);
-  const [result,                 setResult]                 = useState('');
-  const [validated,              setValidated]              = useState(false);
-  const [elapsed,                setElapsed]                = useState(null);
+  const [reference, setReference] = useState(draft.reference || "");
+  const [structureType, setStructureType] = useState(draft.structureType || "");
+  const [ageGroup, setAgeGroup] = useState(draft.ageGroup || "");
+  const [period, setPeriod] = useState(draft.period || "");
+  const [selectedAxes, setSelectedAxes] = useState(draft.selectedAxes || []);
+  const [notes, setNotes] = useState(draft.notes || EMPTY_NOTES);
+  const [loading, setLoading] = useState(false);
+  const [result, setResult] = useState("");
+  const [validated, setValidated] = useState(false);
+  const [elapsed, setElapsed] = useState(null);
   const [structureTypeCategories, setStructureTypeCategories] = useState([]);
 
   // Load structure type categories
@@ -50,7 +50,7 @@ function PersonalizedProject() {
         const categories = await getStructureTypeCategories();
         setStructureTypeCategories(categories);
       } catch (err) {
-        console.error('Failed to load structure types:', err);
+        console.error("Failed to load structure types:", err);
       }
     })();
   }, []);
@@ -58,7 +58,14 @@ function PersonalizedProject() {
   useEffect(() => {
     localStorage.setItem(
       STORAGE_KEY,
-      JSON.stringify({ reference, structureType, ageGroup, period, selectedAxes, notes }),
+      JSON.stringify({
+        reference,
+        structureType,
+        ageGroup,
+        period,
+        selectedAxes,
+        notes,
+      }),
     );
   }, [reference, structureType, ageGroup, period, selectedAxes, notes]);
 
@@ -73,18 +80,18 @@ function PersonalizedProject() {
   const handleReset = () => {
     if (
       !window.confirm(
-        'Commencer un nouveau PPA ? Les données actuelles seront effacées.',
+        "Commencer un nouveau PPA ? Les données actuelles seront effacées.",
       )
     )
       return;
     localStorage.removeItem(STORAGE_KEY);
-    setReference('');
-    setStructureType('');
-    setAgeGroup('');
-    setPeriod('');
+    setReference("");
+    setStructureType("");
+    setAgeGroup("");
+    setPeriod("");
     setSelectedAxes([]);
     setNotes(EMPTY_NOTES);
-    setResult('');
+    setResult("");
     setValidated(false);
     setElapsed(null);
   };
@@ -92,7 +99,9 @@ function PersonalizedProject() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     // TODO: generatePPA à réactiver quand implémenté
-    setResult(`Erreur : La génération de PPA n'est pas encore disponible. Utilisez la fonction "Compte rendu d'intervention" pour le moment.`);
+    setResult(
+      `Erreur : La génération de PPA n'est pas encore disponible. Utilisez la fonction "Compte rendu d'intervention" pour le moment.`,
+    );
   };
 
   const handleCopy = () => navigator.clipboard.writeText(result);
@@ -118,7 +127,11 @@ function PersonalizedProject() {
           className="flex flex-col gap-6"
         >
           {/* ── Étape 1 : Identification anonymisée ── */}
-          <StepCard step="1" title="Identification anonymisée" subtitle="Aucune donnée nominative — utilisez une référence ou des initiales">
+          <StepCard
+            step="1"
+            title="Identification anonymisée"
+            subtitle="Aucune donnée nominative — utilisez une référence ou des initiales"
+          >
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <Input
                 id="ppa-reference"
@@ -161,7 +174,11 @@ function PersonalizedProject() {
           </StepCard>
 
           {/* ── Étape 2 : Axes SERAFIN-PH ── */}
-          <StepCard step="2" title="Axes SERAFIN-PH à travailler" subtitle="Sélectionnez les axes prioritaires pour ce PPA">
+          <StepCard
+            step="2"
+            title="Axes SERAFIN-PH à travailler"
+            subtitle="Sélectionnez les axes prioritaires pour ce PPA"
+          >
             <div className="flex items-center justify-between mb-3">
               {selectedAxes.length > 0 && (
                 <button
@@ -182,13 +199,16 @@ function PersonalizedProject() {
                     type="button"
                     onClick={() => toggleAxe(key)}
                     className={`flex items-center gap-1.5 px-2.5 py-2 rounded-xl border text-xs sm:text-sm font-medium transition-colors cursor-pointer w-full overflow-hidden
-                      ${active
-                        ? 'bg-(--bleu-fonce) border-(--bleu-fonce) text-white'
-                        : 'bg-(--bg-secondary) border-(--border) text-(--text-secondary) hover:bg-(--bg-tertiary)'
+                      ${
+                        active
+                          ? "bg-(--bleu-fonce) border-(--bleu-fonce) text-white"
+                          : "bg-(--bg-secondary) border-(--border) text-(--text-secondary) hover:bg-(--bg-tertiary)"
                       }`}
                   >
-                    <span className={`w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full border flex items-center justify-center text-[10px] shrink-0 transition-colors
-                      ${active ? 'border-white/60 text-white' : 'border-(--border) text-transparent'}`}>
+                    <span
+                      className={`w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full border flex items-center justify-center text-[10px] shrink-0 transition-colors
+                      ${active ? "border-white/60 text-white" : "border-(--border) text-transparent"}`}
+                    >
                       ✓
                     </span>
                     <span className="truncate whitespace-nowrap">{label}</span>
@@ -199,7 +219,11 @@ function PersonalizedProject() {
           </StepCard>
 
           {/* ── Étape 3 : Observations ── */}
-          <StepCard step="3" title="Vos observations" subtitle="Situation de la personne accompagnée (saisie libre)">
+          <StepCard
+            step="3"
+            title="Vos observations"
+            subtitle="Situation de la personne accompagnée (saisie libre)"
+          >
             <div className="rounded-xl bg-(--bg-secondary) border border-(--border) divide-y divide-(--border)/40 px-2">
               {PPA_FIELDS.map(({ key, label, placeholder }) => (
                 <div
@@ -216,8 +240,8 @@ function PersonalizedProject() {
                     className="w-full md:flex-1 bg-transparent outline-none text-[12px]! md:text-[14px]! text-(--text-primary) placeholder:text-[10px]! md:placeholder:text-[12px]! placeholder:text-(--text-muted)/60 placeholder:overflow-hidden resize-none overflow-hidden min-w-0 leading-tight italic"
                     placeholder={placeholder}
                     onInput={(e) => {
-                      e.target.style.height = 'auto';
-                      e.target.style.height = e.target.scrollHeight + 'px';
+                      e.target.style.height = "auto";
+                      e.target.style.height = e.target.scrollHeight + "px";
                     }}
                   />
                 </div>
@@ -229,7 +253,7 @@ function PersonalizedProject() {
           {/* ── Boutons ── */}
           <div className="flex flex-row items-center justify-around md:justify-start md:gap-4">
             <Button type="submit" color="orange" size="lg" disabled={loading}>
-              {loading ? 'Génération en cours…' : 'Générer le PPA'}
+              {loading ? "Génération en cours…" : "Générer le PPA"}
             </Button>
             {!loading && !result && (
               <span className="hidden md:inline text-xs text-(--text-muted)">

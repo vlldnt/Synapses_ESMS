@@ -1,10 +1,11 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { FilePlus, Building2, User, CalendarDays } from "lucide-react";
 import Button from "../../components/Button";
 import RgpdNotice from "../../components/RgpdNotice";
 import GeneratedResult from "../../components/GeneratedResult";
 import GeneratingReportModal from "../../components/GeneratingReportModal";
 import TranscriptionInput from "../../components/TranscriptionInput.jsx";
+import TranscriptionCard from "../../components/TranscriptionCard";
 import StepCard from "../../components/Dashboard/StepCard";
 import {
   generateInterventionReport,
@@ -375,17 +376,14 @@ function InterventionReport() {
               </div>
             }
           >
-            <div className="rounded-xl border border-(--border) bg-(--bg-secondary) px-4 py-3 min-h-56">
-              <TranscriptionInput
-                value={transcription}
-                onChange={setTranscription}
-                placeholder="Dictez ou saisissez vos observations, le déroulement, les éléments d'analyse, les suites prévues… L'IA se charge du reste."
-                rows={8}
-                disabled={loading}
-                variant="textarea"
-              />
-            </div>
-            <RgpdNotice message="Vos notes sont anonymisées automatiquement avant d'être envoyées à l'IA. Aucun nom, prénom ou donnée nominative n'est transmis." />
+            <TranscriptionCard
+              value={transcription}
+              onChange={setTranscription}
+              placeholder="Dictez ou saisissez vos observations, le déroulement, les éléments d'analyse, les suites prévues… L'IA se charge du reste."
+              rows={8}
+              disabled={loading}
+            />
+            <RgpdNotice message="Vos notes sont anonymisées aucun nom, prénom ou donnée nominative ne doit être transmis." />
           </StepCard>
 
           {/* ── Actions ── */}

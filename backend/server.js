@@ -16,9 +16,15 @@ const ARCHIVES_FILE = path.join(__dirname, 'data', 'archives.json');
 const GOOGLE_KEY_FILE = path.join(__dirname, 'data', 'google-key.json');
 
 // Initialize Google Cloud Speech client
-const speechClient = new speech.SpeechClient({
-  keyFilename: GOOGLE_KEY_FILE,
-});
+let speechClient;
+try {
+  speechClient = new speech.SpeechClient({
+    keyFilename: GOOGLE_KEY_FILE,
+  });
+  console.log(`✅ Google Cloud Speech client initialized with: ${GOOGLE_KEY_FILE}`);
+} catch (err) {
+  console.error(`❌ Failed to initialize Google Cloud Speech client:`, err.message);
+}
 
 // Multer setup for audio file handling
 const upload = multer({ storage: multer.memoryStorage() });
@@ -288,13 +294,71 @@ app.get('/api/reference', async (req, res) => {
 
 // ─── Speech-to-Text ─────────────────────────────────────────────────
 
-// POST /transcribe-stream — Transcribe and stream results progressively via SSE
-app.post('/transcribe-stream', (req, res) => {
+// POST /api/transcribe-stream — Transcribe and stream progressive chunks via SSE
+app.post('/api/transcribe-stream', (req, res) => {
   res.setHeader('Content-Type', 'text/event-stream');
   res.setHeader('Cache-Control', 'no-cache');
   res.setHeader('Connection', 'keep-alive');
   res.setHeader('Access-Control-Allow-Origin', '*');
 
+  const audioChunks = [];
+
+  req.on('data', (chunk) => {
+    audioChunks.push(chunk);
+  });
+
+  req.on('end', async () => {
+    try {
+      const audioBuffer = Buffer.concat(audioChunks);
+      console.log(`🎙️ Stream total audio: ${audioBuffer.length} bytes`);
+
+      if (audioBuffer.length === 0) {
+        res.write(`data: ${JSON.stringify({ error: 'No audio' })}\n\n`);
+        res.write('data: [DONE]\n\n');
+        return res.end();
+      }
+
+      const audioBase64 = audioBuffer.toString('base64');
+      const request = {
+        config: {
+          encoding: 'WEBM_OPUS',
+          sampleRateHertz: 48000,
+          languageCode: 'fr-FR',
+        },
+        audio: { content: audioBase64 },
+      };
+
+      console.log('🔄 Calling Google Cloud Speech (stream endpoint)...');
+      const [response] = await speechClient.recognize(request);
+
+      if (response.results && response.results.length > 0) {
+        for (const result of response.results) {
+          const transcript = result.alternatives?.[0]?.transcript || '';
+          if (!transcript) continue;
+
+          res.write(
+            `data: ${JSON.stringify({ text: transcript, isFinal: result.isFinal })}\n\n`,
+          );
+        }
+      }
+
+      res.write('data: [DONE]\n\n');
+      res.end();
+    } catch (err) {
+      console.error('❌ Stream transcription error:', err.message || err);
+      res.write(`data: ${JSON.stringify({ error: err.message })}\n\n`);
+      res.end();
+    }
+  });
+
+  req.on('error', (err) => {
+    console.error('❌ Stream request error:', err);
+    res.end();
+  });
+});
+
+// POST /api/transcribe-audio — Audio transcription (raw binary)
+app.post('/api/transcribe-audio', (req, res) => {
   let audioChunks = [];
 
   req.on('data', (chunk) => {
@@ -307,89 +371,88 @@ app.post('/transcribe-stream', (req, res) => {
       console.log(`🎙️ Total audio: ${audioBuffer.length} bytes`);
 
       if (audioBuffer.length === 0) {
-        res.write(`data: ${JSON.stringify({ error: 'No audio' })}\n\n`);
-        res.write('data: [DONE]\n\n');
-        res.end();
-        return;
+        return res.json({ transcript: '' });
       }
 
       const audioBase64 = audioBuffer.toString('base64');
-
       const request = {
         config: {
           encoding: 'WEBM_OPUS',
-          sampleRateHertz: 48000,
+          sampleRateHertz: 16000,
           languageCode: 'fr-FR',
         },
         audio: { content: audioBase64 },
       };
 
       console.log('🔄 Calling Google Cloud Speech...');
+      console.log(`📊 Request config:`, JSON.stringify(request.config));
       const [response] = await speechClient.recognize(request);
 
-      console.log(`✅ Got ${response.results?.length || 0} results`);
+      console.log(`📊 Response results count:`, response.results?.length || 0);
+      console.log(`📊 Full response:`, JSON.stringify(response, null, 2));
 
-      if (response.results && response.results.length > 0) {
-        for (const result of response.results) {
-          const transcript = result.alternatives?.[0]?.transcript || '';
-          if (transcript) {
-            console.log(`📝 Result: "${transcript}"`);
-            res.write(`data: ${JSON.stringify({
-              text: transcript,
-              isFinal: result.isFinal,
-            })}\n\n`);
+      const transcription = response.results
+        ?.map((result) => result.alternatives?.[0]?.transcript)
+        ?.filter(Boolean)
+        ?.join(' ') || '';
 
-            // Delay for streaming effect
-            await new Promise(r => setTimeout(r, 150));
-          }
-        }
-      }
-
-      res.write('data: [DONE]\n\n');
-      res.end();
+      console.log(`✅ Transcription: "${transcription}"`);
+      res.json({ transcript: transcription });
     } catch (err) {
-      console.error('❌ Error:', err.message);
-      res.write(`data: ${JSON.stringify({ error: err.message })}\n\n`);
-      res.end();
+      console.error('❌ Transcription error:', err.message);
+      res.status(500).json({ error: 'Transcription failed', message: err.message });
     }
   });
 
   req.on('error', (err) => {
     console.error('❌ Request error:', err);
-    res.end();
+    res.status(500).json({ error: 'Request failed' });
   });
 });
 
-// POST /transcribe — Fallback transcribe (non-streaming)
-app.post('/transcribe', upload.single('audio'), async (req, res) => {
+// POST /api/transcribe-audio-upload — Audio transcription (multipart/form-data)
+app.post('/api/transcribe-audio-upload', upload.single('file'), async (req, res) => {
   try {
-    if (!req.file) {
+    // Support a mock mode for local emulation: ?mock=1
+    if (req.query && (req.query.mock === '1' || req.query.mock === 'true')) {
+      console.log('🔧 Mock transcription mode active');
+      return res.json({ transcript: 'Transcription simulée : bonjour ceci est un test' });
+    }
+
+    if (!req.file || !req.file.buffer) {
       return res.status(400).json({ error: 'No audio file provided' });
     }
 
     const audioBuffer = req.file.buffer;
-    const audioBase64 = audioBuffer.toString('base64');
+    console.log(`🎙️ Received upload: ${audioBuffer.length} bytes, originalname=${req.file.originalname}`);
 
+    if (audioBuffer.length === 0) {
+      return res.json({ transcript: '' });
+    }
+
+    const audioBase64 = audioBuffer.toString('base64');
     const request = {
       config: {
         encoding: 'WEBM_OPUS',
-        sampleRateHertz: 48000,
+        sampleRateHertz: 16000,
         languageCode: 'fr-FR',
       },
-      audio: {
-        content: audioBase64,
-      },
+      audio: { content: audioBase64 },
     };
 
+    console.log('🔄 Calling Google Cloud Speech (upload endpoint)...');
     const [response] = await speechClient.recognize(request);
+
     const transcription = response.results
       ?.map((result) => result.alternatives?.[0]?.transcript)
-      ?.join('\n');
+      ?.filter(Boolean)
+      ?.join(' ') || '';
 
-    res.json({ transcript: transcription || '' });
+    console.log(`✅ Transcription (upload): "${transcription}"`);
+    res.json({ transcript: transcription });
   } catch (err) {
-    console.error('Transcription error:', err);
-    res.status(500).json({ error: 'Transcription failed' });
+    console.error('❌ Transcription (upload) error:', err.message || err);
+    res.status(500).json({ error: 'Transcription failed', message: err.message });
   }
 });
 

@@ -1,5 +1,5 @@
 import { useRef, useState, useCallback, useEffect } from "react";
-import { MicrophoneButton, MicrophoneButtonCompact } from "./MicrophoneButton";
+import { MicrophoneButtonCompact } from "./MicrophoneButton";
 
 /**
  * Composant Transcription réutilisable avec gestion complète du micro
@@ -28,6 +28,7 @@ export function TranscriptionInput({
   const animationIdRef = useRef(null);
   const speechRecognitionRef = useRef(null);
   const useNativeApiRef = useRef(false);
+  const textareaRef = useRef(null);
 
   // Notifier les changements de status
   useEffect(() => {
@@ -35,7 +36,7 @@ export function TranscriptionInput({
   }, [status, onStatusChange]);
 
   const autoResize = () => {
-    const el = document.querySelector("textarea");
+    const el = textareaRef.current;
     if (!el) return;
     el.style.height = "auto";
     el.style.height = `${el.scrollHeight}px`;
@@ -55,7 +56,11 @@ export function TranscriptionInput({
   }, []);
 
   const stopRecording = useCallback(() => {
-    setStatus("processing");
+    if (useNativeApiRef.current && speechRecognitionRef.current) {
+      setStatus("idle");
+    } else {
+      setStatus("processing");
+    }
 
     if (animationIdRef.current) {
       cancelAnimationFrame(animationIdRef.current);
@@ -161,9 +166,14 @@ export function TranscriptionInput({
           console.log("🔄 Basculant à Google Cloud Speech...");
           recognition.abort();
           useNativeApiRef.current = false;
-          mediaRecorderRef.current?.start(500);
+          startGoogleRecording().catch((err) => {
+            console.error("❌ Fallback Google start failed:", err);
+            setErrorMessage("Erreur de transcription");
+            setStatus("idle");
+          });
         } else if (event.error !== "no-speech" && event.error !== "aborted") {
           setErrorMessage(`Erreur: ${event.error}`);
+          setStatus("idle");
         }
       };
 
@@ -183,6 +193,117 @@ export function TranscriptionInput({
     }
   }, [value, onChange]);
 
+  const appendTranscript = useCallback((chunkText) => {
+    const text = String(chunkText || "").trim();
+    if (!text) return;
+
+    transcriptRef.current = String(transcriptRef.current || "");
+    transcriptRef.current += (transcriptRef.current ? " " : "") + text;
+
+    const baseText = String(value || "").trim();
+    const finalText = baseText
+      ? baseText + " " + String(transcriptRef.current).trim()
+      : String(transcriptRef.current).trim();
+
+    onChange(finalText);
+  }, [value, onChange]);
+
+  const transcribeWithStream = useCallback(async (blob) => {
+    const res = await fetch(`/api/transcribe-stream`, {
+      method: "POST",
+      body: blob,
+    });
+
+    if (!res.body) {
+      throw new Error("Pas de réponse du serveur");
+    }
+
+    const reader = res.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = "";
+
+    while (true) {
+      const { done, value: chunk } = await reader.read();
+      if (done) break;
+
+      buffer += decoder.decode(chunk, { stream: true });
+      const lines = buffer.split("\n");
+      buffer = lines.pop() || "";
+
+      for (const line of lines) {
+        if (!line.startsWith("data: ")) continue;
+
+        const payload = line.slice(6).trim();
+        if (payload === "[DONE]") {
+          continue;
+        }
+
+        const parsed = JSON.parse(payload);
+        if (parsed?.error) {
+          throw new Error(parsed.error);
+        }
+
+        if (parsed?.text) {
+          appendTranscript(parsed.text);
+        }
+      }
+    }
+  }, [appendTranscript]);
+
+  const startGoogleRecording = useCallback(async () => {
+    console.log("🔄 Fallback: Google Cloud Speech (stream)...");
+    setErrorMessage("");
+    setStatus("recording");
+
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    streamRef.current = stream;
+
+    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    const analyser = audioContext.createAnalyser();
+    analyser.fftSize = 256;
+    const source = audioContext.createMediaStreamSource(stream);
+    source.connect(analyser);
+    analyserRef.current = analyser;
+
+    monitorAudioLevel();
+
+    const mediaRecorder = new MediaRecorder(stream, { mimeType: "audio/webm;codecs=opus" });
+    mediaRecorderRef.current = mediaRecorder;
+    chunksRef.current = [];
+
+    mediaRecorder.ondataavailable = (e) => {
+      if (e.data?.size > 0) {
+        chunksRef.current.push(e.data);
+      }
+    };
+
+    mediaRecorder.onstop = async () => {
+      setStatus("processing");
+
+      try {
+        const blob = new Blob(chunksRef.current, { type: "audio/webm" });
+        await transcribeWithStream(blob);
+
+        if (!String(transcriptRef.current || "").trim()) {
+          setErrorMessage("Aucun texte détecté");
+        }
+      } catch (err) {
+        console.error("❌ Stream transcription error:", err);
+        setErrorMessage("Erreur de transcription");
+      }
+
+      setStatus("idle");
+      autoResize();
+    };
+
+    mediaRecorder.start(500);
+    setTimeout(() => {
+      if (mediaRecorder.state === "recording") {
+        mediaRecorder.stop();
+      }
+    }, 6000);
+  }, [monitorAudioLevel, transcribeWithStream]);
+
   const startRecording = useCallback(async () => {
     setErrorMessage("");
     setStatus("recording");
@@ -195,129 +316,14 @@ export function TranscriptionInput({
       return;
     }
 
-    console.log("🔄 Fallback: Google Cloud Speech...");
-    setErrorMessage("");
-
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        audio: true,
-      });
-      streamRef.current = stream;
-
-      const audioContext = new (window.AudioContext ||
-        window.webkitAudioContext)();
-      const analyser = audioContext.createAnalyser();
-      const source = audioContext.createMediaStreamSource(stream);
-      source.connect(analyser);
-      analyserRef.current = analyser;
-
-      monitorAudioLevel();
-
-      const mediaRecorder = new MediaRecorder(stream);
-      mediaRecorderRef.current = mediaRecorder;
-      chunksRef.current = [];
-
-      mediaRecorder.ondataavailable = (e) => {
-        chunksRef.current.push(e.data);
-      };
-
-      mediaRecorder.onstop = async () => {
-        setStatus("processing");
-        console.log("⏹️ Recording stopped, processing...");
-
-        try {
-          const blob = new Blob(chunksRef.current, { type: "audio/webm" });
-          console.log(`🎙️ Audio recorded: ${blob.size} bytes`);
-
-          // Utiliser le basename depuis .env (ex: /synapses)
-          const basename = import.meta.env.VITE_BASENAME || "/synapses";
-          const transcribeUrl = `${basename}/transcribe-stream`;
-
-          console.log(`📍 Transcribe URL: ${transcribeUrl}`);
-          const res = await fetch(transcribeUrl, {
-            method: "POST",
-            body: blob,
-          });
-
-          console.log(`📡 Response status: ${res.status}`);
-          if (!res.body) {
-            setErrorMessage("Pas de réponse du serveur");
-            setStatus("idle");
-            return;
-          }
-
-          const reader = res.body.getReader();
-          const decoder = new TextDecoder();
-          let buffer = "";
-
-          while (true) {
-            const { done, value: chunk } = await reader.read();
-            if (done) break;
-
-            buffer += decoder.decode(chunk, { stream: true });
-            const lines = buffer.split("\n");
-            buffer = lines.pop() || "";
-
-            for (const line of lines) {
-              if (line.startsWith("data: ")) {
-                const data = line.slice(6).trim();
-                if (data === "[DONE]") {
-                  console.log("✅ Streaming complete");
-                  setStatus("idle");
-                  continue;
-                }
-
-                try {
-                  const parsed = JSON.parse(data);
-                  if (parsed.text) {
-                    const text = String(parsed.text).trim();
-                    console.log(`📝 Text: "${text}"`);
-
-                    transcriptRef.current = String(transcriptRef.current || "");
-                    transcriptRef.current += (transcriptRef.current ? " " : "") + text;
-
-                    const baseText = String(value || "").trim();
-                    const finalText = baseText
-                      ? baseText + " " + String(transcriptRef.current).trim()
-                      : String(transcriptRef.current).trim();
-
-                    console.log(`✍️ Final: "${finalText}"`);
-                    onChange(finalText);
-                  }
-                } catch (e) {
-                  console.error("Parse error:", e);
-                }
-              }
-            }
-          }
-
-          if (!transcriptRef.current) {
-            setErrorMessage("Aucun texte détecté");
-          }
-        } catch (err) {
-          console.error("❌ Error:", err);
-          setErrorMessage("Erreur de transcription");
-        }
-
-        setStatus("idle");
-        autoResize();
-      };
-
-      mediaRecorder.start(500);
-      console.log("🎙️ Recording started");
-
-      setTimeout(() => {
-        if (mediaRecorder.state === "recording") {
-          console.log("⏹️ Stopping recording (timeout)");
-          mediaRecorder.stop();
-        }
-      }, 6000);
+      await startGoogleRecording();
     } catch (err) {
       console.error(err);
       setErrorMessage("Micro non autorisé ou indisponible");
       setStatus("idle");
     }
-  }, [value, onChange, monitorAudioLevel, startNativeRecognition]);
+  }, [startNativeRecognition, startGoogleRecording]);
 
   useEffect(() => {
     return () => {
@@ -369,6 +375,7 @@ export function TranscriptionInput({
     <div className="w-full">
       <div className="flex gap-3 w-full">
         <textarea
+          ref={textareaRef}
           value={value}
           rows={rows}
           disabled={disabled}
@@ -382,7 +389,7 @@ export function TranscriptionInput({
           onInput={autoResize}
         />
 
-        <div className="shrink-0 hidden md:flex">
+        <div className="shrink-0 hidden md:flex items-center">
           <MicrophoneButtonCompact
             status={status}
             onClick={handleClick}

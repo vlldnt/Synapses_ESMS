@@ -54,7 +54,7 @@ export function MicrophoneButtonCompact({
       {status === "recording" && (
         <div className="flex flex-col items-center gap-1">
           {/* Barre de volume vertical à gauche */}
-          <div className="h-20 w-1.5 bg-gray-300 rounded-full overflow-hidden">
+          <div className="h-20 w-1.5 bg-gray-300 rounded-full overflow-hidden flex flex-col-reverse">
             <div
               className={[
                 "w-full rounded-full transition-all",
