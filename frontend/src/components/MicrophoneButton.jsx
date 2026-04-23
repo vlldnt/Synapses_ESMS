@@ -47,29 +47,42 @@ export function MicrophoneButtonCompact({
   onClick,
   disabled = false,
   isSoundDetected = false,
+  audioLevel = 0,
 }) {
   return (
-    <div className="flex flex-col items-center gap-1">
-      <MicrophoneButton
-        status={status}
-        onClick={onClick}
-        disabled={disabled}
-        size={20}
-      />
-
+    <div className="flex items-center gap-2">
       {status === "recording" && (
         <div className="flex flex-col items-center gap-1">
+          {/* Barre de volume vertical à gauche */}
+          <div className="h-20 w-1.5 bg-gray-300 rounded-full overflow-hidden">
+            <div
+              className={[
+                "w-full rounded-full transition-all",
+                isSoundDetected ? "bg-green-500" : "bg-gray-400",
+              ].join(" ")}
+              style={{ height: `${audioLevel}%` }}
+            />
+          </div>
           <span className="text-[10px] font-medium">
-            {isSoundDetected ? "🎤 Écoute" : "⏳ Silence"}
+            {isSoundDetected ? "🎤" : "⏳"}
           </span>
         </div>
       )}
 
-      {status === "processing" && (
-        <span className="text-[10px] font-medium text-blue-600">
-          Transcription...
-        </span>
-      )}
+      <div className="flex flex-col items-center gap-2">
+        <MicrophoneButton
+          status={status}
+          onClick={onClick}
+          disabled={disabled}
+          size={20}
+        />
+
+        {status === "processing" && (
+          <span className="text-[10px] font-medium text-blue-600">
+            Transcription...
+          </span>
+        )}
+      </div>
     </div>
   );
 }

@@ -4,7 +4,8 @@ import tailwindcss from '@tailwindcss/vite';
 import { VitePWA } from 'vite-plugin-pwa';
 
 export default defineConfig({
-  base: './',
+  appType: 'spa',
+  base: '/synapses/',
   plugins: [
     react(),
     tailwindcss(),
@@ -40,19 +41,16 @@ export default defineConfig({
         target: 'http://localhost:3002',
         changeOrigin: true,
       },
-      '/transcribe': {
+      '/synapses/api/': {
         target: 'http://localhost:3002',
         changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/synapses/, ''),
       },
-      '/transcribe-stream': {
+      '/synapses/transcribe': {
         target: 'http://localhost:3002',
         changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/synapses/, ''),
         ws: true,
-      },
-      '/ollama': {
-        target: 'http://51.178.41.170:11434',
-        changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/ollama/, ''),
       },
     },
   },

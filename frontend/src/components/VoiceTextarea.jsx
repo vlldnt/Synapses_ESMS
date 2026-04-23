@@ -156,7 +156,8 @@ export function VoiceTextarea({
 
           try {
             const blob = new Blob(chunksRef.current, { type: "audio/webm" });
-            const res = await fetch("http://localhost:3001/transcribe-stream", {
+            const basename = import.meta.env.VITE_BASENAME || "/synapses";
+            const res = await fetch(`${basename}/transcribe-stream`, {
               method: "POST",
               body: blob,
             });
@@ -295,8 +296,8 @@ export function VoiceTextarea({
           const blob = new Blob(chunksRef.current, { type: "audio/webm" });
           console.log(`🎙️ Audio recorded: ${blob.size} bytes`);
 
-          const apiUrl = process.env.VITE_BACKEND_URL || "http://localhost:3001";
-          const res = await fetch(`${apiUrl}/transcribe-stream`, {
+          const basename = import.meta.env.VITE_BASENAME || "/synapses";
+          const res = await fetch(`${basename}/transcribe-stream`, {
             method: "POST",
             body: blob,
           });

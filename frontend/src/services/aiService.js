@@ -1,6 +1,7 @@
 import { OpenRouter } from '@openrouter/sdk';
 
-const API_URL = './api';
+const basename = import.meta.env.VITE_BASENAME || '/synapses';
+const API_URL = `${basename}/api`;
 
 let promptsCache = [];
 

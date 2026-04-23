@@ -55,7 +55,9 @@ async function loadJsonFile(filename) {
     return JSON.parse(data);
   } catch (err) {
     console.warn(`Could not load ${filename}:`, err.message);
-    return filename.includes('archive') ? [] : {};
+    // Return array for array-based files, object for config files
+    const arrayFiles = ['archives.json', 'documents.json', 'users.json', 'organizations.json', 'menus.json', 'dashboardCards.json', 'structureTypes.json', 'references.json'];
+    return arrayFiles.includes(filename) ? [] : {};
   }
 }
 

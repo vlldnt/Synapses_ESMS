@@ -78,19 +78,46 @@ export function TranscriptionInput({
     return "desktop";
   };
 
+  const detectBrowser = () => {
+    const ua = navigator.userAgent;
+    if (/Safari/.test(ua) && !/Chrome|Chromium|OPR/.test(ua)) return "Safari";
+    if (/Chrome|Chromium|CriOS/.test(ua)) return "Chrome";
+    if (/OPR|Opera/.test(ua)) return "Opera";
+    if (/Edg/.test(ua)) return "Edge";
+    if (/Firefox|FxiOS/.test(ua)) return "Firefox";
+    if (/Brave/.test(ua)) return "Brave";
+    return "Unknown";
+  };
+
+  // Navigateurs sans support natif ou avec problèmes
+  const browsersSwitchToGoogle = ["Brave", "Edge", "Firefox"];
+  const shouldUseGoogleSpeech = () => {
+    const browser = detectBrowser();
+    return browsersSwitchToGoogle.includes(browser);
+  };
+
   const startNativeRecognition = useCallback(async () => {
     const device = detectDevice();
+    const browser = detectBrowser();
     const SpeechRecognition =
       window.SpeechRecognition || window.webkitSpeechRecognition;
 
+    // Vérifier si le navigateur a des problèmes connus
+    if (shouldUseGoogleSpeech()) {
+      console.warn(
+        `⚠️ ${browser} n'a pas de bon support Web Speech API → Google Cloud Speech`
+      );
+      return false;
+    }
+
     if (!SpeechRecognition) {
-      console.log("⚠️ Web Speech API not available, using Google Cloud");
+      console.warn("⚠️ Web Speech API not available → Google Cloud Speech");
       return false;
     }
 
     try {
       console.log(
-        `🎙️ Using native ${device === "ios" ? "Siri" : device === "android" ? "Android" : "Web"} Speech API`
+        `🎙️ Web Speech API (${browser} - ${device === "ios" ? "Siri" : device === "android" ? "Android" : "Web"})`
       );
       const recognition = new SpeechRecognition();
       speechRecognitionRef.current = recognition;
@@ -127,22 +154,31 @@ export function TranscriptionInput({
       };
 
       recognition.onerror = (event) => {
-        console.error("Native recognition error:", event.error);
-        if (event.error !== "no-speech") {
+        console.warn("⚠️ Web Speech API error:", event.error);
+
+        // Si erreur réseau ou autre erreur sérieuse, basculer à Google Speech
+        if (event.error === "network" || event.error === "service-not-available") {
+          console.log("🔄 Basculant à Google Cloud Speech...");
+          recognition.abort();
+          useNativeApiRef.current = false;
+          mediaRecorderRef.current?.start(500);
+        } else if (event.error !== "no-speech" && event.error !== "aborted") {
           setErrorMessage(`Erreur: ${event.error}`);
         }
       };
 
       recognition.onend = () => {
         console.log("✅ Native recognition ended");
-        setStatus("idle");
-        autoResize();
+        if (useNativeApiRef.current) {
+          setStatus("idle");
+          autoResize();
+        }
       };
 
       recognition.start();
       return true;
     } catch (err) {
-      console.error(err);
+      console.warn("⚠️ Web Speech API error:", err.message);
       return false;
     }
   }, [value, onChange]);
@@ -152,8 +188,15 @@ export function TranscriptionInput({
     setStatus("recording");
     transcriptRef.current = "";
 
+    console.log("🎤 Tentative: Web Speech API natif...");
     const nativeWorked = await startNativeRecognition();
-    if (nativeWorked) return;
+    if (nativeWorked) {
+      console.log("✅ Web Speech API utilisé");
+      return;
+    }
+
+    console.log("🔄 Fallback: Google Cloud Speech...");
+    setErrorMessage("");
 
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
@@ -186,8 +229,12 @@ export function TranscriptionInput({
           const blob = new Blob(chunksRef.current, { type: "audio/webm" });
           console.log(`🎙️ Audio recorded: ${blob.size} bytes`);
 
-          const apiUrl = process.env.VITE_API_URL || "/api";
-          const res = await fetch(`${apiUrl}/transcribe-stream`, {
+          // Utiliser le basename depuis .env (ex: /synapses)
+          const basename = import.meta.env.VITE_BASENAME || "/synapses";
+          const transcribeUrl = `${basename}/transcribe-stream`;
+
+          console.log(`📍 Transcribe URL: ${transcribeUrl}`);
+          const res = await fetch(transcribeUrl, {
             method: "POST",
             body: blob,
           });
@@ -291,11 +338,13 @@ export function TranscriptionInput({
   if (variant === "header-button") {
     // Bouton pour utiliser dans le header/title
     return (
-      <MicrophoneButton
+      <MicrophoneButtonCompact
         status={status}
         onClick={handleClick}
         disabled={disabled}
         size={20}
+        isSoundDetected={isSoundDetected}
+        audioLevel={audioLevel}
       />
     );
   }
@@ -309,6 +358,7 @@ export function TranscriptionInput({
           onClick={handleClick}
           disabled={disabled}
           isSoundDetected={isSoundDetected}
+          audioLevel={audioLevel}
         />
       </div>
     );
@@ -338,6 +388,7 @@ export function TranscriptionInput({
             onClick={handleClick}
             disabled={disabled}
             isSoundDetected={isSoundDetected}
+            audioLevel={audioLevel}
           />
         </div>
       </div>

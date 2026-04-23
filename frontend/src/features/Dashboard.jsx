@@ -97,10 +97,11 @@ function Dashboard() {
 
     (async () => {
       try {
+        const basename = import.meta.env.VITE_BASENAME || '/synapses';
         const [archives, usersData, orgsData] = await Promise.all([
           getHistory(user?.id),
-          fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api/users`).then(r => r.json()),
-          fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api/organizations`).then(r => r.json()),
+          fetch(`${basename}/api/users`).then(r => r.json()),
+          fetch(`${basename}/api/organizations`).then(r => r.json()),
         ]);
         setHistory(archives);
         setUsers(usersData);
