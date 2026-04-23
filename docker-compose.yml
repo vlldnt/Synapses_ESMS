@@ -9,7 +9,6 @@ services:
       - "${BACKEND_PORT:-3002}:${BACKEND_PORT:-3002}"
     volumes:
       - ./backend/data:/app/data
-      - ./backend/data/google-key.json:/app/data/google-key.json:ro
     environment:
       - PORT=${BACKEND_PORT:-3002}
       - NODE_ENV=${NODE_ENV:-production}

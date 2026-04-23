@@ -209,7 +209,7 @@ export function TranscriptionInput({
   }, [value, onChange]);
 
   const transcribeWithStream = useCallback(async (blob) => {
-    const res = await fetch(`/api/transcribe-stream`, {
+    const res = await fetch(`${import.meta.env.VITE_BASENAME || ''}/transcribe-stream`, {
       method: "POST",
       body: blob,
     });
