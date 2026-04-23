@@ -46,12 +46,6 @@ export default defineConfig({
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/synapses/, ''),
       },
-      '/synapses/transcribe': {
-        target: 'http://localhost:3002',
-        changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/synapses/, ''),
-        ws: true,
-      },
     },
   },
 });

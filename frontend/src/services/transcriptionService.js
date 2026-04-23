@@ -23,7 +23,7 @@ export function shouldUseGoogleSpeech() {
 }
 
 export async function streamTranscription(blob, onChunk) {
-  const res = await fetch(`${import.meta.env.VITE_BASENAME || ''}/transcribe-stream`, {
+  const res = await fetch('/api/transcribe-stream', {
     method: 'POST',
     body: blob,
   });
