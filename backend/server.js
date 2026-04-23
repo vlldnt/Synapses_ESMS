@@ -310,8 +310,6 @@ app.post('/api/transcribe-stream', (req, res) => {
   req.on('end', async () => {
     try {
       const audioBuffer = Buffer.concat(audioChunks);
-      console.log(`🎙️ Stream total audio: ${audioBuffer.length} bytes`);
-
       if (audioBuffer.length === 0) {
         res.write(`data: ${JSON.stringify({ error: 'No audio' })}\n\n`);
         res.write('data: [DONE]\n\n');
@@ -328,7 +326,6 @@ app.post('/api/transcribe-stream', (req, res) => {
         audio: { content: audioBase64 },
       };
 
-      console.log('🔄 Calling Google Cloud Speech (stream endpoint)...');
       const [response] = await speechClient.recognize(request);
 
       if (response.results && response.results.length > 0) {
@@ -368,8 +365,6 @@ app.post('/api/transcribe-audio', (req, res) => {
   req.on('end', async () => {
     try {
       const audioBuffer = Buffer.concat(audioChunks);
-      console.log(`🎙️ Total audio: ${audioBuffer.length} bytes`);
-
       if (audioBuffer.length === 0) {
         return res.json({ transcript: '' });
       }
@@ -384,19 +379,13 @@ app.post('/api/transcribe-audio', (req, res) => {
         audio: { content: audioBase64 },
       };
 
-      console.log('🔄 Calling Google Cloud Speech...');
-      console.log(`📊 Request config:`, JSON.stringify(request.config));
       const [response] = await speechClient.recognize(request);
-
-      console.log(`📊 Response results count:`, response.results?.length || 0);
-      console.log(`📊 Full response:`, JSON.stringify(response, null, 2));
 
       const transcription = response.results
         ?.map((result) => result.alternatives?.[0]?.transcript)
         ?.filter(Boolean)
         ?.join(' ') || '';
 
-      console.log(`✅ Transcription: "${transcription}"`);
       res.json({ transcript: transcription });
     } catch (err) {
       console.error('❌ Transcription error:', err.message);
@@ -415,7 +404,6 @@ app.post('/api/transcribe-audio-upload', upload.single('file'), async (req, res)
   try {
     // Support a mock mode for local emulation: ?mock=1
     if (req.query && (req.query.mock === '1' || req.query.mock === 'true')) {
-      console.log('🔧 Mock transcription mode active');
       return res.json({ transcript: 'Transcription simulée : bonjour ceci est un test' });
     }
 
@@ -424,7 +412,6 @@ app.post('/api/transcribe-audio-upload', upload.single('file'), async (req, res)
     }
 
     const audioBuffer = req.file.buffer;
-    console.log(`🎙️ Received upload: ${audioBuffer.length} bytes, originalname=${req.file.originalname}`);
 
     if (audioBuffer.length === 0) {
       return res.json({ transcript: '' });
@@ -440,7 +427,6 @@ app.post('/api/transcribe-audio-upload', upload.single('file'), async (req, res)
       audio: { content: audioBase64 },
     };
 
-    console.log('🔄 Calling Google Cloud Speech (upload endpoint)...');
     const [response] = await speechClient.recognize(request);
 
     const transcription = response.results
@@ -448,7 +434,6 @@ app.post('/api/transcribe-audio-upload', upload.single('file'), async (req, res)
       ?.filter(Boolean)
       ?.join(' ') || '';
 
-    console.log(`✅ Transcription (upload): "${transcription}"`);
     res.json({ transcript: transcription });
   } catch (err) {
     console.error('❌ Transcription (upload) error:', err.message || err);
