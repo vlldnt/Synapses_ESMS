@@ -22,9 +22,11 @@ export function shouldUseGoogleSpeech() {
   return BROWSERS_WITHOUT_NATIVE_SPEECH.includes(detectBrowser());
 }
 
+const BASE = import.meta.env.VITE_BASENAME || '';
+
 // Send a single audio chunk (webm blob) and get back transcribed text immediately.
 export async function transcribeChunk(blob) {
-  const res = await fetch('/api/transcribe-chunk', {
+  const res = await fetch(`${BASE}/api/transcribe-chunk`, {
     method: 'POST',
     body: blob,
   });
