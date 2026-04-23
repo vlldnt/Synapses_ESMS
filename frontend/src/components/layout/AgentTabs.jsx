@@ -22,6 +22,7 @@ function AgentTabs() {
               style={{
                 color: isActive ? color : 'var(--text-muted)',
                 borderBottomColor: isActive ? color : 'transparent',
+                backgroundColor: isActive ? `${color}18` : 'transparent',
               }}
             >
               {agent.badge}

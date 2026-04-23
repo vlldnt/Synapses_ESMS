@@ -22,35 +22,13 @@ export function shouldUseGoogleSpeech() {
   return BROWSERS_WITHOUT_NATIVE_SPEECH.includes(detectBrowser());
 }
 
-export async function streamTranscription(blob, onChunk) {
-  const res = await fetch('/api/transcribe-stream', {
+// Send a single audio chunk (webm blob) and get back transcribed text immediately.
+export async function transcribeChunk(blob) {
+  const res = await fetch('/api/transcribe-chunk', {
     method: 'POST',
     body: blob,
   });
-
-  if (!res.body) throw new Error('Pas de réponse du serveur');
-
-  const reader = res.body.getReader();
-  const decoder = new TextDecoder();
-  let buffer = '';
-
-  while (true) {
-    const { done, value: chunk } = await reader.read();
-    if (done) break;
-
-    buffer += decoder.decode(chunk, { stream: true });
-    const lines = buffer.split('\n');
-    buffer = lines.pop() || '';
-
-    for (const line of lines) {
-      if (!line.startsWith('data: ')) continue;
-
-      const payload = line.slice(6).trim();
-      if (payload === '[DONE]') continue;
-
-      const parsed = JSON.parse(payload);
-      if (parsed?.error) throw new Error(parsed.error);
-      if (parsed?.text) onChunk(parsed.text);
-    }
-  }
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  const data = await res.json();
+  return data.text || '';
 }

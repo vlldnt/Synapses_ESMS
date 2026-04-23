@@ -294,6 +294,40 @@ app.get('/api/reference', async (req, res) => {
 
 // ─── Speech-to-Text ─────────────────────────────────────────────────
 
+// POST /api/transcribe-chunk — Transcribe a single short audio chunk (fast, synchronous)
+app.post('/api/transcribe-chunk', (req, res) => {
+  const chunks = [];
+  req.on('data', (chunk) => chunks.push(chunk));
+  req.on('end', async () => {
+    try {
+      const buffer = Buffer.concat(chunks);
+      if (buffer.length === 0) return res.json({ text: '' });
+
+      const [response] = await speechClient.recognize({
+        config: {
+          encoding: 'WEBM_OPUS',
+          sampleRateHertz: 48000,
+          languageCode: 'fr-FR',
+          enableAutomaticPunctuation: true,
+        },
+        audio: { content: buffer.toString('base64') },
+      });
+
+      const text =
+        response.results
+          ?.map((r) => r.alternatives?.[0]?.transcript)
+          ?.filter(Boolean)
+          ?.join(' ') || '';
+
+      res.json({ text });
+    } catch (err) {
+      console.error('❌ Chunk transcription error:', err.message);
+      res.status(500).json({ error: err.message });
+    }
+  });
+  req.on('error', () => res.status(500).json({ error: 'Request error' }));
+});
+
 // POST /api/transcribe-stream — Transcribe and stream progressive chunks via SSE
 app.post('/api/transcribe-stream', (req, res) => {
   res.setHeader('Content-Type', 'text/event-stream');

@@ -47,8 +47,8 @@ function NavItem({
           to={link}
           className={`flex flex-col items-center justify-center gap-0 min-h-14 px-0 py-0 rounded-md transition-colors duration-200 ${
             isActive
-              ? 'text-(--bleu-fonce) bg-(--bg-tertiary) font-semibold'
-              : 'text-(--text-secondary) hover:bg-(--bg-tertiary) hover:text-(--bleu-fonce)'
+              ? 'text-(--bleu-fonce) bg-(--bleu-fonce)/10 font-semibold'
+              : 'text-(--text-secondary) hover:bg-(--bleu-fonce)/10 hover:text-(--bleu-fonce)'
           }`}
         >
           {Icon && <Icon className="w-4 h-4 shrink-0" />}

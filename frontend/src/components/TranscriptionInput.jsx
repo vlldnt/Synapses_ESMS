@@ -1,11 +1,7 @@
 import { useRef, useState, useCallback, useEffect } from "react";
 import { MicrophoneButtonCompact } from "./MicrophoneButton";
-import { detectDevice, detectBrowser, shouldUseGoogleSpeech, streamTranscription } from "../services/transcriptionService";
+import { detectBrowser, shouldUseGoogleSpeech, transcribeChunk } from "../services/transcriptionService";
 
-/**
- * Composant Transcription réutilisable avec gestion complète du micro
- * Utilisé en différents contextes: textarea seul, avec header, mobile, desktop, etc.
- */
 export function TranscriptionInput({
   value,
   onChange,
@@ -13,25 +9,24 @@ export function TranscriptionInput({
   rows = 8,
   disabled = false,
   variant = "textarea", // 'textarea' | 'compact' | 'header-button'
-  onStatusChange, // callback pour notifier du status (idle, recording, processing)
+  onStatusChange,
 }) {
   const [status, setStatus] = useState("idle");
   const [errorMessage, setErrorMessage] = useState("");
   const [audioLevel, setAudioLevel] = useState(0);
   const [isSoundDetected, setIsSoundDetected] = useState(false);
 
-  const mediaRecorderRef = useRef(null);
-  const chunksRef = useRef([]);
   const streamRef = useRef(null);
-  const fetchAbortRef = useRef(null);
-  const transcriptRef = useRef("");
   const analyserRef = useRef(null);
   const animationIdRef = useRef(null);
   const speechRecognitionRef = useRef(null);
   const useNativeApiRef = useRef(false);
   const textareaRef = useRef(null);
+  const transcriptRef = useRef("");
+  const baseTextRef = useRef("");        // text in textarea before recording started
+  const isRecordingRef = useRef(false);  // controls the chunk loop for Google path
+  const currentRecorderRef = useRef(null);
 
-  // Notifier les changements de status
   useEffect(() => {
     onStatusChange?.(status);
   }, [status, onStatusChange]);
@@ -45,62 +40,58 @@ export function TranscriptionInput({
 
   const monitorAudioLevel = useCallback(() => {
     if (!analyserRef.current) return;
-
     const dataArray = new Uint8Array(analyserRef.current.frequencyBinCount);
     analyserRef.current.getByteFrequencyData(dataArray);
-
     const average = dataArray.reduce((a, b) => a + b) / dataArray.length;
     setAudioLevel(Math.min(100, (average / 255) * 150));
     setIsSoundDetected(average > 30);
-
     animationIdRef.current = requestAnimationFrame(monitorAudioLevel);
   }, []);
 
-  const stopRecording = useCallback(() => {
-    if (useNativeApiRef.current && speechRecognitionRef.current) {
-      setStatus("idle");
-    } else {
-      setStatus("processing");
-    }
+  // appendTranscript does NOT depend on `value` — uses baseTextRef captured at start.
+  const appendTranscript = useCallback((chunkText) => {
+    const text = String(chunkText || "").trim();
+    if (!text) return;
 
-    if (animationIdRef.current) {
-      cancelAnimationFrame(animationIdRef.current);
-    }
+    transcriptRef.current = String(transcriptRef.current || "");
+    transcriptRef.current += (transcriptRef.current ? " " : "") + text;
+
+    const base = baseTextRef.current;
+    const finalText = base ? base + " " + transcriptRef.current : transcriptRef.current;
+    onChange(finalText);
+    autoResize();
+  }, [onChange]);
+
+  const stopRecording = useCallback(() => {
+    isRecordingRef.current = false;
+
+    if (animationIdRef.current) cancelAnimationFrame(animationIdRef.current);
+    analyserRef.current = null;
 
     if (useNativeApiRef.current && speechRecognitionRef.current) {
       speechRecognitionRef.current.stop();
     } else {
-      mediaRecorderRef.current?.stop();
+      currentRecorderRef.current?.stop();
       streamRef.current?.getTracks()?.forEach((t) => t.stop());
     }
 
-    analyserRef.current = null;
+    setStatus("idle");
   }, []);
 
-
   const startNativeRecognition = useCallback(async () => {
-    const device = detectDevice();
     const browser = detectBrowser();
-    const SpeechRecognition =
-      window.SpeechRecognition || window.webkitSpeechRecognition;
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
-    // Vérifier si le navigateur a des problèmes connus
     if (shouldUseGoogleSpeech()) {
-      console.warn(
-        `⚠️ ${browser} n'a pas de bon support Web Speech API → Google Cloud Speech`
-      );
+      console.warn(`⚠️ ${browser} → Google Cloud Speech`);
       return false;
     }
-
     if (!SpeechRecognition) {
-      console.warn("⚠️ Web Speech API not available → Google Cloud Speech");
+      console.warn("⚠️ Web Speech API unavailable → Google Cloud Speech");
       return false;
     }
 
     try {
-      console.log(
-        `🎙️ Web Speech API (${browser} - ${device === "ios" ? "Siri" : device === "android" ? "Android" : "Web"})`
-      );
       const recognition = new SpeechRecognition();
       speechRecognitionRef.current = recognition;
       useNativeApiRef.current = true;
@@ -110,16 +101,11 @@ export function TranscriptionInput({
       recognition.interimResults = true;
 
       recognition.onstart = () => {
-        console.log("✅ Native recognition started");
         setStatus("recording");
         transcriptRef.current = "";
       };
 
       recognition.onresult = (event) => {
-        let interim = "";
-        for (let i = event.resultIndex; i < event.results.length; i++) {
-          interim += event.results[i][0].transcript;
-        }
         const finalTranscript = Array.from(event.results)
           .filter((r) => r.isFinal)
           .map((r) => r[0].transcript)
@@ -127,24 +113,17 @@ export function TranscriptionInput({
 
         if (finalTranscript) {
           transcriptRef.current = finalTranscript;
-          const baseText = String(value || "").trim();
-          const finalText = baseText
-            ? baseText + " " + finalTranscript
-            : finalTranscript;
-          onChange(finalText);
+          const base = baseTextRef.current;
+          onChange(base ? base + " " + finalTranscript : finalTranscript);
+          autoResize();
         }
       };
 
       recognition.onerror = (event) => {
-        console.warn("⚠️ Web Speech API error:", event.error);
-
-        // Si erreur réseau ou autre erreur sérieuse, basculer à Google Speech
         if (event.error === "network" || event.error === "service-not-available") {
-          console.log("🔄 Basculant à Google Cloud Speech...");
           recognition.abort();
           useNativeApiRef.current = false;
-          startGoogleRecording().catch((err) => {
-            console.error("❌ Fallback Google start failed:", err);
+          startGoogleRecording().catch(() => {
             setErrorMessage("Erreur de transcription");
             setStatus("idle");
           });
@@ -155,11 +134,7 @@ export function TranscriptionInput({
       };
 
       recognition.onend = () => {
-        console.log("✅ Native recognition ended");
-        if (useNativeApiRef.current) {
-          setStatus("idle");
-          autoResize();
-        }
+        if (useNativeApiRef.current) setStatus("idle");
       };
 
       recognition.start();
@@ -168,31 +143,14 @@ export function TranscriptionInput({
       console.warn("⚠️ Web Speech API error:", err.message);
       return false;
     }
-  }, [value, onChange]);
+  }, [onChange]);
 
-  const appendTranscript = useCallback((chunkText) => {
-    const text = String(chunkText || "").trim();
-    if (!text) return;
-
-    transcriptRef.current = String(transcriptRef.current || "");
-    transcriptRef.current += (transcriptRef.current ? " " : "") + text;
-
-    const baseText = String(value || "").trim();
-    const finalText = baseText
-      ? baseText + " " + String(transcriptRef.current).trim()
-      : String(transcriptRef.current).trim();
-
-    onChange(finalText);
-  }, [value, onChange]);
-
-  const transcribeWithStream = useCallback(async (blob) => {
-    await streamTranscription(blob, appendTranscript);
-  }, [appendTranscript]);
-
+  // Google path: loop of 2-second chunks sent individually for fast incremental updates.
   const startGoogleRecording = useCallback(async () => {
-    console.log("🔄 Fallback: Google Cloud Speech (stream)...");
     setErrorMessage("");
     setStatus("recording");
+    isRecordingRef.current = true;
+    transcriptRef.current = "";
 
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
     streamRef.current = stream;
@@ -200,60 +158,52 @@ export function TranscriptionInput({
     const audioContext = new (window.AudioContext || window.webkitAudioContext)();
     const analyser = audioContext.createAnalyser();
     analyser.fftSize = 256;
-    const source = audioContext.createMediaStreamSource(stream);
-    source.connect(analyser);
+    audioContext.createMediaStreamSource(stream).connect(analyser);
     analyserRef.current = analyser;
-
     monitorAudioLevel();
 
-    const mediaRecorder = new MediaRecorder(stream, { mimeType: "audio/webm;codecs=opus" });
-    mediaRecorderRef.current = mediaRecorder;
-    chunksRef.current = [];
+    const recordChunk = () => {
+      if (!isRecordingRef.current) return;
 
-    mediaRecorder.ondataavailable = (e) => {
-      if (e.data?.size > 0) {
-        chunksRef.current.push(e.data);
-      }
-    };
+      const recorder = new MediaRecorder(stream, { mimeType: "audio/webm;codecs=opus" });
+      currentRecorderRef.current = recorder;
+      const chunks = [];
 
-    mediaRecorder.onstop = async () => {
-      setStatus("processing");
+      recorder.ondataavailable = (e) => {
+        if (e.data?.size > 0) chunks.push(e.data);
+      };
 
-      try {
-        const blob = new Blob(chunksRef.current, { type: "audio/webm" });
-        await transcribeWithStream(blob);
-
-        if (!String(transcriptRef.current || "").trim()) {
-          setErrorMessage("Aucun texte détecté");
+      recorder.onstop = async () => {
+        const blob = new Blob(chunks, { type: "audio/webm" });
+        if (blob.size > 2000) {
+          try {
+            const text = await transcribeChunk(blob);
+            if (text) appendTranscript(text);
+          } catch (err) {
+            console.error("❌ Chunk error:", err);
+          }
         }
-      } catch (err) {
-        console.error("❌ Stream transcription error:", err);
-        setErrorMessage("Erreur de transcription");
-      }
+        if (isRecordingRef.current) recordChunk();
+      };
 
-      setStatus("idle");
-      autoResize();
+      recorder.start();
+      setTimeout(() => {
+        if (recorder.state === "recording") recorder.stop();
+      }, 4000);
     };
 
-    mediaRecorder.start(500);
-    setTimeout(() => {
-      if (mediaRecorder.state === "recording") {
-        mediaRecorder.stop();
-      }
-    }, 6000);
-  }, [monitorAudioLevel, transcribeWithStream]);
+    recordChunk();
+  }, [monitorAudioLevel, appendTranscript]);
 
   const startRecording = useCallback(async () => {
     setErrorMessage("");
     setStatus("recording");
     transcriptRef.current = "";
+    baseTextRef.current = String(value || "").trim();
+    useNativeApiRef.current = false;
 
-    console.log("🎤 Tentative: Web Speech API natif...");
     const nativeWorked = await startNativeRecognition();
-    if (nativeWorked) {
-      console.log("✅ Web Speech API utilisé");
-      return;
-    }
+    if (nativeWorked) return;
 
     try {
       await startGoogleRecording();
@@ -262,14 +212,13 @@ export function TranscriptionInput({
       setErrorMessage("Micro non autorisé ou indisponible");
       setStatus("idle");
     }
-  }, [startNativeRecognition, startGoogleRecording]);
+  }, [startNativeRecognition, startGoogleRecording, value]);
 
   useEffect(() => {
     return () => {
-      if (animationIdRef.current) {
-        cancelAnimationFrame(animationIdRef.current);
-      }
-      mediaRecorderRef.current?.stop();
+      isRecordingRef.current = false;
+      if (animationIdRef.current) cancelAnimationFrame(animationIdRef.current);
+      currentRecorderRef.current?.stop();
       streamRef.current?.getTracks()?.forEach((t) => t.stop());
     };
   }, []);
@@ -279,9 +228,7 @@ export function TranscriptionInput({
     else startRecording();
   };
 
-  // Variantes de rendu
   if (variant === "header-button") {
-    // Bouton pour utiliser dans le header/title
     return (
       <MicrophoneButtonCompact
         status={status}
@@ -295,7 +242,6 @@ export function TranscriptionInput({
   }
 
   if (variant === "compact") {
-    // Version compacte avec indicateurs
     return (
       <div className="flex flex-col items-center gap-2">
         <MicrophoneButtonCompact
@@ -309,7 +255,6 @@ export function TranscriptionInput({
     );
   }
 
-  // Variant par défaut: textarea avec bouton
   return (
     <div className="w-full">
       <div className="flex gap-3 w-full">

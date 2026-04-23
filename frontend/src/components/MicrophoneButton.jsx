@@ -4,8 +4,6 @@ export function MicrophoneButton({
   status = "idle",
   onClick,
   disabled = false,
-  audioLevel = 0,
-  isSoundDetected = false,
   size = 24,
   className = "",
 }) {
@@ -34,7 +32,6 @@ export function MicrophoneButton({
         <Mic size={size} />
       )}
 
-      {/* Audio level indicator - only show when recording */}
       {status === "recording" && (
         <div className="absolute inset-0 rounded-full border-2 border-red-300 opacity-50 animate-pulse" />
       )}
@@ -50,39 +47,25 @@ export function MicrophoneButtonCompact({
   audioLevel = 0,
 }) {
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex items-center gap-3">
       {status === "recording" && (
-        <div className="flex flex-col items-center gap-1">
-          {/* Barre de volume vertical à gauche */}
-          <div className="h-20 w-1.5 bg-gray-300 rounded-full overflow-hidden flex flex-col-reverse">
-            <div
-              className={[
-                "w-full rounded-full transition-all",
-                isSoundDetected ? "bg-green-500" : "bg-gray-400",
-              ].join(" ")}
-              style={{ height: `${audioLevel}%` }}
-            />
-          </div>
-          <span className="text-[10px] font-medium">
-            {isSoundDetected ? "🎤" : "⏳"}
-          </span>
+        <div className="h-28 w-2.5 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden flex flex-col-reverse">
+          <div
+            className={[
+              "w-full rounded-full transition-all duration-75",
+              isSoundDetected ? "bg-green-500" : "bg-gray-400",
+            ].join(" ")}
+            style={{ height: `${audioLevel}%` }}
+          />
         </div>
       )}
 
-      <div className="flex flex-col items-center gap-2">
-        <MicrophoneButton
-          status={status}
-          onClick={onClick}
-          disabled={disabled}
-          size={20}
-        />
-
-        {status === "processing" && (
-          <span className="text-[10px] font-medium text-blue-600">
-            Transcription...
-          </span>
-        )}
-      </div>
+      <MicrophoneButton
+        status={status}
+        onClick={onClick}
+        disabled={disabled}
+        size={24}
+      />
     </div>
   );
 }
