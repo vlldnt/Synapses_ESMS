@@ -6,14 +6,13 @@ services:
     container_name: synapses-backend
     restart: unless-stopped
     ports:
-      - "127.0.0.1:3002:3001"
-      - "0.0.0.0:3001:3001"
+      - "${BACKEND_PORT:-3001}:3001"
     volumes:
       - ./backend/data:/app/data
       - ./backend/data/google-key.json:/app/data/google-key.json:ro
     environment:
       - PORT=3001
-      - NODE_ENV=production
+      - NODE_ENV=${NODE_ENV:-production}
     networks:
       - synapses
 
@@ -21,9 +20,12 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+      args:
+        - VITE_OPENROUTER_API_KEY=${VITE_OPENROUTER_API_KEY}
+        - VITE_API_URL=${VITE_API_URL:-/api}
     container_name: synapses-frontend
     ports:
-      - "8083:80"
+      - "${FRONTEND_PORT:-8083}:80"
     restart: unless-stopped
     depends_on:
       - backend

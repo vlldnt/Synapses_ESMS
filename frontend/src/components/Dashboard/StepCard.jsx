@@ -1,6 +1,6 @@
 const cardClass = 'rounded-2xl border border-(--border) bg-(--bg-primary) p-3 md:p-6 shadow-sm';
 
-function StepCard({ step, title, subtitle, children }) {
+function StepCard({ step, title, subtitle, children, headerAction }) {
   return (
     <div className={cardClass}>
       <h2 className="flex items-center gap-3 text-base md:text-lg font-semibold text-(--text-primary) mb-1">
@@ -8,6 +8,7 @@ function StepCard({ step, title, subtitle, children }) {
           {step}
         </span>
         {title}
+        {headerAction && <div className="ml-auto">{headerAction}</div>}
       </h2>
       {subtitle && (
         <p className="text-[10px] md:text-xs text-(--text-muted) mb-3">

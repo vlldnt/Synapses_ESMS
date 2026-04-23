@@ -1,10 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { FilePlus, Building2, User, CalendarDays } from "lucide-react";
 import Button from "../../components/Button";
 import RgpdNotice from "../../components/RgpdNotice";
 import GeneratedResult from "../../components/GeneratedResult";
 import GeneratingReportModal from "../../components/GeneratingReportModal";
-import VoiceTextarea from "../../components/VoiceTextarea.jsx";
+import TranscriptionInput from "../../components/TranscriptionInput.jsx";
 import StepCard from "../../components/Dashboard/StepCard";
 import {
   generateInterventionReport,
@@ -364,14 +364,25 @@ function InterventionReport() {
             step="2"
             title="Transcription"
             subtitle="Dictez ou saisissez vos observations — l'IA détermine le type et structure le compte rendu"
+            headerAction={
+              <div className="md:hidden">
+                <TranscriptionInput
+                  value={transcription}
+                  onChange={setTranscription}
+                  disabled={loading}
+                  variant="header-button"
+                />
+              </div>
+            }
           >
             <div className="rounded-xl border border-(--border) bg-(--bg-secondary) px-4 py-3 min-h-56">
-              <VoiceTextarea
+              <TranscriptionInput
                 value={transcription}
                 onChange={setTranscription}
                 placeholder="Dictez ou saisissez vos observations, le déroulement, les éléments d'analyse, les suites prévues… L'IA se charge du reste."
                 rows={8}
                 disabled={loading}
+                variant="textarea"
               />
             </div>
             <RgpdNotice message="Vos notes sont anonymisées automatiquement avant d'être envoyées à l'IA. Aucun nom, prénom ou donnée nominative n'est transmis." />

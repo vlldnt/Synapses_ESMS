@@ -1,5 +1,14 @@
 FROM node:20-alpine AS builder
 WORKDIR /app
+
+# Accept build arguments for environment variables
+ARG VITE_OPENROUTER_API_KEY
+ARG VITE_API_URL=/api
+
+# Create .env file from build arguments
+RUN printf "VITE_OPENROUTER_API_KEY=%s\nVITE_API_URL=%s\n" \
+    "$VITE_OPENROUTER_API_KEY" "$VITE_API_URL" > .env.local
+
 COPY package*.json ./
 RUN npm ci
 COPY . .

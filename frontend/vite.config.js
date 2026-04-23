@@ -36,6 +36,19 @@ export default defineConfig({
   server: {
     host: '0.0.0.0',
     proxy: {
+      '/api': {
+        target: 'http://localhost:3002',
+        changeOrigin: true,
+      },
+      '/transcribe': {
+        target: 'http://localhost:3002',
+        changeOrigin: true,
+      },
+      '/transcribe-stream': {
+        target: 'http://localhost:3002',
+        changeOrigin: true,
+        ws: true,
+      },
       '/ollama': {
         target: 'http://51.178.41.170:11434',
         changeOrigin: true,
