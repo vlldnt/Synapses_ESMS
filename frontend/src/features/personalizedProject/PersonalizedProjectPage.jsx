@@ -1,14 +1,13 @@
 import { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
 import { FilePlus } from "lucide-react";
-import Input from "../components/Input";
-import Button from "../components/Button";
-import RgpdNotice from "../components/RgpdNotice";
-import GeneratedResult from "../components/GeneratedResult";
-import StepCard from "../components/Dashboard/StepCard";
-// import { generatePPA } from '../services/aiService'; // TODO: À réactiver quand generatePPA sera implémenté
-import { getStructureTypeCategories } from "../services/structureType.service";
-import { downloadDocx } from "../utils/wordExport";
+import Input from "../../components/Input";
+import Button from "../../components/Button";
+import RgpdNotice from "../../components/RgpdNotice";
+import GeneratedResult from "../../components/GeneratedResult";
+import StepCard from "../../components/StepCard";
+import { getStructureTypeCategories } from "../../services/structureTypeService";
+import { downloadDocx } from "../../utils/wordExport";
 import {
   STORAGE_KEY,
   AGE_GROUPS,
@@ -16,8 +15,8 @@ import {
   AXES,
   PPA_FIELDS,
   EMPTY_NOTES,
-} from "../constants/ppa";
-import { CARD_CLASS } from "../constants/shared";
+} from "../../constants/ppa";
+import { CARD_CLASS } from "../../constants/shared";
 
 function loadDraft() {
   try {
@@ -27,7 +26,7 @@ function loadDraft() {
   }
 }
 
-function PersonalizedProject() {
+function PersonalizedProjectPage() {
   const user = useSelector((state) => state.auth.user);
   const draft = loadDraft();
 
@@ -43,7 +42,6 @@ function PersonalizedProject() {
   const [elapsed, setElapsed] = useState(null);
   const [structureTypeCategories, setStructureTypeCategories] = useState([]);
 
-  // Load structure type categories
   useEffect(() => {
     (async () => {
       try {
@@ -98,7 +96,6 @@ function PersonalizedProject() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    // TODO: generatePPA à réactiver quand implémenté
     setResult(
       `Erreur : La génération de PPA n'est pas encore disponible. Utilisez la fonction "Compte rendu d'intervention" pour le moment.`,
     );
@@ -306,4 +303,4 @@ function PersonalizedProject() {
   );
 }
 
-export default PersonalizedProject;
+export default PersonalizedProjectPage;

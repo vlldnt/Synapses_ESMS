@@ -1,5 +1,6 @@
 import { useRef, useState, useCallback, useEffect } from "react";
 import { MicrophoneButtonCompact } from "./MicrophoneButton";
+import { detectDevice, detectBrowser, shouldUseGoogleSpeech, streamTranscription } from "../services/transcriptionService";
 
 /**
  * Composant Transcription réutilisable avec gestion complète du micro
@@ -76,30 +77,6 @@ export function TranscriptionInput({
     analyserRef.current = null;
   }, []);
 
-  const detectDevice = () => {
-    const ua = navigator.userAgent.toLowerCase();
-    if (/iphone|ipad|ipod/.test(ua)) return "ios";
-    if (/android/.test(ua)) return "android";
-    return "desktop";
-  };
-
-  const detectBrowser = () => {
-    const ua = navigator.userAgent;
-    if (/Safari/.test(ua) && !/Chrome|Chromium|OPR/.test(ua)) return "Safari";
-    if (/Chrome|Chromium|CriOS/.test(ua)) return "Chrome";
-    if (/OPR|Opera/.test(ua)) return "Opera";
-    if (/Edg/.test(ua)) return "Edge";
-    if (/Firefox|FxiOS/.test(ua)) return "Firefox";
-    if (/Brave/.test(ua)) return "Brave";
-    return "Unknown";
-  };
-
-  // Navigateurs sans support natif ou avec problèmes
-  const browsersSwitchToGoogle = ["Brave", "Edge", "Firefox"];
-  const shouldUseGoogleSpeech = () => {
-    const browser = detectBrowser();
-    return browsersSwitchToGoogle.includes(browser);
-  };
 
   const startNativeRecognition = useCallback(async () => {
     const device = detectDevice();
@@ -209,45 +186,7 @@ export function TranscriptionInput({
   }, [value, onChange]);
 
   const transcribeWithStream = useCallback(async (blob) => {
-    const res = await fetch(`${import.meta.env.VITE_BASENAME || ''}/transcribe-stream`, {
-      method: "POST",
-      body: blob,
-    });
-
-    if (!res.body) {
-      throw new Error("Pas de réponse du serveur");
-    }
-
-    const reader = res.body.getReader();
-    const decoder = new TextDecoder();
-    let buffer = "";
-
-    while (true) {
-      const { done, value: chunk } = await reader.read();
-      if (done) break;
-
-      buffer += decoder.decode(chunk, { stream: true });
-      const lines = buffer.split("\n");
-      buffer = lines.pop() || "";
-
-      for (const line of lines) {
-        if (!line.startsWith("data: ")) continue;
-
-        const payload = line.slice(6).trim();
-        if (payload === "[DONE]") {
-          continue;
-        }
-
-        const parsed = JSON.parse(payload);
-        if (parsed?.error) {
-          throw new Error(parsed.error);
-        }
-
-        if (parsed?.text) {
-          appendTranscript(parsed.text);
-        }
-      }
-    }
+    await streamTranscription(blob, appendTranscript);
   }, [appendTranscript]);
 
   const startGoogleRecording = useCallback(async () => {

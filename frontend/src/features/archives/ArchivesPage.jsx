@@ -1,16 +1,16 @@
-import { useMemo, useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { Download, X, Clock3 } from 'lucide-react';
-import Button from '../components/Button';
-import WordPreview from '../components/WordPreview';
-import { getHistory, deleteFromHistory } from '../services/historyService';
-import { useCurrentUser } from '../hooks/useCurrentUser';
-import { getEnrichedInfo } from '../utils/documentEnricher';
-import { downloadDocx, triggerDownload } from '../utils/wordExport';
-import { formatReportName } from '../utils/reportNameFormatter';
-import { getDocTypeLabel, getDocColorFromLabel } from '../utils/docTypeBadge';
-import { extractPreviewTextFromDocxBase64 } from '../utils/docxPreview';
+import Button from '../../components/Button';
+import WordPreview from '../../components/WordPreview';
+import { getHistory } from '../../services/historyService';
+import { useCurrentUser } from '../../hooks/useCurrentUser';
+import { getEnrichedInfo } from '../../utils/documentEnricher';
+import { downloadDocx, triggerDownload } from '../../utils/wordExport';
+import { formatReportName } from '../../utils/reportNameFormatter';
+import { getDocTypeLabel, getDocColorFromLabel } from '../../utils/docTypeBadge';
+import { extractPreviewTextFromDocxBase64 } from '../../utils/docxPreview';
 
 const DRAFT_STORAGE_KEY = 'cr_intervention_draft';
 
@@ -22,7 +22,7 @@ function getDraft() {
   }
 }
 
-function Archives() {
+function ArchivesPage() {
   const navigate = useNavigate();
   const { user } = useCurrentUser();
   const [selectedEntry, setSelectedEntry] = useState(null);
@@ -34,7 +34,6 @@ function Archives() {
   const [previewText, setPreviewText] = useState('');
   const [isPreviewLoading, setIsPreviewLoading] = useState(false);
 
-  // Fetch archives on mount
   useEffect(() => {
     (async () => {
       try {
@@ -56,7 +55,6 @@ function Archives() {
     })();
   }, [user?.id]);
 
-  // Fermer le modal à l'Échap
   useEffect(() => {
     const handleEscape = (e) => {
       if (e.key === 'Escape' && selectedEntry) {
@@ -67,7 +65,6 @@ function Archives() {
     return () => window.removeEventListener('keydown', handleEscape);
   }, [selectedEntry]);
 
-  // Recharger le brouillon à chaque render (pas de useMemo!)
   const draft = getDraft();
   const hasDraft = Boolean(draft?.transcription?.trim() || draft?.interventionType || draft?.result?.trim());
   const draftStatus = draft?.result?.trim() ? 'En cours' : 'Brouillon';
@@ -281,4 +278,4 @@ function Archives() {
   );
 }
 
-export default Archives;
+export default ArchivesPage;

@@ -1,16 +1,16 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useSelector } from 'react-redux';
-import { getHistory } from '../services/historyService';
-import { useCurrentUser } from '../hooks/useCurrentUser';
-import { downloadDocx, triggerDownload } from '../utils/wordExport';
-import { formatReportName } from '../utils/reportNameFormatter';
-import { getEnrichedInfo } from '../utils/documentEnricher';
-import { extractPreviewTextFromDocxBase64 } from '../utils/docxPreview';
-import Button from '../components/Button';
-import WordPreview from '../components/WordPreview';
-import { AGENTS, AGENT_CARD_COLORS } from '../constants/agents';
-import { getDocTypeLabel, getDocColorFromLabel } from '../utils/docTypeBadge';
+import { getHistory } from '../../services/historyService';
+import { useCurrentUser } from '../../hooks/useCurrentUser';
+import { downloadDocx, triggerDownload } from '../../utils/wordExport';
+import { formatReportName } from '../../utils/reportNameFormatter';
+import { getEnrichedInfo } from '../../utils/documentEnricher';
+import { extractPreviewTextFromDocxBase64 } from '../../utils/docxPreview';
+import Button from '../../components/Button';
+import WordPreview from '../../components/WordPreview';
+import { AGENTS, AGENT_CARD_COLORS } from '../../constants/agents';
+import { getDocTypeLabel, getDocColorFromLabel } from '../../utils/docTypeBadge';
 import { FileText, ChevronRight, Download, X } from 'lucide-react';
 
 function getAgentAccentColor(agent) {
@@ -73,7 +73,7 @@ function timeAgo(isoDate) {
   return `Il y a ${days}j`;
 }
 
-function Dashboard() {
+function DashboardPage() {
   const { firstName, job, organization, user } = useCurrentUser();
   const role = useSelector((state) => state.role.role);
   const [date, setDate] = useState('');
@@ -135,7 +135,6 @@ function Dashboard() {
   const organisationType = organization?.type ?? '';
   const recent = history.slice(0, 5);
 
-  // Fermer le modal à l'Échap
   useEffect(() => {
     const handleEscape = (e) => {
       if (e.key === 'Escape' && selectedEntry) {
@@ -262,7 +261,7 @@ function Dashboard() {
 
       </div>
 
-      {/* Modal aperçu document — même que dans Historique */}
+      {/* Modal aperçu document */}
       {selectedEntry && (
         <div
           className="fixed inset-0 z-90 bg-black/55 backdrop-blur-[1px] p-3 md:p-6"
@@ -313,4 +312,4 @@ function Dashboard() {
   );
 }
 
-export default Dashboard;
+export default DashboardPage;

@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import faviconUrl from '/favicon.png';
 import { useDispatch, useSelector } from 'react-redux';
-import { setLogged, setLoading, fetchCurrentUser } from '../store/authSlice';
+import { setLogged, setLoading, fetchCurrentUser } from '../../store/authSlice';
 
-function Login() {
+function LoginPage() {
   const dispatch = useDispatch();
   const isLoading = useSelector((state) => state.auth.isLoading);
 
@@ -127,4 +127,4 @@ function Login() {
   );
 }
 
-export default Login;
+export default LoginPage;

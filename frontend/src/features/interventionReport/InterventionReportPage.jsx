@@ -1,12 +1,12 @@
 import { useState, useEffect } from "react";
-import { FilePlus, Building2, User, CalendarDays } from "lucide-react";
+import { FilePlus } from "lucide-react";
 import Button from "../../components/Button";
 import RgpdNotice from "../../components/RgpdNotice";
 import GeneratedResult from "../../components/GeneratedResult";
 import GeneratingReportModal from "../../components/GeneratingReportModal";
 import TranscriptionInput from "../../components/TranscriptionInput.jsx";
 import TranscriptionCard from "../../components/TranscriptionCard";
-import StepCard from "../../components/Dashboard/StepCard";
+import StepCard from "../../components/StepCard";
 import {
   generateInterventionReport,
   DEFAULT_MODEL,
@@ -14,18 +14,15 @@ import {
 import {
   getReferences,
   formatReferenceName,
-} from "../../services/reference.service";
+} from "../../services/referenceService";
 import { useCurrentUser } from "../../hooks/useCurrentUser";
 import { useSelector } from "react-redux";
 import { getHistory } from "../../services/historyService";
-import ContextBadge from "./components/ContextBadge";
 import ModelSelector from "./components/ModelSelector";
 import {
   STORAGE_KEY,
-  INTERVENTION_TYPES,
   LOADING_MESSAGES,
   REPORT_STATUS,
-  STATUS_META,
 } from "../../constants/intervention";
 import { CARD_CLASS, ROLE_LABELS } from "../../constants/shared";
 
@@ -44,7 +41,7 @@ function loadDraft() {
   }
 }
 
-function InterventionReport() {
+function InterventionReportPage() {
   const { fullName, organization, user } = useCurrentUser();
   const role = useSelector((state) => state.role.role);
   const draft = loadDraft();
@@ -83,17 +80,14 @@ function InterventionReport() {
   );
   const [archivedCount, setArchivedCount] = useState(0);
 
-  // Modèle sélectionné pour la génération
   const [selectedModelId, setSelectedModelId] = useState(
     draft.selectedModelId || DEFAULT_MODEL,
   );
   const [selectedModelName, setSelectedModelName] = useState(
     draft.selectedModelName || "Voxtral Small 24B",
   );
-  // Modèle effectivement utilisé pour la dernière génération
   const [usedModel, setUsedModel] = useState(draft.usedModel || null);
 
-  // Charger les enfants à charge et le compte des archives
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -118,7 +112,6 @@ function InterventionReport() {
     );
   };
 
-  // Persistance du rapport en local pour reprise après refresh/fermeture
   useEffect(() => {
     const nextStatus = inferStatus({
       interventionType,
@@ -128,7 +121,6 @@ function InterventionReport() {
     });
     setReportStatus(nextStatus);
 
-    // Récupérer le nom de l'enfant sélectionné
     const selectedReference = references.find(
       (c) => c.id === selectedReferenceId,
     );
@@ -151,9 +143,8 @@ function InterventionReport() {
         isArchived,
         status: nextStatus,
         updatedAt: new Date().toISOString(),
-        // Ajouter les infos de contexte pour l'affichage du brouillon
         structureType: organization?.type ?? "",
-        childName: childName, // Nom de l'enfant au lieu du professionnel
+        childName: childName,
       }),
     );
     setLastSavedAt(new Date().toISOString());
@@ -170,7 +161,6 @@ function InterventionReport() {
     isArchived,
   ]);
 
-  // Pendant le chargement, alterne un message aléatoire toutes les 2 secondes.
   useEffect(() => {
     if (!loading) {
       setShowGeneratingModal(false);
@@ -214,10 +204,8 @@ function InterventionReport() {
   };
 
   const handleArchived = async () => {
-    // Nettoyer le brouillon du localStorage IMMÉDIATEMENT
     localStorage.removeItem(STORAGE_KEY);
 
-    // Vider tous les states du rapport IMMÉDIATEMENT
     setInterventionType("");
     setSelectedChildId("");
     setTranscription("");
@@ -228,7 +216,6 @@ function InterventionReport() {
     setIsArchived(false);
     setReportStatus(REPORT_STATUS.DRAFT);
 
-    // Recharger le compte des archives
     try {
       const archives = await getHistory(user?.id);
       setArchivedCount(archives.length);
@@ -388,7 +375,6 @@ function InterventionReport() {
 
           {/* ── Actions ── */}
           <div id="form-actions" className="flex flex-col gap-4">
-            {/* Ligne 1: Boutons d'actions */}
             <div className="flex flex-col sm:flex-row gap-3 w-full">
               <Button
                 type="submit"
@@ -411,15 +397,12 @@ function InterventionReport() {
               </Button>
             </div>
 
-            {/* Ligne 2: Sélecteur de modèle et infos */}
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
-              {/* Sélecteur de modèle */}
               <ModelSelector
                 value={selectedModelId}
                 onChange={handleModelChange}
               />
 
-              {/* Feedback timing */}
               {!loading && !result && (
                 <span className="text-xs text-(--text-muted)">
                   Temps estimé : 5–10 s
@@ -493,4 +476,4 @@ function InterventionReport() {
   );
 }
 
-export default InterventionReport;
+export default InterventionReportPage;

@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { getCurrentUser } from '../services/user.service';
-import { getOrganizationByUser } from '../services/organization.service';
+import { getCurrentUser } from '../services/userService';
+import { getOrganizationByUser } from '../services/organizationService';
 
 // ─── Cookie helpers ────────────────────────────────────────────────────────
 

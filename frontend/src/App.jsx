@@ -6,15 +6,15 @@ import { setRole } from './store/roleSlice';
 import { fetchCurrentUser } from './store/authSlice';
 import { Sun, Moon } from 'lucide-react';
 import './App.css';
-import Sidebar from './components/MenuSidebar/Sidebar';
-import MobileMenu from './components/MenuSidebar/MobileMenu';
-import TopBar from './components/MenuSidebar/TopBar';
-import AgentTabs from './components/MenuSidebar/AgentTabs';
-import Login from './features/Login';
-import Dashboard from './features/Dashboard';
-import InterventionReport from './features/InterventionReport';
-import PersonalizedProject from './features/PersonalizedProject';
-import Archives from './features/Archives';
+import Sidebar from './components/layout/Sidebar';
+import MobileMenu from './components/layout/MobileMenu';
+import TopBar from './components/layout/TopBar';
+import AgentTabs from './components/layout/AgentTabs';
+import LoginPage from './features/auth/LoginPage';
+import DashboardPage from './features/dashboard/DashboardPage';
+import InterventionReportPage from './features/interventionReport/InterventionReportPage';
+import PersonalizedProjectPage from './features/personalizedProject/PersonalizedProjectPage';
+import ArchivesPage from './features/archives/ArchivesPage';
 
 const ROLES = ['agent', 'direction', 'admin'];
 const ROLE_LABELS = { agent: 'Agent', direction: 'Direction', admin: 'Admin' };
@@ -66,8 +66,6 @@ function App() {
     document.documentElement.setAttribute('data-theme', theme);
   }, [theme]);
 
-  // Au chargement de la page ou changement de rôle, si la session cookie existe déjà,
-  // on récupère les données user/organization selon le rôle sélectionné.
   useEffect(() => {
     if (isLogged) dispatch(fetchCurrentUser(role));
   }, [isLogged, role, dispatch]);
@@ -76,7 +74,7 @@ function App() {
     return (
       <>
         <TopControls />
-        <Login />
+        <LoginPage />
       </>
     );
 
@@ -94,10 +92,10 @@ function App() {
         <AgentTabs />
         <div className="min-h-[calc(100dvh-3.5rem-3.75rem-env(safe-area-inset-bottom))] md:h-[calc(100dvh-4rem)]">
           <Routes>
-            <Route path="/" element={<Dashboard />} />
-            <Route path="/cri" element={<InterventionReport />} />
-            <Route path="/ppa" element={<PersonalizedProject />} />
-            <Route path="/archives" element={<Archives />} />
+            <Route path="/" element={<DashboardPage />} />
+            <Route path="/cri" element={<InterventionReportPage />} />
+            <Route path="/ppa" element={<PersonalizedProjectPage />} />
+            <Route path="/archives" element={<ArchivesPage />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </div>

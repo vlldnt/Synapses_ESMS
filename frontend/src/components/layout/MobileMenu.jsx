@@ -7,7 +7,7 @@ import {
   History,
   ClipboardList,
 } from 'lucide-react';
-import { getMenusByRole } from '../../services/menu.service';
+import { getMenusByRole } from '../../services/menuService';
 
 /**
  * Map les noms d'icônes Lucide vers les composants

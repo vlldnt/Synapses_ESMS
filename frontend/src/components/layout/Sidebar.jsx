@@ -11,7 +11,7 @@ import {
 } from 'lucide-react';
 import NavItem from './NavItem';
 import ProfileDropdown from './ProfileDropdown';
-import { getMenusBySection } from '../../services/menu.service';
+import { getMenusBySection } from '../../services/menuService';
 import { AGENTS, AGENT_CARD_COLORS } from '../../constants/agents';
 
 const ICON_MAP = {
