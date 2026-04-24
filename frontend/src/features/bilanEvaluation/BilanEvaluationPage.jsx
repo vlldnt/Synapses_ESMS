@@ -353,6 +353,7 @@ function BilanEvaluationPage() {
             validationText="Je confirme avoir relu, vérifié et, si besoin, corrigé ce bilan d'évaluation. Je reste l'auteur et le responsable de ce document. L'IA est un outil d'assistance, non un substitut au jugement professionnel."
             generatedByModel={usedModel || { id: selectedModelId, name: selectedModelName }}
             downloadMeta={{
+              type: "BILAN",
               interventionType: "Bilan d'évaluation",
               structureType: organization?.type ?? "",
               companyName: organization?.name ?? "",

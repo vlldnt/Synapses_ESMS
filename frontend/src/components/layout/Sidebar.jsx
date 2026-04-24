@@ -74,8 +74,8 @@ function AgentsNavItem({ label, role }) {
                       className="flex items-center gap-2.5 px-3 py-2 text-xs rounded-lg transition-colors duration-150"
                       style={({ isActive: a }) =>
                         a
-                          ? { color, background: `${color}12`, fontWeight: 600 }
-                          : { color, opacity: 0.55 }
+                          ? { color, background: `${color}18`, fontWeight: 600 }
+                          : { color }
                       }
                     >
                       <span

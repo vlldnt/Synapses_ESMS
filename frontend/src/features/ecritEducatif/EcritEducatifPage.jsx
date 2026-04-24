@@ -353,6 +353,7 @@ function EcritEducatifPage() {
             validationText="Je confirme avoir relu, vérifié et, si besoin, corrigé cet écrit éducatif. Je reste l'auteur et le responsable de ce document. L'IA est un outil d'assistance, non un substitut au jugement professionnel."
             generatedByModel={usedModel || { id: selectedModelId, name: selectedModelName }}
             downloadMeta={{
+              type: "ECRIT",
               interventionType: "Écrit éducatif",
               structureType: organization?.type ?? "",
               companyName: organization?.name ?? "",

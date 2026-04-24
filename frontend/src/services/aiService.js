@@ -155,3 +155,80 @@ Extrais les informations pertinentes de cette transcription et rédige un compte
 
   return cleanedResult;
 }
+
+/**
+ * Génère un Projet Personnalisé d'Accompagnement Médico-Social (PPA) selon la nomenclature SERAFIN-PH.
+ *
+ * @param {object} params
+ * @param {string} params.observations    - Texte brut dicté ou saisi par le professionnel
+ * @param {string} params.structureType   - Déduit du company.type
+ * @param {string} params.companyName     - Déduit du company.name
+ * @param {string} params.educatorName    - Déduit du user.firstName + lastName
+ * @param {string} params.educatorRole    - Déduit du user.role
+ * @param {string} params.date            - Date automatique (now)
+ * @param {string} [params.model]         - ID modèle OpenRouter (défaut : DEFAULT_MODEL)
+ */
+export async function generatePersonalizedProject({
+  observations,
+  structureType,
+  companyName,
+  educatorName,
+  educatorRole,
+  date,
+  model = DEFAULT_MODEL,
+}) {
+  const userMessage = `
+--- CONTEXTE PROFESSIONNEL (données automatiques) ---
+Établissement : ${companyName || 'Non précisé'}
+Type de structure : ${structureType || 'Non précisé'}
+Professionnel rédacteur : ${educatorName || 'Non renseigné'} — ${educatorRole || 'Non précisé'}
+Date d'élaboration : ${date}
+
+--- OBSERVATIONS BRUTES DU PROFESSIONNEL ---
+${observations?.trim() || 'Aucune observation fournie.'}
+
+Analyse ces observations, identifie les besoins selon la nomenclature SERAFIN-PH et génère un PPA complet en suivant rigoureusement la structure en 8 sections définie. Pour toute information absente, indique « À compléter par le professionnel référent ». Assure la cohérence totale : chaque besoin identifié doit correspondre à un objectif, une prestation et une ligne dans le tableau récapitulatif.
+`.trim();
+
+  const promptData = await getPrompt('ppa_medico_social');
+  return getChatResponse({
+    systemPrompt: promptData?.content,
+    userMessage,
+    temperature: 0.35,
+    model,
+  });
+}
+
+/**
+ * Génère un Projet Personnalisé d'Accompagnement Social (PPAS) selon les axes Séraphin.
+ */
+export async function generatePpasSocial({
+  observations,
+  structureType,
+  companyName,
+  educatorName,
+  educatorRole,
+  date,
+  model = DEFAULT_MODEL,
+}) {
+  const userMessage = `
+--- CONTEXTE PROFESSIONNEL (données automatiques) ---
+Établissement : ${companyName || 'Non précisé'}
+Type de structure : ${structureType || 'Non précisé'}
+Professionnel rédacteur : ${educatorName || 'Non renseigné'} — ${educatorRole || 'Non précisé'}
+Date d'élaboration : ${date}
+
+--- OBSERVATIONS BRUTES DU PROFESSIONNEL ---
+${observations?.trim() || 'Aucune observation fournie.'}
+
+Analyse ces observations, identifie les axes Séraphin concernés et génère un PPAS complet en suivant rigoureusement la structure en 7 sections définie. Pour toute information absente, indique « À compléter par le professionnel référent ». Assure la cohérence totale : chaque axe documenté doit correspondre à un objectif et une ligne dans le tableau récapitulatif. Valorise systématiquement les ressources et le pouvoir d'agir de la personne.
+`.trim();
+
+  const promptData = await getPrompt('ppa_social');
+  return getChatResponse({
+    systemPrompt: promptData?.content,
+    userMessage,
+    temperature: 0.35,
+    model,
+  });
+}

@@ -1,6 +1,6 @@
 export const AGENT_CARD_COLORS = {
   'compte-rendu-intervention':  '#0D66D4', // bleu-fonce
-  'ppa-medico-social':          '#42C4A1', // vert-fonce
+  'ppa-medico-social':          '#FCBE82', // orange
   'ppa-social':                 '#1294C3', // bleu-clair
   'ecrit-educatif':             '#F44E92', // rose-fonce
   'bilan-evaluation':           '#9B2CB6', // violet

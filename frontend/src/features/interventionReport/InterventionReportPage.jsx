@@ -449,6 +449,7 @@ function InterventionReportPage() {
               usedModel || { id: selectedModelId, name: selectedModelName }
             }
             downloadMeta={{
+              type: "CRI",
               interventionType,
               structureType: organization?.type ?? "",
               companyName: organization?.name ?? "",

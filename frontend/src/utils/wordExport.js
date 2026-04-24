@@ -289,7 +289,7 @@ function blocksToDocx(blocks) {
   return docxBlocks;
 }
 
-function generateReportFilename(childName, educatorName, date) {
+function generateReportFilename(childName, educatorName, date, docType = 'DOC') {
   const nameToUse = childName || educatorName || 'Document';
   const parts = (nameToUse || '').trim().split(/\s+/);
   const firstName = parts[0] || 'Document';
@@ -302,9 +302,8 @@ function generateReportFilename(childName, educatorName, date) {
   const year = dateObj.getFullYear();
   const formattedDate = `${day}-${month}-${year}`;
 
-  const type = 'CRI';
-  const filename = `${type}_${firstName}_${firstLetterLastName}-${formattedDate}.docx`;
-  const displayName = `${type} ${firstName} ${firstLetterLastName} ${formattedDate}`;
+  const filename = `${docType}_${firstName}_${firstLetterLastName}-${formattedDate}.docx`;
+  const displayName = `${docType} ${firstName} ${firstLetterLastName} ${formattedDate}`;
 
   return { filename, displayName };
 }
@@ -368,7 +367,8 @@ export async function downloadDocx({ text, childName, educatorName, date, ...res
   });
 
   const blob = await Packer.toBlob(doc);
-  const { filename, displayName } = generateReportFilename(childName, educatorName, date);
+  const docType = rest.type || rest.reportType || rest.docType || 'DOC';
+  const { filename, displayName } = generateReportFilename(childName, educatorName, date, docType);
 
   return {
     blob,

@@ -20,7 +20,7 @@ function AgentTabs() {
               to={agent.to}
               className="flex-1 px-3 py-3 text-xs font-medium text-center transition-colors duration-150 border-b-2 whitespace-nowrap"
               style={{
-                color: isActive ? color : 'var(--text-muted)',
+                color: color,
                 borderBottomColor: isActive ? color : 'transparent',
                 backgroundColor: isActive ? `${color}18` : 'transparent',
               }}

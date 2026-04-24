@@ -6,7 +6,10 @@ import GeneratingReportModal from "../../components/GeneratingReportModal";
 import TranscriptionInput from "../../components/TranscriptionInput.jsx";
 import TranscriptionCard from "../../components/TranscriptionCard";
 import StepCard from "../../components/StepCard";
-import { DEFAULT_MODEL } from "../../services/aiService";
+import {
+  generatePersonalizedProject,
+  DEFAULT_MODEL,
+} from "../../services/aiService";
 import {
   getReferences,
   formatReferenceName,
@@ -211,9 +214,34 @@ function PersonalizedProjectPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!observations.trim()) return;
-    setResult(
-      "La génération de PPA n'est pas encore disponible. Revenez bientôt !",
-    );
+    setLoading(true);
+    setResult("");
+    setValidated(false);
+    setElapsed(null);
+    setUsedModel(null);
+    setIsArchived(false);
+    setReportStatus(REPORT_STATUS.IN_PROGRESS);
+    const start = Date.now();
+    try {
+      const text = await generatePersonalizedProject({
+        observations,
+        structureType: organization?.type ?? "",
+        companyName: organization?.name ?? "",
+        educatorName: fullName,
+        educatorRole: ROLE_LABELS[role] ?? role,
+        date: today,
+        model: selectedModelId,
+      });
+      setResult(text);
+      setUsedModel({ id: selectedModelId, name: selectedModelName });
+      setElapsed(((Date.now() - start) / 1000).toFixed(1));
+      setReportStatus(REPORT_STATUS.IN_PROGRESS);
+    } catch (err) {
+      setResult(`Erreur : ${err.message}`);
+      setReportStatus(REPORT_STATUS.DRAFT);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -410,6 +438,7 @@ function PersonalizedProjectPage() {
               usedModel || { id: selectedModelId, name: selectedModelName }
             }
             downloadMeta={{
+              type: "PPA",
               interventionType: "Projet Personnalisé d'Accompagnement",
               structureType: organization?.type ?? "",
               companyName: organization?.name ?? "",
