@@ -13,7 +13,7 @@ const PORT = process.env.PORT || 3002;
 // Data file paths
 const DOCUMENTS_FILE = path.join(__dirname, 'data', 'documents.json');
 const ARCHIVES_FILE = path.join(__dirname, 'data', 'archives.json');
-const GOOGLE_KEY_FILE = path.join(__dirname, 'data', 'google-key.json');
+const GOOGLE_KEY_FILE = path.join(__dirname, 'google-key.json');
 
 // Initialize Google Cloud Speech client
 let speechClient;
