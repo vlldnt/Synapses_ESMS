@@ -18,12 +18,12 @@ export const routes = [
     title: 'Tableau de bord',
   },
   {
-    path: '/cri',
+    path: '/compte_rendu_intervention',
     element: <InterventionReport />,
     title: "Compte Rendu d'Intervention",
   },
   {
-    path: '/ppa',
+    path: '/projet_personnalise_medico_social',
     element: <PersonalizedProject />,
     title: 'PPA Médico-Social',
   },

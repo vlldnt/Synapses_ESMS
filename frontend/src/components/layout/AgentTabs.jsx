@@ -6,6 +6,11 @@ function AgentTabs() {
   const location = useLocation();
   const role = useSelector((state) => state.role.role);
   const visibleAgents = AGENTS.filter((a) => a.roles.includes(role) && a.to);
+  const hideOnPaths = ['/', '/archives'];
+
+  if (hideOnPaths.includes(location.pathname)) {
+    return null;
+  }
 
   return (
     <div className="flex md:hidden overflow-x-auto border-b border-(--border) bg-(--bg-primary)">

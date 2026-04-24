@@ -7,23 +7,23 @@ const routeTitles = {
     title: 'Tableau de bord',
     subtitle: "Vue d'ensemble de votre activité et accès rapide aux fonctionnalités",
   },
-  '/cri': {
+  '/compte_rendu_intervention': {
     title: "Compte Rendu d'Intervention",
     subtitle: "Générez un compte rendu d'intervention",
   },
-  '/ppa': {
+  '/projet_personnalise_medico_social': {
     title: 'PPA Médico-Social',
     subtitle: 'Générez un projet personnalisé d\'accompagnement médico-social',
   },
-  '/ppas': {
+  '/projet_personnalise_social': {
     title: 'PPA Social',
     subtitle: 'Générez un projet personnalisé d\'accompagnement social',
   },
-  '/ecrit': {
+  '/ecrit_educatif': {
     title: 'Écrit Éducatif',
     subtitle: 'Rédigez un écrit éducatif structuré à partir de vos observations',
   },
-  '/bilan': {
+  '/bilan_evaluation': {
     title: "Bilan d'Évaluation",
     subtitle: "Générez un bilan d'évaluation à partir de vos éléments d'analyse",
   },

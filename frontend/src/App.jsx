@@ -96,11 +96,16 @@ function App() {
         <div className="min-h-[calc(100dvh-3.5rem-3.75rem-env(safe-area-inset-bottom))] md:h-[calc(100dvh-4rem)]">
           <Routes>
             <Route path="/" element={<DashboardPage />} />
-            <Route path="/cri" element={<InterventionReportPage />} />
-            <Route path="/ppa" element={<PersonalizedProjectPage />} />
-            <Route path="/ppas" element={<PpasSocialPage />} />
-            <Route path="/ecrit" element={<EcritEducatifPage />} />
-            <Route path="/bilan" element={<BilanEvaluationPage />} />
+            <Route path="/compte_rendu_intervention" element={<InterventionReportPage />} />
+            <Route path="/projet_personnalise_medico_social" element={<PersonalizedProjectPage />} />
+            <Route path="/projet_personnalise_social" element={<PpasSocialPage />} />
+            <Route path="/ecrit_educatif" element={<EcritEducatifPage />} />
+            <Route path="/bilan_evaluation" element={<BilanEvaluationPage />} />
+            <Route path="/cri" element={<Navigate to="/compte_rendu_intervention" replace />} />
+            <Route path="/ppa" element={<Navigate to="/projet_personnalise_medico_social" replace />} />
+            <Route path="/ppas" element={<Navigate to="/projet_personnalise_social" replace />} />
+            <Route path="/ecrit" element={<Navigate to="/ecrit_educatif" replace />} />
+            <Route path="/bilan" element={<Navigate to="/bilan_evaluation" replace />} />
             <Route path="/archives" element={<ArchivesPage />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>

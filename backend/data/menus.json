@@ -10,7 +10,7 @@
   {
     "id": "agents",
     "label": "Générer un document",
-    "route": "/cri",
+    "route": "/compte_rendu_intervention",
     "icon": "BotMessageSquare",
     "section": "Agents",
     "roleAccess": ["agent", "direction", "admin"]

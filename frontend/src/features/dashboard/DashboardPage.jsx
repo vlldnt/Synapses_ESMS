@@ -200,7 +200,7 @@ function DashboardPage() {
         <div className="rounded-2xl border border-(--border) bg-(--bg-primary) shadow-sm overflow-hidden">
           <div className="flex items-center justify-between px-5 pt-5 pb-3 border-b border-(--border)">
             <h2 className="text-sm md:text-base font-semibold text-(--text-primary)">Mes agents</h2>
-            <Link to="/cri" className="text-xs text-(--bleu-fonce) hover:underline flex items-center gap-0.5">
+            <Link to="/compte_rendu_intervention" className="text-xs text-(--bleu-fonce) hover:underline flex items-center gap-0.5">
               Voir tout <ChevronRight size={12} />
             </Link>
           </div>
@@ -223,7 +223,7 @@ function DashboardPage() {
             {recent.length === 0 ? (
               <div className="px-5 py-10 text-center text-sm text-(--text-muted)">
                 Aucun document généré pour l'instant.<br />
-                <Link to="/cri" className="text-(--bleu-fonce) hover:underline">Utiliser un agent →</Link>
+                <Link to="/compte_rendu_intervention" className="text-(--bleu-fonce) hover:underline">Utiliser un agent →</Link>
               </div>
             ) : (
               recent.map((entry) => {
