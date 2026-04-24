@@ -20,10 +20,10 @@ import {
   STORAGE_KEY,
   LOADING_MESSAGES,
   REPORT_STATUS,
-} from "../../constants/ppa";
+} from "../../constants/ppas";
 import { CARD_CLASS, ROLE_LABELS } from "../../constants/shared";
 
-const ACCENT = "var(--vert-fonce)";
+const ACCENT = "var(--bleu-clair)";
 
 function inferStatus({ observations, result, isArchived }) {
   if (isArchived) return REPORT_STATUS.ARCHIVED;
@@ -40,7 +40,7 @@ function loadDraft() {
   }
 }
 
-function PersonalizedProjectPage() {
+function PpasSocialPage() {
   const { fullName, organization, user } = useCurrentUser();
   const role = useSelector((state) => state.role.role);
   const draft = loadDraft();
@@ -88,7 +88,6 @@ function PersonalizedProjectPage() {
       try {
         const children = await getReferences();
         setReferences(children);
-
         const archives = await getHistory(user?.id);
         setArchivedCount(archives.length);
       } catch (err) {
@@ -111,12 +110,8 @@ function PersonalizedProjectPage() {
     const nextStatus = inferStatus({ observations, result, isArchived });
     setReportStatus(nextStatus);
 
-    const selectedReference = references.find(
-      (c) => c.id === selectedReferenceId,
-    );
-    const childName = selectedReference
-      ? formatReferenceName(selectedReference)
-      : "";
+    const selectedReference = references.find((c) => c.id === selectedReferenceId);
+    const childName = selectedReference ? formatReferenceName(selectedReference) : "";
 
     localStorage.setItem(
       STORAGE_KEY,
@@ -154,31 +149,21 @@ function PersonalizedProjectPage() {
       setShowGeneratingModal(false);
       return undefined;
     }
-
     setShowGeneratingModal(true);
     setLoadingMessageIndex(Math.floor(Math.random() * LOADING_MESSAGES.length));
-
     const intervalId = window.setInterval(() => {
       setLoadingMessageIndex((prev) => {
         if (LOADING_MESSAGES.length <= 1) return 0;
         let next = prev;
-        while (next === prev) {
-          next = Math.floor(Math.random() * LOADING_MESSAGES.length);
-        }
+        while (next === prev) next = Math.floor(Math.random() * LOADING_MESSAGES.length);
         return next;
       });
     }, 2000);
-
     return () => window.clearInterval(intervalId);
   }, [loading]);
 
   const handleReset = () => {
-    if (
-      !window.confirm(
-        "Commencer un nouveau PPA ? Le brouillon sera effacé.",
-      )
-    )
-      return;
+    if (!window.confirm("Commencer un nouveau PPAS ? Le brouillon sera effacé.")) return;
     localStorage.removeItem(STORAGE_KEY);
     setSelectedReferenceId("");
     setObservations("");
@@ -200,7 +185,6 @@ function PersonalizedProjectPage() {
     setUsedModel(null);
     setIsArchived(false);
     setReportStatus(REPORT_STATUS.DRAFT);
-
     try {
       const archives = await getHistory(user?.id);
       setArchivedCount(archives.length);
@@ -212,29 +196,16 @@ function PersonalizedProjectPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!observations.trim()) return;
-    setResult(
-      "La génération de PPA n'est pas encore disponible. Revenez bientôt !",
-    );
+    setResult("La génération de PPAS n'est pas encore disponible. Revenez bientôt !");
   };
 
   return (
-    <div
-      id="ppa-page"
-      className="h-full overflow-y-auto py-6 px-2 md:px-5 md:py-8"
-    >
+    <div id="ppas-page" className="h-full overflow-y-auto py-6 px-2 md:px-5 md:py-8">
       <div className="mx-auto flex w-full max-w-full flex-col gap-6">
-        <form
-          id="ppa-form"
-          onSubmit={handleSubmit}
-          className="flex flex-col gap-6"
-        >
+        <form id="ppas-form" onSubmit={handleSubmit} className="flex flex-col gap-6">
+
           {/* ── Étape 1 : Contexte ── */}
-          <StepCard
-            step="1"
-            title="Contexte"
-            subtitle="Projet personnalisé d'accompagnement"
-            accentColor={ACCENT}
-          >
+          <StepCard step="1" title="Contexte" subtitle="Projet personnalisé d'accompagnement social" accentColor={ACCENT}>
             {/* Desktop */}
             <div className="hidden md:flex md:flex-row md:items-center gap-6 text-sm">
               <div className="flex flex-col">
@@ -255,14 +226,15 @@ function PersonalizedProjectPage() {
               </div>
               <div className="w-px h-10 bg-(--border)" />
               <div className="flex flex-col gap-2">
-                <label htmlFor="reference-select" className="text-xs font-medium text-(--text-primary)">Référence :</label>
+                <label htmlFor="reference-select" className="text-xs font-medium text-(--text-primary)">Personne concernée :</label>
                 <select
                   id="reference-select"
                   value={selectedReferenceId}
                   onChange={(e) => setSelectedReferenceId(e.target.value)}
-                  className="rounded-xl border border-(--border) bg-(--bg-secondary) text-(--text-primary) px-4 py-2 text-base focus:outline-none focus:border-(--vert-fonce) transition-colors w-60"
+                  className="rounded-xl border border-(--border) bg-(--bg-secondary) text-(--text-primary) px-4 py-2 text-base focus:outline-none transition-colors w-60"
+                  style={{ "--tw-ring-color": ACCENT }}
                 >
-                  <option value="">Sélectionnez...</option>
+                  <option value="">Sélectionnez un bénéficiaire…</option>
                   {references.map((child) => (
                     <option key={child.id} value={child.id}>{formatReferenceName(child)}</option>
                   ))}
@@ -296,7 +268,7 @@ function PersonalizedProjectPage() {
                   id="reference-select-mobile"
                   value={selectedReferenceId}
                   onChange={(e) => setSelectedReferenceId(e.target.value)}
-                  className="rounded-lg border border-(--border) bg-(--bg-secondary) text-(--text-primary) px-3 py-1.5 focus:outline-none focus:border-(--vert-fonce) transition-colors w-full"
+                  className="rounded-lg border border-(--border) bg-(--bg-secondary) text-(--text-primary) px-3 py-1.5 focus:outline-none transition-colors w-full"
                 >
                   <option value="">Sélectionnez un bénéficiaire…</option>
                   {references.map((child) => (
@@ -307,27 +279,22 @@ function PersonalizedProjectPage() {
             </div>
           </StepCard>
 
-          {/* ── Étape 2 : Observations ── */}
+          {/* ── Étape 2 : Observations sociales ── */}
           <StepCard
             step="2"
-            title="Observations"
-            subtitle="Décrivez librement la situation, les besoins, les objectifs et les modalités d'accompagnement — l'IA structure le PPA"
+            title="Observations sociales"
+            subtitle="Décrivez la situation sociale, les besoins identifiés, les ressources et les objectifs — l'IA structure le PPAS"
             accentColor={ACCENT}
             headerAction={
               <div className="md:hidden">
-                <TranscriptionInput
-                  value={observations}
-                  onChange={setObservations}
-                  disabled={loading}
-                  variant="header-button"
-                />
+                <TranscriptionInput value={observations} onChange={setObservations} disabled={loading} variant="header-button" />
               </div>
             }
           >
             <TranscriptionCard
               value={observations}
               onChange={setObservations}
-              placeholder="Décrivez la situation de la personne, ses besoins, ses capacités, les objectifs prioritaires, les modalités d'accompagnement prévues… L'IA se charge du reste."
+              placeholder="Décrivez la situation sociale de la personne, ses conditions de vie, ses besoins d'accompagnement, les démarches engagées, les ressources mobilisables, les objectifs visés… L'IA se charge du reste."
               rows={8}
               disabled={loading}
             />
@@ -337,42 +304,20 @@ function PersonalizedProjectPage() {
           {/* ── Actions ── */}
           <div id="form-actions" className="flex flex-col gap-4">
             <div className="flex flex-col sm:flex-row gap-3 w-full">
-              <Button
-                type="submit"
-                color="green"
-                size="lg"
-                disabled={loading || !observations.trim()}
-                className="flex-1"
-              >
-                {loading ? "Génération en cours…" : "Générer le PPA"}
+              <Button type="submit" color="blue-light" size="lg" disabled={loading || !observations.trim()} className="flex-1">
+                {loading ? "Génération en cours…" : "Générer le PPAS"}
               </Button>
-
-              <Button
-                color="green"
-                size="lg"
-                icon={FilePlus}
-                onClick={handleReset}
-                className="flex-1"
-              >
-                Nouveau PPA
+              <Button color="blue-light" size="lg" icon={FilePlus} onClick={handleReset} className="flex-1">
+                Nouveau PPAS
               </Button>
             </div>
-
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
-              <ModelSelector
-                value={selectedModelId}
-                onChange={handleModelChange}
-              />
-
+              <ModelSelector value={selectedModelId} onChange={handleModelChange} />
               {!loading && !result && (
-                <span className="text-xs text-(--text-muted)">
-                  Temps estimé : 10–15 s
-                </span>
+                <span className="text-xs text-(--text-muted)">Temps estimé : 10–15 s</span>
               )}
               {!loading && elapsed && (
-                <span className="text-xs text-(--text-muted)">
-                  Généré en {elapsed}s
-                </span>
+                <span className="text-xs text-(--text-muted)">Généré en {elapsed}s</span>
               )}
             </div>
           </div>
@@ -381,17 +326,15 @@ function PersonalizedProjectPage() {
         {/* ── Loading ── */}
         {loading && (
           <div className={`${CARD_CLASS} flex items-center gap-4`}>
-            <div className="w-5 h-5 rounded-full border-2 border-t-transparent animate-spin shrink-0" style={{ borderColor: "var(--vert-fonce)", borderTopColor: "transparent" }} />
+            <div
+              className="w-5 h-5 rounded-full border-2 border-t-transparent animate-spin shrink-0"
+              style={{ borderColor: "var(--bleu-clair)", borderTopColor: "transparent" }}
+            />
             <div className="flex flex-col gap-0.5">
-              <span
-                key={loadingMessageIndex}
-                className="text-sm text-(--text-secondary) animate-pulse transition-opacity duration-300"
-              >
+              <span key={loadingMessageIndex} className="text-sm text-(--text-secondary) animate-pulse transition-opacity duration-300">
                 {LOADING_MESSAGES[loadingMessageIndex]}
               </span>
-              <span className="text-[10px] text-(--text-muted) font-mono">
-                {selectedModelId}
-              </span>
+              <span className="text-[10px] text-(--text-muted) font-mono">{selectedModelId}</span>
             </div>
           </div>
         )}
@@ -399,26 +342,22 @@ function PersonalizedProjectPage() {
         {/* ── Résultat ── */}
         {result && (
           <GeneratedResult
-            id="ppa-result"
-            title="Projet personnalisé généré"
+            id="ppas-result"
+            title="PPAS généré"
             result={result}
             validated={validated}
             onValidatedChange={setValidated}
             onRegenerate={() => handleSubmit({ preventDefault: () => {} })}
             onArchived={handleArchived}
-            validationText="Je confirme avoir relu, vérifié et, si besoin, corrigé ce projet personnalisé d'accompagnement. Je reste l'auteur et le responsable de ce document. L'IA est un outil d'assistance, non un substitut au jugement professionnel."
-            generatedByModel={
-              usedModel || { id: selectedModelId, name: selectedModelName }
-            }
+            validationText="Je confirme avoir relu, vérifié et, si besoin, corrigé ce projet personnalisé d'accompagnement social. Je reste l'auteur et le responsable de ce document. L'IA est un outil d'assistance, non un substitut au jugement professionnel."
+            generatedByModel={usedModel || { id: selectedModelId, name: selectedModelName }}
             downloadMeta={{
-              interventionType: "Projet Personnalisé d'Accompagnement",
+              interventionType: "Projet Personnalisé d'Accompagnement Social",
               structureType: organization?.type ?? "",
               companyName: organization?.name ?? "",
               educatorName: fullName,
               childName: selectedReferenceId
-                ? formatReferenceName(
-                    references.find((c) => c.id === selectedReferenceId) || {},
-                  )
+                ? formatReferenceName(references.find((c) => c.id === selectedReferenceId) || {})
                 : "",
               date: today,
               modelId: usedModel?.id || selectedModelId,
@@ -427,14 +366,10 @@ function PersonalizedProjectPage() {
           />
         )}
 
-        {/* Modal de génération */}
-        <GeneratingReportModal
-          isOpen={showGeneratingModal}
-          message={LOADING_MESSAGES[loadingMessageIndex]}
-        />
+        <GeneratingReportModal isOpen={showGeneratingModal} message={LOADING_MESSAGES[loadingMessageIndex]} />
       </div>
     </div>
   );
 }
 
-export default PersonalizedProjectPage;
+export default PpasSocialPage;

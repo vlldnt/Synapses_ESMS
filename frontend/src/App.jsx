@@ -14,6 +14,9 @@ import LoginPage from './features/auth/LoginPage';
 import DashboardPage from './features/dashboard/DashboardPage';
 import InterventionReportPage from './features/interventionReport/InterventionReportPage';
 import PersonalizedProjectPage from './features/personalizedProject/PersonalizedProjectPage';
+import PpasSocialPage from './features/ppasSocial/PpasSocialPage';
+import EcritEducatifPage from './features/ecritEducatif/EcritEducatifPage';
+import BilanEvaluationPage from './features/bilanEvaluation/BilanEvaluationPage';
 import ArchivesPage from './features/archives/ArchivesPage';
 
 const ROLES = ['agent', 'direction', 'admin'];
@@ -95,6 +98,9 @@ function App() {
             <Route path="/" element={<DashboardPage />} />
             <Route path="/cri" element={<InterventionReportPage />} />
             <Route path="/ppa" element={<PersonalizedProjectPage />} />
+            <Route path="/ppas" element={<PpasSocialPage />} />
+            <Route path="/ecrit" element={<EcritEducatifPage />} />
+            <Route path="/bilan" element={<BilanEvaluationPage />} />
             <Route path="/archives" element={<ArchivesPage />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>

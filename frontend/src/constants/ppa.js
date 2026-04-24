@@ -1,5 +1,20 @@
 export const STORAGE_KEY = 'ppa_draft';
 
+export const LOADING_MESSAGES = [
+  "L'IA structure votre projet personnalisé selon le référentiel SERAFIN-PH…",
+  "Analyse des observations et identification des axes prioritaires…",
+  "Formalisation des objectifs et modalités d'accompagnement…",
+  "Organisation des données selon la trame PPA professionnelle…",
+  "Vérification de la cohérence du projet personnalisé généré…",
+  "Finalisation du document avant affichage…",
+];
+
+export const REPORT_STATUS = {
+  DRAFT: 'draft',
+  IN_PROGRESS: 'in_progress',
+  ARCHIVED: 'archived',
+};
+
 export const AGE_GROUPS = [
   'Enfant (0-12 ans)',
   'Adolescent (12-18 ans)',

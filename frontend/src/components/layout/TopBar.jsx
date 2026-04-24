@@ -13,7 +13,19 @@ const routeTitles = {
   },
   '/ppa': {
     title: 'PPA Médico-Social',
-    subtitle: 'Générez un projet personnalisé',
+    subtitle: 'Générez un projet personnalisé d\'accompagnement médico-social',
+  },
+  '/ppas': {
+    title: 'PPA Social',
+    subtitle: 'Générez un projet personnalisé d\'accompagnement social',
+  },
+  '/ecrit': {
+    title: 'Écrit Éducatif',
+    subtitle: 'Rédigez un écrit éducatif structuré à partir de vos observations',
+  },
+  '/bilan': {
+    title: "Bilan d'Évaluation",
+    subtitle: "Générez un bilan d'évaluation à partir de vos éléments d'analyse",
   },
   '/archives': {
     title: 'Archives',

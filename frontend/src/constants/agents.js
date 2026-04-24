@@ -18,9 +18,9 @@ export const AGENT_CARD_COLORS = {
 export const AGENTS = [
   { id: 'compte-rendu-intervention', badge: 'CRI',    title: "Compte Rendu d'Intervention",  to: '/cri',  roles: ['agent', 'admin'] },
   { id: 'ppa-medico-social',         badge: 'PPAMS',  title: 'PPA Médico-Social',             to: '/ppa',  roles: ['agent', 'admin'] },
-  { id: 'ppa-social',                badge: 'PPAS',   title: 'PPA Social',                    to: null,                           roles: ['agent', 'admin'] },
-  { id: 'ecrit-educatif',            badge: 'ECRIT',  title: 'Écrit Éducatif',                to: null,                           roles: ['agent', 'admin'] },
-  { id: 'bilan-evaluation',          badge: 'BILAN',  title: "Bilan d'Évaluation",            to: null,                           roles: ['agent', 'admin'] },
+  { id: 'ppa-social',                badge: 'PPAS',   title: 'PPA Social',                    to: '/ppas',  roles: ['agent', 'admin'] },
+  { id: 'ecrit-educatif',            badge: 'ECRIT',  title: 'Écrit Éducatif',                to: '/ecrit', roles: ['agent', 'admin'] },
+  { id: 'bilan-evaluation',          badge: 'BILAN',  title: "Bilan d'Évaluation",            to: '/bilan', roles: ['agent', 'admin'] },
   { id: 'compte-rendu-reunion',      badge: 'CRR',    title: 'Compte Rendu de Réunion',       to: null,                           roles: ['direction', 'admin'] },
   { id: 'veille-professionnelle',    badge: 'VEILLE', title: 'Veille Professionnelle',        to: null,                           roles: ['direction', 'admin'] },
   { id: 'reporting-mensuel',         badge: 'REPORT', title: 'Reporting Mensuel',             to: null,                           roles: ['direction', 'admin'] },
