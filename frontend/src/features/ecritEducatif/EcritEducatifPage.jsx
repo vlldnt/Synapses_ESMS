@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { FilePlus } from "lucide-react";
 import Button from "../../components/Button";
 import RgpdNotice from "../../components/RgpdNotice";
 import GeneratedResult from "../../components/GeneratedResult";
@@ -301,16 +300,16 @@ function EcritEducatifPage() {
           </StepCard>
 
           {/* ── Actions ── */}
-          <div id="form-actions" className="flex flex-col gap-4">
-            <div className="flex flex-col sm:flex-row gap-3 w-full">
-              <Button type="submit" color="rose" size="lg" disabled={loading || !observations.trim()} className="flex-1">
+          <div id="form-actions" className="flex flex-col gap-3">
+            <div className="flex flex-row gap-3">
+              <Button type="submit" color="rose" size="md" disabled={loading || !observations.trim()} className="flex-1 md:flex-none">
                 {loading ? "Génération en cours…" : "Générer l'écrit éducatif"}
               </Button>
-              <Button color="rose" size="lg" icon={FilePlus} onClick={handleReset} className="flex-1">
-                Nouvel écrit
+              <Button color="green" size="md" onClick={handleReset} className="flex-1 md:hidden">
+                Nouveau
               </Button>
             </div>
-            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+            <div className="flex items-center gap-3">
               <ModelSelector value={selectedModelId} onChange={handleModelChange} />
               {!loading && !result && (
                 <span className="text-xs text-(--text-muted)">Temps estimé : 10–15 s</span>
@@ -318,6 +317,9 @@ function EcritEducatifPage() {
               {!loading && elapsed && (
                 <span className="text-xs text-(--text-muted)">Généré en {elapsed}s</span>
               )}
+              <button type="button" onClick={handleReset} className="hidden md:inline-flex ml-auto text-xs text-(--text-muted) hover:text-(--text-primary) transition-colors cursor-pointer">
+                + Nouvel écrit
+              </button>
             </div>
           </div>
         </form>

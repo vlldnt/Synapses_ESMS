@@ -10,6 +10,8 @@ const COLORS = {
 
   'orange':      'bg-(--orange) hover:opacity-80 text-(--text-primary) border-transparent',
 
+  'yellow':      'bg-(--jaune-clair) hover:bg-(--jaune) text-(--text-primary) border-transparent',
+
   'violet':      'bg-(--violet) hover:opacity-80 text-white border-transparent',
 
   'ghost':       'bg-transparent hover:bg-(--bg-tertiary) text-(--text-secondary) border-(--border)',

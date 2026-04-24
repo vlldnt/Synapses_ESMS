@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { FilePlus } from "lucide-react";
 import Button from "../../components/Button";
 import RgpdNotice from "../../components/RgpdNotice";
 import GeneratedResult from "../../components/GeneratedResult";
@@ -23,7 +22,7 @@ import {
 } from "../../constants/ppa";
 import { CARD_CLASS, ROLE_LABELS } from "../../constants/shared";
 
-const ACCENT = "var(--vert-fonce)";
+const ACCENT = "var(--orange)";
 
 function inferStatus({ observations, result, isArchived }) {
   if (isArchived) return REPORT_STATUS.ARCHIVED;
@@ -335,45 +334,45 @@ function PersonalizedProjectPage() {
           </StepCard>
 
           {/* ── Actions ── */}
-          <div id="form-actions" className="flex flex-col gap-4">
-            <div className="flex flex-col sm:flex-row gap-3 w-full">
+          <div id="form-actions" className="flex flex-col gap-3">
+            <div className="flex flex-row gap-3">
               <Button
                 type="submit"
-                color="green"
-                size="lg"
+                color="orange"
+                size="md"
                 disabled={loading || !observations.trim()}
-                className="flex-1"
+                className="flex-1 md:flex-none"
               >
                 {loading ? "Génération en cours…" : "Générer le PPA"}
               </Button>
-
               <Button
                 color="green"
-                size="lg"
-                icon={FilePlus}
+                size="md"
                 onClick={handleReset}
-                className="flex-1"
+                className="flex-1 md:hidden"
               >
-                Nouveau PPA
+                Nouveau
               </Button>
             </div>
 
-            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+            <div className="flex items-center gap-3">
               <ModelSelector
                 value={selectedModelId}
                 onChange={handleModelChange}
               />
-
               {!loading && !result && (
-                <span className="text-xs text-(--text-muted)">
-                  Temps estimé : 10–15 s
-                </span>
+                <span className="text-xs text-(--text-muted)">Temps estimé : 10–15 s</span>
               )}
               {!loading && elapsed && (
-                <span className="text-xs text-(--text-muted)">
-                  Généré en {elapsed}s
-                </span>
+                <span className="text-xs text-(--text-muted)">Généré en {elapsed}s</span>
               )}
+              <button
+                type="button"
+                onClick={handleReset}
+                className="hidden md:inline-flex ml-auto text-xs text-(--text-muted) hover:text-(--text-primary) transition-colors cursor-pointer"
+              >
+                + Nouveau PPA
+              </button>
             </div>
           </div>
         </form>

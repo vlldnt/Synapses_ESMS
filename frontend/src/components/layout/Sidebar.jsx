@@ -26,7 +26,7 @@ function AgentsNavItem({ label, role }) {
   const navigate = useNavigate();
   const agentRoutes = AGENTS.filter((a) => a.to).map((a) => a.to);
   const isOnAgents = agentRoutes.some((r) => location.pathname === r);
-  const [open, setOpen] = useState(isOnAgents);
+  const [open, setOpen] = useState(true);
 
   useEffect(() => {
     if (isOnAgents) setOpen(true);
@@ -75,12 +75,12 @@ function AgentsNavItem({ label, role }) {
                       style={({ isActive: a }) =>
                         a
                           ? { color, background: `${color}12`, fontWeight: 600 }
-                          : { color: 'var(--text-muted)' }
+                          : { color, opacity: 0.55 }
                       }
                     >
                       <span
                         className="w-1.5 h-1.5 rounded-full shrink-0"
-                        style={{ background: isActive ? color : 'var(--text-muted)' }}
+                        style={{ background: color, opacity: isActive ? 1 : 0.5 }}
                       />
                       <span className="truncate">{agent.title}</span>
                     </NavLink>
