@@ -11,6 +11,7 @@ import MobileMenu from './components/layout/MobileMenu';
 import TopBar from './components/layout/TopBar';
 import AgentTabs from './components/layout/AgentTabs';
 import LoginPage from './features/auth/LoginPage';
+import JoinRequestPage from './features/auth/JoinRequestPage';
 import DashboardPage from './features/dashboard/DashboardPage';
 import InterventionReportPage from './features/interventionReport/InterventionReportPage';
 import PersonalizedProjectPage from './features/personalizedProject/PersonalizedProjectPage';
@@ -73,44 +74,48 @@ function App() {
     if (isLogged) dispatch(fetchCurrentUser(role));
   }, [isLogged, role, dispatch]);
 
-  if (!isLogged)
-    return (
-      <>
-        <TopControls />
-        <LoginPage />
-      </>
-    );
-
   return (
     <>
       <TopControls />
-      <div className="hidden md:block">
-        <Sidebar />
-      </div>
-      <div className="md:hidden">
-        <MobileMenu />
-      </div>
-      <main id="main-content" className="md:ml-64 min-h-dvh pb-[calc(3.75rem+env(safe-area-inset-bottom))] md:pb-0 bg-(--bg-secondary) text-(--text-primary)">
-        <TopBar />
-        <AgentTabs />
-        <div className="min-h-[calc(100dvh-3.5rem-3.75rem-env(safe-area-inset-bottom))] md:h-[calc(100dvh-4rem)]">
-          <Routes>
-            <Route path="/" element={<DashboardPage />} />
-            <Route path="/compte_rendu_intervention" element={<InterventionReportPage />} />
-            <Route path="/projet_personnalise_medico_social" element={<PersonalizedProjectPage />} />
-            <Route path="/projet_personnalise_social" element={<PpasSocialPage />} />
-            <Route path="/ecrit_educatif" element={<EcritEducatifPage />} />
-            <Route path="/bilan_evaluation" element={<BilanEvaluationPage />} />
-            <Route path="/cri" element={<Navigate to="/compte_rendu_intervention" replace />} />
-            <Route path="/ppa" element={<Navigate to="/projet_personnalise_medico_social" replace />} />
-            <Route path="/ppas" element={<Navigate to="/projet_personnalise_social" replace />} />
-            <Route path="/ecrit" element={<Navigate to="/ecrit_educatif" replace />} />
-            <Route path="/bilan" element={<Navigate to="/bilan_evaluation" replace />} />
-            <Route path="/archives" element={<ArchivesPage />} />
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
-        </div>
-      </main>
+      {!isLogged ? (
+        <Routes>
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/rejoindre" element={<JoinRequestPage />} />
+          <Route path="*" element={<Navigate to="/login" replace />} />
+        </Routes>
+      ) : (
+        <>
+          <div className="hidden md:block">
+            <Sidebar />
+          </div>
+          <div className="md:hidden">
+            <MobileMenu />
+          </div>
+          <main id="main-content" className="md:ml-64 min-h-dvh pb-[calc(3.75rem+env(safe-area-inset-bottom))] md:pb-0 bg-(--bg-secondary) text-(--text-primary)">
+            <TopBar />
+            <AgentTabs />
+            <div className="min-h-[calc(100dvh-3.5rem-3.75rem-env(safe-area-inset-bottom))] md:h-[calc(100dvh-4rem)]">
+              <Routes>
+                <Route path="/" element={<DashboardPage />} />
+                <Route path="/login" element={<Navigate to="/" replace />} />
+                <Route path="/rejoindre" element={<Navigate to="/" replace />} />
+                <Route path="/compte_rendu_intervention" element={<InterventionReportPage />} />
+                <Route path="/projet_personnalise_medico_social" element={<PersonalizedProjectPage />} />
+                <Route path="/projet_personnalise_social" element={<PpasSocialPage />} />
+                <Route path="/ecrit_educatif" element={<EcritEducatifPage />} />
+                <Route path="/bilan_evaluation" element={<BilanEvaluationPage />} />
+                <Route path="/cri" element={<Navigate to="/compte_rendu_intervention" replace />} />
+                <Route path="/ppa" element={<Navigate to="/projet_personnalise_medico_social" replace />} />
+                <Route path="/ppas" element={<Navigate to="/projet_personnalise_social" replace />} />
+                <Route path="/ecrit" element={<Navigate to="/ecrit_educatif" replace />} />
+                <Route path="/bilan" element={<Navigate to="/bilan_evaluation" replace />} />
+                <Route path="/archives" element={<ArchivesPage />} />
+                <Route path="*" element={<Navigate to="/" replace />} />
+              </Routes>
+            </div>
+          </main>
+        </>
+      )}
     </>
   );
 }

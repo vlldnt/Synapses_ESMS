@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import faviconUrl from '/favicon.png';
 import { useDispatch, useSelector } from 'react-redux';
 import { setLogged, setLoading, fetchCurrentUser } from '../../store/authSlice';
@@ -122,6 +123,15 @@ function LoginPage() {
             Conforme RGPD · IA Act · Secret professionnel
           </p>
         </form>
+        <div className="mt-3 flex flex-col items-center gap-2">
+
+          <Link
+            to="/rejoindre"
+            className="mt-1 text-xs px-3 py-1 rounded-full border border-(--border) text-(--text-secondary) hover:bg-(--bg-tertiary)"
+          >
+            Adhérer à SYNASPES - ESMS
+          </Link>
+        </div>
       </div>
     </div>
   );
