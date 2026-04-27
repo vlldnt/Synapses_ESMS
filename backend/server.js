@@ -27,6 +27,8 @@ const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '7d';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 const APP_URL = process.env.APP_URL || 'http://localhost:5173/synapses';
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const PASSWORD_REGEX = /^(?=.*[A-Z])(?=.*[0-9])(?=.*[^a-zA-Z0-9]).{8,}$/;
 
 function verifyPage(type, message) {
   const colors = { success: '#16a34a', error: '#dc2626', already: '#1294C3' };
@@ -343,6 +345,47 @@ app.get('/api/users', async (req, res) => {
   }
 });
 
+// POST /api/users — Create a new user in the same organization
+app.post('/api/users', async (req, res) => {
+  const { firstName, lastName, email, job, role, organizationId } = req.body;
+  if (!firstName?.trim() || !lastName?.trim() || !email?.trim() || !organizationId) {
+    return res.status(400).json({ error: 'Champs obligatoires manquants.' });
+  }
+  if (!EMAIL_REGEX.test(email)) return res.status(400).json({ error: 'Email invalide.' });
+
+  try {
+    const users = await loadJsonFile('users.json');
+    if (users.find((u) => u.email.toLowerCase() === email.toLowerCase())) {
+      return res.status(409).json({ error: 'Un utilisateur avec cet email existe déjà.' });
+    }
+
+    const tempPassword = crypto.randomBytes(5).toString('hex');
+    const hashedPassword = await bcrypt.hash(tempPassword, 12);
+
+    const newUser = {
+      id: crypto.randomUUID(),
+      firstName: firstName.trim(),
+      lastName: lastName.trim(),
+      email: email.toLowerCase().trim(),
+      hashedPassword,
+      job: job || '',
+      role: role || 'agent',
+      organizationId,
+      is_admin: false,
+      status: 'active',
+      createdAt: new Date().toISOString(),
+    };
+
+    users.push(newUser);
+    await saveJsonFile('users.json', users);
+
+    const { hashedPassword: _, ...safeUser } = newUser;
+    res.status(201).json({ user: safeUser, tempPassword });
+  } catch (err) {
+    res.status(500).json({ error: 'Erreur serveur.' });
+  }
+});
+
 // PUT /api/users/:id — Update a user
 app.put('/api/users/:id', async (req, res) => {
   try {
@@ -435,8 +478,16 @@ app.get('/api/reference', async (req, res) => {
 
 // ─── Organization join requests ─────────────────────────────────────
 
-const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const PASSWORD_REGEX = /^(?=.*[A-Z])(?=.*[0-9])(?=.*[^a-zA-Z0-9]).{8,}$/;
+// GET /api/organization-requests — List all requests (admin only, no hashedPassword)
+app.get('/api/organization-requests', async (req, res) => {
+  try {
+    const requests = await loadJsonFile('organizationRequests.json');
+    const safe = requests.map(({ hashedPassword, verificationToken, ...r }) => r);
+    res.json(safe);
+  } catch (err) {
+    res.status(500).json({ error: 'Erreur serveur.' });
+  }
+});
 
 app.post('/api/organization-requests', async (req, res) => {
   const { orgName, structureType, firstName, lastName, contactEmail, password, _hp, _t } = req.body;

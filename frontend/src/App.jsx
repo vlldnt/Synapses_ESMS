@@ -20,6 +20,7 @@ import PpasSocialPage from './features/ppasSocial/PpasSocialPage';
 import EcritEducatifPage from './features/ecritEducatif/EcritEducatifPage';
 import BilanEvaluationPage from './features/bilanEvaluation/BilanEvaluationPage';
 import ArchivesPage from './features/archives/ArchivesPage';
+import AdminPage from './features/admin/AdminPage';
 
 const ROLES = ['agent', 'direction', 'admin'];
 const ROLE_LABELS = { agent: 'Agent', direction: 'Direction', admin: 'Admin' };
@@ -130,6 +131,7 @@ function App() {
                 <Route path="/ecrit" element={<Navigate to="/ecrit_educatif" replace />} />
                 <Route path="/bilan" element={<Navigate to="/bilan_evaluation" replace />} />
                 <Route path="/archives" element={<ArchivesPage />} />
+                <Route path="/admin" element={<AdminPage />} />
                 <Route path="*" element={<Navigate to="/" replace />} />
               </Routes>
             </div>

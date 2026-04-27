@@ -7,6 +7,7 @@ import {
   BotMessageSquare,
   History,
   ClipboardList,
+  ShieldCheck,
   ChevronRight,
 } from 'lucide-react';
 import NavItem from './NavItem';
@@ -19,6 +20,7 @@ const ICON_MAP = {
   BotMessageSquare,
   History,
   ClipboardList,
+  ShieldCheck,
 };
 
 function AgentsNavItem({ label, role }) {

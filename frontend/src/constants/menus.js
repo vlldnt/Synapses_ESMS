@@ -23,4 +23,12 @@ export const MENUS = [
     section: "Gestion",
     roleAccess: ["agent", "direction", "admin"],
   },
+  {
+    id: "admin",
+    label: "Administration",
+    route: "/admin",
+    icon: "ShieldCheck",
+    section: "Gestion",
+    roleAccess: ["admin"],
+  },
 ];
