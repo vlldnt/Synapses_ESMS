@@ -1,17 +1,18 @@
 [
   {
-    "id": "org_001",
-    "type": "IME",
-    "name": "Les Colibris"
+    "id": "056350bf-5e63-4123-8759-636dd09272f1",
+    "name": "Les Colibris",
+    "structureType": "IME",
+    "description": "Institut Médico-Éducatif accompagnant des enfants et adolescents en situation de handicap.",
+    "ownerId": "fb5e3080-9538-491c-a562-25d34a2987c4",
+    "createdAt": "2024-01-15T09:00:00.000Z"
   },
   {
-    "id": "org_002",
-    "type": "ESMS",
-    "name": "Centre Horizon"
-  },
-  {
-    "id": "org_003",
-    "type": "EHPAD",
-    "name": "Maison du Bien-Être"
+    "id": "50cc40b3-88c9-4911-bfb4-98054a5c7759",
+    "name": "SYnapsessss",
+    "structureType": "Lieu de vie et d'accueil",
+    "description": "",
+    "ownerId": "b71fbd90-8088-475d-b215-2ac2b5eb1edb",
+    "createdAt": "2026-04-27T20:28:09.779Z"
   }
 ]

@@ -1,10 +1,12 @@
+import { authFetch } from './authServices';
+
 const API_URL = './api';
 
 let referencesCache = [];
 
 async function fetchReferences() {
   try {
-    const response = await fetch(`${API_URL}/references`);
+    const response = await authFetch(`${API_URL}/references`);
     if (!response.ok) throw new Error(`API error: ${response.status}`);
     referencesCache = await response.json();
     return referencesCache;

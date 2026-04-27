@@ -1,10 +1,12 @@
+import { authFetch } from './authServices';
+
 const API_URL = './api';
 
 let organizationsCache = [];
 
 async function fetchOrganizations() {
   try {
-    const response = await fetch(`${API_URL}/organizations`);
+    const response = await authFetch(`${API_URL}/organizations`);
     if (!response.ok) throw new Error(`API error: ${response.status}`);
     organizationsCache = await response.json();
     return organizationsCache;

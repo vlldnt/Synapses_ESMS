@@ -1,4 +1,5 @@
 import { OpenRouter } from '@openrouter/sdk';
+import { authFetch } from './authServices';
 
 // ─── CONFIG ───────────────────────────────────────────────────────────────────
 
@@ -19,7 +20,7 @@ let promptsCache = [];
 
 async function fetchPrompts() {
   try {
-    const res = await fetch(`${API_URL}/prompts`);
+    const res = await authFetch(`${API_URL}/prompts`);
     if (!res.ok) throw new Error(`API error: ${res.status}`);
     promptsCache = await res.json();
   } catch (err) {

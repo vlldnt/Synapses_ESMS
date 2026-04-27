@@ -1,3 +1,5 @@
+import { authFetch } from './authServices';
+
 const API_URL = './api';
 
 let usersCache = [];
@@ -11,7 +13,7 @@ const ROLE_TO_USER = {
 
 async function fetchUsers() {
   try {
-    const response = await fetch(`${API_URL}/users`);
+    const response = await authFetch(`${API_URL}/users`);
     if (!response.ok) throw new Error(`API error: ${response.status}`);
     usersCache = await response.json();
     return usersCache;
@@ -43,7 +45,7 @@ export async function getUsersByOrganization(organizationId) {
 
 export async function updateUser(id, updates) {
   try {
-    const response = await fetch(`${API_URL}/users/${id}`, {
+    const response = await authFetch(`${API_URL}/users/${id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(updates),

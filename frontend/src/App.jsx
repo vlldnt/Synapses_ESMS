@@ -3,7 +3,8 @@ import { useSelector, useDispatch } from 'react-redux';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { setTheme } from './store/themeSlice';
 import { setRole } from './store/roleSlice';
-import { fetchCurrentUser } from './store/authSlice';
+import { setOrganization } from './store/authSlice';
+import { getOrganizationById } from './services/organizationService';
 import { Sun, Moon } from 'lucide-react';
 import './App.css';
 import Sidebar from './components/layout/Sidebar';
@@ -70,9 +71,28 @@ function App() {
     document.documentElement.setAttribute('data-theme', theme);
   }, [theme]);
 
+  const user = useSelector((state) => state.auth.user);
+  const organization = useSelector((state) => state.auth.organization);
+
+  // dérive le rôle depuis le JWT au refresh
   useEffect(() => {
-    if (isLogged) dispatch(fetchCurrentUser(role));
-  }, [isLogged, role, dispatch]);
+    if (isLogged) {
+      const token = localStorage.getItem('auth_token');
+      if (token) {
+        try {
+          const payload = JSON.parse(atob(token.split('.')[1]));
+          dispatch(setRole(payload.is_admin ? 'admin' : 'agent'));
+        } catch { /* ignore */ }
+      }
+    }
+  }, [isLogged, dispatch]);
+
+  // recharge l'org au refresh si le token est encore valide
+  useEffect(() => {
+    if (isLogged && user?.organizationId && !organization) {
+      getOrganizationById(user.organizationId).then((org) => dispatch(setOrganization(org)));
+    }
+  }, [isLogged, user, organization, dispatch]);
 
   return (
     <>

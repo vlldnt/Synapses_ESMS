@@ -11,6 +11,7 @@ import Button from '../../components/Button';
 import WordPreview from '../../components/WordPreview';
 import { AGENTS } from '../../constants/agents';
 import { getDocTypeLabel, getDocColorFromLabel } from '../../utils/docTypeBadge';
+import { authFetch } from '../../services/authServices';
 import { FileText, ChevronRight, Download, X } from 'lucide-react';
 
 function AgentCard({ agent }) {
@@ -95,8 +96,8 @@ function DashboardPage() {
         const basename = import.meta.env.VITE_BASENAME || '/synapses';
         const [archives, usersData, orgsData] = await Promise.all([
           getHistory(user?.id),
-          fetch(`${basename}/api/users`).then(r => r.json()),
-          fetch(`${basename}/api/organizations`).then(r => r.json()),
+          authFetch(`${basename}/api/users`).then(r => r.json()),
+          authFetch(`${basename}/api/organizations`).then(r => r.json()),
         ]);
         setHistory(archives);
         setUsers(usersData);

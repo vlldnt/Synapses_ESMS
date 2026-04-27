@@ -1,10 +1,12 @@
+import { authFetch } from './authServices';
+
 const API_URL = './api';
 
 let structureTypesCache = null;
 
 async function fetchStructureTypes() {
   try {
-    const response = await fetch(`${API_URL}/structure-types`);
+    const response = await authFetch(`${API_URL}/structure-types`);
     if (!response.ok) throw new Error(`API error: ${response.status}`);
     structureTypesCache = await response.json();
     return structureTypesCache;

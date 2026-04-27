@@ -1,3 +1,5 @@
+import { authFetch } from './authServices';
+
 const API_URL = './api';
 
 const historyCacheByKey = new Map();
@@ -59,7 +61,7 @@ export async function saveToHistory({
   };
 
   try {
-    const response = await fetch(`${API_URL}/archives`, {
+    const response = await authFetch(`${API_URL}/archives`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(entry),
@@ -96,7 +98,7 @@ export async function getHistory(userId) {
     if (userId) params.set('userId', userId);
     const query = params.toString();
 
-    const response = await fetch(
+    const response = await authFetch(
       `${API_URL}/archives${query ? `?${query}` : ''}`,
     );
     if (!response.ok) throw new Error(`API error: ${response.status}`);
@@ -114,7 +116,7 @@ export async function getHistory(userId) {
 
 export async function deleteFromHistory(id) {
   try {
-    const response = await fetch(`${API_URL}/archives/${id}`, {
+    const response = await authFetch(`${API_URL}/archives/${id}`, {
       method: 'DELETE',
     });
     if (!response.ok) throw new Error(`API error: ${response.status}`);

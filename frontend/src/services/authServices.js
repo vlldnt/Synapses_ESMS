@@ -1,5 +1,6 @@
 import store from '../store/store';
 import { setUser, setLogged } from '../store/authSlice';
+import { setRole } from '../store/roleSlice';
 
 const API_URL = './api';
 
@@ -12,16 +13,23 @@ export async function login({ email, password }) {
     });
 
     if (!response.ok) {
-      const text = await response.text();
-      throw new Error(text || `Login failed: ${response.status}`);
+      const data = await response.json().catch(() => ({}));
+      throw new Error(data.error || `Erreur ${response.status}`);
     }
 
     const data = await response.json();
 
-    if (data.token) localStorage.setItem('auth_token', data.token);
+    if (data.token) {
+      localStorage.setItem('auth_token', data.token);
+      try {
+        const payload = JSON.parse(atob(data.token.split('.')[1]));
+        store.dispatch(setRole(payload.is_admin ? 'admin' : 'agent'));
+      } catch { /* ignore */ }
+    }
     if (data.user) {
-      localStorage.setItem('auth_user', JSON.stringify(data.user));
-      store.dispatch(setUser(data.user));
+      const { is_admin, ...safeUser } = data.user;
+      localStorage.setItem('auth_user', JSON.stringify(safeUser));
+      store.dispatch(setUser(safeUser));
       store.dispatch(setLogged(true));
     }
 
@@ -48,4 +56,16 @@ export function getStoredUser() {
   return user ? JSON.parse(user) : null;
 }
 
-export default { login, logout, getAuthToken, getStoredUser };
+// fetch avec Authorization header automatique
+export function authFetch(url, options = {}) {
+  const token = getAuthToken();
+  return fetch(url, {
+    ...options,
+    headers: {
+      ...options.headers,
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+  });
+}
+
+export default { login, logout, getAuthToken, getStoredUser, authFetch };
