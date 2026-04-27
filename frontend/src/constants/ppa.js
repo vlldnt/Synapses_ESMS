@@ -2,11 +2,11 @@ export const STORAGE_KEY = 'ppa_draft';
 
 export const LOADING_MESSAGES = [
   "L'IA structure votre projet personnalisé selon le référentiel SERAFIN-PH…",
-  "Analyse des observations et identification des axes prioritaires…",
+  'Analyse des observations et identification des axes prioritaires…',
   "Formalisation des objectifs et modalités d'accompagnement…",
-  "Organisation des données selon la trame PPA professionnelle…",
-  "Vérification de la cohérence du projet personnalisé généré…",
-  "Finalisation du document avant affichage…",
+  'Organisation des données selon la trame PPA professionnelle…',
+  'Vérification de la cohérence du projet personnalisé généré…',
+  'Finalisation du document avant affichage…',
 ];
 
 export const REPORT_STATUS = {
@@ -39,19 +39,19 @@ export const PPA_FIELDS = [
   {
     key: 'situation',
     label: 'Présentation de la situation',
-    placeholder: "Ex : Enfant 8 ans, TSA léger, SESSAD depuis 2 ans, ULIS",
+    placeholder: 'Ex : Enfant 8 ans, TSA léger, SESSAD depuis 2 ans, ULIS',
   },
   {
     key: 'besoins_sante',
     label: 'Besoins – Santé somatique & psychique',
     placeholder:
-      "Ex : Anxiété lors des transitions, sensibilité sensorielle, besoin de cadre",
+      'Ex : Anxiété lors des transitions, sensibilité sensorielle, besoin de cadre',
   },
   {
     key: 'besoins_autonomie',
     label: 'Besoins – Autonomie',
     placeholder:
-      "Ex : Aide séquence habillage, motricité fine, communication orale limitée",
+      'Ex : Aide séquence habillage, motricité fine, communication orale limitée',
   },
   {
     key: 'besoins_participation',
@@ -63,24 +63,24 @@ export const PPA_FIELDS = [
     key: 'objectifs',
     label: 'Objectifs prioritaires',
     placeholder:
-      "Ex : Améliorer communication, réduire anxiété aux transitions, autonomie hygiène",
+      'Ex : Améliorer communication, réduire anxiété aux transitions, autonomie hygiène',
   },
   {
     key: 'modalites',
     label: "Modalités d'accompagnement",
     placeholder:
-      "Ex : Éducateur + psychologue, 2 séances/semaine domicile, supports visuels",
+      'Ex : Éducateur + psychologue, 2 séances/semaine domicile, supports visuels',
   },
   {
     key: 'participation_personne',
     label: 'Participation & choix de la personne',
     placeholder:
-      "Ex : Préférences par pointage, apprécie lego et animaux, parents impliqués",
+      'Ex : Préférences par pointage, apprécie lego et animaux, parents impliqués',
   },
   {
     key: 'suivi',
     label: 'Suivi et réévaluation',
-    placeholder: "Ex : Bilan à 3 mois, révision complète à 6 mois, famille",
+    placeholder: 'Ex : Bilan à 3 mois, révision complète à 6 mois, famille',
   },
 ];
 

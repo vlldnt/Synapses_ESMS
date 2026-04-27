@@ -439,7 +439,7 @@ function PersonalizedProjectPage() {
               usedModel || { id: selectedModelId, name: selectedModelName }
             }
             downloadMeta={{
-              type: "PPA",
+              type: "PPAMS",
               interventionType: "Projet Personnalisé d'Accompagnement",
               structureType: organization?.type ?? "",
               companyName: organization?.name ?? "",

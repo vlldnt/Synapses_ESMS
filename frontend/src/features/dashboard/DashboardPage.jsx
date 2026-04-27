@@ -130,6 +130,34 @@ function DashboardPage() {
   const organisationType = organization?.type ?? '';
   const recent = history.slice(0, 5);
 
+  function findAgentForEntry(entry) {
+    const direct = (entry.type || entry.reportType || '').toString().toLowerCase();
+    const intervention = (entry.interventionType || '').toString().toLowerCase();
+
+    const byIdOrBadge = AGENTS.find((a) => {
+      const id = a.id.toLowerCase();
+      const badge = (a.badge || '').toLowerCase();
+      if (direct && (direct === id || direct.includes(id))) return true;
+      if (intervention && (intervention.includes(id) || intervention.includes(id.replace(/-/g, ' ')))) return true;
+      if (direct && direct === badge) return true;
+      return false;
+    });
+    if (byIdOrBadge) return byIdOrBadge;
+
+    if (intervention.includes('ppa')) {
+      if (intervention.includes('médico') || intervention.includes('medico')) {
+        return AGENTS.find((a) => a.id === 'ppa-medico-social') || null;
+      }
+      return AGENTS.find((a) => a.id === 'ppa-social') || AGENTS.find((a) => a.id === 'ppa-medico-social') || null;
+    }
+
+    if (intervention.includes('compte') || intervention.includes('intervention') || intervention.includes('compte rendu')) {
+      return AGENTS.find((a) => a.id === 'compte-rendu-intervention') || null;
+    }
+
+    return null;
+  }
+
   useEffect(() => {
     const handleEscape = (e) => {
       if (e.key === 'Escape' && selectedEntry) {
@@ -222,8 +250,9 @@ function DashboardPage() {
               </div>
             ) : (
               recent.map((entry) => {
-                const typeLabel = getDocTypeLabel(entry);
-                const docColor = getDocColorFromLabel(typeLabel);
+                const agentForEntry = findAgentForEntry(entry);
+                const typeLabel = agentForEntry ? agentForEntry.badge : getDocTypeLabel(entry);
+                const docColor = agentForEntry ? agentForEntry.color : getDocColorFromLabel(typeLabel);
                 const enriched = getEnrichedInfo(entry, users, organizations);
                 return (
                   <button

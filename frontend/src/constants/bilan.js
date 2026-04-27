@@ -5,8 +5,8 @@ export const LOADING_MESSAGES = [
   "Analyse et synthèse des observations d'évaluation…",
   "Formalisation des axes d'évolution et des recommandations…",
   "Organisation du bilan selon la trame d'évaluation professionnelle…",
-  "Vérification de la cohérence du bilan généré…",
-  "Finalisation du document avant affichage…",
+  'Vérification de la cohérence du bilan généré…',
+  'Finalisation du document avant affichage…',
 ];
 
 export const REPORT_STATUS = {

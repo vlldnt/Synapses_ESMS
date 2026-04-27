@@ -176,7 +176,7 @@ export default function GeneratedResult({
               displayName: result.displayName,
               date: result.date,
               interventionType: result.interventionType,
-              type: reportType,
+              type: result.docType || reportType,
               modelId: result.modelId,
               modelName: result.modelName,
               docxBase64: base64String,

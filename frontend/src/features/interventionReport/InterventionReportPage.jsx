@@ -278,23 +278,38 @@ function InterventionReportPage() {
             <div className="hidden md:flex md:flex-row md:items-center gap-6 text-sm">
               <div className="flex flex-col">
                 <p className="text-(--text-muted) text-xs">Professionnel</p>
-                <p className="font-semibold text-(--text-primary)">{fullName}</p>
-                <p className="text-xs text-(--text-secondary)">{ROLE_LABELS[role] ?? role}</p>
+                <p className="font-semibold text-(--text-primary)">
+                  {fullName}
+                </p>
+                <p className="text-xs text-(--text-secondary)">
+                  {ROLE_LABELS[role] ?? role}
+                </p>
               </div>
               <div className="w-px h-10 bg-(--border)" />
               <div className="flex flex-col">
                 <p className="text-(--text-muted) text-xs">Structure</p>
-                <p className="font-semibold text-(--text-primary)">{organization?.name ?? "—"}</p>
-                <p className="text-xs text-(--text-secondary)">{organization?.type ?? "—"}</p>
+                <p className="font-semibold text-(--text-primary)">
+                  {organization?.name ?? "—"}
+                </p>
+                <p className="text-xs text-(--text-secondary)">
+                  {organization?.type ?? "—"}
+                </p>
               </div>
               <div className="w-px h-10 bg-(--border)" />
               <div className="flex flex-col">
                 <p className="text-(--text-muted) text-xs">Date</p>
-                <p className="font-semibold text-(--text-primary)">{dateLabel}</p>
+                <p className="font-semibold text-(--text-primary)">
+                  {dateLabel}
+                </p>
               </div>
               <div className="w-px h-10 bg-(--border)" />
               <div className="flex flex-col gap-2">
-                <label htmlFor="reference-select" className="text-xs font-medium text-(--text-primary)">Référence: </label>
+                <label
+                  htmlFor="reference-select"
+                  className="text-xs font-medium text-(--text-primary)"
+                >
+                  Référence:{" "}
+                </label>
                 <select
                   id="reference-select"
                   value={selectedReferenceId}
@@ -303,7 +318,9 @@ function InterventionReportPage() {
                 >
                   <option value="">Sélectionnez un enfant…</option>
                   {references.map((child) => (
-                    <option key={child.id} value={child.id}>{formatReferenceName(child)}</option>
+                    <option key={child.id} value={child.id}>
+                      {formatReferenceName(child)}
+                    </option>
                   ))}
                 </select>
               </div>
@@ -313,24 +330,41 @@ function InterventionReportPage() {
             <div className="flex md:hidden flex-col gap-4 text-[10px]">
               <div className="flex flex-row gap-2">
                 <div className="flex flex-col flex-1">
-                  <p className="text-(--text-muted) font-medium">Professionnel</p>
-                  <p className="font-semibold text-(--text-primary)">{fullName}</p>
-                  <p className="text-(--text-secondary)">{ROLE_LABELS[role] ?? role}</p>
+                  <p className="text-(--text-muted) font-medium">
+                    Professionnel
+                  </p>
+                  <p className="font-semibold text-(--text-primary)">
+                    {fullName}
+                  </p>
+                  <p className="text-(--text-secondary)">
+                    {ROLE_LABELS[role] ?? role}
+                  </p>
                 </div>
                 <div className="w-px bg-(--border)" />
                 <div className="flex flex-col flex-1">
                   <p className="text-(--text-muted) font-medium">Structure</p>
-                  <p className="font-semibold text-(--text-primary)">{organization?.name ?? "—"}</p>
-                  <p className="text-(--text-secondary)">{organization?.type ?? "—"}</p>
+                  <p className="font-semibold text-(--text-primary)">
+                    {organization?.name ?? "—"}
+                  </p>
+                  <p className="text-(--text-secondary)">
+                    {organization?.type ?? "—"}
+                  </p>
                 </div>
                 <div className="w-px bg-(--border)" />
                 <div className="flex flex-col flex-1">
                   <p className="text-(--text-muted) font-medium">Date</p>
-                  <p className="font-semibold text-(--text-primary)">{dateLabel}</p>
+                  <p className="font-semibold text-(--text-primary)">
+                    {dateLabel}
+                  </p>
                 </div>
               </div>
               <div className="flex flex-col gap-1 pt-2 border-t border-(--border)/50">
-                <label htmlFor="reference-select" className="font-medium text-(--text-primary)">Enfant concerné</label>
+                <label
+                  htmlFor="reference-select"
+                  className="font-medium text-(--text-primary)"
+                >
+                  Enfant concerné
+                </label>
                 <select
                   id="reference-select"
                   value={selectedReferenceId}
@@ -339,7 +373,9 @@ function InterventionReportPage() {
                 >
                   <option value="">Sélectionnez un enfant…</option>
                   {references.map((child) => (
-                    <option key={child.id} value={child.id}>{formatReferenceName(child)}</option>
+                    <option key={child.id} value={child.id}>
+                      {formatReferenceName(child)}
+                    </option>
                   ))}
                 </select>
               </div>
@@ -400,10 +436,14 @@ function InterventionReportPage() {
                 onChange={handleModelChange}
               />
               {!loading && !result && (
-                <span className="text-xs text-(--text-muted)">Temps estimé : 5–10 s</span>
+                <span className="text-xs text-(--text-muted)">
+                  Temps estimé : 5–10 s
+                </span>
               )}
               {!loading && elapsed && (
-                <span className="text-xs text-(--text-muted)">Généré en {elapsed}s</span>
+                <span className="text-xs text-(--text-muted)">
+                  Généré en {elapsed}s
+                </span>
               )}
               <button
                 type="button"

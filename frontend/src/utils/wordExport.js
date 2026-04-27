@@ -7,6 +7,7 @@ import {
   BorderStyle,
   Header,
 } from 'docx';
+import { AGENTS } from '../constants/agents';
 
 const BRAND_BLUE = '0D66D4';
 
@@ -289,6 +290,34 @@ function blocksToDocx(blocks) {
   return docxBlocks;
 }
 
+function findAgentForData({ type, reportType, interventionType }) {
+  const direct = (type || reportType || '').toString().toLowerCase();
+  const intervention = (interventionType || '').toString().toLowerCase();
+
+  const byIdOrBadge = AGENTS.find((a) => {
+    const id = a.id.toLowerCase();
+    const badge = (a.badge || '').toLowerCase();
+    if (direct && (direct === id || direct.includes(id))) return true;
+    if (intervention && (intervention.includes(id) || intervention.includes(id.replace(/-/g, ' ')))) return true;
+    if (direct && direct === badge) return true;
+    return false;
+  });
+  if (byIdOrBadge) return byIdOrBadge;
+
+  if (intervention.includes('ppa')) {
+    if (intervention.includes('médico') || intervention.includes('medico')) {
+      return AGENTS.find((a) => a.id === 'ppa-medico-social') || null;
+    }
+    return AGENTS.find((a) => a.id === 'ppa-social') || AGENTS.find((a) => a.id === 'ppa-medico-social') || null;
+  }
+
+  if (intervention.includes('compte') || intervention.includes('intervention') || intervention.includes('compte rendu')) {
+    return AGENTS.find((a) => a.id === 'compte-rendu-intervention') || null;
+  }
+
+  return null;
+}
+
 function generateReportFilename(childName, educatorName, date, docType = 'DOC') {
   const nameToUse = childName || educatorName || 'Document';
   const parts = (nameToUse || '').trim().split(/\s+/);
@@ -302,7 +331,7 @@ function generateReportFilename(childName, educatorName, date, docType = 'DOC') 
   const year = dateObj.getFullYear();
   const formattedDate = `${day}-${month}-${year}`;
 
-  const filename = `${docType}_${firstName}_${firstLetterLastName}-${formattedDate}.docx`;
+  const filename = `${docType}_${firstName}_${firstLetterLastName}_${formattedDate}.docx`;
   const displayName = `${docType} ${firstName} ${firstLetterLastName} ${formattedDate}`;
 
   return { filename, displayName };
@@ -367,7 +396,8 @@ export async function downloadDocx({ text, childName, educatorName, date, ...res
   });
 
   const blob = await Packer.toBlob(doc);
-  const docType = rest.type || rest.reportType || rest.docType || 'DOC';
+  const agent = findAgentForData(rest);
+  const docType = agent?.badge || rest.type || rest.reportType || rest.docType || 'DOC';
   const { filename, displayName } = generateReportFilename(childName, educatorName, date, docType);
 
   return {
@@ -380,6 +410,7 @@ export async function downloadDocx({ text, childName, educatorName, date, ...res
     educatorName,
     modelId: rest.modelId,
     modelName: rest.modelName,
+    docType,
   };
 }
 
