@@ -1,6 +1,90 @@
 import { useRef, useState, useCallback, useEffect } from "react";
 import { MicrophoneButtonCompact } from "./MicrophoneButton";
-import { detectBrowser, shouldUseGoogleSpeech, transcribeChunk } from "../services/transcriptionService";
+import { detectBrowser, shouldUseGoogleSpeech } from "../services/transcriptionService";
+import { useStreamingTranscription } from "../hooks/useStreamingTranscription";
+
+// ─── Native Web Speech API path (Chrome / Safari) ────────────────────────────
+// Uses the browser's built-in recognizer: low latency, no round-trip.
+// Interim results are shown in real-time; final results are committed.
+
+function useNativeRecognition({ baseTextRef, onChange, onNetworkError }) {
+  const recRef             = useRef(null);
+  const committedRef       = useRef('');
+  const onNetworkErrorRef  = useRef(onNetworkError);
+  const [interim, setInterim] = useState('');
+  const [active, setActive]   = useState(false);
+
+  // Keep the callback ref fresh without rebuilding start/stop
+  useEffect(() => { onNetworkErrorRef.current = onNetworkError; }, [onNetworkError]);
+
+  const push = useCallback((committed, interimText) => {
+    const base = baseTextRef.current;
+    const text = committed + (interimText ? (committed ? ' ' : '') + interimText : '');
+    onChange(base ? base + (text ? ' ' + text : '') : text);
+  }, [baseTextRef, onChange]);
+
+  const start = useCallback((lang = 'fr-FR') => {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) return false;
+
+    committedRef.current = '';
+    setInterim('');
+
+    const rec = new SpeechRecognition();
+    rec.lang = lang;
+    rec.continuous = true;
+    rec.interimResults = true;
+    recRef.current = rec;
+
+    rec.onresult = (event) => {
+      let newCommitted = '';
+      let currentInterim = '';
+
+      for (const result of event.results) {
+        if (result.isFinal) {
+          newCommitted += (newCommitted ? ' ' : '') + result[0].transcript.trim();
+        } else {
+          currentInterim = result[0].transcript.trim();
+        }
+      }
+
+      if (newCommitted) committedRef.current = newCommitted;
+      setInterim(currentInterim);
+      push(committedRef.current, currentInterim);
+    };
+
+    rec.onerror = (e) => {
+      // Chrome throws 'network' when its cloud recognizer is unreachable → fall back to WS
+      if (e.error === 'network' || e.error === 'service-not-available') {
+        rec.abort();
+        onNetworkErrorRef.current?.();
+      } else if (e.error !== 'no-speech' && e.error !== 'aborted') {
+        console.error('[SpeechRecognition]', e.error);
+      }
+    };
+
+    rec.onend = () => setActive(false);
+
+    rec.start();
+    setActive(true);
+    return true;
+  }, [push]);
+
+  const stop = useCallback(() => {
+    recRef.current?.stop();
+    setActive(false);
+    setInterim('');
+    // Commit final value (no interim)
+    const base = baseTextRef.current;
+    const committed = committedRef.current;
+    onChange(base ? base + (committed ? ' ' + committed : '') : committed);
+    return committedRef.current;
+  }, [baseTextRef, onChange]);
+
+  return { start, stop, active, interim };
+}
+
+// ─── TranscriptionInput ───────────────────────────────────────────────────────
 
 export function TranscriptionInput({
   value,
@@ -8,225 +92,137 @@ export function TranscriptionInput({
   placeholder = "Dictez ou saisissez vos observations",
   rows = 8,
   disabled = false,
-  variant = "textarea", // 'textarea' | 'compact' | 'header-button'
+  variant = "textarea",
   onStatusChange,
 }) {
-  const [status, setStatus] = useState("idle");
+  const [status, setStatus]             = useState("idle");
   const [errorMessage, setErrorMessage] = useState("");
-  const [audioLevel, setAudioLevel] = useState(0);
   const [isSoundDetected, setIsSoundDetected] = useState(false);
 
-  const streamRef = useRef(null);
-  const analyserRef = useRef(null);
-  const animationIdRef = useRef(null);
-  const speechRecognitionRef = useRef(null);
-  const useNativeApiRef = useRef(false);
-  const textareaRef = useRef(null);
-  const transcriptRef = useRef("");
-  const baseTextRef = useRef("");        // text in textarea before recording started
-  const isRecordingRef = useRef(false);  // controls the chunk loop for Google path
-  const currentRecorderRef = useRef(null);
+  const baseTextRef   = useRef("");
+  const pathRef       = useRef("idle"); // 'native' | 'ws'
+  const textareaRef   = useRef(null);
 
-  useEffect(() => {
-    onStatusChange?.(status);
-  }, [status, onStatusChange]);
+  // ── WS streaming path (Brave / Firefox / Edge / native API fallback) ─────────
+  const ws = useStreamingTranscription();
 
-  const autoResize = () => {
+  // Stable references to ws and native actions (useCallback inside the hooks)
+  const wsStartRef = useRef(ws.start);
+  useEffect(() => { wsStartRef.current = ws.start; }, [ws.start]);
+
+  const nativeRef = useRef(null);
+
+  // Called when Chrome's Web Speech API returns a 'network' error → switch to WS
+  const handleNetworkError = useCallback(async () => {
+    // CRITICAL: Stop native path properly before switching to WS
+    // If we don't, both paths will call onChange and create a race condition
+    nativeRef.current?.stop();
+
+    pathRef.current = 'ws';
+    try {
+      await wsStartRef.current('fr-FR');
+    } catch {
+      setErrorMessage("Service indisponible");
+      setStatus("idle");
+      pathRef.current = 'idle';
+    }
+  }, []);
+
+  // ── Native path ──────────────────────────────────────────────────────────────
+  const native = useNativeRecognition({ baseTextRef, onChange, onNetworkError: handleNetworkError });
+  nativeRef.current = native;  // keep ref up to date for fallback handler
+
+  // Propagate recording status upward
+  useEffect(() => { onStatusChange?.(status); }, [status, onStatusChange]);
+
+  // Auto-resize textarea
+  const autoResize = useCallback(() => {
     const el = textareaRef.current;
     if (!el) return;
     el.style.height = "auto";
     el.style.height = `${el.scrollHeight}px`;
-  };
-
-  const monitorAudioLevel = useCallback(() => {
-    if (!analyserRef.current) return;
-    const dataArray = new Uint8Array(analyserRef.current.frequencyBinCount);
-    analyserRef.current.getByteFrequencyData(dataArray);
-    const average = dataArray.reduce((a, b) => a + b) / dataArray.length;
-    setAudioLevel(Math.min(100, (average / 255) * 150));
-    setIsSoundDetected(average > 30);
-    animationIdRef.current = requestAnimationFrame(monitorAudioLevel);
   }, []);
+  useEffect(autoResize, [value, autoResize]);
 
-  // appendTranscript does NOT depend on `value` — uses baseTextRef captured at start.
-  const appendTranscript = useCallback((chunkText) => {
-    const text = String(chunkText || "").trim();
-    if (!text) return;
-
-    transcriptRef.current = String(transcriptRef.current || "");
-    transcriptRef.current += (transcriptRef.current ? " " : "") + text;
-
+  // Keep textarea display updated while WS is active:
+  //   show committed + interim as one seamless stream
+  useEffect(() => {
+    if (pathRef.current !== 'ws') return;
     const base = baseTextRef.current;
-    const finalText = base ? base + " " + transcriptRef.current : transcriptRef.current;
-    onChange(finalText);
-    autoResize();
-  }, [onChange]);
+    const text = ws.committed + (ws.interim ? (ws.committed ? ' ' : '') + ws.interim : '');
+    const full = base ? base + (text ? ' ' + text : '') : text;
+    onChange(full);
+  }, [ws.committed, ws.interim, onChange]);
 
-  const stopRecording = useCallback(() => {
-    isRecordingRef.current = false;
+  // Track sound detection from WS audio level
+  useEffect(() => {
+    setIsSoundDetected(ws.audioLevel > 20);
+  }, [ws.audioLevel]);
 
-    if (animationIdRef.current) cancelAnimationFrame(animationIdRef.current);
-    analyserRef.current = null;
-
-    if (useNativeApiRef.current && speechRecognitionRef.current) {
-      speechRecognitionRef.current.stop();
-    } else {
-      currentRecorderRef.current?.stop();
-      streamRef.current?.getTracks()?.forEach((t) => t.stop());
+  // Handle WS disconnection mid-session
+  useEffect(() => {
+    if (pathRef.current !== 'ws') return;
+    if (ws.status === 'error') {
+      setErrorMessage("Connexion interrompue — réessayez");
+      setStatus("idle");
+      pathRef.current = 'idle';
     }
+  }, [ws.status]);
 
-    setStatus("idle");
-  }, []);
-
-  const startNativeRecognition = useCallback(async () => {
-    const browser = detectBrowser();
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-
-    if (shouldUseGoogleSpeech()) {
-      console.warn(`⚠️ ${browser} → Google Cloud Speech`);
-      return false;
-    }
-    if (!SpeechRecognition) {
-      console.warn("⚠️ Web Speech API unavailable → Google Cloud Speech");
-      return false;
-    }
-
-    try {
-      const recognition = new SpeechRecognition();
-      speechRecognitionRef.current = recognition;
-      useNativeApiRef.current = true;
-
-      recognition.lang = "fr-FR";
-      recognition.continuous = true;
-      recognition.interimResults = true;
-
-      recognition.onstart = () => {
-        setStatus("recording");
-        transcriptRef.current = "";
-      };
-
-      recognition.onresult = (event) => {
-        const finalTranscript = Array.from(event.results)
-          .filter((r) => r.isFinal)
-          .map((r) => r[0].transcript)
-          .join("");
-
-        if (finalTranscript) {
-          transcriptRef.current = finalTranscript;
-          const base = baseTextRef.current;
-          onChange(base ? base + " " + finalTranscript : finalTranscript);
-          autoResize();
-        }
-      };
-
-      recognition.onerror = (event) => {
-        if (event.error === "network" || event.error === "service-not-available") {
-          recognition.abort();
-          useNativeApiRef.current = false;
-          startGoogleRecording().catch(() => {
-            setErrorMessage("Erreur de transcription");
-            setStatus("idle");
-          });
-        } else if (event.error !== "no-speech" && event.error !== "aborted") {
-          setErrorMessage(`Erreur: ${event.error}`);
-          setStatus("idle");
-        }
-      };
-
-      recognition.onend = () => {
-        if (useNativeApiRef.current) setStatus("idle");
-      };
-
-      recognition.start();
-      return true;
-    } catch (err) {
-      console.warn("⚠️ Web Speech API error:", err.message);
-      return false;
-    }
-  }, [onChange]);
-
-  // Google path: loop of 2-second chunks sent individually for fast incremental updates.
-  const startGoogleRecording = useCallback(async () => {
-    setErrorMessage("");
-    setStatus("recording");
-    isRecordingRef.current = true;
-    transcriptRef.current = "";
-
-    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-    streamRef.current = stream;
-
-    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-    const analyser = audioContext.createAnalyser();
-    analyser.fftSize = 256;
-    audioContext.createMediaStreamSource(stream).connect(analyser);
-    analyserRef.current = analyser;
-    monitorAudioLevel();
-
-    const recordChunk = () => {
-      if (!isRecordingRef.current) return;
-
-      const recorder = new MediaRecorder(stream, { mimeType: "audio/webm;codecs=opus" });
-      currentRecorderRef.current = recorder;
-      const chunks = [];
-
-      recorder.ondataavailable = (e) => {
-        if (e.data?.size > 0) chunks.push(e.data);
-      };
-
-      recorder.onstop = async () => {
-        const blob = new Blob(chunks, { type: "audio/webm" });
-        if (blob.size > 2000) {
-          try {
-            const text = await transcribeChunk(blob);
-            if (text) appendTranscript(text);
-          } catch (err) {
-            console.error("❌ Chunk error:", err);
-          }
-        }
-        if (isRecordingRef.current) recordChunk();
-      };
-
-      recorder.start();
-      setTimeout(() => {
-        if (recorder.state === "recording") recorder.stop();
-      }, 4000);
-    };
-
-    recordChunk();
-  }, [monitorAudioLevel, appendTranscript]);
-
+  // ── Start ─────────────────────────────────────────────────────────────────────
   const startRecording = useCallback(async () => {
     setErrorMessage("");
-    setStatus("recording");
-    transcriptRef.current = "";
     baseTextRef.current = String(value || "").trim();
-    useNativeApiRef.current = false;
 
-    const nativeWorked = await startNativeRecognition();
-    if (nativeWorked) return;
+    const useNative = !shouldUseGoogleSpeech() && native.start('fr-FR');
+
+    if (useNative) {
+      pathRef.current = 'native';
+      setStatus("recording");
+      return;
+    }
+
+    pathRef.current = 'ws';
+    setStatus("recording");
 
     try {
-      await startGoogleRecording();
+      await ws.start('fr-FR');
     } catch (err) {
       console.error(err);
-      setErrorMessage("Micro non autorisé ou indisponible");
+      setErrorMessage("Micro non autorisé ou service indisponible");
       setStatus("idle");
+      pathRef.current = 'idle';
     }
-  }, [startNativeRecognition, startGoogleRecording, value]);
+  }, [value, native, ws]);
 
-  useEffect(() => {
-    return () => {
-      isRecordingRef.current = false;
-      if (animationIdRef.current) cancelAnimationFrame(animationIdRef.current);
-      currentRecorderRef.current?.stop();
-      streamRef.current?.getTracks()?.forEach((t) => t.stop());
-    };
-  }, []);
+  // ── Stop ──────────────────────────────────────────────────────────────────────
+  const stopRecording = useCallback(() => {
+    if (pathRef.current === 'native') {
+      native.stop();
+    } else if (pathRef.current === 'ws') {
+      // CRITICAL: Capture final text BEFORE ws.stop() clears interim
+      // ws.stop() triggers setInterim('') which would lose the last partial text
+      const base = baseTextRef.current;
+      const finalText = ws.committed + (ws.interim ? (ws.committed ? ' ' : '') + ws.interim : '');
+      const full = base ? base + (finalText ? ' ' + finalText : '') : finalText;
+
+      ws.stop();
+      onChange(full);  // Ensure final text is saved, not lost to interim clearing
+    }
+    pathRef.current = 'idle';
+    setStatus("idle");
+    setIsSoundDetected(false);
+  }, [native, ws, onChange]);
 
   const handleClick = () => {
     if (status === "recording") stopRecording();
     else startRecording();
   };
+
+  const audioLevel   = pathRef.current === 'ws' ? ws.audioLevel : 0;
+  const isRecording  = status === "recording";
+
+  // ── Variants ──────────────────────────────────────────────────────────────────
 
   if (variant === "header-button") {
     return (
@@ -255,9 +251,18 @@ export function TranscriptionInput({
     );
   }
 
+  // ── Textarea variant ──────────────────────────────────────────────────────────
+  // The textarea value shows the full live text (committed + interim merged).
+  // Interim text appears slightly dimmed via the CSS class below when recording.
+
+  const showInterim = isRecording && (
+    (pathRef.current === 'native' && native.interim) ||
+    (pathRef.current === 'ws'     && ws.interim)
+  );
+
   return (
     <div className="w-full">
-      <div className="flex gap-3 w-full">
+      <div className="flex gap-3 w-full relative">
         <textarea
           ref={textareaRef}
           value={value}
@@ -268,6 +273,7 @@ export function TranscriptionInput({
             "w-full flex-1 bg-transparent outline-none",
             "text-[12px] md:text-[14px] text-black",
             "resize-none overflow-hidden dark:text-white",
+            showInterim ? "opacity-80" : "",
           ].join(" ")}
           onChange={(e) => onChange(e.target.value)}
           onInput={autoResize}

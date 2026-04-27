@@ -24,6 +24,11 @@ export function shouldUseGoogleSpeech() {
 
 const BASE = import.meta.env.VITE_BASENAME || '';
 
+export function getWsUrl() {
+  const protocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+  return `${protocol}//${location.host}/api/transcribe-ws`;
+}
+
 // Send a single audio chunk (webm blob) and get back transcribed text immediately.
 export async function transcribeChunk(blob) {
   const res = await fetch(`${BASE}/api/transcribe-chunk`, {

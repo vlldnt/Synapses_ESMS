@@ -3,11 +3,14 @@ import cors from 'cors';
 import fs from 'fs/promises';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import http from 'http';
+import { WebSocketServer } from 'ws';
 import speech from '@google-cloud/speech';
 import multer from 'multer';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
+const server = http.createServer(app);
 const PORT = process.env.PORT || 3002;
 
 // Data file paths
@@ -480,12 +483,121 @@ app.get('/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
+// ─── WebSocket streaming transcription ───────────────────────────────
+// Each WS connection gets its own Google streamingRecognize stream.
+// Protocol:
+//   client → text  { type: 'start', lang: 'fr-FR' }   begin session
+//   client → binary  <Int16 PCM at 16kHz>              audio frames
+//   client → text  { type: 'stop' }                    end session
+//   server → text  { type: 'interim', text }           partial result
+//   server → text  { type: 'final',   text }           stable result
+//   server → text  { type: 'error',   message }        error
+
+const STREAM_RESTART_MS = 270_000; // restart before Google 5-min hard limit
+
+const wss = new WebSocketServer({ server, path: '/api/transcribe-ws' });
+
+wss.on('connection', (ws) => {
+  let recognizeStream = null;
+  let restartTimer = null;
+  let isActive = false;
+  let lang = 'fr-FR';
+
+  function send(obj) {
+    if (ws.readyState === ws.OPEN) ws.send(JSON.stringify(obj));
+  }
+
+  function closeGoogleStream() {
+    clearTimeout(restartTimer);
+    if (recognizeStream) {
+      try { recognizeStream.end(); } catch { /* ignore */ }
+      recognizeStream = null;
+    }
+  }
+
+  function openGoogleStream() {
+    if (!speechClient) {
+      send({ type: 'error', message: 'Speech client unavailable — check google-key.json' });
+      return;
+    }
+    try {
+      recognizeStream = speechClient.streamingRecognize({
+        config: {
+          encoding: 'LINEAR16',
+          sampleRateHertz: 16000,
+          languageCode: lang,
+          enableAutomaticPunctuation: true,
+          model: 'latest_long',
+        },
+        interimResults: true, // top-level, outside config
+      });
+
+      recognizeStream.on('data', (data) => {
+        const result = data.results?.[0];
+        if (!result) return;
+        const text = result.alternatives?.[0]?.transcript?.trim();
+        if (!text) return;
+        send({ type: result.isFinal ? 'final' : 'interim', text });
+      });
+
+      recognizeStream.on('error', (err) => {
+        console.error('❌ streamingRecognize error:', err.message);
+        recognizeStream = null;
+        if (isActive) {
+          send({ type: 'error', message: err.message });
+          setTimeout(openGoogleStream, 500);
+        }
+      });
+
+      recognizeStream.on('end', () => {
+        recognizeStream = null;
+        if (isActive) openGoogleStream();
+      });
+
+      // Proactive restart before the 5-min Google limit
+      restartTimer = setTimeout(() => {
+        if (isActive) {
+          closeGoogleStream();
+          openGoogleStream();
+        }
+      }, STREAM_RESTART_MS);
+
+    } catch (err) {
+      console.error('❌ Failed to open streamingRecognize:', err.message);
+      send({ type: 'error', message: err.message });
+    }
+  }
+
+  ws.on('message', (data, isBinary) => {
+    if (isBinary) {
+      if (recognizeStream && isActive) {
+        try { recognizeStream.write(data); } catch { /* stream may be restarting */ }
+      }
+    } else {
+      try {
+        const msg = JSON.parse(data.toString());
+        if (msg.type === 'start') {
+          lang = msg.lang || 'fr-FR';
+          isActive = true;
+          openGoogleStream();
+        } else if (msg.type === 'stop') {
+          isActive = false;
+          closeGoogleStream();
+        }
+      } catch { /* ignore malformed frames */ }
+    }
+  });
+
+  ws.on('close', () => { isActive = false; closeGoogleStream(); });
+  ws.on('error', () => { isActive = false; closeGoogleStream(); });
+});
+
 // ─── Server startup ──────────────────────────────────────────────────
 
 async function start() {
   await ensureDataDir();
 
-  app.listen(PORT, () => {
+  server.listen(PORT, () => {
     console.log(`\n🚀 Synapses ESMS Backend running on http://localhost:${PORT}`);
     console.log(`📁 Archives stored in: ${ARCHIVES_FILE}\n`);
   });

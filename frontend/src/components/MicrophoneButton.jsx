@@ -49,7 +49,7 @@ export function MicrophoneButtonCompact({
   return (
     <div className="flex items-center gap-3">
       {status === "recording" && (
-        <div className="h-28 w-2.5 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden flex flex-col-reverse">
+        <div className="h-12 w-2.5 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden flex flex-col-reverse">
           <div
             className={[
               "w-full rounded-full transition-all duration-75",
