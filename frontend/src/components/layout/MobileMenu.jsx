@@ -1,4 +1,3 @@
-import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import NavItem from './NavItem';
 import {
@@ -7,11 +6,8 @@ import {
   History,
   ClipboardList,
 } from 'lucide-react';
-import { getMenusByRole } from '../../services/menuService';
+import { MENUS } from '../../constants/menus';
 
-/**
- * Map les noms d'icônes Lucide vers les composants
- */
 const ICON_MAP = {
   LayoutDashboard,
   BotMessageSquare,
@@ -20,20 +16,8 @@ const ICON_MAP = {
 };
 
 function MobileMenu() {
-  const [menus, setMenus] = useState([]);
   const role = useSelector((state) => state.role.role);
-
-  useEffect(() => {
-    (async () => {
-      try {
-        const allMenus = await getMenusByRole(role);
-        // Limiter à 3 items principaux pour le mobile
-        setMenus(allMenus.slice(0, 3));
-      } catch (err) {
-        console.error('Failed to load menus:', err);
-      }
-    })();
-  }, [role]);
+  const menus = MENUS.filter((m) => m.roleAccess.includes(role)).slice(0, 3);
 
   return (
     <nav id="mobile-menu" className="fixed bottom-0 left-0 right-0 z-60 border-t border-(--border) bg-(--bg-primary) px-0 pb-[max(env(safe-area-inset-bottom),0.25rem)] pt-0 shadow-[0_-6px_20px_rgba(0,0,0,0.08)]">

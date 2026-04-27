@@ -2,9 +2,6 @@ const API_URL = './api';
 
 let organizationsCache = [];
 
-/**
- * Fetch organizations from API
- */
 async function fetchOrganizations() {
   try {
     const response = await fetch(`${API_URL}/organizations`);
@@ -17,32 +14,17 @@ async function fetchOrganizations() {
   }
 }
 
-/**
- * Retourne une organisation par ID
- */
 export async function getOrganizationById(id) {
-  if (organizationsCache.length === 0) {
-    await fetchOrganizations();
-  }
-  return organizationsCache.find(o => o.id === id) || null;
+  if (organizationsCache.length === 0) await fetchOrganizations();
+  return organizationsCache.find((o) => o.id === id) || null;
 }
 
-/**
- * Retourne l'organisation associée à un utilisateur
- */
 export async function getOrganizationByUser(user) {
-  if (organizationsCache.length === 0) {
-    await fetchOrganizations();
-  }
-  return organizationsCache.find(o => o.id === user.organizationId) || null;
+  if (organizationsCache.length === 0) await fetchOrganizations();
+  return organizationsCache.find((o) => o.id === user.organizationId) || null;
 }
 
-/**
- * Retourne toutes les organisations
- */
 export async function getAllOrganizations() {
-  if (organizationsCache.length === 0) {
-    await fetchOrganizations();
-  }
+  if (organizationsCache.length === 0) await fetchOrganizations();
   return organizationsCache;
 }

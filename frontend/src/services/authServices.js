@@ -18,18 +18,11 @@ export async function login({ email, password }) {
 
     const data = await response.json();
 
-    if (data.token) {
-      localStorage.setItem('auth_token', data.token);
-    }
+    if (data.token) localStorage.setItem('auth_token', data.token);
     if (data.user) {
       localStorage.setItem('auth_user', JSON.stringify(data.user));
-      // update redux store
-      try {
-        store.dispatch(setUser(data.user));
-        store.dispatch(setLogged(true));
-      } catch (e) {
-        // ignore if store not available
-      }
+      store.dispatch(setUser(data.user));
+      store.dispatch(setLogged(true));
     }
 
     return data;
@@ -42,10 +35,8 @@ export async function login({ email, password }) {
 export function logout() {
   localStorage.removeItem('auth_token');
   localStorage.removeItem('auth_user');
-  try {
-    store.dispatch(setLogged(false));
-    store.dispatch(setUser(null));
-  } catch (e) {}
+  store.dispatch(setLogged(false));
+  store.dispatch(setUser(null));
 }
 
 export function getAuthToken() {
@@ -57,4 +48,4 @@ export function getStoredUser() {
   return user ? JSON.parse(user) : null;
 }
 
-export default { login, register, logout, getAuthToken, getStoredUser };
+export default { login, logout, getAuthToken, getStoredUser };

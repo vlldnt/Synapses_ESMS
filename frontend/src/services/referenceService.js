@@ -2,9 +2,6 @@ const API_URL = './api';
 
 let referencesCache = [];
 
-/**
- * Fetch references from API
- */
 async function fetchReferences() {
   try {
     const response = await fetch(`${API_URL}/references`);
@@ -17,57 +14,36 @@ async function fetchReferences() {
   }
 }
 
-/**
- * Retourne toutes les références (enfants suivis)
- */
 export async function getReferences() {
-  if (referencesCache.length === 0) {
-    await fetchReferences();
-  }
+  if (referencesCache.length === 0) await fetchReferences();
   return referencesCache;
 }
 
-/**
- * Retourne une référence par ID
- */
 export async function getReferenceById(id) {
   const refs = await getReferences();
-  return refs.find(r => r.id === id) || null;
+  return refs.find((r) => r.id === id) || null;
 }
 
-/**
- * Retourne les références assignées à un éducateur
- */
 export async function getReferencesByEducator(educatorId) {
   const refs = await getReferences();
-  return refs.filter(r => r.educator === educatorId);
+  return refs.filter((r) => r.educator === educatorId);
 }
 
-/**
- * Retourne les références d'une organisation
- */
 export async function getReferencesByOrganization(organizationId) {
   const refs = await getReferences();
-  return refs.filter(r => r.organizationId === organizationId);
+  return refs.filter((r) => r.organizationId === organizationId);
 }
 
-/**
- * Formate le nom d'une référence au format "Prénom I."
- * Ex: Hugo Olivier → "Hugo O."
- */
+// "Hugo Olivier" → "Hugo O."
 export function formatReferenceName(reference) {
-  if (!reference || !reference.lastName || !reference.firstName) return '';
-  const initial = reference.lastName[0].toUpperCase();
-  return `${reference.firstName} ${initial}.`;
+  if (!reference?.lastName || !reference?.firstName) return '';
+  return `${reference.firstName} ${reference.lastName[0].toUpperCase()}.`;
 }
 
-/**
- * Retourne une liste formatée des références
- */
 export async function getReferencesFormatted() {
   const refList = await getReferences();
-  return refList.map(ref => ({
+  return refList.map((ref) => ({
     ...ref,
-    displayName: formatReferenceName(ref)
+    displayName: formatReferenceName(ref),
   }));
 }

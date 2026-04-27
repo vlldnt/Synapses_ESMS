@@ -65,7 +65,7 @@ async function loadJsonFile(filename) {
   } catch (err) {
     console.warn(`Could not load ${filename}:`, err.message);
     // Return array for array-based files, object for config files
-    const arrayFiles = ['archives.json', 'documents.json', 'users.json', 'organizations.json', 'menus.json', 'dashboardCards.json', 'structureTypes.json', 'references.json'];
+    const arrayFiles = ['archives.json', 'documents.json', 'users.json', 'organizations.json', 'structureTypes.json', 'references.json'];
     return arrayFiles.includes(filename) ? [] : {};
   }
 }
@@ -235,15 +235,6 @@ app.get('/api/organizations', async (req, res) => {
   }
 });
 
-// GET /api/menus — Load navigation menus
-app.get('/api/menus', async (req, res) => {
-  try {
-    const menus = await loadJsonFile('menus.json');
-    res.json(menus);
-  } catch (err) {
-    res.status(500).json({ error: 'Failed to load menus' });
-  }
-});
 
 // GET /api/prompts — Load AI prompts
 app.get('/api/prompts', async (req, res) => {
@@ -255,15 +246,6 @@ app.get('/api/prompts', async (req, res) => {
   }
 });
 
-// GET /api/dashboard-cards — Load dashboard card config
-app.get('/api/dashboard-cards', async (req, res) => {
-  try {
-    const cards = await loadJsonFile('dashboardCards.json');
-    res.json(cards);
-  } catch (err) {
-    res.status(500).json({ error: 'Failed to load dashboard cards' });
-  }
-});
 
 // GET /api/structure-types — Load structure types
 app.get('/api/structure-types', async (req, res) => {

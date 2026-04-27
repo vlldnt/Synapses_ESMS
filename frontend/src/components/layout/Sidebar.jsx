@@ -11,7 +11,7 @@ import {
 } from 'lucide-react';
 import NavItem from './NavItem';
 import ProfileDropdown from './ProfileDropdown';
-import { getMenusBySection } from '../../services/menuService';
+import { MENUS } from '../../constants/menus';
 import { AGENTS } from '../../constants/agents';
 
 const ICON_MAP = {
@@ -100,19 +100,14 @@ function AgentsNavItem({ label, role }) {
 }
 
 function Sidebar() {
-  const [menusBySection, setMenusBySection] = useState({});
   const role = useSelector((state) => state.role.role);
-
-  useEffect(() => {
-    (async () => {
-      try {
-        const menus = await getMenusBySection(role);
-        setMenusBySection(menus);
-      } catch (err) {
-        console.error('Failed to load menus:', err);
-      }
-    })();
-  }, [role]);
+  const filtered = MENUS.filter((m) => m.roleAccess.includes(role));
+  const menusBySection = filtered.reduce((acc, m) => {
+    const s = m.section || 'Menu';
+    if (!acc[s]) acc[s] = [];
+    acc[s].push(m);
+    return acc;
+  }, {});
 
   return (
     <aside id="sidebar" className="hidden md:flex fixed left-0 top-0 h-dvh w-64 bg-(--bg-primary) shadow-sm flex-col z-50 border-r border-(--border)">

@@ -2,9 +2,6 @@ const API_URL = './api';
 
 let structureTypesCache = null;
 
-/**
- * Fetch structure types from API
- */
 async function fetchStructureTypes() {
   try {
     const response = await fetch(`${API_URL}/structure-types`);
@@ -17,19 +14,11 @@ async function fetchStructureTypes() {
   }
 }
 
-/**
- * Get all structure types
- */
 export async function getStructureTypes() {
-  if (!structureTypesCache) {
-    await fetchStructureTypes();
-  }
+  if (!structureTypesCache) await fetchStructureTypes();
   return structureTypesCache;
 }
 
-/**
- * Get structure type categories
- */
 export async function getStructureTypeCategories() {
   const types = await getStructureTypes();
   return types.categories || [];
