@@ -6,6 +6,7 @@ import { setRole } from '../../store/roleSlice';
 import { useCurrentUser } from '../../hooks/useCurrentUser';
 import { User, LogOut, Sun, Moon, ChevronDown, Download, ShieldCheck } from 'lucide-react';
 import { PWAInstallModal } from '../PWAInstallGuide';
+import ProfileModal from './ProfileModal';
 
 const ROLES = ['agent', 'direction', 'admin'];
 const ROLE_LABELS = { agent: 'Agent', direction: 'Directeur', admin: 'Admin' };
@@ -13,6 +14,7 @@ const ROLE_LABELS = { agent: 'Agent', direction: 'Directeur', admin: 'Admin' };
 function ProfileDropdown({ photo = null, mobile = false }) {
   const [open, setOpen] = useState(false);
   const [showInstall, setShowInstall] = useState(false);
+  const [showProfile, setShowProfile] = useState(false);
   const dropdownRef = useRef(null);
   const dispatch = useDispatch();
   const theme = useSelector((state) => state.theme.theme);
@@ -117,15 +119,14 @@ function ProfileDropdown({ photo = null, mobile = false }) {
 
           {mobile && <div className="mx-3 my-1 border-t border-(--border)" />}
 
-          <a
+          <button
             id="profile-settings"
-            href="#"
-            className="flex items-center gap-3 px-4 py-2.5 text-(--text-primary) hover:bg-(--bg-tertiary) transition-colors duration-150"
-            onClick={() => setOpen(false)}
+            className="flex items-center gap-3 px-4 py-2.5 w-full text-(--text-primary) hover:bg-(--bg-tertiary) transition-colors duration-150 cursor-pointer"
+            onClick={() => { setOpen(false); setShowProfile(true); }}
           >
             <User size={18} className="text-(--bleu-fonce)" />
-            <span className="font-medium text-xs md:text-sm">Paramètres</span>
-          </a>
+            <span className="font-medium text-xs md:text-sm">Profil</span>
+          </button>
 
           <button
             id="profile-install-pwa"
@@ -182,6 +183,7 @@ function ProfileDropdown({ photo = null, mobile = false }) {
       )}
     </div>
     {showInstall && <PWAInstallModal onClose={() => setShowInstall(false)} />}
+    {showProfile && <ProfileModal onClose={() => setShowProfile(false)} />}
     </>
   );
 }
