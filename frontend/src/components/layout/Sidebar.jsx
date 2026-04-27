@@ -12,7 +12,7 @@ import {
 import NavItem from './NavItem';
 import ProfileDropdown from './ProfileDropdown';
 import { getMenusBySection } from '../../services/menuService';
-import { AGENTS, AGENT_CARD_COLORS } from '../../constants/agents';
+import { AGENTS } from '../../constants/agents';
 
 const ICON_MAP = {
   LayoutDashboard,
@@ -61,7 +61,7 @@ function AgentsNavItem({ label, role }) {
         <div className="overflow-hidden">
           <ul className="flex flex-col gap-0.5 pt-1 pb-2 pl-3 pr-2">
             {visibleAgents.map((agent) => {
-              const color = AGENT_CARD_COLORS[agent.id] || '#0D66D4';
+              const color = agent.color;
               const isActive = agent.to
                 ? location.pathname.startsWith(agent.to)
                 : location.search.includes(agent.id);

@@ -21,8 +21,9 @@ import {
   REPORT_STATUS,
 } from "../../constants/ecrit";
 import { CARD_CLASS, ROLE_LABELS } from "../../constants/shared";
+import { AGENTS } from "../../constants/agents.js";
 
-const ACCENT = "var(--rose-fonce)";
+const ACCENT = AGENTS.find((a) => a.id === "ecrit-educatif"?.color ?? "green");
 
 function inferStatus({ observations, result, isArchived }) {
   if (isArchived) return REPORT_STATUS.ARCHIVED;
@@ -109,8 +110,12 @@ function EcritEducatifPage() {
     const nextStatus = inferStatus({ observations, result, isArchived });
     setReportStatus(nextStatus);
 
-    const selectedReference = references.find((c) => c.id === selectedReferenceId);
-    const childName = selectedReference ? formatReferenceName(selectedReference) : "";
+    const selectedReference = references.find(
+      (c) => c.id === selectedReferenceId,
+    );
+    const childName = selectedReference
+      ? formatReferenceName(selectedReference)
+      : "";
 
     localStorage.setItem(
       STORAGE_KEY,
@@ -154,7 +159,8 @@ function EcritEducatifPage() {
       setLoadingMessageIndex((prev) => {
         if (LOADING_MESSAGES.length <= 1) return 0;
         let next = prev;
-        while (next === prev) next = Math.floor(Math.random() * LOADING_MESSAGES.length);
+        while (next === prev)
+          next = Math.floor(Math.random() * LOADING_MESSAGES.length);
         return next;
       });
     }, 2000);
@@ -162,7 +168,12 @@ function EcritEducatifPage() {
   }, [loading]);
 
   const handleReset = () => {
-    if (!window.confirm("Commencer un nouvel écrit éducatif ? Le brouillon sera effacé.")) return;
+    if (
+      !window.confirm(
+        "Commencer un nouvel écrit éducatif ? Le brouillon sera effacé.",
+      )
+    )
+      return;
     localStorage.removeItem(STORAGE_KEY);
     setSelectedReferenceId("");
     setObservations("");
@@ -195,37 +206,65 @@ function EcritEducatifPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!observations.trim()) return;
-    setResult("La génération d'écrit éducatif n'est pas encore disponible. Revenez bientôt !");
+    setResult(
+      "La génération d'écrit éducatif n'est pas encore disponible. Revenez bientôt !",
+    );
   };
 
   return (
-    <div id="ecrit-page" className="h-full overflow-y-auto py-6 px-2 md:px-5 md:py-8">
+    <div
+      id="ecrit-page"
+      className="h-full overflow-y-auto py-6 px-2 md:px-5 md:py-8"
+    >
       <div className="mx-auto flex w-full max-w-full flex-col gap-6">
-        <form id="ecrit-form" onSubmit={handleSubmit} className="flex flex-col gap-6">
-
+        <form
+          id="ecrit-form"
+          onSubmit={handleSubmit}
+          className="flex flex-col gap-6"
+        >
           {/* ── Étape 1 : Contexte ── */}
-          <StepCard step="1" title="Contexte" subtitle="Écrit éducatif" accentColor={ACCENT}>
+          <StepCard
+            step="1"
+            title="Contexte"
+            subtitle="Écrit éducatif"
+            accentColor={ACCENT}
+          >
             {/* Desktop */}
             <div className="hidden md:flex md:flex-row md:items-center gap-6 text-sm">
               <div className="flex flex-col">
                 <p className="text-(--text-muted) text-xs">Professionnel</p>
-                <p className="font-semibold text-(--text-primary)">{fullName}</p>
-                <p className="text-xs text-(--text-secondary)">{ROLE_LABELS[role] ?? role}</p>
+                <p className="font-semibold text-(--text-primary)">
+                  {fullName}
+                </p>
+                <p className="text-xs text-(--text-secondary)">
+                  {ROLE_LABELS[role] ?? role}
+                </p>
               </div>
               <div className="w-px h-10 bg-(--border)" />
               <div className="flex flex-col">
                 <p className="text-(--text-muted) text-xs">Structure</p>
-                <p className="font-semibold text-(--text-primary)">{organization?.name ?? "—"}</p>
-                <p className="text-xs text-(--text-secondary)">{organization?.type ?? "—"}</p>
+                <p className="font-semibold text-(--text-primary)">
+                  {organization?.name ?? "—"}
+                </p>
+                <p className="text-xs text-(--text-secondary)">
+                  {organization?.type ?? "—"}
+                </p>
               </div>
               <div className="w-px h-10 bg-(--border)" />
               <div className="flex flex-col">
                 <p className="text-(--text-muted) text-xs">Date</p>
-                <p className="font-semibold text-(--text-primary)">{dateLabel}</p>
+                <p className="font-semibold text-(--text-primary)">
+                  {dateLabel}
+                </p>
               </div>
               <div className="w-px h-10 bg-(--border)" />
               <div className="flex flex-col gap-2">
-                <label htmlFor="reference-select" className="text-xs font-medium text-(--text-primary)">Personne concernée :</label>
+                <label
+                  htmlFor="reference-select"
+                  className="text-xs font-medium text-(--text-primary)"
+                >
+                  Personne concernée :
+                </label>
                 <select
                   id="reference-select"
                   value={selectedReferenceId}
@@ -234,7 +273,9 @@ function EcritEducatifPage() {
                 >
                   <option value="">Sélectionnez un bénéficiaire…</option>
                   {references.map((child) => (
-                    <option key={child.id} value={child.id}>{formatReferenceName(child)}</option>
+                    <option key={child.id} value={child.id}>
+                      {formatReferenceName(child)}
+                    </option>
                   ))}
                 </select>
               </div>
@@ -244,24 +285,41 @@ function EcritEducatifPage() {
             <div className="flex md:hidden flex-col gap-4 text-[10px]">
               <div className="flex flex-row gap-2">
                 <div className="flex flex-col flex-1">
-                  <p className="text-(--text-muted) font-medium">Professionnel</p>
-                  <p className="font-semibold text-(--text-primary)">{fullName}</p>
-                  <p className="text-(--text-secondary)">{ROLE_LABELS[role] ?? role}</p>
+                  <p className="text-(--text-muted) font-medium">
+                    Professionnel
+                  </p>
+                  <p className="font-semibold text-(--text-primary)">
+                    {fullName}
+                  </p>
+                  <p className="text-(--text-secondary)">
+                    {ROLE_LABELS[role] ?? role}
+                  </p>
                 </div>
                 <div className="w-px bg-(--border)" />
                 <div className="flex flex-col flex-1">
                   <p className="text-(--text-muted) font-medium">Structure</p>
-                  <p className="font-semibold text-(--text-primary)">{organization?.name ?? "—"}</p>
-                  <p className="text-(--text-secondary)">{organization?.type ?? "—"}</p>
+                  <p className="font-semibold text-(--text-primary)">
+                    {organization?.name ?? "—"}
+                  </p>
+                  <p className="text-(--text-secondary)">
+                    {organization?.type ?? "—"}
+                  </p>
                 </div>
                 <div className="w-px bg-(--border)" />
                 <div className="flex flex-col flex-1">
                   <p className="text-(--text-muted) font-medium">Date</p>
-                  <p className="font-semibold text-(--text-primary)">{dateLabel}</p>
+                  <p className="font-semibold text-(--text-primary)">
+                    {dateLabel}
+                  </p>
                 </div>
               </div>
               <div className="flex flex-col gap-1 pt-2 border-t border-(--border)/50">
-                <label htmlFor="reference-select-mobile" className="font-medium text-(--text-primary)">Personne concernée</label>
+                <label
+                  htmlFor="reference-select-mobile"
+                  className="font-medium text-(--text-primary)"
+                >
+                  Personne concernée
+                </label>
                 <select
                   id="reference-select-mobile"
                   value={selectedReferenceId}
@@ -270,7 +328,9 @@ function EcritEducatifPage() {
                 >
                   <option value="">Sélectionnez un bénéficiaire…</option>
                   {references.map((child) => (
-                    <option key={child.id} value={child.id}>{formatReferenceName(child)}</option>
+                    <option key={child.id} value={child.id}>
+                      {formatReferenceName(child)}
+                    </option>
                   ))}
                 </select>
               </div>
@@ -285,7 +345,12 @@ function EcritEducatifPage() {
             accentColor={ACCENT}
             headerAction={
               <div className="md:hidden">
-                <TranscriptionInput value={observations} onChange={setObservations} disabled={loading} variant="header-button" />
+                <TranscriptionInput
+                  value={observations}
+                  onChange={setObservations}
+                  disabled={loading}
+                  variant="header-button"
+                />
               </div>
             }
           >
@@ -302,22 +367,44 @@ function EcritEducatifPage() {
           {/* ── Actions ── */}
           <div id="form-actions" className="flex flex-col gap-3">
             <div className="flex flex-row gap-3">
-              <Button type="submit" color="rose" size="md" disabled={loading || !observations.trim()} className="flex-1 md:flex-none">
+              <Button
+                type="submit"
+                color="rose"
+                size="md"
+                disabled={loading || !observations.trim()}
+                className="flex-1 md:flex-none"
+              >
                 {loading ? "Génération en cours…" : "Générer l'écrit éducatif"}
               </Button>
-              <Button color="green" size="md" onClick={handleReset} className="flex-1 md:hidden">
+              <Button
+                color="green"
+                size="md"
+                onClick={handleReset}
+                className="flex-1 md:hidden"
+              >
                 Nouveau
               </Button>
             </div>
             <div className="flex items-center gap-3">
-              <ModelSelector value={selectedModelId} onChange={handleModelChange} />
+              <ModelSelector
+                value={selectedModelId}
+                onChange={handleModelChange}
+              />
               {!loading && !result && (
-                <span className="text-xs text-(--text-muted)">Temps estimé : 10–15 s</span>
+                <span className="text-xs text-(--text-muted)">
+                  Temps estimé : 10–15 s
+                </span>
               )}
               {!loading && elapsed && (
-                <span className="text-xs text-(--text-muted)">Généré en {elapsed}s</span>
+                <span className="text-xs text-(--text-muted)">
+                  Généré en {elapsed}s
+                </span>
               )}
-              <button type="button" onClick={handleReset} className="hidden md:inline-flex ml-auto text-xs text-(--text-muted) hover:text-(--text-primary) transition-colors cursor-pointer">
+              <button
+                type="button"
+                onClick={handleReset}
+                className="hidden md:inline-flex ml-auto text-xs text-(--text-muted) hover:text-(--text-primary) transition-colors cursor-pointer"
+              >
                 + Nouvel écrit
               </button>
             </div>
@@ -329,13 +416,21 @@ function EcritEducatifPage() {
           <div className={`${CARD_CLASS} flex items-center gap-4`}>
             <div
               className="w-5 h-5 rounded-full border-2 border-t-transparent animate-spin shrink-0"
-              style={{ borderColor: "var(--rose-fonce)", borderTopColor: "transparent" }}
+              style={{
+                borderColor: "var(--rose-fonce)",
+                borderTopColor: "transparent",
+              }}
             />
             <div className="flex flex-col gap-0.5">
-              <span key={loadingMessageIndex} className="text-sm text-(--text-secondary) animate-pulse transition-opacity duration-300">
+              <span
+                key={loadingMessageIndex}
+                className="text-sm text-(--text-secondary) animate-pulse transition-opacity duration-300"
+              >
                 {LOADING_MESSAGES[loadingMessageIndex]}
               </span>
-              <span className="text-[10px] text-(--text-muted) font-mono">{selectedModelId}</span>
+              <span className="text-[10px] text-(--text-muted) font-mono">
+                {selectedModelId}
+              </span>
             </div>
           </div>
         )}
@@ -351,7 +446,9 @@ function EcritEducatifPage() {
             onRegenerate={() => handleSubmit({ preventDefault: () => {} })}
             onArchived={handleArchived}
             validationText="Je confirme avoir relu, vérifié et, si besoin, corrigé cet écrit éducatif. Je reste l'auteur et le responsable de ce document. L'IA est un outil d'assistance, non un substitut au jugement professionnel."
-            generatedByModel={usedModel || { id: selectedModelId, name: selectedModelName }}
+            generatedByModel={
+              usedModel || { id: selectedModelId, name: selectedModelName }
+            }
             downloadMeta={{
               type: "ECRIT",
               interventionType: "Écrit éducatif",
@@ -359,7 +456,9 @@ function EcritEducatifPage() {
               companyName: organization?.name ?? "",
               educatorName: fullName,
               childName: selectedReferenceId
-                ? formatReferenceName(references.find((c) => c.id === selectedReferenceId) || {})
+                ? formatReferenceName(
+                    references.find((c) => c.id === selectedReferenceId) || {},
+                  )
                 : "",
               date: today,
               modelId: usedModel?.id || selectedModelId,
@@ -368,7 +467,10 @@ function EcritEducatifPage() {
           />
         )}
 
-        <GeneratingReportModal isOpen={showGeneratingModal} message={LOADING_MESSAGES[loadingMessageIndex]} />
+        <GeneratingReportModal
+          isOpen={showGeneratingModal}
+          message={LOADING_MESSAGES[loadingMessageIndex]}
+        />
       </div>
     </div>
   );

@@ -11,6 +11,7 @@ import { downloadDocx, triggerDownload } from '../../utils/wordExport';
 import { formatReportName } from '../../utils/reportNameFormatter';
 import { getDocTypeLabel, getDocColorFromLabel } from '../../utils/docTypeBadge';
 import { extractPreviewTextFromDocxBase64 } from '../../utils/docxPreview';
+import { AGENTS } from '../../constants/agents';
 
 const DRAFT_STORAGE_KEY = 'cr_intervention_draft';
 

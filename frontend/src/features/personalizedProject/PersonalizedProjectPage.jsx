@@ -24,8 +24,9 @@ import {
   REPORT_STATUS,
 } from "../../constants/ppa";
 import { CARD_CLASS, ROLE_LABELS } from "../../constants/shared";
+import { AGENTS } from "../../constants/agents";
 
-const ACCENT = "var(--orange)";
+const ACCENT = AGENTS.find((a) => a.id === 'ppa-medico-social')?.color ?? '#42C4A1';
 
 function inferStatus({ observations, result, isArchived }) {
   if (isArchived) return REPORT_STATUS.ARCHIVED;
@@ -366,7 +367,7 @@ function PersonalizedProjectPage() {
             <div className="flex flex-row gap-3">
               <Button
                 type="submit"
-                color="orange"
+                color={ACCENT}
                 size="md"
                 disabled={loading || !observations.trim()}
                 className="flex-1 md:flex-none"
@@ -374,7 +375,7 @@ function PersonalizedProjectPage() {
                 {loading ? "Génération en cours…" : "Générer le PPA"}
               </Button>
               <Button
-                color="green"
+                color={ACCENT}
                 size="md"
                 onClick={handleReset}
                 className="flex-1 md:hidden"

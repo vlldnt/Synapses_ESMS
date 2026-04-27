@@ -35,7 +35,9 @@ export default function Button({
   size = 'md',
   className = '',
 }) {
-  const colorClass = COLORS[color] ?? 'bg-transparent hover:bg-(--bg-tertiary) text-(--text-secondary) border-(--border)';
+  const isHex = typeof color === 'string' && color.startsWith('#');
+  const colorClass = isHex ? 'text-white border-transparent' : (COLORS[color] ?? 'bg-transparent hover:bg-(--bg-tertiary) text-(--text-secondary) border-(--border)');
+  const colorStyle = isHex ? { backgroundColor: color } : undefined;
   const sizeClass  = SIZES[size] ?? SIZES.md;
 
   return (
@@ -43,6 +45,7 @@ export default function Button({
       type={type}
       onClick={onClick}
       disabled={disabled}
+      style={colorStyle}
       className={`inline-flex items-center justify-center ${sizeClass} rounded-lg border font-medium transition-colors cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed ${colorClass} ${className}`}
     >
       {Icon && !iconRight && <Icon size={iconSize} />}

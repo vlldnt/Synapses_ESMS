@@ -1,6 +1,6 @@
 import { useSelector } from 'react-redux';
 import { Link, useLocation } from 'react-router-dom';
-import { AGENTS, AGENT_CARD_COLORS } from '../../constants/agents';
+import { AGENTS } from '../../constants/agents';
 
 function AgentTabs() {
   const location = useLocation();
@@ -17,7 +17,7 @@ function AgentTabs() {
       <div className="flex gap-0 w-full">
         {visibleAgents.map((agent) => {
           const isActive = location.pathname === agent.to;
-          const color = AGENT_CARD_COLORS[agent.id] || '#0D66D4';
+          const color = agent.color;
 
           return (
             <Link

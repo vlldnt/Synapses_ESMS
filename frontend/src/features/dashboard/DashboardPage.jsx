@@ -9,18 +9,13 @@ import { getEnrichedInfo } from '../../utils/documentEnricher';
 import { extractPreviewTextFromDocxBase64 } from '../../utils/docxPreview';
 import Button from '../../components/Button';
 import WordPreview from '../../components/WordPreview';
-import { AGENTS, AGENT_CARD_COLORS } from '../../constants/agents';
+import { AGENTS } from '../../constants/agents';
 import { getDocTypeLabel, getDocColorFromLabel } from '../../utils/docTypeBadge';
 import { FileText, ChevronRight, Download, X } from 'lucide-react';
 
-function getAgentAccentColor(agent) {
-  return AGENT_CARD_COLORS[agent.id] || '#0D66D4';
-}
-
-
 function AgentCard({ agent }) {
   const isAvailable = !!agent.to;
-  const color = getAgentAccentColor(agent);
+  const color = agent.color;
 
   const inner = (
     <div
