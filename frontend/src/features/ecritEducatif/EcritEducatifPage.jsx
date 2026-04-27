@@ -23,7 +23,7 @@ import {
 import { CARD_CLASS, ROLE_LABELS } from "../../constants/shared";
 import { AGENTS } from "../../constants/agents.js";
 
-const ACCENT = AGENTS.find((a) => a.id === "ecrit-educatif"?.color ?? "green");
+const ACCENT = AGENTS.find((a) => a.id === "ecrit-educatif"?.color);
 
 function inferStatus({ observations, result, isArchived }) {
   if (isArchived) return REPORT_STATUS.ARCHIVED;
@@ -263,7 +263,7 @@ function EcritEducatifPage() {
                   htmlFor="reference-select"
                   className="text-xs font-medium text-(--text-primary)"
                 >
-                  Personne concernée :
+                  Référence :
                 </label>
                 <select
                   id="reference-select"
@@ -271,7 +271,7 @@ function EcritEducatifPage() {
                   onChange={(e) => setSelectedReferenceId(e.target.value)}
                   className="rounded-xl border border-(--border) bg-(--bg-secondary) text-(--text-primary) px-4 py-2 text-base focus:outline-none transition-colors w-60"
                 >
-                  <option value="">Sélectionnez un bénéficiaire…</option>
+                  <option value="">Sélectionnez …</option>
                   {references.map((child) => (
                     <option key={child.id} value={child.id}>
                       {formatReferenceName(child)}

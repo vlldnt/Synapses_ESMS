@@ -263,7 +263,7 @@ function PpasSocialPage() {
               </div>
               <div className="w-px h-10 bg-(--border)" />
               <div className="flex flex-col gap-2">
-                <label htmlFor="reference-select" className="text-xs font-medium text-(--text-primary)">Personne concernée :</label>
+                <label htmlFor="reference-select" className="text-xs font-medium text-(--text-primary)">Référence:</label>
                 <select
                   id="reference-select"
                   value={selectedReferenceId}
@@ -271,7 +271,7 @@ function PpasSocialPage() {
                   className="rounded-xl border border-(--border) bg-(--bg-secondary) text-(--text-primary) px-4 py-2 text-base focus:outline-none transition-colors w-60"
                   style={{ "--tw-ring-color": ACCENT }}
                 >
-                  <option value="">Sélectionnez un bénéficiaire…</option>
+                  <option value="">Sélectionnez…</option>
                   {references.map((child) => (
                     <option key={child.id} value={child.id}>{formatReferenceName(child)}</option>
                   ))}
