@@ -26,7 +26,8 @@ const BASE = import.meta.env.VITE_BASENAME || '';
 
 export function getWsUrl() {
   const protocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
-  return `${protocol}//${location.host}/api/transcribe-ws`;
+  const base = (import.meta.env.VITE_BASENAME || '').replace(/\/$/, '');
+  return `${protocol}//${location.host}${base}/api/transcribe-ws`;
 }
 
 // Send a single audio chunk (webm blob) and get back transcribed text immediately.
