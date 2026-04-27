@@ -7,6 +7,19 @@ export default defineConfig({
   appType: 'spa',
   base: '/synapses/',
   plugins: [
+    {
+      name: 'redirect-base',
+      configureServer(server) {
+        server.middlewares.use((req, res, next) => {
+          if (req.url === '/synapses') {
+            res.writeHead(301, { Location: '/synapses/' });
+            res.end();
+            return;
+          }
+          next();
+        });
+      },
+    },
     react(),
     tailwindcss(),
     VitePWA({
