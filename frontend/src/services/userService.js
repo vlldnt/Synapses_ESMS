@@ -66,3 +66,25 @@ export async function getUsersByOrganization(organizationId) {
   }
   return usersCache.filter(u => u.organizationId === organizationId);
 }
+
+
+export async function updateUser(id, updates) {
+  try {
+    const response = await fetch(`${API_URL}/users/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(updates),
+    });
+
+    if (!response.ok) throw new Error(`Update failed: ${response.status}`);
+
+    const updated = await response.json();
+
+    // update local cache if present
+    usersCache = usersCache.map(u => (u.id === updated.id ? updated : u));
+    return updated;
+  } catch (err) {
+    console.warn('Error updating user:', err);
+    throw err;
+  }
+}
