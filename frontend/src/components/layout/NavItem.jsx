@@ -47,8 +47,8 @@ function NavItem({
           to={link}
           className={`flex flex-col items-center justify-center gap-0 min-h-14 px-0 py-0 rounded-md transition-colors duration-200 ${
             isActive
-              ? 'text-(--bleu-fonce) bg-(--bleu-fonce)/10 font-semibold'
-              : 'text-(--text-secondary) hover:bg-(--bleu-fonce)/10 hover:text-(--bleu-fonce)'
+              ? 'text-(--text-primary) bg-(--bleu-fonce)/10 font-semibold'
+              : 'text-(--text-secondary) hover:bg-(--bleu-fonce)/10 hover:text-(--text-primary)'
           }`}
         >
           {Icon && <Icon className="w-4 h-4 shrink-0" />}
@@ -67,8 +67,8 @@ function NavItem({
         to={link}
         className={`flex justify-start items-center w-full gap-3 px-5 py-3 text-sm transition-colors duration-200 rounded-xs ${
           isActive
-            ? 'text-(--bleu-fonce) bg-(--bg-tertiary) font-semibold border-l-4 border-(--bleu-fonce)'
-            : 'text-(--text-secondary) hover:bg-(--bg-tertiary) hover:text-(--bleu-fonce)'
+            ? 'text-(--text-primary) bg-(--bg-tertiary) font-semibold border-l-4 border-(--text-primary)'
+            : 'text-(--text-secondary) hover:bg-(--bg-tertiary) hover:text-(--text-primary)'
         }`}
       >
         {Icon && <Icon className="w-5 h-5" />}

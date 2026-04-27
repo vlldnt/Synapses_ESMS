@@ -114,33 +114,50 @@ function ArchivesPage() {
     });
   }, [filteredHistory, sortOrder]);
 
-    function findAgentForEntry(entry) {
-      const direct = (entry.type || entry.reportType || '').toString().toLowerCase();
-      const intervention = (entry.interventionType || '').toString().toLowerCase();
+  function findAgentForEntry(entry) {
+    const direct = (entry.type || entry.reportType || '')
+      .toString()
+      .toLowerCase();
+    const intervention = (entry.interventionType || '')
+      .toString()
+      .toLowerCase();
 
-      const byIdOrBadge = AGENTS.find((a) => {
-        const id = a.id.toLowerCase();
-        const badge = (a.badge || '').toLowerCase();
-        if (direct && (direct === id || direct.includes(id))) return true;
-        if (intervention && (intervention.includes(id) || intervention.includes(id.replace(/-/g, ' ')))) return true;
-        if (direct && direct === badge) return true;
-        return false;
-      });
-      if (byIdOrBadge) return byIdOrBadge;
+    const byIdOrBadge = AGENTS.find((a) => {
+      const id = a.id.toLowerCase();
+      const badge = (a.badge || '').toLowerCase();
+      if (direct && (direct === id || direct.includes(id))) return true;
+      if (
+        intervention &&
+        (intervention.includes(id) ||
+          intervention.includes(id.replace(/-/g, ' ')))
+      )
+        return true;
+      if (direct && direct === badge) return true;
+      return false;
+    });
+    if (byIdOrBadge) return byIdOrBadge;
 
-      if (intervention.includes('ppa')) {
-        if (intervention.includes('médico') || intervention.includes('medico')) {
-          return AGENTS.find((a) => a.id === 'ppa-medico-social') || null;
-        }
-        return AGENTS.find((a) => a.id === 'ppa-social') || AGENTS.find((a) => a.id === 'ppa-medico-social') || null;
+    if (intervention.includes('ppa')) {
+      if (intervention.includes('médico') || intervention.includes('medico')) {
+        return AGENTS.find((a) => a.id === 'ppa-medico-social') || null;
       }
-
-      if (intervention.includes('compte') || intervention.includes('intervention') || intervention.includes('compte rendu')) {
-        return AGENTS.find((a) => a.id === 'compte-rendu-intervention') || null;
-      }
-
-      return null;
+      return (
+        AGENTS.find((a) => a.id === 'ppa-social') ||
+        AGENTS.find((a) => a.id === 'ppa-medico-social') ||
+        null
+      );
     }
+
+    if (
+      intervention.includes('compte') ||
+      intervention.includes('intervention') ||
+      intervention.includes('compte rendu')
+    ) {
+      return AGENTS.find((a) => a.id === 'compte-rendu-intervention') || null;
+    }
+
+    return null;
+  }
 
   useEffect(() => {
     let cancelled = false;
@@ -325,8 +342,12 @@ function ArchivesPage() {
             <div className='divide-y divide-(--border)'>
               {sortedHistory.map((entry) => {
                 const agentForEntry = findAgentForEntry(entry);
-                const typeLabel = agentForEntry ? agentForEntry.badge : getDocTypeLabel(entry);
-                const docColor = agentForEntry ? agentForEntry.color : getDocColorFromLabel(typeLabel);
+                const typeLabel = agentForEntry
+                  ? agentForEntry.badge
+                  : getDocTypeLabel(entry);
+                const docColor = agentForEntry
+                  ? agentForEntry.color
+                  : getDocColorFromLabel(typeLabel);
                 const enriched = getEnrichedInfo(entry, users, organizations);
                 return (
                   <button
@@ -335,12 +356,6 @@ function ArchivesPage() {
                     onClick={() => setSelectedEntry(entry)}
                     className='w-full text-left px-5 py-4 flex items-center gap-3 hover:bg-(--bg-secondary) transition-colors cursor-pointer'
                   >
-                    <span
-                      className='inline-flex items-center justify-center px-2.5 h-7 rounded-full text-[11px] font-bold shrink-0 min-w-11 text-white'
-                      style={{ background: docColor }}
-                    >
-                      {typeLabel}
-                    </span>
                     <div className='min-w-0 flex-1'>
                       <p className='text-sm font-semibold text-(--text-primary) truncate'>
                         {formatReportName(entry)}
@@ -349,6 +364,12 @@ function ArchivesPage() {
                         {entry.interventionType} · {enriched.companyName}
                       </p>
                     </div>
+                    <span
+                      className='inline-flex items-center justify-center px-2.5 h-7 rounded-full text-[11px] font-bold shrink-0 min-w-11 text-white'
+                      style={{ background: docColor }}
+                    >
+                      {typeLabel}
+                    </span>
                     <div className='flex items-center gap-3 shrink-0'>
                       <div className='flex flex-col items-end gap-0.5'>
                         {entry.childName && (

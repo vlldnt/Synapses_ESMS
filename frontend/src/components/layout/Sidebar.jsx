@@ -41,8 +41,8 @@ function AgentsNavItem({ label, role }) {
         onClick={() => setOpen((o) => !o)}
         className={`flex justify-start items-center w-full gap-3 px-5 py-3 text-sm transition-colors duration-200 rounded-xs cursor-pointer ${
           isOnAgents
-            ? 'text-(--bleu-fonce) bg-(--bg-tertiary) font-semibold border-l-4 border-(--bleu-fonce)'
-            : 'text-(--text-secondary) hover:bg-(--bg-tertiary) hover:text-(--bleu-fonce)'
+            ? 'text-(--text-primary) bg-(--bg-tertiary) font-semibold border-l-4 border-(--text-primary)'
+            : 'text-(--text-secondary) hover:bg-(--bg-tertiary) hover:text-(--text-primary)'
         }`}
       >
         <BotMessageSquare className="w-5 h-5 shrink-0" />
@@ -78,10 +78,6 @@ function AgentsNavItem({ label, role }) {
                           : { color }
                       }
                     >
-                      <span
-                        className="w-1.5 h-1.5 rounded-full shrink-0"
-                        style={{ background: color, opacity: isActive ? 1 : 0.5 }}
-                      />
                       <span className="truncate">{agent.title}</span>
                     </NavLink>
                   ) : (
@@ -90,10 +86,6 @@ function AgentsNavItem({ label, role }) {
                       className="w-full flex items-center gap-2.5 px-3 py-2 text-xs rounded-lg transition-colors duration-150 cursor-pointer hover:bg-(--bg-secondary)"
                       style={{ color: 'var(--text-muted)', opacity: 0.5 }}
                     >
-                      <span
-                        className="w-1.5 h-1.5 rounded-full shrink-0"
-                        style={{ background: color, opacity: 0.4 }}
-                      />
                       <span className="truncate">{agent.title}</span>
                     </button>
                   )}
