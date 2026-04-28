@@ -11,7 +11,6 @@ class Jobs(Enum):
 class Status(Enum):
     active = "active"
     absent = "absent"
-    no_actif = "no_actif"
 
 class User(BaseModel):
     __tablename__ = 'users'

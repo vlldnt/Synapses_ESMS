@@ -4,12 +4,12 @@ from app.services import facade
 
 api = Namespace('organisation', description="organisation information")
 
-TYPE = ["T1", "T2", "T3"]
+TYPE = ['IME', 'ESMS', 'ESMS']
 
 """ Organisation model for input """
 organisation_model = api.model("organisation", {
     "name": fields.String(required=True, description="organisation name", example="org_1"),
-    "structure_type": fields.String(required=True, description="type of organisation", enum=TYPE, example="T1"),
+    "structure_type": fields.String(required=True, description="type of organisation", enum=TYPE, example="IME"),
     "description": fields.String(required=True, description="organisation description", example="je suis une description")
 })
 
@@ -40,12 +40,12 @@ class OrganisationList(Resource):
         return [org.to_dict() for org in all_org], 200
     
 @api.route('/<organisation_id>')
-class UserResource(Resource):
-    @api.response(200, 'user is successfully retrieved')
-    @api.response(404, 'the user does not exist')
+class OrganisationResource(Resource):
+    @api.response(200, 'organisation is successfully retrieved')
+    @api.response(404, 'the organisation does not exist')
 
     def get(self, organisation_id):
-        """get user by his id"""
+        """get organisation by his id"""
 
         organisation = facade.get_organisation(organisation_id)
         if not organisation:

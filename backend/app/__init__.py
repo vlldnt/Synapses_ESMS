@@ -11,6 +11,7 @@ jwt = JWTManager()
 from app.api.v1.users import api as users_ns
 from app.api.v1.auth import api as auth_ns
 from app.api.v1.organisation import api as org_ns
+from app.api.v1.references import api as ref_ns
 
 def createApp(config_class="config.DevelopmentConfig"):
     app = Flask(__name__)
@@ -30,6 +31,7 @@ def createApp(config_class="config.DevelopmentConfig"):
     api.add_namespace(users_ns, path='/api/v1/users')
     api.add_namespace(auth_ns, path='/api/v1/auth')
     api.add_namespace(org_ns,path='/api/v1/org')
+    api.add_namespace(ref_ns, path='/api/v1/ref')
 
     db.init_app(app)
     bcrypt.init_app(app)

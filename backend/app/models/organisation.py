@@ -4,15 +4,15 @@ from sqlalchemy.orm import relationship
 from enum import Enum
 
 class Type(Enum):
-    T1 = 'type1'
-    T2 = "type2"
-    T3 = 'type3'
+    IME = 'IME'
+    ESMS = 'ESMS'
+    EHPAD = 'EHPAD'
 
 class Organisation(BaseModel):
     __tablename__ = 'organisation'
 
     name = db.Column(db.String(50), nullable=False, unique=True)
-    structure_type = db.Column(db.Enum(Type), default=Type.T1, nullable=False)
+    structure_type = db.Column(db.Enum(Type), default=Type.IME, nullable=False)
     description = db.Column(db.String(1860), nullable=True)
 
     def to_dict(self):

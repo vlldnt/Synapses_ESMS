@@ -4,7 +4,7 @@ from app.services import facade
 
 api = Namespace('users', description="User operations")
 
-STATUS = ["active", "absent", "no_actif"]
+STATUS = ["active", "inactive"]
 JOBS = ["ED", "PS", "AS"]
 
 """ User Model for input"""
@@ -40,6 +40,10 @@ class UserList(Resource):
             existing_user = facade.get_user_by_email(user_data['email'])
             if existing_user:
                 api.abort(400, 'Email already in use')
+
+            org = facade.get_organisation(user_data['organisation_id'])
+            if not org:
+                api.abort(404, 'Organisation are not found')
 
             valid_inputs = ['first_name', 'last_name', 'email', 'password', 'job', 'is_admin', 'organisation_id', 'status']
             for key in user_data:
