@@ -14,7 +14,7 @@ export function getDocumentCreatorId(document) {
 
 export function enrichDocument(document, users = [], organizations = []) {
   const creatorId = getDocumentCreatorId(document);
-  const creator = users.find(u => u.id === creatorId);
+  const creator = users.find((u) => u.id === creatorId);
   if (!creator) {
     return {
       ...document,
@@ -24,7 +24,7 @@ export function enrichDocument(document, users = [], organizations = []) {
     };
   }
 
-  const org = organizations.find(o => o.id === creator.organizationId);
+  const org = organizations.find((o) => o.id === creator.organizationId);
 
   return {
     ...document,
@@ -38,7 +38,7 @@ export function enrichDocument(document, users = [], organizations = []) {
  * Batch enrichissement pour une liste de documents
  */
 export function enrichDocuments(documents, users = [], organizations = []) {
-  return documents.map(doc => enrichDocument(doc, users, organizations));
+  return documents.map((doc) => enrichDocument(doc, users, organizations));
 }
 
 /**
@@ -46,12 +46,12 @@ export function enrichDocuments(documents, users = [], organizations = []) {
  */
 export function getEnrichedInfo(document, users = [], organizations = []) {
   const creatorId = getDocumentCreatorId(document);
-  const creator = users.find(u => u.id === creatorId);
-  const org = organizations.find(o => o.id === creator?.organizationId);
+  const creator = users.find((u) => u.id === creatorId);
+  const org = organizations.find((o) => o.id === creator?.organizationId);
 
   return {
-    educatorName: creator ? `${creator.firstName} ${creator.lastName}` : '—',
-    structureType: org?.type || '—',
-    companyName: org?.name || '—',
+    educatorName: creator ? `${creator.firstName} ${creator.lastName}` : '-',
+    structureType: org?.type || '-',
+    companyName: org?.name || '-',
   };
 }

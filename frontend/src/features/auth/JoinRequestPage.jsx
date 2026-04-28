@@ -4,39 +4,44 @@ import faviconUrl from '/favicon.png';
 import { getStructureTypeCategories } from '../../services/structureTypeService';
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const PASSWORD_REGEX = /^(?=.*[A-Z])(?=.*[0-9])(?=.*[^a-zA-Z0-9]).{8,}$/;
 const MAX = { orgName: 100, structureType: 80, firstName: 50, lastName: 50, contactEmail: 150 };
 
-function validate(fields) {
-  if (!fields.orgName.trim()) return 'Le nom de la structure est requis.';
-  if (!fields.structureType) return 'Le type de structure est requis.';
-  if (!fields.firstName.trim()) return 'Le prénom est requis.';
-  if (!fields.lastName.trim()) return 'Le nom est requis.';
-  if (!fields.contactEmail.trim()) return "L'email est requis.";
-  if (!EMAIL_REGEX.test(fields.contactEmail)) return 'Adresse email invalide.';
-  if (!PASSWORD_REGEX.test(fields.password)) return 'Mot de passe : 8 caractères min, 1 majuscule, 1 chiffre, 1 caractère spécial.';
-  if (fields.password !== fields.confirmPassword) return 'Les mots de passe ne correspondent pas.';
-  return null;
+function getErrors(fields) {
+  const e = {};
+  if (!fields.orgName.trim()) e.orgName = true;
+  if (!fields.structureType) e.structureType = true;
+  if (!fields.firstName.trim()) e.firstName = true;
+  if (!fields.lastName.trim()) e.lastName = true;
+  if (!fields.contactEmail.trim() || !EMAIL_REGEX.test(fields.contactEmail)) e.contactEmail = true;
+  return e;
 }
 
 function JoinRequestPage() {
   const loadedAt = useRef(Date.now());
 
   const [fields, setFields] = useState({
-    orgName: '', structureType: '', firstName: '', lastName: '',
-    contactEmail: '', password: '', confirmPassword: '',
+    orgName: '',
+    structureType: '',
+    description: '',
+    firstName: '',
+    lastName: '',
+    contactEmail: '',
   });
   const [categories, setCategories] = useState([]);
   const [honeypot, setHoneypot] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [result, setResult] = useState(null);
+  const [fieldErrors, setFieldErrors] = useState({});
 
   useEffect(() => {
     getStructureTypeCategories().then(setCategories).catch(() => {});
   }, []);
 
   function set(key) {
-    return (e) => setFields((f) => ({ ...f, [key]: e.target.value }));
+    return (e) => {
+      setFields((f) => ({ ...f, [key]: e.target.value }));
+      setFieldErrors((prev) => ({ ...prev, [key]: false }));
+    };
   }
 
   async function handleSubmit(e) {
@@ -46,9 +51,14 @@ function JoinRequestPage() {
       setResult({ ok: false, msg: 'Soumission trop rapide, veuillez réessayer.' });
       return;
     }
-    const error = validate(fields);
-    if (error) { setResult({ ok: false, msg: error }); return; }
+    const errors = getErrors(fields);
+    if (Object.keys(errors).length > 0) {
+      setFieldErrors(errors);
+      setResult({ ok: false, msg: 'Veuillez remplir tous les champs obligatoires.' });
+      return;
+    }
 
+    setFieldErrors({});
     setSubmitting(true);
     setResult(null);
 
@@ -60,10 +70,10 @@ function JoinRequestPage() {
         body: JSON.stringify({
           orgName: fields.orgName,
           structureType: fields.structureType,
+          description: fields.description,
           firstName: fields.firstName,
           lastName: fields.lastName,
           contactEmail: fields.contactEmail,
-          password: fields.password,
           _hp: honeypot,
           _t: loadedAt.current,
         }),
@@ -71,11 +81,13 @@ function JoinRequestPage() {
 
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
-        throw new Error(data.error || `Erreur ${res.status}`);
+        const errMsg = data.error || `Erreur ${res.status}`;
+        if (errMsg.includes('manquants')) setFieldErrors(getErrors(fields));
+        throw new Error(errMsg);
       }
 
-      setResult({ ok: true, msg: 'Demande envoyée ! Vérifiez votre email pour confirmer votre compte.' });
-      setFields({ orgName: '', structureType: '', firstName: '', lastName: '', contactEmail: '', password: '', confirmPassword: '' });
+      setResult({ ok: true });
+      setFields({ orgName: '', structureType: '', description: '', firstName: '', lastName: '', contactEmail: '' });
     } catch (err) {
       setResult({ ok: false, msg: err.message || "Échec de l'envoi, veuillez réessayer." });
     } finally {
@@ -84,44 +96,58 @@ function JoinRequestPage() {
   }
 
   const inputClass = 'w-full px-3 py-2 md:px-4 md:py-2.5 rounded-lg border bg-(--bg-secondary) text-(--text-primary) border-(--border)';
+  const errCls = (key) => fieldErrors[key] ? 'border-red-500 focus:ring-red-400/40' : '';
 
-  const passwordOk = PASSWORD_REGEX.test(fields.password);
-  const confirmOk = fields.confirmPassword && fields.password === fields.confirmPassword;
+  if (result?.ok) {
+    return (
+      <div className='min-h-dvh flex items-center justify-center bg-synapses-animated px-3 py-6'>
+        <div className='w-full max-w-md bg-(--bg-primary)/90 backdrop-blur-sm rounded-3xl shadow-2xl px-6 py-8 border border-(--border)/50 flex flex-col items-center gap-4 text-center'>
+          <img className='h-16 w-16' src={faviconUrl} alt='Logo Synapses' />
+          <h2 className='text-xl font-semibold text-(--text-primary)'>Demande envoyée !</h2>
+          <p className='text-sm text-(--text-muted)'>
+            Un email a été envoyé à <strong>{fields.contactEmail || 'votre adresse'}</strong>. Cliquez sur le lien pour créer votre mot de passe et activer votre compte.
+          </p>
+          <Link to='/login' className='mt-2 text-sm text-[#1294C3] hover:underline'>
+            Retour à la connexion
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div id="join-request-page" className="min-h-dvh flex items-center justify-center bg-synapses-animated px-3 py-6">
-      <div className="absolute hidden md:flex left-2 top-2">
-        <Link className="flex flex-row justify-center items-center gap-3 px-5 py-6" to="/login">
-          <img className="h-10" src={faviconUrl} alt="Logo Synapses" />
-          <span className="md:text-xl font-bold text-white dark:text-gray-200" style={{ fontFamily: 'Ailerons' }}>
+    <div id='join-request-page' className='min-h-dvh flex items-center justify-center bg-synapses-animated px-3 py-6'>
+      <div className='absolute hidden md:flex left-2 top-2'>
+        <Link className='flex flex-row justify-center items-center gap-3 px-5 py-6' to='/login'>
+          <img className='h-10' src={faviconUrl} alt='Logo Synapses' />
+          <span className='md:text-xl font-bold text-white dark:text-gray-200' style={{ fontFamily: 'Ailerons' }}>
             Synapses ESMS
           </span>
         </Link>
       </div>
 
-      <div className="w-full max-w-xl mx-2 md:mx-4 bg-(--bg-primary)/90 backdrop-blur-sm rounded-3xl md:rounded-4xl shadow-2xl px-5 pb-5 pt-3 md:px-8 md:pb-8 md:pt-4 border border-(--border)/50">
-        <div className="flex flex-col w-full items-center mb-4 md:mb-6">
-          <img className="h-20 w-20 md:h-28 md:w-28 drop-shadow-lg" src={faviconUrl} alt="Logo Synapses" />
-          <h1 className="text-[24px] md:text-[36px] text-(--text-primary) tracking-wide font-bold" style={{ fontFamily: 'Ailerons' }}>
+      <div className='w-full max-w-xl mx-2 md:mx-4 bg-(--bg-primary)/90 backdrop-blur-sm rounded-3xl md:rounded-4xl shadow-2xl px-5 pb-5 pt-3 md:px-8 md:pb-8 md:pt-4 border border-(--border)/50'>
+        <div className='flex flex-col w-full items-center mb-4 md:mb-6'>
+          <img className='h-20 w-20 md:h-28 md:w-28 drop-shadow-lg' src={faviconUrl} alt='Logo Synapses' />
+          <h1 className='text-[24px] md:text-[36px] text-(--text-primary) tracking-wide font-bold' style={{ fontFamily: 'Ailerons' }}>
             Rejoindre Synapses
           </h1>
-          <p className="text-(--text-muted) text-center text-xs md:text-sm w-full mt-2">
+          <p className='text-(--text-muted) text-center text-xs md:text-sm w-full mt-2'>
             Demande d'ouverture de structure
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="flex flex-col gap-3 md:gap-4">
-          {/* honeypot */}
-          <input type="text" name="website" value={honeypot} onChange={(e) => setHoneypot(e.target.value)}
-            tabIndex={-1} aria-hidden="true"
+        <form onSubmit={handleSubmit} className='flex flex-col gap-3 md:gap-4'>
+          <input type='text' name='website' value={honeypot} onChange={(e) => setHoneypot(e.target.value)}
+            tabIndex={-1} aria-hidden='true'
             style={{ position: 'absolute', opacity: 0, height: 0, width: 0, pointerEvents: 'none' }} />
 
           <input required value={fields.orgName} onChange={set('orgName')} maxLength={MAX.orgName}
-            className={inputClass} placeholder="Nom de la structure" />
+            className={`${inputClass} ${errCls('orgName')}`} placeholder='Nom de la structure' />
 
           <select required value={fields.structureType} onChange={set('structureType')}
-            className={`${inputClass} ${!fields.structureType ? 'text-(--text-muted)' : ''}`}>
-            <option value="" disabled>Type de structure</option>
+            className={`${inputClass} ${!fields.structureType ? 'text-(--text-muted)' : ''} ${errCls('structureType')}`}>
+            <option value='' disabled>Type de structure</option>
             {categories.map((cat) => (
               <optgroup key={cat.label} label={cat.label}>
                 {cat.options.map((opt) => <option key={opt} value={opt}>{opt}</option>)}
@@ -129,42 +155,36 @@ function JoinRequestPage() {
             ))}
           </select>
 
-          <div className="grid grid-cols-2 gap-3">
+          <textarea
+            value={fields.description}
+            onChange={set('description')}
+            maxLength={300}
+            rows={2}
+            className={`${inputClass} resize-none`}
+            placeholder='Description (optionnel)'
+          />
+
+          <div className='grid grid-cols-2 gap-3'>
             <input required value={fields.firstName} onChange={set('firstName')} maxLength={MAX.firstName}
-              className={inputClass} placeholder="Prénom" />
+              className={`${inputClass} ${errCls('firstName')}`} placeholder='Prénom' />
             <input required value={fields.lastName} onChange={set('lastName')} maxLength={MAX.lastName}
-              className={inputClass} placeholder="Nom" />
+              className={`${inputClass} ${errCls('lastName')}`} placeholder='Nom' />
           </div>
 
-          <input required type="email" value={fields.contactEmail} onChange={set('contactEmail')}
-            maxLength={MAX.contactEmail} className={inputClass} placeholder="Email" autoComplete="email" />
+          <input required type='email' value={fields.contactEmail} onChange={set('contactEmail')}
+            maxLength={MAX.contactEmail} className={`${inputClass} ${errCls('contactEmail')}`} placeholder='Email' autoComplete='email' />
 
-          <div className="flex flex-col gap-1">
-            <input required type="password" value={fields.password} onChange={set('password')}
-              className={`${inputClass} ${fields.password ? (passwordOk ? 'border-green-500' : 'border-red-400') : ''}`}
-              placeholder="Mot de passe" autoComplete="new-password" />
-            <p className="text-[11px] text-(--text-muted) px-1">
-              8 caractères min · 1 majuscule · 1 chiffre · 1 caractère spécial
-            </p>
-          </div>
-
-          <input required type="password" value={fields.confirmPassword} onChange={set('confirmPassword')}
-            className={`${inputClass} ${fields.confirmPassword ? (confirmOk ? 'border-green-500' : 'border-red-400') : ''}`}
-            placeholder="Confirmer le mot de passe" autoComplete="new-password" />
-
-          <button type="submit" disabled={submitting || result?.ok}
-            className="mt-1 w-full py-2.5 md:py-3 rounded-lg text-white font-medium cursor-pointer text-sm md:text-base bg-[#1294C3] hover:bg-[#0D66D4] disabled:opacity-60 transition-all duration-200">
+          <button type='submit' disabled={submitting}
+            className='mt-1 w-full py-2.5 md:py-3 rounded-lg text-white font-medium cursor-pointer text-sm md:text-base bg-[#1294C3] hover:bg-[#0D66D4] disabled:opacity-60 transition-all duration-200'>
             {submitting ? 'Envoi...' : 'Envoyer ma demande'}
           </button>
 
-          {result && (
-            <p className={`text-sm text-center ${result.ok ? 'text-emerald-600' : 'text-red-500'}`}>
-              {result.msg}
-            </p>
+          {result?.msg && (
+            <p className='text-sm text-center text-red-500'>{result.msg}</p>
           )}
 
-          <div className="text-center mt-1">
-            <Link to="/login" className="text-xs text-(--text-muted) hover:underline">
+          <div className='text-center mt-1'>
+            <Link to='/login' className='text-xs text-(--text-muted) hover:underline'>
               Retour à la connexion
             </Link>
           </div>

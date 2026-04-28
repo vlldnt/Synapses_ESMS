@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useDispatch } from 'react-redux';
+import { logout } from '../../services/authServices';
 import { useNavigate } from 'react-router-dom';
 import {
   X,
@@ -13,7 +13,6 @@ import faviconUrl from '/favicon.png';
 import { useCurrentUser } from '../../hooks/useCurrentUser';
 import { getReferencesByEducator } from '../../services/referenceService';
 import { getHistory } from '../../services/historyService';
-import { setLogged } from '../../store/authSlice';
 
 function ReferenceItem({ reference }) {
   const initials =
@@ -47,7 +46,6 @@ function ReferenceItem({ reference }) {
 
 function ProfileModal({ onClose }) {
   const { user, organization, initials, fullName } = useCurrentUser();
-  const dispatch = useDispatch();
   const navigate = useNavigate();
 
   const [references, setReferences] = useState([]);
@@ -68,7 +66,7 @@ function ProfileModal({ onClose }) {
   }, [user?.id]);
 
   const handleLogout = () => {
-    dispatch(setLogged(false));
+    logout();
     onClose();
   };
 

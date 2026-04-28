@@ -13,6 +13,8 @@ import TopBar from './components/layout/TopBar';
 import AgentTabs from './components/layout/AgentTabs';
 import LoginPage from './features/auth/LoginPage';
 import JoinRequestPage from './features/auth/JoinRequestPage';
+import SetPasswordPage from './features/auth/SetPasswordPage';
+import SetAccountPage from './features/auth/SetAccountPage';
 import DashboardPage from './features/dashboard/DashboardPage';
 import InterventionReportPage from './features/interventionReport/InterventionReportPage';
 import PersonalizedProjectPage from './features/personalizedProject/PersonalizedProjectPage';
@@ -102,6 +104,8 @@ function App() {
         <Routes>
           <Route path="/login" element={<LoginPage />} />
           <Route path="/rejoindre" element={<JoinRequestPage />} />
+          <Route path="/set-password/:token" element={<SetPasswordPage />} />
+          <Route path="/set-account/:token" element={<SetAccountPage />} />
           <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>
       ) : (

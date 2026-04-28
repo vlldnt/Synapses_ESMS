@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { setLogged } from '../../store/authSlice';
+import { logout } from '../../services/authServices';
 import { setTheme } from '../../store/themeSlice';
 import { setRole } from '../../store/roleSlice';
 import { useCurrentUser } from '../../hooks/useCurrentUser';
@@ -44,7 +44,7 @@ function ProfileDropdown({ photo = null, mobile = false }) {
   }, []);
 
   const handleLogout = () => {
-    dispatch(setLogged(false));
+    logout();
     setOpen(false);
   };
 

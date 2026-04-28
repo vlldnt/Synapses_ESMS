@@ -28,7 +28,7 @@ function AgentsNavItem({ label, role }) {
   const navigate = useNavigate();
   const agentRoutes = AGENTS.filter((a) => a.to).map((a) => a.to);
   const isOnAgents = agentRoutes.some((r) => location.pathname === r);
-  const [open, setOpen] = useState(true);
+  const [open, setOpen] = useState(false);
 
   useEffect(() => {
     if (isOnAgents) setOpen(true);

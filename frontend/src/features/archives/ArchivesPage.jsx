@@ -51,8 +51,8 @@ function ArchivesPage() {
           fetch(`${basename}/api/organizations`).then((r) => r.json()),
         ]);
         setHistory(archives);
-        setUsers(usersData);
-        setOrganizations(orgsData);
+        setUsers(Array.isArray(usersData) ? usersData : []);
+        setOrganizations(Array.isArray(orgsData) ? orgsData : []);
       } catch (err) {
         console.error('Failed to load history:', err);
         setHistory([]);

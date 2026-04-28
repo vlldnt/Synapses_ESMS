@@ -1,16 +1,16 @@
 [
   {
-    "id": "19fc82ee-9ce4-4733-87e7-bfdfa93c0928",
-    "orgName": "SYnapsessss",
-    "structureType": "Lieu de vie et d'accueil",
+    "id": "7549c731-cbea-42ba-9ecb-926857144f99",
+    "orgName": "Synapses",
+    "structureType": "EHPAD",
+    "description": "",
     "firstName": "Adrien",
     "lastName": "Vieilledent",
     "contactEmail": "vieilledent.adrien@gmail.com",
-    "hashedPassword": "$2b$12$7OcNHR3inFhlqJPVicP2wOJCo/6GSL9O4Ky.HbhPqZv6PxenCyDEO",
     "status": "approved",
     "verificationToken": null,
-    "verificationExpiry": "2026-04-28T20:25:58.338Z",
-    "createdAt": "2026-04-27T20:25:58.338Z",
-    "approvedAt": "2026-04-27T20:28:09.780Z"
+    "verificationExpiry": "2026-04-29T09:31:01.447Z",
+    "createdAt": "2026-04-28T09:31:01.447Z",
+    "approvedAt": "2026-04-28T09:31:34.293Z"
   }
 ]

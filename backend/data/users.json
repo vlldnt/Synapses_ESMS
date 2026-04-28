@@ -1,26 +1,27 @@
 [
   {
-    "id": "fb5e3080-9538-491c-a562-25d34a2987c4",
-    "firstName": "Marie",
-    "lastName": "Dupont",
-    "email": "marie.dupont@synapses.fr",
-    "hashedPassword": "$2b$12$tjZEkC/4aUTQazExHcRwI.Te4hF6wnX2yH0yfUF84Mm/8uWKIKrCK",
-    "job": "Administratrice",
-    "organizationId": "056350bf-5e63-4123-8759-636dd09272f1",
-    "is_admin": true,
-    "status": "active",
-    "createdAt": "2024-01-15T09:00:00.000Z"
-  },
-  {
-    "id": "b71fbd90-8088-475d-b215-2ac2b5eb1edb",
+    "id": "09eca25d-d955-4136-93f2-4467f2df37eb",
     "firstName": "Adrien",
     "lastName": "Vieilledent",
-    "email": "vieilledent.adrien@gmail.com",
-    "hashedPassword": "$2b$12$7OcNHR3inFhlqJPVicP2wOJCo/6GSL9O4Ky.HbhPqZv6PxenCyDEO",
+    "email": "admin@synapses.fr",
+    "hashedPassword": "$2b$12$ma.Pk5eFcDIKFn0U8Nucsum8GWt379tC294xQeTggqKeLhCbxUVYy",
     "job": "Administrateur",
-    "organizationId": "50cc40b3-88c9-4911-bfb4-98054a5c7759",
+    "organizationId": "b8178a42-d8b8-41dc-ab43-5ff4743313d3",
     "is_admin": true,
     "status": "active",
-    "createdAt": "2026-04-27T20:28:09.780Z"
+    "createdAt": "2026-04-28T09:31:34.293Z"
+  },
+  {
+    "id": "0a4c4dd9-d7bc-44a0-9a89-706ffe5305d6",
+    "firstName": "Tom",
+    "lastName": "Vieilldent",
+    "email": "tomvieilledent@gmail.com",
+    "hashedPassword": "$2b$12$h8WvhX4VjniSX6CmKy6aTuuXhjS4bsxeojHPXDTmhA.5XC.MdU6c6",
+    "job": "Secrétaire",
+    "role": "agent",
+    "organizationId": "b8178a42-d8b8-41dc-ab43-5ff4743313d3",
+    "is_admin": false,
+    "status": "active",
+    "createdAt": "2026-04-28T10:54:44.367Z"
   }
 ]

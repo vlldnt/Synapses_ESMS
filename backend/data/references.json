@@ -1,44 +1,10 @@
 [
   {
-    "id": "ref_001",
-    "firstName": "Yousra",
-    "lastName": "Meddah",
-    "educator": "usr_002",
-    "organizationId": "org_001"
-  },
-  {
-    "id": "ref_002",
-    "firstName": "Lucas",
-    "lastName": "Durand",
-    "educator": "usr_002",
-    "organizationId": "org_001"
-  },
-  {
-    "id": "ref_003",
-    "firstName": "Emma",
-    "lastName": "Bernard",
-    "educator": "usr_003",
-    "organizationId": "org_001"
-  },
-  {
-    "id": "ref_004",
-    "firstName": "Chen",
-    "lastName": "Kwong",
-    "educator": "usr_002",
-    "organizationId": "org_001"
-  },
-  {
-    "id": "ref_005",
-    "firstName": "Erwan",
-    "lastName": "Janssen",
-    "educator": "usr_003",
-    "organizationId": "org_001"
-  },
-  {
-    "id": "ref_006",
-    "firstName": "Hugo",
-    "lastName": "Olivier",
-    "educator": "usr_002",
-    "organizationId": "org_001"
+    "id": "7fe7978d-72f4-4cc8-94e6-f76bd9dbdd65",
+    "firstName": "Tom",
+    "lastName": "Vieilledent",
+    "educator": "09eca25d-d955-4136-93f2-4467f2df37eb",
+    "organizationId": "b8178a42-d8b8-41dc-ab43-5ff4743313d3",
+    "createdAt": "2026-04-28T11:51:18.363Z"
   }
 ]
