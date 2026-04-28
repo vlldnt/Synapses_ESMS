@@ -43,7 +43,7 @@ function AgentsNavItem({ label, role }) {
         onClick={() => setOpen((o) => !o)}
         className={`flex justify-start items-center w-full gap-3 px-5 py-3 text-sm transition-colors duration-200 rounded-xs cursor-pointer ${
           isOnAgents
-            ? 'text-(--text-primary) bg-(--bg-tertiary) font-semibold border-l-4 border-(--text-primary)'
+            ? 'text-[#1294C3] bg-[#1294C3]/10 font-semibold border-l-4 border-[#1294C3]'
             : 'text-(--text-secondary) hover:bg-(--bg-tertiary) hover:text-(--text-primary)'
         }`}
       >

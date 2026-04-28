@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import faviconUrl from '/favicon.png';
 import { setUser, setLogged } from '../../store/authSlice';
@@ -9,7 +9,6 @@ const PASSWORD_REGEX = /^(?=.*[A-Z])(?=.*[0-9])(?=.*[^a-zA-Z0-9]).{8,}$/;
 
 function SetAccountPage() {
   const { token } = useParams();
-  const navigate = useNavigate();
   const dispatch = useDispatch();
 
   const [info, setInfo] = useState(null);
@@ -18,6 +17,7 @@ function SetAccountPage() {
   const [confirm, setConfirm] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState(false);
 
   const basename = import.meta.env.VITE_BASENAME || '';
 
@@ -52,18 +52,19 @@ function SetAccountPage() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || `Erreur ${res.status}`);
 
-      localStorage.setItem('auth_token', data.token);
-      try {
-        const payload = JSON.parse(atob(data.token.split('.')[1]));
-        dispatch(setRole(payload.is_admin ? 'admin' : 'agent'));
-      } catch { /* ignore */ }
+      setSuccess(true);
 
-      const { is_admin, ...safeUser } = data.user;
-      localStorage.setItem('auth_user', JSON.stringify(safeUser));
-      dispatch(setUser(safeUser));
-      dispatch(setLogged(true));
-
-      navigate('/', { replace: true });
+      setTimeout(() => {
+        localStorage.setItem('auth_token', data.token);
+        try {
+          const payload = JSON.parse(atob(data.token.split('.')[1]));
+          dispatch(setRole(payload.is_admin ? 'admin' : 'agent'));
+        } catch { /* ignore */ }
+        const { is_admin, ...safeUser } = data.user;
+        localStorage.setItem('auth_user', JSON.stringify(safeUser));
+        dispatch(setUser(safeUser));
+        dispatch(setLogged(true));
+      }, 2000);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -74,6 +75,25 @@ function SetAccountPage() {
   const passwordOk = PASSWORD_REGEX.test(password);
   const confirmOk = confirm && password === confirm;
   const inputClass = 'w-full px-4 py-2.5 rounded-lg border bg-(--bg-secondary) text-(--text-primary) border-(--border) focus:outline-none focus:ring-2 focus:ring-[#1294C3]/40';
+
+  if (success) {
+    return (
+      <div className='min-h-dvh flex items-center justify-center bg-synapses-animated px-3'>
+        <div className='flex flex-col items-center gap-4 text-center'>
+          <div className='w-20 h-20 rounded-full bg-green-500/10 flex items-center justify-center'>
+            <svg className='w-10 h-10 text-green-500' fill='none' viewBox='0 0 24 24' stroke='currentColor' strokeWidth={2}>
+              <path strokeLinecap='round' strokeLinejoin='round' d='M5 13l4 4L19 7' />
+            </svg>
+          </div>
+          <div>
+            <h2 className='text-2xl font-bold text-white' style={{ fontFamily: 'Ailerons' }}>Bravo !</h2>
+            <p className='text-white/80 text-sm mt-1'>Votre compte a été créé avec succès.</p>
+            <p className='text-white/50 text-xs mt-2'>Redirection vers le tableau de bord…</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className='min-h-dvh flex items-center justify-center bg-synapses-animated px-3 py-6'>
@@ -93,11 +113,11 @@ function SetAccountPage() {
           <p className='text-center text-sm text-(--text-muted)'>Vérification du lien…</p>
         ) : (
           <>
-            <div className='mb-6 p-4 rounded-xl bg-(--bg-secondary) border border-(--border) text-sm'>
+            <div className='mb-5 p-4 rounded-xl bg-(--bg-secondary) border border-(--border) text-sm flex flex-col gap-0.5'>
               <p className='font-semibold text-(--text-primary)'>{info.firstName} {info.lastName}</p>
-              <p className='text-(--text-muted) text-xs mt-0.5'>{info.email}</p>
-              {info.job && <p className='text-(--text-muted) text-xs mt-0.5'>{info.job}</p>}
-              <p className='text-(--text-muted) text-xs mt-1'>{info.orgName}</p>
+              {info.job && <p className='text-(--text-muted) text-xs'>{info.job}</p>}
+              <p className='text-(--text-muted) text-xs'>{info.orgName}</p>
+              <p className='text-(--text-muted) text-xs'>{info.email}</p>
             </div>
 
             <p className='text-sm text-(--text-muted) mb-4'>Créez votre mot de passe pour activer votre compte.</p>

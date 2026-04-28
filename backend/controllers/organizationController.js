@@ -24,16 +24,6 @@ router.get('/prompts', async (req, res) => {
   }
 });
 
-// GET /api/structure-types — public, shared
-router.get('/structure-types', async (req, res) => {
-  try {
-    const types = await loadJsonFile('structureTypes.json');
-    res.json(types);
-  } catch {
-    res.status(500).json({ error: 'Failed to load structure types' });
-  }
-});
-
 // GET /api/reference — shared reference data (singular)
 router.get('/reference', async (req, res) => {
   try {

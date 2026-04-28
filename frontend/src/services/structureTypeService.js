@@ -1,27 +1,9 @@
-import { authFetch } from './authServices';
+import { STRUCTURE_TYPES, getStructureTypeCategories as getCategories } from '../constants/structureTypes';
 
-const API_URL = './api';
-
-let structureTypesCache = null;
-
-async function fetchStructureTypes() {
-  try {
-    const response = await authFetch(`${API_URL}/structure-types`);
-    if (!response.ok) throw new Error(`API error: ${response.status}`);
-    structureTypesCache = await response.json();
-    return structureTypesCache;
-  } catch (err) {
-    console.warn('Error fetching structure types:', err);
-    return structureTypesCache || { categories: [] };
-  }
+export function getStructureTypes() {
+  return STRUCTURE_TYPES;
 }
 
-export async function getStructureTypes() {
-  if (!structureTypesCache) await fetchStructureTypes();
-  return structureTypesCache;
-}
-
-export async function getStructureTypeCategories() {
-  const types = await getStructureTypes();
-  return types.categories || [];
+export function getStructureTypeCategories() {
+  return Promise.resolve(getCategories());
 }

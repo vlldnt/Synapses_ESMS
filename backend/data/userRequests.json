@@ -1,0 +1,32 @@
+[
+  {
+    "id": "87075ad8-afbd-4b8a-ba20-ef522958e4fd",
+    "firstName": "Adrien",
+    "lastName": "Vieilledent",
+    "email": "vieilledent.adrien@gmail.com",
+    "job": "Éducateur(rice) spécialisé(e)",
+    "role": "agent",
+    "organizationId": "b8178a42-d8b8-41dc-ab43-5ff4743313d3",
+    "is_admin": false,
+    "verificationToken": null,
+    "verificationExpiry": "2026-04-28T12:29:28.423Z",
+    "status": "accepted",
+    "createdAt": "2026-04-28T12:14:28.423Z",
+    "acceptedAt": "2026-04-28T12:15:37.485Z"
+  },
+  {
+    "id": "f4496f64-8fc1-4f42-bc03-656409b51b62",
+    "firstName": "Adri",
+    "lastName": "Hein",
+    "email": "9863@holbertonstudents.com",
+    "job": "Moniteur(rice) éducateur(rice)",
+    "role": "agent",
+    "organizationId": "b8178a42-d8b8-41dc-ab43-5ff4743313d3",
+    "is_admin": false,
+    "verificationToken": null,
+    "verificationExpiry": "2026-04-28T12:31:30.192Z",
+    "status": "accepted",
+    "createdAt": "2026-04-28T12:16:30.193Z",
+    "acceptedAt": "2026-04-28T12:18:24.479Z"
+  }
+]

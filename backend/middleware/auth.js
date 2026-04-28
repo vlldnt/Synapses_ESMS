@@ -17,7 +17,7 @@ export function globalAuthGuard(req, res, next) {
   const isPublic =
     (m === 'POST' && p === '/login') ||
     (m === 'POST' && p === '/organization-requests') ||
-    (m === 'GET' && p === '/structure-types') ||
+
     (m === 'GET' && p.startsWith('/organization-requests/info/')) ||
     (m === 'POST' && p.startsWith('/organization-requests/complete/')) ||
     (m === 'GET' && p.startsWith('/user-requests/info/')) ||

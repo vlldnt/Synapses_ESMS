@@ -115,7 +115,6 @@ Toutes les routes `/api/*` sont protégées par JWT (`Authorization: Bearer <tok
 |---------|-------|------|-------------|
 | `GET` | `/api/organizations` | JWT | Retourne l'organisation du requérant (tableau à 1 élément) |
 | `GET` | `/api/prompts` | JWT | Liste les prompts IA (communs à toutes les orgs) |
-| `GET` | `/api/structure-types` | public | Liste les types de structures ESMS |
 | `GET` | `/api/reference` | JWT | Données de référence globales (reference.json) |
 
 ---
