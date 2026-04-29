@@ -1,18 +1,16 @@
 [
   {
     "id": "arch_1777377142741",
-    "creatorId": "09eca25d-d955-4136-93f2-4467f2df37eb",
-    "documentId": 1777377142741,
-    "organizationId": "b8178a42-d8b8-41dc-ab43-5ff4743313d3",
-    "createdAt": "2026-04-28T11:52:22.741Z",
+    "creator_id": "09eca25d-d955-4136-93f2-4467f2df37eb",
+    "document_id": 1777377142741,
+    "organization_id": "b8178a42-d8b8-41dc-ab43-5ff4743313d3",
     "created_at": "2026-04-28T11:52:22.741Z"
   },
   {
     "id": "arch_1777377105687",
-    "creatorId": "09eca25d-d955-4136-93f2-4467f2df37eb",
-    "documentId": 1777377105687,
-    "organizationId": "b8178a42-d8b8-41dc-ab43-5ff4743313d3",
-    "createdAt": "2026-04-28T11:51:45.687Z",
+    "creator_id": "09eca25d-d955-4136-93f2-4467f2df37eb",
+    "document_id": 1777377105687,
+    "organization_id": "b8178a42-d8b8-41dc-ab43-5ff4743313d3",
     "created_at": "2026-04-28T11:51:45.687Z"
   }
 ]

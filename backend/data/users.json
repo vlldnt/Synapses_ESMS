@@ -1,40 +1,14 @@
 [
   {
     "id": "09eca25d-d955-4136-93f2-4467f2df37eb",
-    "firstName": "Adrien",
-    "lastName": "Vieilledent",
+    "first_name": "Adrien",
+    "last_name": "Vieilledent",
     "email": "adrien@synapses.fr",
-    "hashedPassword": "$2b$12$ma.Pk5eFcDIKFn0U8Nucsum8GWt379tC294xQeTggqKeLhCbxUVYy",
+    "hashed_password": "$2b$12$ma.Pk5eFcDIKFn0U8Nucsum8GWt379tC294xQeTggqKeLhCbxUVYy",
     "job": "Administrateur",
-    "organizationId": "b8178a42-d8b8-41dc-ab43-5ff4743313d3",
+    "organization_id": "b8178a42-d8b8-41dc-ab43-5ff4743313d3",
     "is_admin": true,
     "status": "active",
-    "createdAt": "2026-04-28T09:31:34.293Z"
-  },
-  {
-    "id": "90b305d0-402d-4e57-95c1-2aa8fc753964",
-    "firstName": "Adrien",
-    "lastName": "Vieilledent",
-    "email": "vieilledent.adrien@gmail.com",
-    "hashedPassword": "$2b$12$IAW0nXTGpJqvA4aODcjJYOBUq2PMYVGHiGE66qNLuMuSFulALfj8u",
-    "job": "Éducateur(rice) spécialisé(e)",
-    "role": "agent",
-    "organizationId": "b8178a42-d8b8-41dc-ab43-5ff4743313d3",
-    "is_admin": false,
-    "status": "active",
-    "createdAt": "2026-04-28T12:15:37.485Z"
-  },
-  {
-    "id": "6390028e-fec1-4b25-92e7-6e7747315c02",
-    "firstName": "Adri",
-    "lastName": "Hein",
-    "email": "9863@holbertonstudents.com",
-    "hashedPassword": "$2b$12$n8SqWBOawRPeaFl9xgHy1uALcxSf1TqRgW5wPCuLKy3KyOnNnM04K",
-    "job": "Moniteur(rice) éducateur(rice)",
-    "role": "agent",
-    "organizationId": "b8178a42-d8b8-41dc-ab43-5ff4743313d3",
-    "is_admin": false,
-    "status": "active",
-    "createdAt": "2026-04-28T12:18:24.479Z"
+    "created_at": "2026-04-28T09:31:34.293Z"
   }
 ]

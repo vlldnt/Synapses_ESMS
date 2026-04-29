@@ -2,9 +2,9 @@
   {
     "id": "b8178a42-d8b8-41dc-ab43-5ff4743313d3",
     "name": "Synapses",
-    "structureType": "EHPAD",
+    "structure_type": "EHPAD",
     "description": "",
-    "ownerId": "09eca25d-d955-4136-93f2-4467f2df37eb",
-    "createdAt": "2026-04-28T09:31:34.293Z"
+    "owner_id": "09eca25d-d955-4136-93f2-4467f2df37eb",
+    "created_at": "2026-04-28T09:31:34.293Z"
   }
 ]

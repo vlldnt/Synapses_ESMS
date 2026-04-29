@@ -1,10 +1,10 @@
 [
   {
     "id": "7fe7978d-72f4-4cc8-94e6-f76bd9dbdd65",
-    "firstName": "Tom",
-    "lastName": "Vieilledent",
+    "first_name": "Tom",
+    "last_name": "Vieilledent",
     "educator": "09eca25d-d955-4136-93f2-4467f2df37eb",
-    "organizationId": "b8178a42-d8b8-41dc-ab43-5ff4743313d3",
-    "createdAt": "2026-04-28T11:51:18.363Z"
+    "organization_id": "b8178a42-d8b8-41dc-ab43-5ff4743313d3",
+    "created_at": "2026-04-28T11:51:18.363Z"
   }
 ]
