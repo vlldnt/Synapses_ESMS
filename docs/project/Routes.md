@@ -6,7 +6,7 @@ Toutes les routes `/api/*` sont protégées par JWT (`Authorization: Bearer <tok
 
 ---
 
-## Auth — `authController.js`
+## `authController.js`
 
 | Méthode | Route | Auth | Description |
 |---------|-------|------|-------------|
@@ -14,12 +14,14 @@ Toutes les routes `/api/*` sont protégées par JWT (`Authorization: Bearer <tok
 | `GET` | `/api/organization-requests` | JWT | Liste toutes les demandes d'adhésion |
 | `POST` | `/api/organization-requests` | public | Créer une demande d'ouverture de structure → envoie un email (token 15 min) |
 | `GET` | `/api/organization-requests/info/:token` | public | Récupère les infos d'une demande par token |
-| `POST` | `/api/organization-requests/complete/:token` | public | Finalise la création du compte → `{ user, token }` |
+| `POST` | `/api/organization-requests/complete/:token` | public | Finalise la création de la structure → `{ user, token }` |
 | `POST` | `/api/organization-requests/:id/approve` | JWT | Approuver manuellement une demande (legacy) |
+| `GET` | `/api/user-requests/info/:token` | public | Récupère les infos d'une invitation employé |
+| `POST` | `/api/user-requests/complete/:token` | public | Finalise la création du compte employé → `{ user, token }` |
 
 ---
 
-## Utilisateurs — `userController.js`
+## `userController.js`
 
 | Méthode | Route | Auth | Description |
 |---------|-------|------|-------------|
@@ -29,16 +31,7 @@ Toutes les routes `/api/*` sont protégées par JWT (`Authorization: Bearer <tok
 
 ---
 
-## Invitations employés — `authController.js`
-
-| Méthode | Route | Auth | Description |
-|---------|-------|------|-------------|
-| `GET` | `/api/user-requests/info/:token` | public | Récupère les infos d'une invitation |
-| `POST` | `/api/user-requests/complete/:token` | public | Finalise la création du compte → `{ user, token }` |
-
----
-
-## Archives — `archiveController.js`
+## `archiveController.js`
 
 | Méthode | Route | Auth | Description |
 |---------|-------|------|-------------|
@@ -48,7 +41,7 @@ Toutes les routes `/api/*` sont protégées par JWT (`Authorization: Bearer <tok
 
 ---
 
-## Références — `referenceController.js`
+## `referenceController.js`
 
 | Méthode | Route | Auth | Description |
 |---------|-------|------|-------------|
@@ -58,7 +51,7 @@ Toutes les routes `/api/*` sont protégées par JWT (`Authorization: Bearer <tok
 
 ---
 
-## Organisation & données communes — `organizationController.js`
+## `organizationController.js`
 
 | Méthode | Route | Auth | Description |
 |---------|-------|------|-------------|
@@ -68,7 +61,7 @@ Toutes les routes `/api/*` sont protégées par JWT (`Authorization: Bearer <tok
 
 ---
 
-## Transcription — `server.js`
+## `server.js`
 
 | Méthode | Route | Auth | Description |
 |---------|-------|------|-------------|
@@ -77,13 +70,6 @@ Toutes les routes `/api/*` sont protégées par JWT (`Authorization: Bearer <tok
 | `POST` | `/api/transcribe-audio` | JWT | Transcription brute (binary body) |
 | `POST` | `/api/transcribe-audio-upload` | JWT | Transcription multipart/form-data (`file`) · `?mock=1` pour simuler |
 | `WS` | `/api/transcribe-ws` | — | Streaming WebSocket temps réel (LINEAR16 PCM 16kHz) |
-
----
-
-## Divers
-
-| Méthode | Route | Auth | Description |
-|---------|-------|------|-------------|
 | `GET` | `/health` | — | Health check → `{ status: "ok", timestamp }` |
 
 ---
