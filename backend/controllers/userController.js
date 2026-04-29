@@ -16,7 +16,7 @@ async function sendInvitationEmail({ firstName, lastName, email, orgName, setAcc
   }
   const resend = new Resend(key);
   await resend.emails.send({
-    from: 'Synapses ESMS <onboarding@resend.dev>',
+    from: 'Synapses ESMS <noreply@iakoa.fr>',
     to: email,
     subject: '📬 Créez votre compte — Synapses ESMS',
     html: `<div style="font-family:sans-serif;max-width:480px;margin:auto;padding:32px 0">

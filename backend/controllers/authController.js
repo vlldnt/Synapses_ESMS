@@ -41,7 +41,7 @@ async function sendSetPasswordEmail({ firstName, lastName, contactEmail, orgName
   }
   const resend = new Resend(key);
   await resend.emails.send({
-    from: 'Synapses ESMS <onboarding@resend.dev>',
+    from: 'Synapses ESMS <noreply@iakoa.fr>',
     to: contactEmail,
     subject: '📬 Créez votre compte — Synapses ESMS',
     html: `<div style="font-family:sans-serif;max-width:480px;margin:auto;padding:32px 0">
