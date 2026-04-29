@@ -81,7 +81,7 @@ function ArchivesPage() {
   const draftStatus = draft?.result?.trim() ? 'En cours' : 'Brouillon';
   const childOptions = useMemo(() => {
     return Array.from(
-      new Set(history.map((entry) => entry.childName?.trim()).filter(Boolean)),
+      new Set(history.map((entry) => entry.reference_name?.trim()).filter(Boolean)),
     ).sort((a, b) => a.localeCompare(b, 'fr'));
   }, [history]);
 
@@ -94,7 +94,7 @@ function ArchivesPage() {
   const filteredHistory = useMemo(() => {
     return history.filter((entry) => {
       const matchesChild =
-        childFilter === 'all' || entry.childName?.trim() === childFilter;
+        childFilter === 'all' || entry.reference_name?.trim() === childFilter;
       const matchesType =
         typeFilter === 'all' || getDocTypeLabel(entry) === typeFilter;
       return matchesChild && matchesType;
@@ -103,7 +103,7 @@ function ArchivesPage() {
 
   const sortedHistory = useMemo(() => {
     const getEntryTimestamp = (entry) => {
-      const rawDate = entry.date || entry.createdAt || entry.created_at;
+      const rawDate = entry.date || entry.created_at;
       const time = rawDate ? new Date(rawDate).getTime() : 0;
       return Number.isNaN(time) ? 0 : time;
     };
@@ -118,7 +118,7 @@ function ArchivesPage() {
     const direct = (entry.type || entry.reportType || '')
       .toString()
       .toLowerCase();
-    const intervention = (entry.interventionType || '')
+    const intervention = (entry.intervention_type || entry.interventionType || '')
       .toString()
       .toLowerCase();
 
@@ -175,7 +175,7 @@ function ArchivesPage() {
         return;
       }
 
-      if (!selectedEntry.docxBase64) {
+      if (!selectedEntry.docx_base_64) {
         setPreviewText('');
         setIsPreviewLoading(false);
         return;
@@ -183,7 +183,7 @@ function ArchivesPage() {
 
       setIsPreviewLoading(true);
       const extracted = await extractPreviewTextFromDocxBase64(
-        selectedEntry.docxBase64,
+        selectedEntry.docx_base_64,
       );
       if (!cancelled) {
         setPreviewText(extracted);
@@ -198,10 +198,10 @@ function ArchivesPage() {
   }, [selectedEntry]);
 
   const handleDownload = async () => {
-    if (!selectedEntry || !selectedEntry.docxBase64) return;
+    if (!selectedEntry || !selectedEntry.docx_base_64) return;
     setIsDownloading(true);
     try {
-      const binaryString = atob(selectedEntry.docxBase64);
+      const binaryString = atob(selectedEntry.docx_base_64);
       const bytes = new Uint8Array(binaryString.length);
       for (let i = 0; i < binaryString.length; i++) {
         bytes[i] = binaryString.charCodeAt(i);
@@ -361,7 +361,7 @@ function ArchivesPage() {
                         {formatReportName(entry)}
                       </p>
                       <p className='text-xs text-(--text-muted) truncate'>
-                        {entry.interventionType} · {enriched.companyName}
+                        {entry.intervention_type} · {enriched.companyName}
                       </p>
                     </div>
                     <span
@@ -372,12 +372,12 @@ function ArchivesPage() {
                     </span>
                     <div className='flex items-center gap-3 shrink-0'>
                       <div className='flex flex-col items-end gap-0.5'>
-                        {entry.childName && (
+                        {entry.reference_name && (
                           <span className='text-xs text-(--text-muted)/70 font-medium'>
-                            {entry.childName}
+                            {entry.reference_name}
                           </span>
                         )}
-                        {(entry.date || entry.createdAt) && (
+                        {(entry.date || entry.created_at) && (
                           <span className='text-[11px] text-(--text-muted)/50'>
                             {new Intl.DateTimeFormat('fr-FR', {
                               day: '2-digit',
@@ -385,9 +385,7 @@ function ArchivesPage() {
                               year: 'numeric',
                             }).format(
                               new Date(
-                                entry.date ||
-                                  entry.createdAt ||
-                                  entry.created_at,
+                                entry.date || entry.created_at,
                               ),
                             )}
                           </span>

@@ -9,7 +9,7 @@ function cacheKeyForUser(userId) {
 }
 
 function getEntryTimestamp(entry) {
-  const raw = entry?.createdAt || entry?.created_at || entry?.date;
+  const raw = entry?.created_at || entry?.date;
   return new Date(raw).getTime();
 }
 
@@ -23,41 +23,32 @@ export async function saveToHistory({
   filename,
   displayName,
   reference,
-  modelId,
-  modelName,
   docxBase64,
   type,
   childName,
-  userId,
   creatorId,
 }) {
-  const resolvedUserId = userId || creatorId || educator?.id || 'unknown';
-  const educatorObj = educator || {
-    name: educatorName || '—',
-    id: resolvedUserId,
-  };
+  const resolvedCreatorId = creatorId || educator?.id || 'unknown';
+  const educatorObj = educator || { name: educatorName || '—', id: resolvedCreatorId };
   const displayEducatorName = educatorObj.name || educatorName || '—';
 
   const entry = {
     status: 'archived',
     filename: filename || `CR_${date || 'intervention'}.docx`,
-    displayName:
+    display_name:
       displayName ||
       `CRI ${displayEducatorName} ${new Date(date).toLocaleDateString('fr-FR')}`,
     date: date || new Date().toISOString().slice(0, 10),
-    interventionType: interventionType || '—',
+    intervention_type: interventionType || '—',
     type: type || 'CRI',
-    structureType: structureType || '—',
-    companyName: companyName || '—',
-    educator: educatorObj,
-    childName: childName || '—',
-    reference: reference || '—',
-    modelId: modelId || 'mistralai/voxtral-small-24b-2507',
-    modelName: modelName || 'Voxtral Small 24B',
-    docxBase64: docxBase64 || '',
-    userId: resolvedUserId,
-    creatorId: resolvedUserId,
+    reference_name: childName || '—',
+    docx_base_64: docxBase64 || '',
+    creator_id: resolvedCreatorId,
     created_at: new Date().toISOString(),
+    structure_type: structureType || '—',
+    company_name: companyName || '—',
+    educator: educatorObj,
+    reference: reference || '—',
   };
 
   try {
@@ -71,7 +62,7 @@ export async function saveToHistory({
 
     const savedEntry = await response.json();
 
-    const userKey = cacheKeyForUser(resolvedUserId);
+    const userKey = cacheKeyForUser(resolvedCreatorId);
     historyCacheByKey.set(userKey, [
       savedEntry,
       ...(historyCacheByKey.get(userKey) || []),

@@ -48,7 +48,7 @@ function CreateUserModal({ organizationId, onClose }) {
       const res = await authFetch(`${base}/api/users`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...fields, organizationId, is_admin: false }),
+        body: JSON.stringify({ ...fields, organizationId, is_admin: false }), // body camelCase, backend mappe en snake_case
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || `Erreur ${res.status}`);
@@ -198,7 +198,7 @@ function CreateReferenceModal({ employees, onClose, onCreated }) {
               <option value=''>Aucun</option>
               {employees.map((emp) => (
                 <option key={emp.id} value={emp.id}>
-                  {emp.firstName} {emp.lastName}{emp.job ? ` — ${emp.job}` : ''}
+                  {emp.first_name} {emp.last_name}{emp.job ? ` — ${emp.job}` : ''}
                 </option>
               ))}
             </select>
@@ -231,7 +231,7 @@ function AdminPage() {
   const [deletingRefId, setDeletingRefId] = useState(null);
 
   useEffect(() => {
-    if (role !== 'admin' || !user?.organizationId) return;
+    if (role !== 'admin' || !user?.organization_id) return;
     const base = import.meta.env.VITE_BASENAME || '/synapses';
     Promise.all([
       authFetch(`${base}/api/users`).then((r) => r.json()),
@@ -270,7 +270,7 @@ function AdminPage() {
   function getEducatorName(educatorId) {
     if (!educatorId) return null;
     const emp = employees.find((e) => e.id === educatorId);
-    return emp ? `${emp.firstName} ${emp.lastName}` : null;
+    return emp ? `${emp.first_name} ${emp.last_name}` : null;
   }
 
   return (
@@ -346,10 +346,10 @@ function AdminPage() {
               {filteredEmployees.map((emp) => (
                 <div key={emp.id} className='flex items-center gap-3 px-5 py-3.5'>
                   <div className='w-9 h-9 rounded-full bg-(--bg-tertiary) flex items-center justify-center text-sm font-semibold text-(--text-secondary) shrink-0 uppercase'>
-                    {emp.firstName?.[0]}{emp.lastName?.[0]}
+                    {emp.first_name?.[0]}{emp.last_name?.[0]}
                   </div>
                   <div className='flex-1 min-w-0'>
-                    <p className='text-sm font-medium text-(--text-primary)'>{emp.firstName} {emp.lastName}</p>
+                    <p className='text-sm font-medium text-(--text-primary)'>{emp.first_name} {emp.last_name}</p>
                     <p className='text-xs text-(--text-muted) truncate'>
                       {emp.email}{emp.job ? ` · ${emp.job}` : ''}
                     </p>
@@ -391,10 +391,10 @@ function AdminPage() {
                 return (
                   <div key={ref.id} className='flex items-center gap-3 px-5 py-3.5'>
                     <div className='w-9 h-9 rounded-full bg-(--bg-tertiary) flex items-center justify-center text-sm font-semibold text-(--text-secondary) shrink-0 uppercase'>
-                      {ref.firstName?.[0]}{ref.lastName?.[0]}
+                      {ref.first_name?.[0]}{ref.last_name?.[0]}
                     </div>
                     <div className='flex-1 min-w-0'>
-                      <p className='text-sm font-medium text-(--text-primary)'>{ref.firstName} {ref.lastName}</p>
+                      <p className='text-sm font-medium text-(--text-primary)'>{ref.first_name} {ref.last_name}</p>
                       {educatorName && (
                         <p className='text-xs text-(--text-muted) truncate'>Référent : {educatorName}</p>
                       )}
@@ -418,7 +418,7 @@ function AdminPage() {
 
       {showUserModal && (
         <CreateUserModal
-          organizationId={user?.organizationId}
+          organizationId={user?.organization_id}
           onClose={() => setShowUserModal(false)}
         />
       )}

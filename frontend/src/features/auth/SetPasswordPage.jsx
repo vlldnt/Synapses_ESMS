@@ -97,9 +97,9 @@ function SetPasswordPage() {
         ) : (
           <>
             <div className='mb-6 p-4 rounded-xl bg-(--bg-secondary) border border-(--border) text-sm'>
-              <p className='font-semibold text-(--text-primary)'>Bonjour {info.firstName} {info.lastName}</p>
-              <p className='text-(--text-muted) text-xs mt-0.5'>{info.contactEmail}</p>
-              <p className='text-(--text-muted) text-xs mt-1'>{info.orgName}</p>
+              <p className='font-semibold text-(--text-primary)'>Bonjour {info.first_name} {info.last_name}</p>
+              <p className='text-(--text-muted) text-xs mt-0.5'>{info.contact_email}</p>
+              <p className='text-(--text-muted) text-xs mt-1'>{info.org_name}</p>
             </div>
 
             <p className='text-sm text-(--text-muted) mb-4'>Créez votre mot de passe pour activer votre compte administrateur.</p>

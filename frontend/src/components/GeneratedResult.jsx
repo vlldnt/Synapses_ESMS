@@ -170,21 +170,15 @@ export default function GeneratedResult({
             const reportType = downloadMeta.reportType || downloadMeta.type || 'CRI';
 
             const archiveData = {
-              id: Date.now(),
               status: 'archived',
               filename: result.filename,
               displayName: result.displayName,
               date: result.date,
               interventionType: result.interventionType,
               type: result.docType || reportType,
-              modelId: result.modelId,
-              modelName: result.modelName,
               docxBase64: base64String,
               creatorId: user?.id,
-              userId: user?.id,
               childName: downloadMeta.childName || '',
-              createdAt: new Date().toISOString(),
-              created_at: new Date().toISOString(),
             };
 
             // Sauvegarder en localStorage

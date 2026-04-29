@@ -55,11 +55,11 @@ export function invalidateReferencesCache() {
 }
 
 export function formatReferenceName(reference) {
-  if (!reference?.lastName || !reference?.firstName) return '';
-  return `${reference.firstName} ${reference.lastName[0].toUpperCase()}.`;
+  if (!reference?.last_name || !reference?.first_name) return '';
+  return `${reference.first_name} ${reference.last_name[0].toUpperCase()}.`;
 }
 
 export async function getReferencesFormatted() {
   const refList = await getReferences();
-  return refList.map((ref) => ({ ...ref, displayName: formatReferenceName(ref) }));
+  return refList.map((ref) => ({ ...ref, display_name: formatReferenceName(ref) }));
 }

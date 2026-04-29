@@ -114,9 +114,9 @@ function SetAccountPage() {
         ) : (
           <>
             <div className='mb-5 p-4 rounded-xl bg-(--bg-secondary) border border-(--border) text-sm flex flex-col gap-0.5'>
-              <p className='font-semibold text-(--text-primary)'>{info.firstName} {info.lastName}</p>
+              <p className='font-semibold text-(--text-primary)'>{info.first_name} {info.last_name}</p>
               {info.job && <p className='text-(--text-muted) text-xs'>{info.job}</p>}
-              <p className='text-(--text-muted) text-xs'>{info.orgName}</p>
+              <p className='text-(--text-muted) text-xs'>{info.org_name}</p>
               <p className='text-(--text-muted) text-xs'>{info.email}</p>
             </div>
 

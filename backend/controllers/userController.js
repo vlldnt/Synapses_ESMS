@@ -31,22 +31,22 @@ async function sendInvitationEmail({ firstName, lastName, email, orgName, setAcc
   });
 }
 
-// GET /api/users — scoped to requester's organization
+// GET /api/users
 router.get('/', async (req, res) => {
   try {
     const orgId = req.auth.organizationId;
     const users = await loadJsonFile('users.json');
     res.json(
       users
-        .filter((u) => u.organizationId === orgId)
-        .map(({ hashedPassword, ...u }) => u),
+        .filter((u) => u.organization_id === orgId)
+        .map(({ hashed_password, ...u }) => u),
     );
   } catch {
     res.status(500).json({ error: 'Failed to load users' });
   }
 });
 
-// POST /api/users — invite employee by email
+// POST /api/users
 router.post('/', async (req, res) => {
   const { firstName, lastName, email, job, role, organizationId } = req.body;
   if (!firstName?.trim() || !lastName?.trim() || !email?.trim() || !organizationId) {
@@ -76,17 +76,17 @@ router.post('/', async (req, res) => {
 
     const invitation = {
       id: crypto.randomUUID(),
-      firstName: firstName.trim(),
-      lastName: lastName.trim(),
+      first_name: firstName.trim(),
+      last_name: lastName.trim(),
       email: email.toLowerCase().trim(),
       job: job || '',
       role: role || 'agent',
-      organizationId,
+      organization_id: organizationId,
       is_admin: false,
-      verificationToken,
-      verificationExpiry: new Date(Date.now() + 15 * 60 * 1000).toISOString(),
+      verification_token: verificationToken,
+      verification_expiry: new Date(Date.now() + 15 * 60 * 1000).toISOString(),
       status: 'pending',
-      createdAt: new Date().toISOString(),
+      created_at: new Date().toISOString(),
     };
 
     invitations.push(invitation);
@@ -95,8 +95,8 @@ router.post('/', async (req, res) => {
     const appUrl = process.env.APP_URL || 'http://localhost:5173/synapses';
     const setAccountUrl = `${appUrl}/set-account/${verificationToken}`;
     sendInvitationEmail({
-      firstName: invitation.firstName,
-      lastName: invitation.lastName,
+      firstName: invitation.first_name,
+      lastName: invitation.last_name,
       email: invitation.email,
       orgName: org?.name || organizationId,
       setAccountUrl,
@@ -116,8 +116,8 @@ router.put('/:id', async (req, res) => {
     const users = await loadJsonFile('users.json');
     const idx = users.findIndex((u) => u.id === req.params.id);
     if (idx === -1) return res.status(404).json({ error: 'User not found' });
-    if (users[idx].organizationId !== orgId) return res.status(403).json({ error: 'Accès refusé.' });
-    users[idx] = { ...users[idx], ...req.body, id: users[idx].id, organizationId: orgId };
+    if (users[idx].organization_id !== orgId) return res.status(403).json({ error: 'Accès refusé.' });
+    users[idx] = { ...users[idx], ...req.body, id: users[idx].id, organization_id: orgId };
     await saveJsonFile('users.json', users);
     res.json(users[idx]);
   } catch {

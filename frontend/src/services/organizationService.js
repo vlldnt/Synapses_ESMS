@@ -23,7 +23,7 @@ export async function getOrganizationById(id) {
 
 export async function getOrganizationByUser(user) {
   if (organizationsCache.length === 0) await fetchOrganizations();
-  return organizationsCache.find((o) => o.id === user.organizationId) || null;
+  return organizationsCache.find((o) => o.id === user.organization_id) || null;
 }
 
 export async function getAllOrganizations() {

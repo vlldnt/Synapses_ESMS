@@ -12,10 +12,10 @@ router.get('/', async (req, res) => {
     const archiveRefs = await loadArchiveRefs();
 
     const docs = (Array.isArray(documents) ? documents : []).filter(
-      (doc) => doc?.organizationId === orgId,
+      (doc) => doc?.organization_id === orgId,
     );
     const refs = (Array.isArray(archiveRefs) ? archiveRefs : []).filter(
-      (ref) => ref?.organizationId === orgId,
+      (ref) => ref?.organization_id === orgId,
     );
 
     if (!userId) {
@@ -24,11 +24,11 @@ router.get('/', async (req, res) => {
     }
 
     const documentIds = new Set(
-      refs.filter((ref) => ref?.creatorId === userId).map((ref) => ref?.documentId),
+      refs.filter((ref) => ref?.creator_id === userId).map((ref) => ref?.document_id),
     );
     const linkedDocs = docs.filter((doc) => documentIds.has(doc?.id));
     const legacyDocs = docs.filter(
-      (doc) => doc?.creatorId === userId && !documentIds.has(doc?.id),
+      (doc) => doc?.creator_id === userId && !documentIds.has(doc?.id),
     );
 
     res.json([...linkedDocs, ...legacyDocs]);
@@ -45,25 +45,23 @@ router.post('/', async (req, res) => {
     const archiveRefs = await loadArchiveRefs();
 
     const docId = Date.now();
-    const { structureType, companyName, educator, reference, userId, creatorId, text, ...safeData } = req.body;
-    const resolvedCreatorId = userId || creatorId || educator?.id || 'unknown';
+    const { structure_type, company_name, educator, reference, creator_id, text, ...safeData } = req.body;
+    const resolvedCreatorId = creator_id || educator?.id || 'unknown';
     const nowIso = new Date().toISOString();
 
     const document = {
       id: docId,
       ...safeData,
       status: 'archived',
-      creatorId: resolvedCreatorId,
-      organizationId: orgId,
-      createdAt: nowIso,
+      creator_id: resolvedCreatorId,
+      organization_id: orgId,
       created_at: nowIso,
     };
     const archiveRef = {
       id: `arch_${docId}`,
-      creatorId: resolvedCreatorId,
-      documentId: docId,
-      organizationId: orgId,
-      createdAt: nowIso,
+      creator_id: resolvedCreatorId,
+      document_id: docId,
+      organization_id: orgId,
       created_at: nowIso,
     };
 
@@ -88,12 +86,12 @@ router.delete('/:id', async (req, res) => {
     let archiveRefs = await loadArchiveRefs();
 
     const target = documents.find((e) => e.id === id);
-    if (target?.organizationId && target.organizationId !== orgId) {
+    if (target?.organization_id && target.organization_id !== orgId) {
       return res.status(403).json({ error: 'Accès refusé.' });
     }
 
     documents = documents.filter((e) => e.id !== id);
-    archiveRefs = archiveRefs.filter((e) => e.documentId !== id);
+    archiveRefs = archiveRefs.filter((e) => e.document_id !== id);
 
     await saveDocuments(documents);
     await saveArchiveRefs(archiveRefs);

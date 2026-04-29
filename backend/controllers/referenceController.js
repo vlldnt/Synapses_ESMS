@@ -4,18 +4,18 @@ import { loadJsonFile, saveJsonFile } from '../db.js';
 
 const router = Router();
 
-// GET /api/references — scoped to requester's organization
+// GET /api/references
 router.get('/', async (req, res) => {
   try {
     const orgId = req.auth.organizationId;
     const refs = await loadJsonFile('references.json');
-    res.json(refs.filter((r) => r.organizationId === orgId));
+    res.json(refs.filter((r) => r.organization_id === orgId));
   } catch {
     res.status(500).json({ error: 'Failed to load references' });
   }
 });
 
-// POST /api/references — create a reference in the requester's organization
+// POST /api/references
 router.post('/', async (req, res) => {
   const { firstName, lastName, educatorId } = req.body;
   if (!firstName?.trim() || !lastName?.trim()) {
@@ -28,11 +28,11 @@ router.post('/', async (req, res) => {
 
     const newRef = {
       id: crypto.randomUUID(),
-      firstName: firstName.trim(),
-      lastName: lastName.trim(),
+      first_name: firstName.trim(),
+      last_name: lastName.trim(),
       educator: educatorId || null,
-      organizationId: orgId,
-      createdAt: new Date().toISOString(),
+      organization_id: orgId,
+      created_at: new Date().toISOString(),
     };
 
     refs.push(newRef);
@@ -53,7 +53,7 @@ router.delete('/:id', async (req, res) => {
     const target = refs.find((r) => r.id === req.params.id);
 
     if (!target) return res.status(404).json({ error: 'Référence introuvable.' });
-    if (target.organizationId !== orgId) return res.status(403).json({ error: 'Accès refusé.' });
+    if (target.organization_id !== orgId) return res.status(403).json({ error: 'Accès refusé.' });
 
     await saveJsonFile('references.json', refs.filter((r) => r.id !== req.params.id));
     res.json({ success: true });

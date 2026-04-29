@@ -26,8 +26,8 @@ function LoginPage() {
 
     try {
       const data = await login({ email, password });
-      if (data.user?.organizationId) {
-        const org = await getOrganizationById(data.user.organizationId);
+      if (data.user?.organization_id) {
+        const org = await getOrganizationById(data.user.organization_id);
         dispatch(setOrganization(org));
       }
     } catch (err) {

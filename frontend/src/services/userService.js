@@ -4,13 +4,6 @@ const API_URL = './api';
 
 let usersCache = [];
 
-// role → user ID (mock auth)
-const ROLE_TO_USER = {
-  agent: 'usr_002',
-  direction: 'usr_003',
-  admin: 'usr_001',
-};
-
 async function fetchUsers() {
   try {
     const response = await authFetch(`${API_URL}/users`);
@@ -21,11 +14,6 @@ async function fetchUsers() {
     console.warn('Error fetching users:', err);
     return usersCache;
   }
-}
-
-export async function getCurrentUser(role = 'agent') {
-  const userId = ROLE_TO_USER[role] || ROLE_TO_USER.agent;
-  return getUserById(userId);
 }
 
 export async function getUserById(id) {
@@ -40,7 +28,7 @@ export async function getAllUsers() {
 
 export async function getUsersByOrganization(organizationId) {
   if (usersCache.length === 0) await fetchUsers();
-  return usersCache.filter((u) => u.organizationId === organizationId);
+  return usersCache.filter((u) => u.organization_id === organizationId);
 }
 
 export async function updateUser(id, updates) {

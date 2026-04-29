@@ -56,7 +56,6 @@ async function sendSetPasswordEmail({ firstName, lastName, contactEmail, orgName
   });
 }
 
-
 // POST /api/login
 router.post('/login', async (req, res) => {
   const { email, password } = req.body;
@@ -68,12 +67,12 @@ router.post('/login', async (req, res) => {
     if (!user) return res.status(401).json({ error: 'Identifiants incorrects.' });
     if (user.status !== 'active') return res.status(403).json({ error: 'Compte inactif.' });
 
-    const valid = await bcrypt.compare(password, user.hashedPassword);
+    const valid = await bcrypt.compare(password, user.hashed_password);
     if (!valid) return res.status(401).json({ error: 'Identifiants incorrects.' });
 
-    const { hashedPassword, ...safeUser } = user;
+    const { hashed_password, ...safeUser } = user;
     const token = jwt.sign(
-      { userId: user.id, organizationId: user.organizationId, is_admin: user.is_admin },
+      { userId: user.id, organizationId: user.organization_id, is_admin: user.is_admin },
       process.env.JWT_SECRET,
       { expiresIn: process.env.JWT_EXPIRES_IN || '7d' },
     );
@@ -87,7 +86,7 @@ router.post('/login', async (req, res) => {
 router.get('/organization-requests', async (req, res) => {
   try {
     const requests = await loadJsonFile('organizationRequests.json');
-    const safe = requests.map(({ hashedPassword, verificationToken, ...r }) => r);
+    const safe = requests.map(({ verification_token, ...r }) => r);
     res.json(safe);
   } catch {
     res.status(500).json({ error: 'Erreur serveur.' });
@@ -120,16 +119,16 @@ router.post('/organization-requests', async (req, res) => {
     const verificationToken = crypto.randomBytes(32).toString('hex');
     const entry = {
       id: crypto.randomUUID(),
-      orgName: orgName.trim(),
-      structureType: structureType.trim(),
+      org_name: orgName.trim(),
+      structure_type: structureType.trim(),
       description: description?.trim() || '',
-      firstName: firstName.trim(),
-      lastName: lastName.trim(),
-      contactEmail: contactEmail.toLowerCase().trim(),
+      first_name: firstName.trim(),
+      last_name: lastName.trim(),
+      contact_email: contactEmail.toLowerCase().trim(),
       status: 'pending_verification',
-      verificationToken,
-      verificationExpiry: new Date(Date.now() + 15 * 60 * 1000).toISOString(),
-      createdAt: new Date().toISOString(),
+      verification_token: verificationToken,
+      verification_expiry: new Date(Date.now() + 15 * 60 * 1000).toISOString(),
+      created_at: new Date().toISOString(),
     };
 
     requests.push(entry);
@@ -137,9 +136,13 @@ router.post('/organization-requests', async (req, res) => {
 
     const appUrl = process.env.APP_URL || 'http://localhost:5173/synapses';
     const setPasswordUrl = `${appUrl}/set-password/${verificationToken}`;
-    sendSetPasswordEmail({ firstName: entry.firstName, lastName: entry.lastName, contactEmail: entry.contactEmail, orgName: entry.orgName, setPasswordUrl }).catch((err) =>
-      console.error('Email send error:', err.message),
-    );
+    sendSetPasswordEmail({
+      firstName: entry.first_name,
+      lastName: entry.last_name,
+      contactEmail: entry.contact_email,
+      orgName: entry.org_name,
+      setPasswordUrl,
+    }).catch((err) => console.error('Email send error:', err.message));
 
     res.status(201).json({ success: true });
   } catch (err) {
@@ -148,43 +151,43 @@ router.post('/organization-requests', async (req, res) => {
   }
 });
 
-// GET /api/organization-requests/info/:token — return request info (public, for the set-password form)
+// GET /api/organization-requests/info/:token
 router.get('/organization-requests/info/:token', async (req, res) => {
   try {
     const requests = await loadJsonFile('organizationRequests.json');
-    const request = requests.find((r) => r.verificationToken === req.params.token);
+    const request = requests.find((r) => r.verification_token === req.params.token);
 
     if (!request) return res.status(404).json({ error: 'Lien invalide ou déjà utilisé.' });
     if (request.status !== 'pending_verification') return res.status(409).json({ error: 'Ce compte a déjà été créé.' });
-    if (new Date(request.verificationExpiry) < new Date()) return res.status(410).json({ error: 'Ce lien a expiré.' });
+    if (new Date(request.verification_expiry) < new Date()) return res.status(410).json({ error: 'Ce lien a expiré.' });
 
     res.json({
-      firstName: request.firstName,
-      lastName: request.lastName,
-      contactEmail: request.contactEmail,
-      orgName: request.orgName,
+      first_name: request.first_name,
+      last_name: request.last_name,
+      contact_email: request.contact_email,
+      org_name: request.org_name,
     });
   } catch {
     res.status(500).json({ error: 'Erreur serveur.' });
   }
 });
 
-// POST /api/organization-requests/complete/:token — set password, create org + user, return JWT
+// POST /api/organization-requests/complete/:token
 router.post('/organization-requests/complete/:token', async (req, res) => {
   const { password } = req.body;
   if (!PASSWORD_REGEX.test(password)) return res.status(400).json({ error: 'Mot de passe invalide.' });
 
   try {
     const requests = await loadJsonFile('organizationRequests.json');
-    const idx = requests.findIndex((r) => r.verificationToken === req.params.token);
+    const idx = requests.findIndex((r) => r.verification_token === req.params.token);
 
     if (idx === -1) return res.status(404).json({ error: 'Lien invalide ou déjà utilisé.' });
     const request = requests[idx];
     if (request.status !== 'pending_verification') return res.status(409).json({ error: 'Ce compte a déjà été créé.' });
-    if (new Date(request.verificationExpiry) < new Date()) return res.status(410).json({ error: 'Ce lien a expiré.' });
+    if (new Date(request.verification_expiry) < new Date()) return res.status(410).json({ error: 'Ce lien a expiré.' });
 
     const [users, orgs] = await Promise.all([loadJsonFile('users.json'), loadJsonFile('organizations.json')]);
-    if (users.find((u) => u.email.toLowerCase() === request.contactEmail.toLowerCase())) {
+    if (users.find((u) => u.email.toLowerCase() === request.contact_email.toLowerCase())) {
       return res.status(409).json({ error: 'Un compte avec cet email existe déjà.' });
     }
 
@@ -194,28 +197,28 @@ router.post('/organization-requests/complete/:token', async (req, res) => {
 
     const newOrg = {
       id: orgId,
-      name: request.orgName,
-      structureType: request.structureType,
+      name: request.org_name,
+      structure_type: request.structure_type,
       description: request.description || '',
-      ownerId: userId,
-      createdAt: new Date().toISOString(),
+      owner_id: userId,
+      created_at: new Date().toISOString(),
     };
     const newUser = {
       id: userId,
-      firstName: request.firstName,
-      lastName: request.lastName,
-      email: request.contactEmail,
-      hashedPassword,
+      first_name: request.first_name,
+      last_name: request.last_name,
+      email: request.contact_email,
+      hashed_password: hashedPassword,
       job: 'Administrateur',
-      organizationId: orgId,
+      organization_id: orgId,
       is_admin: true,
       status: 'active',
-      createdAt: new Date().toISOString(),
+      created_at: new Date().toISOString(),
     };
 
     orgs.push(newOrg);
     users.push(newUser);
-    requests[idx] = { ...request, status: 'approved', verificationToken: null, approvedAt: new Date().toISOString() };
+    requests[idx] = { ...request, status: 'approved', verification_token: null, approved_at: new Date().toISOString() };
 
     await Promise.all([
       saveJsonFile('organizations.json', orgs),
@@ -223,7 +226,7 @@ router.post('/organization-requests/complete/:token', async (req, res) => {
       saveJsonFile('organizationRequests.json', requests),
     ]);
 
-    const { hashedPassword: _, ...safeUser } = newUser;
+    const { hashed_password: _, ...safeUser } = newUser;
     const token = jwt.sign(
       { userId: newUser.id, organizationId: orgId, is_admin: true },
       process.env.JWT_SECRET,
@@ -237,42 +240,42 @@ router.post('/organization-requests/complete/:token', async (req, res) => {
   }
 });
 
-// GET /api/user-requests/info/:token — public, pour afficher les infos sur la page set-account
+// GET /api/user-requests/info/:token
 router.get('/user-requests/info/:token', async (req, res) => {
   try {
     const invitations = await loadJsonFile('userRequests.json');
-    const inv = invitations.find((i) => i.verificationToken === req.params.token);
+    const inv = invitations.find((i) => i.verification_token === req.params.token);
     if (!inv) return res.status(404).json({ error: 'Lien invalide ou déjà utilisé.' });
     if (inv.status !== 'pending') return res.status(409).json({ error: 'Ce compte a déjà été créé.' });
-    if (new Date(inv.verificationExpiry) < new Date()) return res.status(410).json({ error: 'Ce lien a expiré.' });
+    if (new Date(inv.verification_expiry) < new Date()) return res.status(410).json({ error: 'Ce lien a expiré.' });
 
     const orgs = await loadJsonFile('organizations.json');
-    const org = orgs.find((o) => o.id === inv.organizationId);
+    const org = orgs.find((o) => o.id === inv.organization_id);
 
     res.json({
-      firstName: inv.firstName,
-      lastName: inv.lastName,
+      first_name: inv.first_name,
+      last_name: inv.last_name,
       email: inv.email,
       job: inv.job,
-      orgName: org?.name || '',
+      org_name: org?.name || '',
     });
   } catch {
     res.status(500).json({ error: 'Erreur serveur.' });
   }
 });
 
-// POST /api/user-requests/complete/:token — public, définit le mot de passe et crée le compte
+// POST /api/user-requests/complete/:token
 router.post('/user-requests/complete/:token', async (req, res) => {
   const { password } = req.body;
   if (!PASSWORD_REGEX.test(password)) return res.status(400).json({ error: 'Mot de passe invalide.' });
 
   try {
     const invitations = await loadJsonFile('userRequests.json');
-    const idx = invitations.findIndex((i) => i.verificationToken === req.params.token);
+    const idx = invitations.findIndex((i) => i.verification_token === req.params.token);
     if (idx === -1) return res.status(404).json({ error: 'Lien invalide ou déjà utilisé.' });
     const inv = invitations[idx];
     if (inv.status !== 'pending') return res.status(409).json({ error: 'Ce compte a déjà été créé.' });
-    if (new Date(inv.verificationExpiry) < new Date()) return res.status(410).json({ error: 'Ce lien a expiré.' });
+    if (new Date(inv.verification_expiry) < new Date()) return res.status(410).json({ error: 'Ce lien a expiré.' });
 
     const users = await loadJsonFile('users.json');
     if (users.find((u) => u.email.toLowerCase() === inv.email.toLowerCase())) {
@@ -282,29 +285,29 @@ router.post('/user-requests/complete/:token', async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 12);
     const newUser = {
       id: crypto.randomUUID(),
-      firstName: inv.firstName,
-      lastName: inv.lastName,
+      first_name: inv.first_name,
+      last_name: inv.last_name,
       email: inv.email,
-      hashedPassword,
+      hashed_password: hashedPassword,
       job: inv.job || '',
       role: inv.role || 'agent',
-      organizationId: inv.organizationId,
+      organization_id: inv.organization_id,
       is_admin: false,
       status: 'active',
-      createdAt: new Date().toISOString(),
+      created_at: new Date().toISOString(),
     };
 
     users.push(newUser);
-    invitations[idx] = { ...inv, status: 'accepted', verificationToken: null, acceptedAt: new Date().toISOString() };
+    invitations[idx] = { ...inv, status: 'accepted', verification_token: null, accepted_at: new Date().toISOString() };
 
     await Promise.all([
       saveJsonFile('users.json', users),
       saveJsonFile('userRequests.json', invitations),
     ]);
 
-    const { hashedPassword: _, ...safeUser } = newUser;
+    const { hashed_password: _, ...safeUser } = newUser;
     const token = jwt.sign(
-      { userId: newUser.id, organizationId: inv.organizationId, is_admin: false },
+      { userId: newUser.id, organizationId: inv.organization_id, is_admin: false },
       process.env.JWT_SECRET,
       { expiresIn: process.env.JWT_EXPIRES_IN || '7d' },
     );
@@ -327,7 +330,7 @@ router.post('/organization-requests/:id/approve', async (req, res) => {
     if (request.status !== 'pending') return res.status(409).json({ error: 'Demande déjà traitée.' });
 
     const [users, orgs] = await Promise.all([loadJsonFile('users.json'), loadJsonFile('organizations.json')]);
-    if (users.find((u) => u.email.toLowerCase() === request.contactEmail)) {
+    if (users.find((u) => u.email.toLowerCase() === request.contact_email)) {
       return res.status(409).json({ error: 'Un utilisateur avec cet email existe déjà.' });
     }
 
@@ -338,29 +341,29 @@ router.post('/organization-requests/:id/approve', async (req, res) => {
 
     const newOrg = {
       id: orgId,
-      name: request.orgName,
-      structureType: request.structureType,
+      name: request.org_name,
+      structure_type: request.structure_type,
       description: request.description || '',
-      ownerId: userId,
-      createdAt: new Date().toISOString(),
+      owner_id: userId,
+      created_at: new Date().toISOString(),
     };
     const newUser = {
       id: userId,
-      firstName: request.firstName,
-      lastName: request.lastName,
-      email: request.contactEmail,
-      hashedPassword,
+      first_name: request.first_name,
+      last_name: request.last_name,
+      email: request.contact_email,
+      hashed_password: hashedPassword,
       job: 'Administrateur',
-      organizationId: orgId,
+      organization_id: orgId,
       is_admin: true,
       status: 'active',
-      createdAt: new Date().toISOString(),
+      created_at: new Date().toISOString(),
     };
 
     orgs.push(newOrg);
     users.push(newUser);
     const updatedRequests = requests.map((r) =>
-      r.id === requestId ? { ...r, status: 'approved', approvedAt: new Date().toISOString() } : r,
+      r.id === requestId ? { ...r, status: 'approved', approved_at: new Date().toISOString() } : r,
     );
 
     await Promise.all([
@@ -369,7 +372,8 @@ router.post('/organization-requests/:id/approve', async (req, res) => {
       saveJsonFile('organizationRequests.json', updatedRequests),
     ]);
 
-    res.status(201).json({ organization: newOrg, user: { ...newUser, hashedPassword: undefined }, tempPassword });
+    const { hashed_password: _, ...safeUser } = newUser;
+    res.status(201).json({ organization: newOrg, user: safeUser, tempPassword });
   } catch (err) {
     console.error('Error approving organization request:', err);
     res.status(500).json({ error: 'Erreur serveur.' });

@@ -113,8 +113,8 @@ function DashboardPage() {
     if (!selectedEntry) return;
     setIsDownloading(true);
     try {
-      if (selectedEntry.docxBase64) {
-        const binaryString = atob(selectedEntry.docxBase64);
+      if (selectedEntry.docx_base_64) {
+        const binaryString = atob(selectedEntry.docx_base_64);
         const bytes = new Uint8Array(binaryString.length);
         for (let i = 0; i < binaryString.length; i++) {
           bytes[i] = binaryString.charCodeAt(i);
@@ -128,12 +128,12 @@ function DashboardPage() {
   };
 
   const etablissementName = organization?.name ?? 'ESMS';
-  const organisationType = organization?.type ?? '';
+  const organisationType = organization?.structure_type ?? '';
   const recent = history.slice(0, 5);
 
   function findAgentForEntry(entry) {
     const direct = (entry.type || entry.reportType || '').toString().toLowerCase();
-    const intervention = (entry.interventionType || '').toString().toLowerCase();
+    const intervention = (entry.intervention_type || entry.interventionType || '').toString().toLowerCase();
 
     const byIdOrBadge = AGENTS.find((a) => {
       const id = a.id.toLowerCase();
@@ -185,14 +185,14 @@ function DashboardPage() {
         return;
       }
 
-      if (!selectedEntry.docxBase64) {
+      if (!selectedEntry.docx_base_64) {
         setPreviewText('');
         setIsPreviewLoading(false);
         return;
       }
 
       setIsPreviewLoading(true);
-      const extracted = await extractPreviewTextFromDocxBase64(selectedEntry.docxBase64);
+      const extracted = await extractPreviewTextFromDocxBase64(selectedEntry.docx_base_64);
       if (!cancelled) {
         setPreviewText(extracted);
         setIsPreviewLoading(false);
@@ -276,7 +276,7 @@ function DashboardPage() {
                         {enriched.companyName}
                       </p>
                     </div>
-                    <span className="text-xs text-(--text-muted) shrink-0">{timeAgo(entry.createdAt || entry.created_at || entry.date)}</span>
+                    <span className="text-xs text-(--text-muted) shrink-0">{timeAgo(entry.created_at || entry.date)}</span>
                   </button>
                 );
               })

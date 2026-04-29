@@ -92,8 +92,8 @@ function App() {
 
   // recharge l'org au refresh si le token est encore valide
   useEffect(() => {
-    if (isLogged && user?.organizationId && !organization) {
-      getOrganizationById(user.organizationId).then((org) => dispatch(setOrganization(org)));
+    if (isLogged && user?.organization_id && !organization) {
+      getOrganizationById(user.organization_id).then((org) => dispatch(setOrganization(org)));
     }
   }, [isLogged, user, organization, dispatch]);
 
