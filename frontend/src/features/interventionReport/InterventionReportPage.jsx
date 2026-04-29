@@ -17,6 +17,7 @@ import {
 import { useCurrentUser } from "../../hooks/useCurrentUser";
 import { useSelector } from "react-redux";
 import { getHistory } from "../../services/historyService";
+import { getOrgUsers } from "../../services/userService";
 import ModelSelector from "./components/ModelSelector";
 import {
   STORAGE_KEY,
@@ -86,21 +87,34 @@ function InterventionReportPage() {
     draft.selectedModelName || "Voxtral Small 24B",
   );
   const [usedModel, setUsedModel] = useState(draft.usedModel || null);
+  const [orgUsers, setOrgUsers] = useState([]);
+  const [selectedEducatorId, setSelectedEducatorId] = useState(
+    draft.selectedEducatorId || user?.id,
+  );
 
   useEffect(() => {
     const fetchData = async () => {
       try {
+        if (role === "admin") {
+          const users = await getOrgUsers();
+          setOrgUsers(users);
+          if (!selectedEducatorId) {
+            setSelectedEducatorId(user?.id);
+          }
+        }
+
         const children = await getReferences();
         setReferences(children);
 
-        const archives = await getHistory(user?.id);
+        const educatorId = role === "admin" ? selectedEducatorId : user?.id;
+        const archives = await getHistory(educatorId);
         setArchivedCount(archives.length);
       } catch (err) {
         console.error("Erreur lors du chargement des données:", err);
       }
     };
     fetchData();
-  }, [user?.id]);
+  }, [user?.id, role, selectedEducatorId]);
 
   const handleModelChange = (model) => {
     setSelectedModelId(model.id);
@@ -257,6 +271,16 @@ function InterventionReportPage() {
     }
   };
 
+  if (role !== "agent" && role !== "admin") {
+    return (
+      <div className="h-full flex items-center justify-center py-6 px-2 md:px-5 md:py-8">
+        <div className="text-center">
+          <p className="text-(--text-muted) text-lg">Aucun agent disponible pour le moment</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div
       id="cr-page"
@@ -275,16 +299,39 @@ function InterventionReportPage() {
             subtitle="Compte rendu d'intervention"
           >
             {/* Desktop */}
-            <div className="hidden md:flex md:flex-row md:items-center gap-6 text-sm">
-              <div className="flex flex-col">
-                <p className="text-(--text-muted) text-xs">Professionnel</p>
-                <p className="font-semibold text-(--text-primary)">
-                  {fullName}
-                </p>
-                <p className="text-xs text-(--text-secondary)">
-                  {ROLE_LABELS[role] ?? role}
-                </p>
-              </div>
+            <div className="hidden md:flex md:flex-row md:items-center gap-6 text-sm overflow-x-auto">
+              {role === "admin" && orgUsers.length > 0 ? (
+                <div className="flex flex-col">
+                  <label
+                    htmlFor="educator-select"
+                    className="text-xs font-medium text-(--text-muted)"
+                  >
+                    Professionnel
+                  </label>
+                  <select
+                    id="educator-select"
+                    value={selectedEducatorId}
+                    onChange={(e) => setSelectedEducatorId(e.target.value)}
+                    className="rounded-xl border border-(--border) bg-(--bg-secondary) text-(--text-primary) px-4 py-2 text-base focus:outline-none focus:border-(--bleu-fonce) transition-colors"
+                  >
+                    {orgUsers.map((u) => (
+                      <option key={u.id} value={u.id}>
+                        {u.first_name} {u.last_name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              ) : (
+                <div className="flex flex-col">
+                  <p className="text-(--text-muted) text-xs">Professionnel</p>
+                  <p className="font-semibold text-(--text-primary)">
+                    {fullName}
+                  </p>
+                  <p className="text-xs text-(--text-secondary)">
+                    {ROLE_LABELS[role] ?? role}
+                  </p>
+                </div>
+              )}
               <div className="w-px h-10 bg-(--border)" />
               <div className="flex flex-col">
                 <p className="text-(--text-muted) text-xs">Structure</p>
@@ -329,17 +376,40 @@ function InterventionReportPage() {
             {/* Mobile */}
             <div className="flex md:hidden flex-col gap-4 text-[10px]">
               <div className="flex flex-row gap-2">
-                <div className="flex flex-col flex-1">
-                  <p className="text-(--text-muted) font-medium">
-                    Professionnel
-                  </p>
-                  <p className="font-semibold text-(--text-primary)">
-                    {fullName}
-                  </p>
-                  <p className="text-(--text-secondary)">
-                    {ROLE_LABELS[role] ?? role}
-                  </p>
-                </div>
+                {role === "admin" && orgUsers.length > 0 ? (
+                  <div className="flex flex-col flex-1">
+                    <label
+                      htmlFor="educator-select-mobile"
+                      className="font-medium text-(--text-muted)"
+                    >
+                      Professionnel
+                    </label>
+                    <select
+                      id="educator-select-mobile"
+                      value={selectedEducatorId}
+                      onChange={(e) => setSelectedEducatorId(e.target.value)}
+                      className="rounded-lg border border-(--border) bg-(--bg-secondary) text-(--text-primary) px-2 py-1 focus:outline-none focus:border-(--bleu-fonce) transition-colors"
+                    >
+                      {orgUsers.map((u) => (
+                        <option key={u.id} value={u.id}>
+                          {u.first_name} {u.last_name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                ) : (
+                  <div className="flex flex-col flex-1">
+                    <p className="text-(--text-muted) font-medium">
+                      Professionnel
+                    </p>
+                    <p className="font-semibold text-(--text-primary)">
+                      {fullName}
+                    </p>
+                    <p className="text-(--text-secondary)">
+                      {ROLE_LABELS[role] ?? role}
+                    </p>
+                  </div>
+                )}
                 <div className="w-px bg-(--border)" />
                 <div className="flex flex-col flex-1">
                   <p className="text-(--text-muted) font-medium">Structure</p>

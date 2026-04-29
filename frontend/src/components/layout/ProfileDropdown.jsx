@@ -2,14 +2,10 @@ import { useState, useRef, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { logout } from '../../services/authServices';
 import { setTheme } from '../../store/themeSlice';
-import { setRole } from '../../store/roleSlice';
 import { useCurrentUser } from '../../hooks/useCurrentUser';
-import { User, LogOut, Sun, Moon, ChevronDown, Download, ShieldCheck } from 'lucide-react';
+import { User, LogOut, Sun, Moon, ChevronDown, Download } from 'lucide-react';
 import { PWAInstallModal } from '../PWAInstallGuide';
 import ProfileModal from './ProfileModal';
-
-const ROLES = ['agent', 'direction', 'admin'];
-const ROLE_LABELS = { agent: 'Agent', direction: 'Directeur', admin: 'Admin' };
 
 function ProfileDropdown({ photo = null, mobile = false }) {
   const [open, setOpen] = useState(false);
@@ -18,12 +14,11 @@ function ProfileDropdown({ photo = null, mobile = false }) {
   const dropdownRef = useRef(null);
   const dispatch = useDispatch();
   const theme = useSelector((state) => state.theme.theme);
-  const role  = useSelector((state) => state.role.role);
-  const { fullName, initials, organization } = useCurrentUser();
+  const { fullName, job, initials, organization } = useCurrentUser();
 
   const jobType = organization
-    ? `${ROLE_LABELS[role] ?? role} · ${organization.name}`
-    : ROLE_LABELS[role] ?? role;
+    ? `${job} · ${organization.name}`
+    : job;
 
   const isDark = theme === 'dark';
 
@@ -149,25 +144,6 @@ function ProfileDropdown({ photo = null, mobile = false }) {
               {isDark ? 'Mode clair' : 'Mode sombre'}
             </span>
           </button>
-
-          <div className="mx-3 my-1 border-t border-(--border)" />
-
-          <div className="px-4 py-2 flex flex-row items-center gap-2">
-            <ShieldCheck size={15} className="text-(--text-muted) shrink-0" />
-            {ROLES.map((r) => (
-              <button
-                key={r}
-                onClick={() => dispatch(setRole(r))}
-                className={`flex-1 py-1.5 rounded-lg text-xs font-semibold transition-colors cursor-pointer ${
-                  role === r
-                    ? 'bg-(--bleu-fonce) text-white shadow-sm'
-                    : 'bg-(--bg-tertiary) text-(--text-muted) hover:text-(--text-secondary) hover:bg-(--bg-secondary)'
-                }`}
-              >
-                {ROLE_LABELS[r]}
-              </button>
-            ))}
-          </div>
 
           <div className="mx-3 my-1 border-t border-(--border)" />
 

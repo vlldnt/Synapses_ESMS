@@ -23,7 +23,7 @@ export async function login({ email, password }) {
       localStorage.setItem('auth_token', data.token);
       try {
         const payload = JSON.parse(atob(data.token.split('.')[1]));
-        store.dispatch(setRole(payload.is_admin ? 'admin' : 'agent'));
+        store.dispatch(setRole(payload.role || 'agent'));
       } catch { /* ignore */ }
     }
     if (data.user) {

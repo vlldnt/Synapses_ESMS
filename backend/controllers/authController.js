@@ -72,7 +72,7 @@ router.post('/login', async (req, res) => {
 
     const { hashed_password, ...safeUser } = user;
     const token = jwt.sign(
-      { userId: user.id, organizationId: user.organization_id, is_admin: user.is_admin },
+      { userId: user.id, organizationId: user.organization_id, role: user.role || 'agent' },
       process.env.JWT_SECRET,
       { expiresIn: process.env.JWT_EXPIRES_IN || '7d' },
     );
@@ -210,6 +210,7 @@ router.post('/organization-requests/complete/:token', async (req, res) => {
       email: request.contact_email,
       hashed_password: hashedPassword,
       job: 'Administrateur',
+      role: 'admin',
       organization_id: orgId,
       is_admin: true,
       status: 'active',
@@ -228,7 +229,7 @@ router.post('/organization-requests/complete/:token', async (req, res) => {
 
     const { hashed_password: _, ...safeUser } = newUser;
     const token = jwt.sign(
-      { userId: newUser.id, organizationId: orgId, is_admin: true },
+      { userId: newUser.id, organizationId: orgId, role: 'admin' },
       process.env.JWT_SECRET,
       { expiresIn: process.env.JWT_EXPIRES_IN || '7d' },
     );
@@ -307,7 +308,7 @@ router.post('/user-requests/complete/:token', async (req, res) => {
 
     const { hashed_password: _, ...safeUser } = newUser;
     const token = jwt.sign(
-      { userId: newUser.id, organizationId: inv.organization_id, is_admin: false },
+      { userId: newUser.id, organizationId: inv.organization_id, role: newUser.role || 'agent' },
       process.env.JWT_SECRET,
       { expiresIn: process.env.JWT_EXPIRES_IN || '7d' },
     );

@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { loadDocuments, saveDocuments, loadArchiveRefs, saveArchiveRefs } from '../db.js';
+import { checkDataAccess } from '../middleware/rbac.js';
 
 const router = Router();
 
@@ -7,28 +8,34 @@ const router = Router();
 router.get('/', async (req, res) => {
   try {
     const { userId } = req.query;
-    const orgId = req.auth.organizationId;
+    const { role, organizationId, userId: authUserId } = req.auth;
     const documents = await loadDocuments();
     const archiveRefs = await loadArchiveRefs();
 
     const docs = (Array.isArray(documents) ? documents : []).filter(
-      (doc) => doc?.organization_id === orgId,
+      (doc) => doc?.organization_id === organizationId,
     );
     const refs = (Array.isArray(archiveRefs) ? archiveRefs : []).filter(
-      (ref) => ref?.organization_id === orgId,
+      (ref) => ref?.organization_id === organizationId,
     );
 
-    if (!userId) {
+    if (userId && role !== 'admin' && userId !== authUserId) {
+      return res.status(403).json({ error: 'Cannot view other users archives' });
+    }
+
+    const targetUserId = userId || (role === 'admin' ? null : authUserId);
+
+    if (!targetUserId) {
       res.json(docs);
       return;
     }
 
     const documentIds = new Set(
-      refs.filter((ref) => ref?.creator_id === userId).map((ref) => ref?.document_id),
+      refs.filter((ref) => ref?.creator_id === targetUserId).map((ref) => ref?.document_id),
     );
     const linkedDocs = docs.filter((doc) => documentIds.has(doc?.id));
     const legacyDocs = docs.filter(
-      (doc) => doc?.creator_id === userId && !documentIds.has(doc?.id),
+      (doc) => doc?.creator_id === targetUserId && !documentIds.has(doc?.id),
     );
 
     res.json([...linkedDocs, ...legacyDocs]);
@@ -81,13 +88,21 @@ router.post('/', async (req, res) => {
 router.delete('/:id', async (req, res) => {
   try {
     const id = parseInt(req.params.id, 10);
-    const orgId = req.auth.organizationId;
+    const { organizationId, userId: authUserId, role } = req.auth;
     let documents = await loadDocuments();
     let archiveRefs = await loadArchiveRefs();
 
     const target = documents.find((e) => e.id === id);
-    if (target?.organization_id && target.organization_id !== orgId) {
-      return res.status(403).json({ error: 'Accès refusé.' });
+    if (!target) {
+      return res.status(404).json({ error: 'Document not found' });
+    }
+
+    if (target.organization_id !== organizationId) {
+      return res.status(403).json({ error: 'Cannot delete documents from other organizations' });
+    }
+
+    if (role !== 'admin' && target.creator_id !== authUserId) {
+      return res.status(403).json({ error: 'Can only delete own documents' });
     }
 
     documents = documents.filter((e) => e.id !== id);

@@ -3,6 +3,7 @@ import bcrypt from 'bcrypt';
 import crypto from 'crypto';
 import { Resend } from 'resend';
 import { loadJsonFile, saveJsonFile } from '../db.js';
+import { requireRole, checkDataAccess } from '../middleware/rbac.js';
 
 const router = Router();
 
@@ -31,29 +32,34 @@ async function sendInvitationEmail({ firstName, lastName, email, orgName, setAcc
   });
 }
 
-// GET /api/users
+// GET /api/users (list users in org - admin only)
 router.get('/', async (req, res) => {
   try {
-    const orgId = req.auth.organizationId;
+    const { organizationId, role } = req.auth;
     const users = await loadJsonFile('users.json');
-    res.json(
-      users
-        .filter((u) => u.organization_id === orgId)
-        .map(({ hashed_password, ...u }) => u),
-    );
+
+    if (role === 'admin') {
+      return res.json(
+        users
+          .filter((u) => u.organization_id === organizationId)
+          .map(({ hashed_password, is_admin, ...u }) => u),
+      );
+    }
+
+    res.status(403).json({ error: 'Only admins can list users' });
   } catch {
     res.status(500).json({ error: 'Failed to load users' });
   }
 });
 
 // POST /api/users
-router.post('/', async (req, res) => {
+router.post('/', requireRole('admin'), async (req, res) => {
   const { firstName, lastName, email, job, role, organizationId } = req.body;
   if (!firstName?.trim() || !lastName?.trim() || !email?.trim() || !organizationId) {
     return res.status(400).json({ error: 'Champs obligatoires manquants.' });
   }
   if (organizationId !== req.auth.organizationId) {
-    return res.status(403).json({ error: 'Organisation invalide.' });
+    return res.status(403).json({ error: 'Cannot create users in other organizations.' });
   }
   if (!EMAIL_REGEX.test(email)) return res.status(400).json({ error: 'Email invalide.' });
 
@@ -110,7 +116,7 @@ router.post('/', async (req, res) => {
 });
 
 // PUT /api/users/:id
-router.put('/:id', async (req, res) => {
+router.put('/:id', requireRole('admin'), async (req, res) => {
   try {
     const orgId = req.auth.organizationId;
     const users = await loadJsonFile('users.json');

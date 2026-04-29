@@ -1,65 +1,35 @@
 import { Router } from 'express';
 import crypto from 'crypto';
 import { loadJsonFile, saveJsonFile } from '../db.js';
+import { requireRole } from '../middleware/rbac.js';
 
 const router = Router();
 
-// GET /api/references
+// GET /api/references (read-only, agent sees own, admin sees all)
 router.get('/', async (req, res) => {
   try {
-    const orgId = req.auth.organizationId;
+    const { role, organizationId, userId } = req.auth;
     const refs = await loadJsonFile('references.json');
-    res.json(refs.filter((r) => r.organization_id === orgId));
+    const orgRefs = refs.filter((r) => r.organization_id === organizationId);
+
+    if (role === 'admin') {
+      return res.json(orgRefs);
+    }
+
+    res.json(orgRefs.filter((r) => r.educator === userId));
   } catch {
     res.status(500).json({ error: 'Failed to load references' });
   }
 });
 
-// POST /api/references
-router.post('/', async (req, res) => {
-  const { firstName, lastName, educatorId } = req.body;
-  if (!firstName?.trim() || !lastName?.trim()) {
-    return res.status(400).json({ error: 'Prénom et nom sont requis.' });
-  }
-
-  try {
-    const orgId = req.auth.organizationId;
-    const refs = await loadJsonFile('references.json');
-
-    const newRef = {
-      id: crypto.randomUUID(),
-      first_name: firstName.trim(),
-      last_name: lastName.trim(),
-      educator: educatorId || null,
-      organization_id: orgId,
-      created_at: new Date().toISOString(),
-    };
-
-    refs.push(newRef);
-    await saveJsonFile('references.json', refs);
-
-    res.status(201).json(newRef);
-  } catch (err) {
-    console.error('Error creating reference:', err);
-    res.status(500).json({ error: 'Erreur serveur.' });
-  }
+// POST /api/references (disabled)
+router.post('/', (req, res) => {
+  res.status(403).json({ error: 'References are read-only' });
 });
 
-// DELETE /api/references/:id
-router.delete('/:id', async (req, res) => {
-  try {
-    const orgId = req.auth.organizationId;
-    const refs = await loadJsonFile('references.json');
-    const target = refs.find((r) => r.id === req.params.id);
-
-    if (!target) return res.status(404).json({ error: 'Référence introuvable.' });
-    if (target.organization_id !== orgId) return res.status(403).json({ error: 'Accès refusé.' });
-
-    await saveJsonFile('references.json', refs.filter((r) => r.id !== req.params.id));
-    res.json({ success: true });
-  } catch {
-    res.status(500).json({ error: 'Erreur serveur.' });
-  }
+// DELETE /api/references/:id (disabled)
+router.delete('/:id', (req, res) => {
+  res.status(403).json({ error: 'References are read-only' });
 });
 
 export default router;

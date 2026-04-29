@@ -2,8 +2,8 @@ import { useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { setTheme } from './store/themeSlice';
-import { setRole } from './store/roleSlice';
 import { setOrganization } from './store/authSlice';
+import { setRole } from './store/roleSlice';
 import { getOrganizationById } from './services/organizationService';
 import { Sun, Moon } from 'lucide-react';
 import './App.css';
@@ -24,34 +24,13 @@ import BilanEvaluationPage from './features/bilanEvaluation/BilanEvaluationPage'
 import ArchivesPage from './features/archives/ArchivesPage';
 import AdminPage from './features/admin/AdminPage';
 
-const ROLES = ['agent', 'direction', 'admin'];
-const ROLE_LABELS = { agent: 'Agent', direction: 'Direction', admin: 'Admin' };
-
 function TopControls() {
   const dispatch = useDispatch();
   const theme = useSelector((state) => state.theme.theme);
-  const role = useSelector((state) => state.role.role);
   const isDark = theme === 'dark';
 
   return (
     <div className="hidden md:flex fixed top-2 right-4 z-100 items-center gap-2">
-      {/* Role switcher */}
-      <div className="flex rounded-full bg-(--bg-primary)/80 backdrop-blur-sm shadow-lg border border-(--border) overflow-hidden text-xs font-medium">
-        {ROLES.map((r) => (
-          <button
-            key={r}
-            onClick={() => dispatch(setRole(r))}
-            className={`px-3 py-1.5 transition-colors duration-150 cursor-pointer ${
-              role === r
-                ? 'bg-(--bleu-fonce) text-white'
-                : 'text-(--text-secondary) hover:bg-(--bg-tertiary)'
-            }`}
-          >
-            {ROLE_LABELS[r]}
-          </button>
-        ))}
-      </div>
-
       {/* Theme toggle */}
       <button
         id="theme-toggle"
@@ -84,7 +63,7 @@ function App() {
       if (token) {
         try {
           const payload = JSON.parse(atob(token.split('.')[1]));
-          dispatch(setRole(payload.is_admin ? 'admin' : 'agent'));
+          dispatch(setRole(payload.role || 'agent'));
         } catch { /* ignore */ }
       }
     }
