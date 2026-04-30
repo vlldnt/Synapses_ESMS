@@ -37,7 +37,7 @@ export async function saveArchiveRefs(d) { return saveJsonFile('archives.json', 
 export async function ensureDataDir() {
   try {
     await fs.mkdir(DATA_DIR, { recursive: true });
-    for (const file of ['documents.json', 'archives.json']) {
+    for (const file of ARRAY_FILES) {
       try {
         await fs.access(path.join(DATA_DIR, file));
       } catch {
