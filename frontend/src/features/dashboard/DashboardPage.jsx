@@ -9,54 +9,11 @@ import { getEnrichedInfo } from '../../utils/documentEnricher';
 import { extractPreviewTextFromDocxBase64 } from '../../utils/docxPreview';
 import Button from '../../components/Button';
 import WordPreview from '../../components/WordPreview';
+import AgentCard from './component/AgentCard';
 import { AGENTS } from '../../constants/agents';
 import { getDocTypeLabel, getDocColorFromLabel } from '../../utils/docTypeBadge';
 import { authFetch } from '../../services/authServices';
-import { FileText, ChevronRight, Download, X } from 'lucide-react';
-
-function AgentCard({ agent }) {
-  const isAvailable = !!agent.to;
-  const color = agent.color;
-
-  const inner = (
-    <div
-      className={`rounded-2xl bg-(--bg-primary) p-4 h-full flex flex-col gap-3 transition-all duration-200 ${
-        isAvailable
-          ? 'border border-(--border) hover:shadow-lg hover:-translate-y-0.5 cursor-pointer'
-          : 'border border-(--border) opacity-35 cursor-default'
-      }`}
-      style={isAvailable ? { borderLeftColor: color, borderLeftWidth: '3px' } : {}}
-    >
-      <div className="flex items-center justify-between gap-2">
-        <span
-          className="inline-flex items-center justify-center px-2 h-6 rounded-full text-[10px] font-bold text-white shrink-0"
-          style={{ background: isAvailable ? color : '#94a3b8' }}
-        >
-          {agent.badge}
-        </span>
-        {!isAvailable && (
-          <span className="text-[10px] px-1.5 py-0.5 rounded-md bg-(--bg-tertiary) text-(--text-muted) font-medium shrink-0">
-            Bientôt
-          </span>
-        )}
-      </div>
-      <p className={`text-xs md:text-sm font-semibold leading-snug flex-1 ${isAvailable ? 'text-(--text-primary)' : 'text-(--text-muted)'}`}>
-        {agent.title}
-      </p>
-      {isAvailable && (
-        <div className="flex items-center gap-1 text-xs font-medium" style={{ color }}>
-          Ouvrir <ChevronRight size={11} />
-        </div>
-      )}
-    </div>
-  );
-
-  return isAvailable ? (
-    <Link to={agent.to} className="block h-full">{inner}</Link>
-  ) : (
-    <div className="h-full">{inner}</div>
-  );
-}
+import { FileText, Download, X, ChevronRight } from 'lucide-react';
 
 function timeAgo(isoDate) {
   const diff = Date.now() - new Date(isoDate).getTime();
@@ -212,13 +169,60 @@ function DashboardPage() {
         {/* Header */}
         <div>
           <h1 className="text-xl md:text-3xl text-(--text-primary)">
-            Bonjour {firstName}
-            {job && <span className="ml-2 text-sm font-normal text-(--text-muted)">{job}</span>}
+            {role === 'admin' ? 'Bonjour Admin' : `Bonjour ${firstName}`}
+            {role !== 'admin' && job && <span className="ml-2 text-sm font-normal text-(--text-muted)">{job}</span>}
           </h1>
           <p className="mt-1 text-xs md:text-sm text-(--text-muted)">
             {date} — {organisationType && `${organisationType} - `}{etablissementName}
           </p>
         </div>
+
+        {/* Admin Panel */}
+        {role === 'admin' && (
+          <div className="rounded-2xl border border-(--border) bg-(--bg-primary) shadow-sm overflow-hidden">
+            <div className="px-5 pt-5 pb-3 border-b border-(--border)">
+              <h2 className="text-sm md:text-base font-semibold text-(--text-primary)">Panneau d'administration</h2>
+            </div>
+            <div className="p-4 md:p-5 space-y-4">
+              {/* Stats */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                <div className="bg-(--bg-secondary) rounded-lg p-3">
+                  <p className="text-xs text-(--text-muted)">Agents</p>
+                  <p className="text-2xl font-bold text-(--text-primary)">{users.length}</p>
+                </div>
+                <div className="bg-(--bg-secondary) rounded-lg p-3">
+                  <p className="text-xs text-(--text-muted)">Documents</p>
+                  <p className="text-2xl font-bold text-(--text-primary)">{history.length}</p>
+                </div>
+                <div className="bg-(--bg-secondary) rounded-lg p-3">
+                  <p className="text-xs text-(--text-muted)">Organisation</p>
+                  <p className="text-sm font-semibold text-(--text-primary) truncate">{etablissementName}</p>
+                </div>
+                <div className="bg-(--bg-secondary) rounded-lg p-3">
+                  <Link to="/admin" className="text-xs text-(--bleu-fonce) hover:underline font-medium">
+                    → Administration
+                  </Link>
+                </div>
+              </div>
+
+              {/* Quick Actions */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2">
+                <div className="bg-(--bg-secondary) rounded-lg p-3">
+                  <p className="text-xs font-semibold text-(--text-primary) mb-2">Ajouter un agent</p>
+                  <Link to="/admin" className="text-xs text-(--bleu-fonce) hover:underline">
+                    Gérer les agents →
+                  </Link>
+                </div>
+                <div className="bg-(--bg-secondary) rounded-lg p-3">
+                  <p className="text-xs font-semibold text-(--text-primary) mb-2">Ajouter une référence</p>
+                  <Link to="/admin" className="text-xs text-(--bleu-fonce) hover:underline">
+                    Gérer les références →
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Agent cards */}
         <div className="rounded-2xl border border-(--border) bg-(--bg-primary) shadow-sm overflow-hidden">
