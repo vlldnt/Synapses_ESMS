@@ -10,10 +10,12 @@ import { extractPreviewTextFromDocxBase64 } from '../../utils/docxPreview';
 import Button from '../../components/Button';
 import WordPreview from '../../components/WordPreview';
 import AgentCard from './component/AgentCard';
+import CreateUserModal from '../../components/admin/CreateUserModal';
+import CreateReferenceModal from '../../components/admin/CreateReferenceModal';
 import { AGENTS } from '../../constants/agents';
 import { getDocTypeLabel, getDocColorFromLabel } from '../../utils/docTypeBadge';
 import { authFetch } from '../../services/authServices';
-import { FileText, Download, X, ChevronRight } from 'lucide-react';
+import { Download, X, ChevronRight } from 'lucide-react';
 
 function timeAgo(isoDate) {
   const diff = Date.now() - new Date(isoDate).getTime();
@@ -32,11 +34,14 @@ function DashboardPage() {
   const [date, setDate] = useState('');
   const [history, setHistory] = useState([]);
   const [users, setUsers] = useState([]);
+  const [references, setReferences] = useState([]);
   const [organizations, setOrganizations] = useState([]);
   const [selectedEntry, setSelectedEntry] = useState(null);
   const [isDownloading, setIsDownloading] = useState(false);
   const [previewText, setPreviewText] = useState('');
   const [isPreviewLoading, setIsPreviewLoading] = useState(false);
+  const [showAddAgentModal, setShowAddAgentModal] = useState(false);
+  const [showAddRefModal, setShowAddRefModal] = useState(false);
 
   const visibleAgents = AGENTS.filter((a) => a.roles.includes(role));
 
@@ -51,20 +56,25 @@ function DashboardPage() {
     (async () => {
       try {
         const basename = import.meta.env.VITE_BASENAME || '/synapses';
-        const [archives, usersData, orgsData] = await Promise.all([
+        const promises = [
           getHistory(user?.id),
-          authFetch(`${basename}/api/users`).then(r => r.json()),
           authFetch(`${basename}/api/organizations`).then(r => r.json()),
-        ]);
+        ];
+        if (role === 'admin') {
+          promises.push(authFetch(`${basename}/api/users`).then(r => r.json()));
+          promises.push(authFetch(`${basename}/api/references`).then(r => r.json()));
+        }
+        const [archives, orgsData, usersData, refsData] = await Promise.all(promises);
         setHistory(archives);
-        setUsers(usersData);
         setOrganizations(orgsData);
+        if (usersData) setUsers(Array.isArray(usersData) ? usersData : []);
+        if (refsData) setReferences(Array.isArray(refsData) ? refsData : []);
       } catch (err) {
         console.error('Failed to load data:', err);
         setHistory([]);
       }
     })();
-  }, [user?.id]);
+  }, [user?.id, role]);
 
   const handleDownload = async () => {
     if (!selectedEntry) return;
@@ -181,44 +191,92 @@ function DashboardPage() {
         {role === 'admin' && (
           <div className="rounded-2xl border border-(--border) bg-(--bg-primary) shadow-sm overflow-hidden">
             <div className="px-5 pt-5 pb-3 border-b border-(--border)">
-              <h2 className="text-sm md:text-base font-semibold text-(--text-primary)">Panneau d'administration</h2>
-            </div>
-            <div className="p-4 md:p-5 space-y-4">
-              {/* Stats */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                <div className="bg-(--bg-secondary) rounded-lg p-3">
-                  <p className="text-xs text-(--text-muted)">Agents</p>
-                  <p className="text-2xl font-bold text-(--text-primary)">{users.length}</p>
+              <div className="flex items-start justify-between">
+                <div>
+                  <h2 className="text-sm md:text-base font-semibold text-(--text-primary)">Panneau d'administration</h2>
+                  <p className="text-xs text-(--text-muted) mt-0.5">
+                    {organisationType && `${organisationType} · `}{etablissementName}
+                  </p>
                 </div>
-                <div className="bg-(--bg-secondary) rounded-lg p-3">
-                  <p className="text-xs text-(--text-muted)">Documents</p>
-                  <p className="text-2xl font-bold text-(--text-primary)">{history.length}</p>
-                </div>
-                <div className="bg-(--bg-secondary) rounded-lg p-3">
-                  <p className="text-xs text-(--text-muted)">Organisation</p>
-                  <p className="text-sm font-semibold text-(--text-primary) truncate">{etablissementName}</p>
-                </div>
-                <div className="bg-(--bg-secondary) rounded-lg p-3">
-                  <Link to="/admin" className="text-xs text-(--bleu-fonce) hover:underline font-medium">
-                    → Administration
-                  </Link>
-                </div>
+                <Link to="/admin" className="text-xs text-(--bleu-fonce) hover:underline font-medium shrink-0">
+                  → Administration
+                </Link>
               </div>
+            </div>
+            <div className="p-4 md:p-5">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
 
-              {/* Quick Actions */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2">
-                <div className="bg-(--bg-secondary) rounded-lg p-3">
-                  <p className="text-xs font-semibold text-(--text-primary) mb-2">Ajouter un agent</p>
-                  <Link to="/admin" className="text-xs text-(--bleu-fonce) hover:underline">
-                    Gérer les agents →
-                  </Link>
+                {/* Agents */}
+                <div className="bg-(--bg-secondary) rounded-xl p-4 flex flex-col gap-3">
+                  <div className="flex items-center justify-between">
+                    <p className="text-sm font-semibold text-(--text-primary)">Agents · {users.length}</p>
+                    <button
+                      type="button"
+                      onClick={() => setShowAddAgentModal(true)}
+                      className="text-xs px-3 py-1.5 rounded-lg bg-[#1294C3] text-white hover:bg-[#0D66D4] cursor-pointer transition-colors"
+                    >
+                      + Ajouter
+                    </button>
+                  </div>
+                  <div className="flex flex-col gap-2 max-h-44 overflow-y-auto">
+                    {users.slice(0, 8).map((u) => (
+                      <div key={u.id} className="flex items-center gap-2.5">
+                        <div className="w-7 h-7 rounded-full bg-(--bg-primary) flex items-center justify-center text-xs font-semibold text-(--text-secondary) shrink-0 uppercase">
+                          {u.first_name?.[0]}{u.last_name?.[0]}
+                        </div>
+                        <div className="min-w-0">
+                          <p className="text-xs font-medium text-(--text-primary) truncate">{u.first_name} {u.last_name}</p>
+                          {u.job && <p className="text-[11px] text-(--text-muted) truncate">{u.job}</p>}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
-                <div className="bg-(--bg-secondary) rounded-lg p-3">
-                  <p className="text-xs font-semibold text-(--text-primary) mb-2">Ajouter une référence</p>
-                  <Link to="/admin" className="text-xs text-(--bleu-fonce) hover:underline">
-                    Gérer les références →
-                  </Link>
+
+                {/* Références */}
+                <div className="bg-(--bg-secondary) rounded-xl p-4 flex flex-col gap-3">
+                  <div className="flex items-center justify-between">
+                    <p className="text-sm font-semibold text-(--text-primary)">Références · {references.length}</p>
+                    <button
+                      type="button"
+                      onClick={() => setShowAddRefModal(true)}
+                      className="text-xs px-3 py-1.5 rounded-lg bg-[#0D66D4] text-white hover:bg-[#1294C3] cursor-pointer transition-colors"
+                    >
+                      + Ajouter
+                    </button>
+                  </div>
+                  <div className="flex flex-col gap-2 max-h-44 overflow-y-auto">
+                    {references.slice(0, 8).map((r) => (
+                      <div key={r.id} className="flex items-center gap-2.5">
+                        <div className="w-7 h-7 rounded-full bg-(--bg-primary) flex items-center justify-center text-xs font-semibold text-(--text-secondary) shrink-0 uppercase">
+                          {r.first_name?.[0]}{r.last_name?.[0]}
+                        </div>
+                        <p className="text-xs font-medium text-(--text-primary) truncate">{r.first_name} {r.last_name}</p>
+                      </div>
+                    ))}
+                  </div>
                 </div>
+
+                {/* Documents */}
+                <div className="bg-(--bg-secondary) rounded-xl p-4 flex flex-col gap-3">
+                  <div className="flex items-center justify-between">
+                    <p className="text-sm font-semibold text-(--text-primary)">Documents · {history.length}</p>
+                    <Link
+                      to="/admin"
+                      className="text-xs px-3 py-1.5 rounded-lg bg-[#9B2CB6] text-white hover:opacity-80 cursor-pointer transition-opacity"
+                    >
+                      Voir →
+                    </Link>
+                  </div>
+                  <div className="flex flex-col gap-2 max-h-44 overflow-y-auto">
+                    {history.slice(0, 8).map((doc) => (
+                      <p key={doc.id} className="text-xs text-(--text-primary) truncate">
+                        {doc.filename || doc.type || 'Document'}
+                      </p>
+                    ))}
+                  </div>
+                </div>
+
               </div>
             </div>
           </div>
@@ -232,7 +290,7 @@ function DashboardPage() {
               Voir tout <ChevronRight size={12} />
             </Link>
           </div>
-          <div className="p-4 md:p-5 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
+          <div className="p-4 md:p-5 grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-3">
             {visibleAgents.map((agent) => (
               <AgentCard key={agent.id} agent={agent} />
             ))}
@@ -335,6 +393,35 @@ function DashboardPage() {
             </div>
           </div>
         </div>
+      )}
+
+      {role === 'admin' && showAddAgentModal && (
+        <CreateUserModal
+          organizationId={user?.organization_id}
+          onClose={() => setShowAddAgentModal(false)}
+          onCreated={() => {
+            setShowAddAgentModal(false);
+            (async () => {
+              try {
+                const basename = import.meta.env.VITE_BASENAME || '/synapses';
+                const usersData = await authFetch(`${basename}/api/users`).then(r => r.json());
+                setUsers(usersData);
+              } catch (err) {
+                console.error('Failed to reload users:', err);
+              }
+            })();
+          }}
+        />
+      )}
+
+      {role === 'admin' && showAddRefModal && (
+        <CreateReferenceModal
+          employees={users}
+          onClose={() => setShowAddRefModal(false)}
+          onCreated={() => {
+            setShowAddRefModal(false);
+          }}
+        />
       )}
 
     </div>
