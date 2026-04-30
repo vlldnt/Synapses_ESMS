@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { Navigate } from 'react-router-dom';
+import { Navigate, useLocation } from 'react-router-dom';
 import { Users, BookUser, FileText, Plus, Trash2, Download, X } from 'lucide-react';
 import { authFetch } from '../../services/authServices';
 import { deleteReference } from '../../services/referenceService';
@@ -56,8 +56,9 @@ function DocBadge({ doc }) {
 function AdminPage() {
   const role = useSelector((state) => state.role.role);
   const { user, organization } = useCurrentUser();
+  const location = useLocation();
 
-  const [activeTab, setActiveTab] = useState('overview');
+  const [activeTab, setActiveTab] = useState(location.state?.tab || 'overview');
   const [employees, setEmployees] = useState([]);
   const [references, setReferences] = useState([]);
   const [documents, setDocuments] = useState([]);

@@ -191,12 +191,13 @@ function DashboardPage() {
         {role === 'admin' && (
           <div className="rounded-2xl border border-(--border) bg-(--bg-primary) shadow-sm overflow-hidden">
             <div className="px-5 pt-5 pb-3 border-b border-(--border)">
-              <div className="flex items-start justify-between">
-                <div>
+              <div className="flex items-center justify-between gap-3">
+                <div className="flex items-center gap-2 flex-wrap">
                   <h2 className="text-sm md:text-base font-semibold text-(--text-primary)">Panneau d'administration</h2>
-                  <p className="text-xs text-(--text-muted) mt-0.5">
-                    {organisationType && `${organisationType} · `}{etablissementName}
-                  </p>
+                  <span className="text-[11px] font-medium text-(--text-muted) bg-(--bg-secondary) px-2 py-0.5 rounded-full border border-(--border)">Admin</span>
+                  <span className="text-xs text-(--text-muted)">
+                    {organisationType && `${organisationType} — `}{etablissementName}
+                  </span>
                 </div>
                 <Link to="/admin" className="text-xs text-(--bleu-fonce) hover:underline font-medium shrink-0">
                   → Administration
@@ -207,48 +208,65 @@ function DashboardPage() {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
 
                 {/* Agents */}
-                <div className="bg-(--bg-secondary) rounded-xl p-4 flex flex-col gap-3">
-                  <div className="flex items-center justify-between">
-                    <p className="text-sm font-semibold text-(--text-primary)">Agents · {users.length}</p>
+                <div className="bg-(--bg-primary) rounded-xl p-4 flex flex-col gap-3">
+                  <div className="flex items-center justify-between gap-2">
+                    <Link
+                      to="/admin"
+                      state={{ tab: 'employes' }}
+                      className="flex items-center gap-2 group"
+                    >
+                      <span className="w-1.5 h-5 rounded-full bg-[#1294C3] shrink-0" />
+                      <span className="text-sm font-bold text-(--text-primary) group-hover:text-[#1294C3] transition-colors">Agents</span>
+                      <span className="text-xs font-medium text-white bg-[#1294C3] px-1.5 py-0.5 rounded-full">{users.length}</span>
+                    </Link>
                     <button
                       type="button"
                       onClick={() => setShowAddAgentModal(true)}
-                      className="text-xs px-3 py-1.5 rounded-lg bg-[#1294C3] text-white hover:bg-[#0D66D4] cursor-pointer transition-colors"
+                      className="text-xs px-3 py-1.5 rounded-lg bg-[#1294C3] text-white hover:bg-[#0D66D4] cursor-pointer transition-colors shrink-0"
                     >
                       + Ajouter
                     </button>
                   </div>
-                  <div className="flex flex-col gap-2 max-h-44 overflow-y-auto">
-                    {users.slice(0, 8).map((u) => (
-                      <div key={u.id} className="flex items-center gap-2.5">
-                        <div className="w-7 h-7 rounded-full bg-(--bg-primary) flex items-center justify-center text-xs font-semibold text-(--text-secondary) shrink-0 uppercase">
+                  <span className="block h-px bg-(--border)" />
+                  <div className="flex flex-col gap-2 overflow-y-auto" style={{ maxHeight: '108px' }}>
+                    {users.map((u) => (
+                      <div key={u.id} className="flex items-center gap-2.5 shrink-0">
+                        <div className="w-7 h-7 rounded-full bg-(--bg-secondary) flex items-center justify-center text-xs font-semibold text-(--text-secondary) shrink-0 uppercase">
                           {u.first_name?.[0]}{u.last_name?.[0]}
                         </div>
-                        <div className="min-w-0">
-                          <p className="text-xs font-medium text-(--text-primary) truncate">{u.first_name} {u.last_name}</p>
-                          {u.job && <p className="text-[11px] text-(--text-muted) truncate">{u.job}</p>}
-                        </div>
+                        <p className="text-xs font-medium text-(--text-primary) truncate min-w-0">
+                          {u.first_name} {u.last_name}{u.job && <span className="text-(--text-muted) font-normal"> · {u.job}</span>}
+                        </p>
                       </div>
                     ))}
                   </div>
                 </div>
 
                 {/* Références */}
-                <div className="bg-(--bg-secondary) rounded-xl p-4 flex flex-col gap-3">
-                  <div className="flex items-center justify-between">
-                    <p className="text-sm font-semibold text-(--text-primary)">Références · {references.length}</p>
+                <div className="bg-(--bg-primary) rounded-xl p-4 flex flex-col gap-3">
+                  <div className="flex items-center justify-between gap-2">
+                    <Link
+                      to="/admin"
+                      state={{ tab: 'references' }}
+                      className="flex items-center gap-2 group"
+                    >
+                      <span className="w-1.5 h-5 rounded-full bg-[#0D66D4] shrink-0" />
+                      <span className="text-sm font-bold text-(--text-primary) group-hover:text-[#0D66D4] transition-colors">Références</span>
+                      <span className="text-xs font-medium text-white bg-[#0D66D4] px-1.5 py-0.5 rounded-full">{references.length}</span>
+                    </Link>
                     <button
                       type="button"
                       onClick={() => setShowAddRefModal(true)}
-                      className="text-xs px-3 py-1.5 rounded-lg bg-[#0D66D4] text-white hover:bg-[#1294C3] cursor-pointer transition-colors"
+                      className="text-xs px-3 py-1.5 rounded-lg bg-[#0D66D4] text-white hover:bg-[#1294C3] cursor-pointer transition-colors shrink-0"
                     >
                       + Ajouter
                     </button>
                   </div>
-                  <div className="flex flex-col gap-2 max-h-44 overflow-y-auto">
-                    {references.slice(0, 8).map((r) => (
-                      <div key={r.id} className="flex items-center gap-2.5">
-                        <div className="w-7 h-7 rounded-full bg-(--bg-primary) flex items-center justify-center text-xs font-semibold text-(--text-secondary) shrink-0 uppercase">
+                  <span className="block h-px bg-(--border)" />
+                  <div className="flex flex-col gap-2 overflow-y-auto" style={{ maxHeight: '108px' }}>
+                    {references.map((r) => (
+                      <div key={r.id} className="flex items-center gap-2.5 shrink-0">
+                        <div className="w-7 h-7 rounded-full bg-(--bg-secondary) flex items-center justify-center text-xs font-semibold text-(--text-secondary) shrink-0 uppercase">
                           {r.first_name?.[0]}{r.last_name?.[0]}
                         </div>
                         <p className="text-xs font-medium text-(--text-primary) truncate">{r.first_name} {r.last_name}</p>
@@ -258,19 +276,29 @@ function DashboardPage() {
                 </div>
 
                 {/* Documents */}
-                <div className="bg-(--bg-secondary) rounded-xl p-4 flex flex-col gap-3">
-                  <div className="flex items-center justify-between">
-                    <p className="text-sm font-semibold text-(--text-primary)">Documents · {history.length}</p>
+                <div className="bg-(--bg-primary) rounded-xl p-4 flex flex-col gap-3">
+                  <div className="flex items-center justify-between gap-2">
                     <Link
                       to="/admin"
-                      className="text-xs px-3 py-1.5 rounded-lg bg-[#9B2CB6] text-white hover:opacity-80 cursor-pointer transition-opacity"
+                      state={{ tab: 'documents' }}
+                      className="flex items-center gap-2 group"
+                    >
+                      <span className="w-1.5 h-5 rounded-full bg-[#9B2CB6] shrink-0" />
+                      <span className="text-sm font-bold text-(--text-primary) group-hover:text-[#9B2CB6] transition-colors">Documents</span>
+                      <span className="text-xs font-medium text-white bg-[#9B2CB6] px-1.5 py-0.5 rounded-full">{history.length}</span>
+                    </Link>
+                    <Link
+                      to="/admin"
+                      state={{ tab: 'documents' }}
+                      className="text-xs px-3 py-1.5 rounded-lg bg-[#9B2CB6] text-white hover:opacity-80 transition-opacity shrink-0"
                     >
                       Voir →
                     </Link>
                   </div>
-                  <div className="flex flex-col gap-2 max-h-44 overflow-y-auto">
-                    {history.slice(0, 8).map((doc) => (
-                      <p key={doc.id} className="text-xs text-(--text-primary) truncate">
+                  <span className="block h-px bg-(--border)" />
+                  <div className="flex flex-col gap-2 overflow-y-auto" style={{ maxHeight: '108px' }}>
+                    {history.map((doc) => (
+                      <p key={doc.id} className="text-xs text-(--text-primary) truncate shrink-0">
                         {doc.filename || doc.type || 'Document'}
                       </p>
                     ))}
@@ -290,7 +318,7 @@ function DashboardPage() {
               Voir tout <ChevronRight size={12} />
             </Link>
           </div>
-          <div className="p-4 md:p-5 grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-3">
+          <div className="p-4 md:p-5 grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 xl:grid-cols-7 gap-3">
             {visibleAgents.map((agent) => (
               <AgentCard key={agent.id} agent={agent} />
             ))}
