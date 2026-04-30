@@ -223,7 +223,7 @@ function DashboardPage() {
         {/* Agent cards */}
         <div className="rounded-2xl border border-(--border) bg-(--bg-primary) shadow-sm overflow-hidden">
           <div className="flex items-center justify-between px-5 pt-5 pb-3 border-b border-(--border)">
-            <h2 className="text-sm md:text-base font-semibold text-(--text-primary)">Mes agents</h2>
+            <h2 className="text-sm md:text-base font-semibold text-(--text-primary)">Mes agents de rédaction</h2>
             <Link to="/compte_rendu_intervention" className="text-xs text-(--bleu-fonce) hover:underline flex items-center gap-0.5">
               Voir tout <ChevronRight size={12} />
             </Link>
