@@ -25,3 +25,8 @@ desktop.ini
 .idea/
 *.suo
 *.sw?
+
+node_modules/
+.env
+.env.local
+google-key.json
