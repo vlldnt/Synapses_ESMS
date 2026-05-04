@@ -1,7 +1,7 @@
 from app.persistance.all_repo import UserRepository, OrganisationRepository, ReferenceRepository
 from app.models.user import User
-from app.models.organisation import Organisation
-from app.models.references import References
+from backend.app.models.organizations import Organization
+from app.models.references import Reference
 
 class ApiFacade:
     def __init__(self):
@@ -31,7 +31,7 @@ class ApiFacade:
     
     """ Organisation facade """
     def create_org(self, organisation_data):
-        organisation = Organisation(**organisation_data)
+        organisation = Organization(**organisation_data)
         return self.organisation_repo.add(organisation)
     
     def get_organisation(self, organisation_id):
@@ -42,7 +42,7 @@ class ApiFacade:
     
     """ References facade """
     def create_ref(self, reference_data):
-        reference = References(**reference_data)
+        reference = Reference(**reference_data)
         return self.reference_repo.add(reference)
     
     def get_reference(self, reference_id):
