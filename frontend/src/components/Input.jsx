@@ -7,7 +7,7 @@ const MONTHS = [
 ];
 
 const fieldClass =
-  'w-full px-3 py-2 md:px-4 md:py-2.5 rounded-lg border border-(--border) bg-(--bg-secondary) text-(--text-primary) placeholder-(--text-muted) focus:outline-none focus:ring-2 focus:ring-[#1294C3] focus:border-transparent transition-shadow text-sm md:text-base disabled:opacity-50 disabled:cursor-not-allowed';
+  'w-full px-3 py-2 md:px-4 md:py-2.5 rounded-lg border border-(--border) bg-(--bg-secondary) text-(--text-primary) placeholder-(--text-muted) focus:outline-none focus:ring-2 focus:ring-[#1294C3] focus:border-transparent transition-shadow text-[12px]! md:text-[14px]! lg:text-[16px]! placeholder:text-[10px]! md:placeholder:text-[12px]! lg:placeholder:text-[14px]! disabled:opacity-50 disabled:cursor-not-allowed';
 
 function CalendarPicker({ value, onChange, min, max, onClose }) {
   const today = new Date();

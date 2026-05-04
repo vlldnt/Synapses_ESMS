@@ -1,12 +1,46 @@
 services:
-  frontend-prod:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: synapses-backend
+    restart: unless-stopped
+    ports:
+      - "${BACKEND_PORT:-3002}:${BACKEND_PORT:-3002}"
+    volumes:
+      - ./backend/data:/app/data
+    environment:
+      - PORT=${BACKEND_PORT:-3002}
+      - NODE_ENV=${NODE_ENV:-production}
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_EXPIRES_IN=${JWT_EXPIRES_IN:-7d}
+      - RESEND_API_KEY=${RESEND_API_KEY}
+      - ADMIN_EMAIL=${ADMIN_EMAIL}
+      - APP_URL=${APP_URL}
+    networks:
+      - synapses
+
+  frontend:
     build:
       context: ./frontend
-      dockerfile: DOCKERFILE.prod
+      dockerfile: Dockerfile
+      args:
+        - VITE_OPENROUTER_API_KEY=${VITE_OPENROUTER_API_KEY}
+        - VITE_API_URL=${VITE_API_URL:-/api}
+        - VITE_BASENAME=${VITE_BASENAME:-/synapses}
     container_name: synapses-frontend
     ports:
-      - "127.0.0.1:8083:80"
+      - "${FRONTEND_PORT:-8083}:80"
     restart: unless-stopped
-    profiles: [prod]
+    depends_on:
+      - backend
+    environment:
+      - VITE_BACKEND_URL=http://backend:${BACKEND_PORT:-3002}
     extra_hosts:
       - "host.docker.internal:host-gateway"
+    networks:
+      - synapses
+
+networks:
+  synapses:
+    driver: bridge

@@ -1,0 +1,41 @@
+[
+  {
+    "id": "09eca25d-d955-4136-93f2-4467f2df37eb",
+    "first_name": "Adrien",
+    "last_name": "Vieilledent",
+    "email": "adrien@synapses.fr",
+    "hashed_password": "$2b$12$ma.Pk5eFcDIKFn0U8Nucsum8GWt379tC294xQeTggqKeLhCbxUVYy",
+    "job": "Administrateur",
+    "role": "admin",
+    "organization_id": "b8178a42-d8b8-41dc-ab43-5ff4743313d3",
+    "is_admin": true,
+    "status": "active",
+    "created_at": "2026-04-28T09:31:34.293Z"
+  },
+  {
+    "id": "3cc14d1c-591d-468b-bad4-bfa0e79b25f4",
+    "first_name": "Tom",
+    "last_name": "Vieilledent",
+    "email": "cyprien@synapses.fr",
+    "hashed_password": "$2b$12$EuBng6ZoG4WSTo2gkivfS.e/M6wrVM3USVjd4D3QeyUW7tZDLHQXC",
+    "job": "Éducateur(rice) spécialisé(e)",
+    "role": "agent",
+    "organization_id": "b8178a42-d8b8-41dc-ab43-5ff4743313d3",
+    "is_admin": false,
+    "status": "active",
+    "created_at": "2026-04-29T09:15:09.480Z"
+  },
+  {
+    "id": "1c38aaee-4a20-43b3-bb92-92cd4f898dc1",
+    "first_name": "Théo",
+    "last_name": "Caulet",
+    "email": "pierre@synapses.fr",
+    "hashed_password": "$2b$12$M4n0EjtJjfpXPbKZqyNG6eZxMa8YDBujXLl61nOis9eCVCSRbtFie",
+    "job": "",
+    "role": "direction",
+    "organization_id": "b8178a42-d8b8-41dc-ab43-5ff4743313d3",
+    "is_admin": false,
+    "status": "active",
+    "created_at": "2026-04-29T09:37:58.643Z"
+  }
+]

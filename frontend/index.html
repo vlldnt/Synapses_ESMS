@@ -3,8 +3,14 @@
 
 <head>
   <meta charset="UTF-8" />
-  <link rel="icon" type="image/png" href="/favicon.png" />
+  <link rel="icon" type="image/png" href="./favicon.png" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#0D66D4" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="Synapses" />
+  <link rel="apple-touch-icon" href="./icon-192.png" />
   <meta name="description"
     content="Synapses ESMS - Solution IA française pour l'assistance à la rédaction administrative. Comptes rendus, PPA, rapports d'activité sécurisés" />
   <title>Synapses - ESMS</title>
@@ -16,7 +22,23 @@
   <script type="module" src="/src/main.jsx"></script>
   <script>
     window.addEventListener('load', function () {
-      setTimeout(function () { window.scrollTo(0, 1); }, 100);
+      setTimeout(function () {
+        var html = document.documentElement;
+        html.style.height = 'calc(100vh + 1px)';
+        window.scrollTo(0, 1);
+        setTimeout(function () {
+          html.style.height = '';
+        }, 200);
+      }, 300);
+    });
+
+    /* Fix iOS zoom après fermeture du clavier */
+    document.addEventListener('focusout', function (e) {
+      if (e.target.matches('input, textarea, select')) {
+        setTimeout(function () {
+          window.scrollTo(window.scrollX, window.scrollY);
+        }, 50);
+      }
     });
   </script>
 </body>
