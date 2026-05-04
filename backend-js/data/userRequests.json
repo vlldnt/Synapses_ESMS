@@ -1,0 +1,47 @@
+[
+  {
+    "id": "87075ad8-afbd-4b8a-ba20-ef522958e4fd",
+    "first_name": "Adrien",
+    "last_name": "Vieilledent",
+    "email": "vieilledent.adrien@gmail.com",
+    "job": "Éducateur(rice) spécialisé(e)",
+    "role": "agent",
+    "organization_id": "b8178a42-d8b8-41dc-ab43-5ff4743313d3",
+    "is_admin": false,
+    "verification_token": null,
+    "verification_expiry": "2026-04-28T12:29:28.423Z",
+    "status": "accepted",
+    "created_at": "2026-04-28T12:14:28.423Z",
+    "accepted_at": "2026-04-28T12:15:37.485Z"
+  },
+  {
+    "id": "00a22d2b-b58f-485a-b850-f778b6b00846",
+    "first_name": "Tom",
+    "last_name": "Vieilledent",
+    "email": "tom@iakoa.fr",
+    "job": "Éducateur(rice) spécialisé(e)",
+    "role": "agent",
+    "organization_id": "b8178a42-d8b8-41dc-ab43-5ff4743313d3",
+    "is_admin": false,
+    "verification_token": null,
+    "verification_expiry": "2026-04-29T09:26:17.871Z",
+    "status": "accepted",
+    "created_at": "2026-04-29T09:11:17.871Z",
+    "accepted_at": "2026-04-29T09:15:09.480Z"
+  },
+  {
+    "id": "30ac42b5-4e57-44be-a92f-ed500c8c107c",
+    "first_name": "Théo",
+    "last_name": "Caulet",
+    "email": "9863@holbertonstudents.com",
+    "job": "",
+    "role": "agent",
+    "organization_id": "b8178a42-d8b8-41dc-ab43-5ff4743313d3",
+    "is_admin": false,
+    "verification_token": null,
+    "verification_expiry": "2026-04-29T09:52:21.353Z",
+    "status": "accepted",
+    "created_at": "2026-04-29T09:37:21.354Z",
+    "accepted_at": "2026-04-29T09:37:58.643Z"
+  }
+]

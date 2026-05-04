@@ -1,32 +1,32 @@
-# Frontend
-frontend/node_modules/
-frontend/dist/
-frontend/dist-ssr/
-frontend/build/
-frontend/.env
-frontend/.env.*
-!frontend/.env.example
+# Context local — non versionné
+CONTEXT_APP.MD
 
-# Backend
-backend/node_modules/
-backend/__pycache__/
-backend/*.pyc
-backend/*.pyo
-backend/.env
-backend/.env.*
-!backend/.env.example
+# Dependencies
+node_modules/
+
+# Build output
+frontend/dist/
+
+# Environment variables
+frontend/.env
+frontend/.env.local
+frontend/.env.*.local
+
+# Logs
+*.log
+npm-debug.log*
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
 
 # OS
 .DS_Store
 Thumbs.db
-desktop.ini
 
-# Editors
-.idea/
-*.suo
-*.sw?
+google-key.json
 
-node_modules/
 .env
 .env.local
-google-key.json

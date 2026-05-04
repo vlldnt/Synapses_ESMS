@@ -25,17 +25,34 @@
     --orange: #FCBE82;
     --violet: #9B2CB6;
 
+    --jaune-clair: #FDE68A;
+    --jaune: #FBBF24;
+
     --font-body: system-ui, -apple-system, 'Segoe UI', sans-serif;
     --font-title: 'DM Serif Display', Georgia, serif;
 }
 
 html {
-    height: 100dvh;
+    height: -webkit-fill-available; /* iOS Safari */
+    min-height: 100vh;
+    min-height: 100dvh;
+    touch-action: manipulation; /* empêche le double-tap zoom */
+    overflow-x: hidden; /* empêche le zoom horizontal initial */
+    overscroll-behavior-y: none; /* empêche le pull-to-refresh */
 }
 
 body, #root {
+    height: 100%;
+    min-height: 100vh;
+    min-height: -webkit-fill-available; /* iOS Safari */
     min-height: 100dvh;
     font-family: var(--font-body);
+    overflow-x: hidden;
+}
+
+/* Empêche iOS de zoomer sur les inputs (zoom si font-size < 16px) */
+input, textarea, select {
+    font-size: max(16px, 1em);
 }
 
 h1,
