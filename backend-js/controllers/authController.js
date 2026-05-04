@@ -74,7 +74,7 @@ router.post('/login', async (req, res) => {
     const token = jwt.sign(
       { userId: user.id, organizationId: user.organization_id, role: user.role || 'agent' },
       process.env.JWT_SECRET,
-      { expiresIn: process.env.JWT_EXPIRES_IN || '7d' },
+      { expiresIn: process.env.JWT_EXPIRES_IN || '5d' },
     );
     res.json({ user: safeUser, token });
   } catch {
@@ -135,6 +135,8 @@ router.post('/organization-requests', async (req, res) => {
     await saveJsonFile('organizationRequests.json', requests);
 
     const appUrl = process.env.APP_URL || 'http://localhost:5173/synapses';
+
+    
     const setPasswordUrl = `${appUrl}/set-password/${verificationToken}`;
     sendSetPasswordEmail({
       firstName: entry.first_name,
