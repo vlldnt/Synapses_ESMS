@@ -177,18 +177,21 @@ function blocksToDocx(blocks) {
         docxBlocks.push(new Paragraph({
           heading: HeadingLevel.HEADING_1,
           children: [new TextRun({ text: block.text, bold: true, size: 32 })],
+          keepNext: true,
         }));
         break;
       case 'h2':
         docxBlocks.push(new Paragraph({
           heading: HeadingLevel.HEADING_2,
           children: [new TextRun({ text: block.text, bold: true, size: 26 })],
+          keepNext: true,
         }));
         break;
       case 'h3':
         docxBlocks.push(new Paragraph({
           heading: HeadingLevel.HEADING_3,
           children: [new TextRun({ text: block.text, bold: true, size: 22 })],
+          keepNext: true,
         }));
         break;
       case 'hr':

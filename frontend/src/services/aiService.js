@@ -178,6 +178,28 @@ Analyse ces observations, identifie les besoins selon la nomenclature SERAFIN-PH
   });
 }
 
+// Écrit éducatif
+export async function generateEcritEducatif({
+  observations,
+  structureType,
+  companyName,
+  educatorName,
+  educatorRole,
+  date,
+  model = DEFAULT_MODEL,
+}) {
+  const userMessage = `
+${buildContext({ companyName, structureType, educatorName, educatorRole, date })}
+
+--- NOTES TERRAIN DU PROFESSIONNEL ---
+${observations?.trim() || 'Aucune observation fournie.'}
+
+Analyse ces notes et génère un écrit éducatif professionnel structuré, avec des titres adaptés au contexte réel. Ne force aucune section inutile. Valorise les ressources et points d'appui avant les difficultés.
+`.trim();
+
+  return sendPrompt('ecrit_educatif', userMessage, { temperature: 0.35, model });
+}
+
 // PPAS — Projet Personnalisé d'Accompagnement Social (axes Séraphin)
 export async function generatePpasSocial({
   observations,

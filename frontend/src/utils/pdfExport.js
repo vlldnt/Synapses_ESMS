@@ -27,13 +27,13 @@ function sliceCanvas(src, topPx, heightPx) {
 // ── Positions DOM → pixels canvas ────────────────────────────────────────────
 function getBlockBoundaries(element, scale) {
   const containerTop = element.getBoundingClientRect().top;
-  // Éléments "bloc" qu'on ne veut pas couper
   const selector = 'h1, h2, h3, h4, p, table, ul, ol, blockquote, hr';
   return Array.from(element.querySelectorAll(selector)).map((el) => {
     const r = el.getBoundingClientRect();
     return {
       top: (r.top - containerTop) * scale,
       bottom: (r.bottom - containerTop) * scale,
+      isHeading: /^H[1-4]$/.test(el.tagName),
     };
   });
 }
@@ -43,8 +43,16 @@ function findCutPoint(boundaries, idealCutPx, pageHeightPx) {
   // Si un bloc chevauche la coupure idéale → couper juste avant ce bloc
   for (const b of boundaries) {
     if (b.top < idealCutPx && b.bottom > idealCutPx) {
-      // Remonter au début du bloc ; si ça rend la page trop petite → laisser couper après
       const candidate = b.top - 8;
+      if (candidate > idealCutPx - pageHeightPx * 0.5) return candidate;
+    }
+  }
+  // Si le dernier bloc avant la coupure est un titre → le reporter à la page suivante
+  const beforeCut = boundaries.filter((b) => b.bottom <= idealCutPx);
+  if (beforeCut.length > 0) {
+    const last = beforeCut[beforeCut.length - 1];
+    if (last.isHeading) {
+      const candidate = last.top - 8;
       if (candidate > idealCutPx - pageHeightPx * 0.5) return candidate;
     }
   }

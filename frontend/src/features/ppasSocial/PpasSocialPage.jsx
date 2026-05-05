@@ -225,11 +225,7 @@ function PpasSocialPage() {
       const isMissingPromptError =
         message.includes("Prompt système non trouvé") ||
         message.includes("Erreur OpenRouter: Prompt système non trouvé");
-      setResult(
-        isMissingPromptError
-          ? "La génération d'écrit éducatif n'est pas encore disponible. Revenez bientôt !"
-          : `Erreur : ${message}`
-      );
+      setResult(`Erreur : ${message}`);
       setReportStatus(REPORT_STATUS.DRAFT);
     } finally {
       setLoading(false);
