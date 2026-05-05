@@ -37,5 +37,18 @@
     "is_admin": false,
     "status": "active",
     "created_at": "2026-04-29T09:37:58.643Z"
+  },
+  {
+    "id": "b6f01e00-b5fc-4ad8-98fc-f1dda88f9edf",
+    "first_name": "Adrien",
+    "last_name": "Vieilledent",
+    "email": "vieilledent.adrien@gmail.com",
+    "hashed_password": "$2b$12$PH1btOiyvw1NLlefbMh6JeXaV7OhljCSY1BjeSjk.pF.VpMQxCAl2",
+    "job": "Administrateur",
+    "role": "admin",
+    "organization_id": "27b5c9f4-e21d-4f1b-84a0-d09341048c49",
+    "is_admin": true,
+    "status": "active",
+    "created_at": "2026-05-05T15:06:27.297Z"
   }
 ]
