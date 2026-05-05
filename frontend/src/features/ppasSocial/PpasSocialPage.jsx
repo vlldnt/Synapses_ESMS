@@ -9,6 +9,7 @@ import StepCard from "../../components/StepCard";
 import {
   generatePpasSocial,
   DEFAULT_MODEL,
+  PROMPT_NOT_FOUND,
 } from "../../services/aiService";
 import {
   getReferences,
@@ -225,7 +226,9 @@ function PpasSocialPage() {
       const isMissingPromptError =
         message.includes("Prompt système non trouvé") ||
         message.includes("Erreur OpenRouter: Prompt système non trouvé");
-      setResult(`Erreur : ${message}`);
+      setResult(err.message === PROMPT_NOT_FOUND
+        ? "Cette fonctionnalité n'est pas disponible pour le moment."
+        : `Erreur : ${err.message}`);
       setReportStatus(REPORT_STATUS.DRAFT);
     } finally {
       setLoading(false);

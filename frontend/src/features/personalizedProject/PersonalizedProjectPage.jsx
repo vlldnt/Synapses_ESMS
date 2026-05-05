@@ -9,6 +9,7 @@ import StepCard from "../../components/StepCard";
 import {
   generatePersonalizedProject,
   DEFAULT_MODEL,
+  PROMPT_NOT_FOUND,
 } from "../../services/aiService";
 import {
   getReferences,
@@ -238,7 +239,9 @@ function PersonalizedProjectPage() {
       setElapsed(((Date.now() - start) / 1000).toFixed(1));
       setReportStatus(REPORT_STATUS.IN_PROGRESS);
     } catch (err) {
-      setResult(`Erreur : ${err.message}`);
+      setResult(err.message === PROMPT_NOT_FOUND
+        ? "Cette fonctionnalité n'est pas disponible pour le moment."
+        : `Erreur : ${err.message}`);
       setReportStatus(REPORT_STATUS.DRAFT);
     } finally {
       setLoading(false);

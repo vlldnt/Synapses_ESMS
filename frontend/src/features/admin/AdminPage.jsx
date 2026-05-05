@@ -463,7 +463,7 @@ function AdminPage() {
               </div>
             </div>
 
-            <div className={`flex ${filteredDocs.length >= 10 ? 'h-[520px]' : ''}`}>
+            <div className={`flex ${filteredDocs.length >= 10 ? 'h-130' : ''}`}>
               <div className={`overflow-y-auto divide-y divide-(--border)/50 ${selectedDoc ? 'w-2/5 border-r border-(--border)' : 'w-full'}`}>
                 {filteredDocs.length === 0 ? (
                   <p className='px-5 py-10 text-center text-sm text-(--text-muted)'>Aucun document.</p>

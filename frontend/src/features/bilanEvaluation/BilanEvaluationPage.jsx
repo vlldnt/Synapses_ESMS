@@ -6,7 +6,7 @@ import GeneratingReportModal from "../../components/GeneratingReportModal";
 import TranscriptionInput from "../../components/TranscriptionInput.jsx";
 import TranscriptionCard from "../../components/TranscriptionCard";
 import StepCard from "../../components/StepCard";
-import { DEFAULT_MODEL } from "../../services/aiService";
+import { DEFAULT_MODEL, generateBilanEvaluation, PROMPT_NOT_FOUND } from "../../services/aiService";
 import {
   getReferences,
   formatReferenceName,
@@ -195,7 +195,36 @@ function BilanEvaluationPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!observations.trim()) return;
-    setResult("La génération de bilan d'évaluation n'est pas encore disponible. Revenez bientôt !");
+    setLoading(true);
+    setResult("");
+    setValidated(false);
+    setElapsed(null);
+    setUsedModel(null);
+    setIsArchived(false);
+    setReportStatus(REPORT_STATUS.IN_PROGRESS);
+    const start = Date.now();
+    try {
+      const text = await generateBilanEvaluation({
+        observations,
+        structureType: organization?.type ?? "",
+        companyName: organization?.name ?? "",
+        educatorName: fullName,
+        educatorRole: ROLE_LABELS[role] ?? role,
+        date: today,
+        model: selectedModelId,
+      });
+      setResult(text);
+      setUsedModel({ id: selectedModelId, name: selectedModelName });
+      setElapsed(((Date.now() - start) / 1000).toFixed(1));
+      setReportStatus(REPORT_STATUS.IN_PROGRESS);
+    } catch (err) {
+      setResult(err.message === PROMPT_NOT_FOUND
+        ? "Cette fonctionnalité n'est pas disponible pour le moment."
+        : `Erreur : ${err.message}`);
+      setReportStatus(REPORT_STATUS.DRAFT);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (

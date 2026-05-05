@@ -6,7 +6,7 @@ import GeneratingReportModal from "../../components/GeneratingReportModal";
 import TranscriptionInput from "../../components/TranscriptionInput.jsx";
 import TranscriptionCard from "../../components/TranscriptionCard";
 import StepCard from "../../components/StepCard";
-import { DEFAULT_MODEL, generateEcritEducatif } from "../../services/aiService";
+import { DEFAULT_MODEL, generateEcritEducatif, PROMPT_NOT_FOUND } from "../../services/aiService";
 import {
   getReferences,
   formatReferenceName,
@@ -229,7 +229,9 @@ function EcritEducatifPage() {
       setElapsed(((Date.now() - start) / 1000).toFixed(1));
       setReportStatus(REPORT_STATUS.IN_PROGRESS);
     } catch (err) {
-      setResult(`Erreur : ${err?.message || "Une erreur est survenue."}`);
+      setResult(err.message === PROMPT_NOT_FOUND
+        ? "Cette fonctionnalité n'est pas disponible pour le moment."
+        : `Erreur : ${err.message}`);
       setReportStatus(REPORT_STATUS.DRAFT);
     } finally {
       setLoading(false);
