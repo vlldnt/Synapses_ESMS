@@ -47,6 +47,26 @@ router.post('/', requireRole('admin'), async (req, res) => {
   }
 });
 
+// PUT /api/references/:id (admin only)
+router.put('/:id', requireRole('admin'), async (req, res) => {
+  try {
+    const { organizationId } = req.auth;
+    const { firstName, lastName, educatorId } = req.body;
+    if (!firstName?.trim() || !lastName?.trim()) {
+      return res.status(400).json({ error: 'Prénom et nom sont requis.' });
+    }
+    const refs = await loadJsonFile('references.json');
+    const idx = refs.findIndex((r) => r.id === req.params.id);
+    if (idx === -1) return res.status(404).json({ error: 'Reference not found' });
+    if (refs[idx].organization_id !== organizationId) return res.status(403).json({ error: 'Accès refusé.' });
+    refs[idx] = { ...refs[idx], first_name: firstName.trim(), last_name: lastName.trim(), educator: educatorId || null };
+    await saveJsonFile('references.json', refs);
+    res.json(refs[idx]);
+  } catch {
+    res.status(500).json({ error: 'Failed to update reference' });
+  }
+});
+
 // DELETE /api/references/:id (admin only)
 router.delete('/:id', requireRole('admin'), async (req, res) => {
   try {

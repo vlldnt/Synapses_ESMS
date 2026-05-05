@@ -131,4 +131,20 @@ router.put('/:id', requireRole('admin'), async (req, res) => {
   }
 });
 
+// DELETE /api/users/:id (admin only, cannot delete self)
+router.delete('/:id', requireRole('admin'), async (req, res) => {
+  try {
+    const { organizationId, userId } = req.auth;
+    if (req.params.id === userId) return res.status(400).json({ error: 'Impossible de supprimer votre propre compte.' });
+    const users = await loadJsonFile('users.json');
+    const target = users.find((u) => u.id === req.params.id);
+    if (!target) return res.status(404).json({ error: 'User not found' });
+    if (target.organization_id !== organizationId) return res.status(403).json({ error: 'Accès refusé.' });
+    await saveJsonFile('users.json', users.filter((u) => u.id !== req.params.id));
+    res.json({ success: true });
+  } catch {
+    res.status(500).json({ error: 'Failed to delete user' });
+  }
+});
+
 export default router;
