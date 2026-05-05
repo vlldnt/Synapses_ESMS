@@ -1,22 +1,15 @@
 from flask_restx import Namespace, Resource, fields
-from flask_jwt_extended import get_jwt_identity, jwt_required
+from app.models.userRequest import UserRequest
+from flask_jwt_extended import get_jwt_identity, jwt_required, get_jwt
 from app.services import facade
 
 api = Namespace('users', description="User operations")
 
-STATUS = ["active", "inactive"]
-JOBS = ["ED", "PS", "AS"]
-
-""" User Model for input"""
-user_model = api.model("user", {
-    'first_name': fields.String(required=True, git ="User first name", example="user"),
+user_request = api.model("user request", {
+    'first_name': fields.String(required=True, description="User first name", example="user"),
     'last_name': fields.String(required=True, description="User last name", example="test"),
     'email': fields.String(required=True, description="User email", example="user@email.com"),
-    'password': fields.String(required=True, description="User password", example="Johnd0e!"),
-    'job': fields.String(required=True, description="User job", enum=JOBS, exemple="ED"),
-    'status': fields.String(required=True, description="User status", enum=STATUS, exemple="active"),
-    "is_admin": fields.String(required=True, description="user controle", example=False),
-    'organisation_id': fields.String(required=True, description="User organisation_id", example=""),
+    'job': fields.String(required=True, description="user job", exemple="Educateur")
 })
 
 user_update = api.model("user update", {
@@ -26,42 +19,46 @@ user_update = api.model("user update", {
     'password': fields.String(required=True, description="User password", example="Johnd0e!"),
 })
 
-@api.route('/')
+@api.route('/users')
 class UserList(Resource):
-    @api.expect(user_model)
-    @api.response(201, 'User successfully created')
-    @api.response(400, 'Invalid input data')
-
-    def post(self):
-        """Register a new user"""
-
-        try:
-            user_data = api.payload
-            existing_user = facade.get_user_by_email(user_data['email'])
-            if existing_user:
-                api.abort(400, 'Email already in use')
-
-            org = facade.get_organisation(user_data['organisation_id'])
-            if not org:
-                api.abort(404, 'Organisation are not found')
-
-            valid_inputs = ['first_name', 'last_name', 'email', 'password', 'job', 'is_admin', 'organisation_id', 'status']
-            for key in user_data:
-                if key not in valid_inputs:
-                    api.abort(400, f'Invalid input data: {key}')
-            
-            new_user = facade.create_user(user_data)
-            return new_user.to_dict(), 201
-
-        except ValueError as error:
-            return {'error': str(error)}, 400
-
     @api.response(200, 'List of users retrieved successfully')
     def get(self):
         """Get a list of all users"""
 
         all_users = facade.get_all_users()
         return [user.to_dict() for user in all_users], 200
+    
+    @api.expect(user_request)
+    @jwt_required()
+    @api.doc(security="token")
+    @api.response(201, "the request has successfully create")
+    @api.response(400, 'Invalid input data')
+    @api.response(403, 'Forbidden action')
+    @api.response(404, 'admin not found')
+    def post(self):
+        data = get_jwt()
+        if (data['is_admin'] is False):
+            api.abort(403, "action Forbidden")
+
+        request_payload = api.payload
+        valid_inputs = ['first_name', 'last_name', 'email', 'job']
+        for key in request_payload:
+            if key not in valid_inputs:
+                api.abort(400, f'Invalid input data: {key}')
+
+        request = UserRequest(
+            first_name=request_payload['first_name'],
+            last_name=request_payload['last_name'],
+            email=request_payload['email'],
+            job=request_payload['job'],
+            organization_id=data["organization_id"],
+            role="agent"
+        )
+        
+        new_request = facade.made_request_user(request)
+        return new_request.token(), 200
+
+
 
 
 @api.route('/<user_id>')
@@ -81,7 +78,7 @@ class UserResource(Resource):
     @jwt_required()
     @api.response(201, 'User successfully updated')
     @api.response(400, 'Invalid input data')
-    @api.response(403, 'Unauthorized action')
+    @api.response(403, 'Forbidden action')
     @api.doc(security="token")
     @api.response(404, 'User not found')
 
@@ -105,9 +102,8 @@ class UserResource(Resource):
                 api.abort(400, f'Invalid input data: {key}')
 
         try:
-            user.update(user_data)
             updated_user = facade.update_user(user_id, user_data)
-            
+
         except (ValueError, TypeError) as e:
             api.abort(400, str(e))
 

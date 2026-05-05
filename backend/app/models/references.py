@@ -8,7 +8,7 @@ class Reference(BaseModel):
     first_name = db.Column(db.String(50), nullable=False)
     last_name = db.Column(db.String(50), nullable=False)
     educator_id = db.Column(db.String(36), db.ForeignKey('users.id'))
-    organisation_id = db.Column(db.String(36), db.ForeignKey('organisation.id'))
+    organisation_id = db.Column(db.String(36), db.ForeignKey('organization.id'))
 
     def to_dict(self):
         return {

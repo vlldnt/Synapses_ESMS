@@ -13,9 +13,10 @@ class UserRequest(BaseModel):
     __tablename__ = "userRequest"
     first_name = db.Column(db.String(50), nullable=False)
     last_name = db.Column(db.String(50), nullable=False)
+    email = db.Column(db.String(50), nullable=False)
     job = db.Column(db.String(128), nullable=False)
-    role = job = db.Column(db.String(128), nullable=False)
-    organisation_id = db.Column(db.String(36), db.ForeignKey('organization.id'))
+    role = db.Column(db.String(128), nullable=False, default="agent")
+    organization_id = db.Column(db.String(36), db.ForeignKey('organization.id'))
     is_admin = db.Column(db.Boolean, default=False)
     verification_token = db.Column(db.String(255), nullable=True)
     verification_expiry = db.Column(db.DateTime, nullable=False)
@@ -25,3 +26,8 @@ class UserRequest(BaseModel):
     def generate_token(self):
         self.verification_token = secrets.token_urlsafe(32)
         self.verification_expiry = datetime.utcnow() + timedelta(minutes=15)
+    
+    def token(self):
+        return {
+            "token" : self.verification_token
+        }

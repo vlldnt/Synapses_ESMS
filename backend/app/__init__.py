@@ -28,10 +28,10 @@ def createApp(config_class="config.DevelopmentConfig"):
               authorizations=authorizations,
               description="Synapses ESMS API")
     
-    api.add_namespace(users_ns, path='/api/v1/users')
-    api.add_namespace(auth_ns, path='/api/v1/auth')
-    api.add_namespace(org_ns,path='/api/v1/org')
-    api.add_namespace(ref_ns, path='/api/v1/ref')
+    api.add_namespace(users_ns, path='/api/users')
+    api.add_namespace(auth_ns, path='/api')
+    api.add_namespace(org_ns, path='/api')
+    api.add_namespace(ref_ns, path='/api/references')
 
     db.init_app(app)
     bcrypt.init_app(app)

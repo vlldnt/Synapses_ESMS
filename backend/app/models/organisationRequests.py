@@ -7,7 +7,7 @@ from enum import Enum
 class Status(Enum):
     pending = "pending"
     approved = "approved"
-    rejected = "rejected"
+    rjected = "rejected"
 
 class OrganizationRequest(BaseModel):
     __tablename__ = "organizationRequest"
@@ -26,3 +26,8 @@ class OrganizationRequest(BaseModel):
     def generate_token(self):
         self.verification_token = secrets.token_urlsafe(32)
         self.verification_expiry = datetime.utcnow() + timedelta(minutes=15)
+
+    def token(self):
+        return {
+            "token" : self.verification_token
+        }
