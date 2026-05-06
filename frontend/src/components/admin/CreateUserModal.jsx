@@ -18,7 +18,7 @@ const JOBS = [
 ];
 
 const inputCls =
-  'w-full px-3 py-2 rounded-lg border bg-(--bg-secondary) text-(--text-primary) border-(--border) text-sm focus:outline-none focus:ring-2 focus:ring-[#1294C3]/40';
+  'w-full px-3 py-2 rounded-lg border bg-(--bg-secondary) text-(--text-primary) border-(--border) text-sm focus:outline-none focus:ring-2 focus:ring-[#673DE6]/40';
 
 export default function CreateUserModal({ organizationId, onClose, onCreated }) {
   const [fields, setFields] = useState({ firstName: '', lastName: '', email: '', job: '', role: 'agent' });
@@ -85,7 +85,7 @@ export default function CreateUserModal({ organizationId, onClose, onCreated }) 
             <button
               type='button'
               onClick={onClose}
-              className='w-full py-2.5 rounded-lg bg-[#1294C3] text-white text-sm font-medium hover:bg-[#0D66D4] cursor-pointer transition-colors'
+              className='w-full py-2.5 rounded-lg bg-[#673DE6] text-white text-sm font-medium hover:bg-[#5A2FB8] cursor-pointer transition-colors'
             >
               Fermer
             </button>
@@ -118,7 +118,7 @@ export default function CreateUserModal({ organizationId, onClose, onCreated }) 
             <button
               type='submit'
               disabled={submitting}
-              className='mt-1 w-full py-2.5 rounded-lg bg-[#1294C3] text-white text-sm font-medium hover:bg-[#0D66D4] disabled:opacity-60 cursor-pointer transition-colors'
+              className='mt-1 w-full py-2.5 rounded-lg bg-[#673DE6] text-white text-sm font-medium hover:bg-[#5A2FB8] disabled:opacity-60 cursor-pointer transition-colors'
             >
               {submitting ? 'Envoi…' : 'Envoyer l\'invitation'}
             </button>

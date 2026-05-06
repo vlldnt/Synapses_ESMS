@@ -1,6 +1,6 @@
 const cardClass = 'rounded-2xl border border-(--border) bg-(--bg-primary) p-3 md:p-6 shadow-sm';
 
-function StepCard({ step, title, subtitle, children, headerAction, accentColor = '#0D66D4' }) {
+function StepCard({ step, title, subtitle, children, headerAction, accentColor = '#673DE6' }) {
   return (
     <div className={cardClass}>
       <h2 className="flex items-center gap-3 text-base md:text-lg font-semibold text-(--text-primary) mb-1">

@@ -47,8 +47,8 @@ function NavItem({
           to={link}
           className={`flex flex-col items-center justify-center gap-0 min-h-14 px-0 py-0 rounded-md transition-colors duration-200 ${
             isActive
-              ? 'text-[#1294C3] bg-[#1294C3]/10 font-semibold'
-              : 'text-(--text-secondary) hover:bg-[#1294C3]/10 hover:text-[#1294C3]'
+              ? 'text-[#673DE6] bg-[#673DE6]/10 font-semibold'
+              : 'text-(--text-secondary) hover:bg-[#673DE6]/10 hover:text-[#673DE6]'
           }`}
         >
           {Icon && <Icon className="w-4 h-4 shrink-0" />}
@@ -67,7 +67,7 @@ function NavItem({
         to={link}
         className={`flex justify-start items-center w-full gap-3 px-5 py-3 text-sm transition-colors duration-200 rounded-xs ${
           isActive
-            ? 'text-[#1294C3] bg-[#1294C3]/10 font-semibold border-l-4 border-[#1294C3]'
+            ? 'text-[#673DE6] bg-[#673DE6]/10 font-semibold border-l-4 border-[#673DE6]'
             : 'text-(--text-secondary) hover:bg-(--bg-tertiary) hover:text-(--text-primary)'
         }`}
       >

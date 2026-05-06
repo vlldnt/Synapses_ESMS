@@ -108,7 +108,7 @@ export default function WordPreview({ text }) {
               remarkPlugins={[remarkGfm]}
               components={{
                 h1: ({ children }) => (
-                  <h1 className="text-[18px] font-bold text-[#0D66D4] mt-6 mb-2 border-b-2 border-[#0D66D4] pb-1">
+                  <h1 className="text-[18px] font-bold text-[#5A2FB8] mt-6 mb-2 border-b-2 border-[#5A2FB8] pb-1">
                     {children}
                   </h1>
                 ),
@@ -137,10 +137,10 @@ export default function WordPreview({ text }) {
                   <em className="italic text-[#555]">{children}</em>
                 ),
                 hr: () => (
-                  <hr className="my-5 border-t-2 border-[#0D66D4] opacity-40" />
+                  <hr className="my-5 border-t-2 border-[#5A2FB8] opacity-40" />
                 ),
                 blockquote: ({ children }) => (
-                  <blockquote className="border-l-4 border-[#0D66D4] pl-4 italic text-[#555] my-3 bg-[#f0f7ff] py-2 pr-3 rounded-r-md">
+                  <blockquote className="border-l-4 border-[#5A2FB8] pl-4 italic text-[#555] my-3 bg-[#f0f7ff] py-2 pr-3 rounded-r-md">
                     {children}
                   </blockquote>
                 ),

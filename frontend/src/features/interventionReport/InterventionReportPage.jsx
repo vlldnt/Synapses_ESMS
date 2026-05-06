@@ -532,7 +532,7 @@ function InterventionReportPage() {
         {/* ── Loading ── */}
         {loading && (
           <div className={`${CARD_CLASS} flex items-center gap-4`}>
-            <div className="w-5 h-5 rounded-full border-2 border-[#0D66D4] border-t-transparent animate-spin shrink-0" />
+            <div className="w-5 h-5 rounded-full border-2 border-[#5A2FB8] border-t-transparent animate-spin shrink-0" />
             <div className="flex flex-col gap-0.5">
               <span
                 key={loadingMessageIndex}

@@ -215,14 +215,14 @@ function DashboardPage() {
                       state={{ tab: 'employes' }}
                       className="flex items-center gap-2 group"
                     >
-                      <span className="w-1.5 h-5 rounded-full bg-[#1294C3] shrink-0" />
-                      <span className="text-sm font-bold text-(--text-primary) group-hover:text-[#1294C3] transition-colors">Agents</span>
-                      <span className="text-xs font-medium text-white bg-[#1294C3] px-1.5 py-0.5 rounded-full">{users.length}</span>
+                      <span className="w-1.5 h-5 rounded-full bg-[#673DE6] shrink-0" />
+                      <span className="text-sm font-bold text-(--text-primary) group-hover:text-[#673DE6] transition-colors">Agents</span>
+                      <span className="text-xs font-medium text-white bg-[#673DE6] px-1.5 py-0.5 rounded-full">{users.length}</span>
                     </Link>
                     <button
                       type="button"
                       onClick={() => setShowAddAgentModal(true)}
-                      className="text-xs px-3 py-1.5 rounded-lg bg-[#1294C3] text-white hover:bg-[#0D66D4] cursor-pointer transition-colors shrink-0"
+                      className="text-xs px-3 py-1.5 rounded-lg bg-[#673DE6] text-white hover:bg-[#5A2FB8] cursor-pointer transition-colors shrink-0"
                     >
                       + Ajouter
                     </button>
@@ -250,14 +250,14 @@ function DashboardPage() {
                       state={{ tab: 'references' }}
                       className="flex items-center gap-2 group"
                     >
-                      <span className="w-1.5 h-5 rounded-full bg-[#0D66D4] shrink-0" />
-                      <span className="text-sm font-bold text-(--text-primary) group-hover:text-[#0D66D4] transition-colors">Références</span>
-                      <span className="text-xs font-medium text-white bg-[#0D66D4] px-1.5 py-0.5 rounded-full">{references.length}</span>
+                      <span className="w-1.5 h-5 rounded-full bg-[#5A2FB8] shrink-0" />
+                      <span className="text-sm font-bold text-(--text-primary) group-hover:text-[#5A2FB8] transition-colors">Références</span>
+                      <span className="text-xs font-medium text-white bg-[#5A2FB8] px-1.5 py-0.5 rounded-full">{references.length}</span>
                     </Link>
                     <button
                       type="button"
                       onClick={() => setShowAddRefModal(true)}
-                      className="text-xs px-3 py-1.5 rounded-lg bg-[#0D66D4] text-white hover:bg-[#1294C3] cursor-pointer transition-colors shrink-0"
+                      className="text-xs px-3 py-1.5 rounded-lg bg-[#5A2FB8] text-white hover:bg-[#673DE6] cursor-pointer transition-colors shrink-0"
                     >
                       + Ajouter
                     </button>

@@ -74,7 +74,7 @@ function SetAccountPage() {
 
   const passwordOk = PASSWORD_REGEX.test(password);
   const confirmOk = confirm && password === confirm;
-  const inputClass = 'w-full px-4 py-2.5 rounded-lg border bg-(--bg-secondary) text-(--text-primary) border-(--border) focus:outline-none focus:ring-2 focus:ring-[#1294C3]/40';
+  const inputClass = 'w-full px-4 py-2.5 rounded-lg border bg-(--bg-secondary) text-(--text-primary) border-(--border) focus:outline-none focus:ring-2 focus:ring-[#673DE6]/40';
 
   if (success) {
     return (
@@ -153,7 +153,7 @@ function SetAccountPage() {
               <button
                 type='submit'
                 disabled={submitting}
-                className='mt-2 w-full py-3 rounded-lg text-white font-medium text-sm bg-[#1294C3] hover:bg-[#0D66D4] disabled:opacity-60 cursor-pointer transition-colors'
+                className='mt-2 w-full py-3 rounded-lg text-white font-medium text-sm bg-[#673DE6] hover:bg-[#5A2FB8] disabled:opacity-60 cursor-pointer transition-colors'
               >
                 {submitting ? 'Création du compte…' : 'Créer mon compte'}
               </button>

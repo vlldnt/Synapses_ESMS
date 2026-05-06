@@ -13,6 +13,6 @@ export function getDocTypeLabel(entry) {
 export function getDocColorFromLabel(label) {
   if (label === 'PPAMS') return '#42C4A1'; // vert-fonce
   if (label === 'PPA')   return '#6CE4A8'; // vert-clair
-  if (label === 'CRI')   return '#0D66D4'; // bleu-fonce
+  if (label === 'CRI')   return '#673DE6'; // bleu-fonce
   return '#94a3b8';
 }
