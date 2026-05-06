@@ -6,7 +6,7 @@ function AgentTabs() {
   const location = useLocation();
   const role = useSelector((state) => state.role.role);
   const visibleAgents = AGENTS.filter((a) => a.roles.includes(role) && a.to);
-  const hideOnPaths = ['/', '/archives'];
+  const hideOnPaths = ['/', '/archives', '/dev'];
 
   if (hideOnPaths.includes(location.pathname)) {
     return null;

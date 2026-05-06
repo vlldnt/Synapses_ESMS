@@ -74,10 +74,13 @@ function DevEditor() {
       .then((r) => r.json())
       .then((data) => {
         setPrompts(data);
-        if (data.length > 0) {
-          setSelected(data[0]);
-          setDraft(data[0].content);
-          setDraftModel(data[0].model ?? DEFAULT_MODEL);
+        const first = data.find(
+          (p) => PROMPT_TO_ROUTE[p.name] && AGENT_BY_ROUTE[PROMPT_TO_ROUTE[p.name]],
+        );
+        if (first) {
+          setSelected(first);
+          setDraft(first.content);
+          setDraftModel(first.model ?? DEFAULT_MODEL);
         }
       })
       .catch(console.error);
@@ -124,13 +127,17 @@ function DevEditor() {
 
   const meta = selected ? getAgentForPrompt(selected.name) : null;
 
+  const visiblePrompts = prompts.filter(
+    (p) => PROMPT_TO_ROUTE[p.name] && AGENT_BY_ROUTE[PROMPT_TO_ROUTE[p.name]],
+  );
+
   return (
     <div className="flex flex-col h-[calc(100dvh-4rem)] bg-(--bg-secondary) overflow-hidden">
 
       {/* Onglets horizontaux */}
       <div className="overflow-x-auto border-b border-(--border) bg-(--bg-primary) shrink-0">
         <div className="flex min-w-max">
-          {prompts.map((p) => {
+          {visiblePrompts.map((p) => {
             const m = getAgentForPrompt(p.name);
             const isActive = selected?.name === p.name;
             return (
