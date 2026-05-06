@@ -77,7 +77,7 @@ export const PROMPT_NOT_FOUND = 'PROMPT_NOT_FOUND';
 async function sendPrompt(
   promptName,
   userMessage,
-  { temperature = 0.4, model = DEFAULT_MODEL } = {},
+  { temperature = 0.4, model } = {},
 ) {
   const promptData = await getPrompt(promptName);
   if (!promptData) throw new Error(PROMPT_NOT_FOUND);
@@ -86,7 +86,7 @@ async function sendPrompt(
       systemPrompt: promptData.content,
       userMessage,
       temperature,
-      model,
+      model: model ?? promptData.model ?? DEFAULT_MODEL,
     });
   } catch (err) {
     console.error(`❌ sendPrompt("${promptName}") error:`, err.message);

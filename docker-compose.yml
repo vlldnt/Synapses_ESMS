@@ -1,14 +1,12 @@
 services:
   backend:
     build:
-      context: ./backend
+      context: ./backend-js
       dockerfile: Dockerfile
     container_name: synapses-backend
     restart: unless-stopped
     ports:
       - "${BACKEND_PORT:-3002}:${BACKEND_PORT:-3002}"
-    volumes:
-      - ./backend/data:/app/data
     environment:
       - PORT=${BACKEND_PORT:-3002}
       - NODE_ENV=${NODE_ENV:-production}

@@ -70,7 +70,7 @@ export default function DirectionPage({ config }) {
     localStorage.setItem(storageKey, JSON.stringify({
       observations, result, validated, elapsed, selectedModelId,
       selectedModelName, usedModel, isArchived, status: nextStatus,
-      updatedAt: new Date().toISOString(), structureType: organization?.type ?? '',
+      updatedAt: new Date().toISOString(), structureType: organization?.structure_type ?? '',
     }));
   }, [observations, result, validated, elapsed, selectedModelId, selectedModelName, usedModel, isArchived]);
 
@@ -115,7 +115,7 @@ export default function DirectionPage({ config }) {
     try {
       const text = await generateFn({
         observations,
-        structureType: organization?.type ?? '',
+        structureType: organization?.structure_type ?? '',
         companyName: organization?.name ?? '',
         educatorName: fullName,
         educatorRole: ROLE_LABELS[role] ?? role,
@@ -152,7 +152,7 @@ export default function DirectionPage({ config }) {
               <div className='flex flex-col'>
                 <p className='text-(--text-muted) text-xs'>Structure</p>
                 <p className='font-semibold text-(--text-primary)'>{organization?.name ?? '—'}</p>
-                <p className='text-xs text-(--text-secondary)'>{organization?.type ?? '—'}</p>
+                <p className='text-xs text-(--text-secondary)'>{organization?.structure_type ?? '—'}</p>
               </div>
               <div className='w-px h-10 bg-(--border)' />
               <div className='flex flex-col'>
@@ -170,7 +170,7 @@ export default function DirectionPage({ config }) {
               <div className='flex flex-col flex-1'>
                 <p className='text-(--text-muted) font-medium'>Structure</p>
                 <p className='font-semibold text-(--text-primary)'>{organization?.name ?? '—'}</p>
-                <p className='text-(--text-secondary)'>{organization?.type ?? '—'}</p>
+                <p className='text-(--text-secondary)'>{organization?.structure_type ?? '—'}</p>
               </div>
               <div className='w-px bg-(--border)' />
               <div className='flex flex-col flex-1'>
@@ -254,7 +254,7 @@ export default function DirectionPage({ config }) {
             downloadMeta={{
               type: badge,
               interventionType,
-              structureType: organization?.type ?? '',
+              structureType: organization?.structure_type ?? '',
               companyName: organization?.name ?? '',
               educatorName: fullName,
               childName: '',

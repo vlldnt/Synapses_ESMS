@@ -38,7 +38,7 @@ router.get('/prompts', async (_req, res) => {
 
 router.put('/prompts/:name', requireAuth, requireDev, async (req, res) => {
   const { name } = req.params;
-  const { content } = req.body;
+  const { content, model } = req.body;
   if (typeof content !== 'string')
     return res.status(400).json({ error: 'content requis.' });
 
@@ -47,7 +47,9 @@ router.put('/prompts/:name', requireAuth, requireDev, async (req, res) => {
     const idx = prompts.findIndex((p) => p.name === name);
     if (idx === -1) return res.status(404).json({ error: 'Prompt introuvable.' });
 
-    prompts[idx] = { ...prompts[idx], content };
+    const updates = { content };
+    if (typeof model === 'string') updates.model = model;
+    prompts[idx] = { ...prompts[idx], ...updates };
     await saveJsonFile('prompts.json', prompts);
     res.json(prompts[idx]);
   } catch {

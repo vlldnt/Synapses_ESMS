@@ -157,7 +157,7 @@ function InterventionReportPage() {
         isArchived,
         status: nextStatus,
         updatedAt: new Date().toISOString(),
-        structureType: organization?.type ?? "",
+        structureType: organization?.structure_type ?? "",
         childName: childName,
       }),
     );
@@ -253,7 +253,7 @@ function InterventionReportPage() {
       const text = await generateInterventionReport({
         interventionType,
         transcription,
-        structureType: organization?.type ?? "",
+        structureType: organization?.structure_type ?? "",
         companyName: organization?.name ?? "",
         educatorName: fullName,
         educatorRole: ROLE_LABELS[role] ?? role,
@@ -342,7 +342,7 @@ function InterventionReportPage() {
                   {organization?.name ?? "—"}
                 </p>
                 <p className="text-xs text-(--text-secondary)">
-                  {organization?.type ?? "—"}
+                  {organization?.structure_type ?? "—"}
                 </p>
               </div>
               <div className="w-px h-10 bg-(--border)" />
@@ -420,7 +420,7 @@ function InterventionReportPage() {
                     {organization?.name ?? "—"}
                   </p>
                   <p className="text-(--text-secondary)">
-                    {organization?.type ?? "—"}
+                    {organization?.structure_type ?? "—"}
                   </p>
                 </div>
                 <div className="w-px bg-(--border)" />
@@ -564,7 +564,7 @@ function InterventionReportPage() {
             downloadMeta={{
               type: "CRI",
               interventionType,
-              structureType: organization?.type ?? "",
+              structureType: organization?.structure_type ?? "",
               companyName: organization?.name ?? "",
               educatorName: fullName,
               childName: selectedReferenceId

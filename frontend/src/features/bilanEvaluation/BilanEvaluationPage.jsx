@@ -126,7 +126,7 @@ function BilanEvaluationPage() {
         isArchived,
         status: nextStatus,
         updatedAt: new Date().toISOString(),
-        structureType: organization?.type ?? "",
+        structureType: organization?.structure_type ?? "",
         childName,
       }),
     );
@@ -206,7 +206,7 @@ function BilanEvaluationPage() {
     try {
       const text = await generateBilanEvaluation({
         observations,
-        structureType: organization?.type ?? "",
+        structureType: organization?.structure_type ?? "",
         companyName: organization?.name ?? "",
         educatorName: fullName,
         educatorRole: ROLE_LABELS[role] ?? role,
@@ -245,7 +245,7 @@ function BilanEvaluationPage() {
               <div className="flex flex-col">
                 <p className="text-(--text-muted) text-xs">Structure</p>
                 <p className="font-semibold text-(--text-primary)">{organization?.name ?? "—"}</p>
-                <p className="text-xs text-(--text-secondary)">{organization?.type ?? "—"}</p>
+                <p className="text-xs text-(--text-secondary)">{organization?.structure_type ?? "—"}</p>
               </div>
               <div className="w-px h-10 bg-(--border)" />
               <div className="flex flex-col">
@@ -281,7 +281,7 @@ function BilanEvaluationPage() {
                 <div className="flex flex-col flex-1">
                   <p className="text-(--text-muted) font-medium">Structure</p>
                   <p className="font-semibold text-(--text-primary)">{organization?.name ?? "—"}</p>
-                  <p className="text-(--text-secondary)">{organization?.type ?? "—"}</p>
+                  <p className="text-(--text-secondary)">{organization?.structure_type ?? "—"}</p>
                 </div>
                 <div className="w-px bg-(--border)" />
                 <div className="flex flex-col flex-1">
@@ -384,7 +384,7 @@ function BilanEvaluationPage() {
             downloadMeta={{
               type: "BILAN",
               interventionType: "Bilan d'évaluation",
-              structureType: organization?.type ?? "",
+              structureType: organization?.structure_type ?? "",
               companyName: organization?.name ?? "",
               educatorName: fullName,
               childName: selectedReferenceId

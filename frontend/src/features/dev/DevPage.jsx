@@ -1,10 +1,11 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
-import { Save, AlertCircle, CheckCircle, Loader } from 'lucide-react';
+import { Save, AlertCircle, CheckCircle, Loader, ChevronDown } from 'lucide-react';
 import { useCurrentUser } from '../../hooks/useCurrentUser';
 import { authFetch } from '../../services/authServices';
 import { DEFAULT_MODEL, resetPromptsCache } from '../../services/aiService';
+import { useModels } from '../../hooks/useModels';
 import { AGENTS } from '../../constants/agents';
 
 const DEV_USER_IDS = new Set([
@@ -58,9 +59,15 @@ function DevEditor() {
   const [prompts, setPrompts] = useState([]);
   const [selected, setSelected] = useState(null);
   const [draft, setDraft] = useState('');
+  const [draftModel, setDraftModel] = useState(DEFAULT_MODEL);
   const [status, setStatus] = useState('idle');
+  const { models } = useModels();
+  const mistralModels = models.filter((m) => m.id.startsWith('mistralai/'));
 
-  const isDirty = selected && draft !== selected.content;
+  const isDirty = selected && (
+    draft !== selected.content ||
+    draftModel !== (selected.model ?? DEFAULT_MODEL)
+  );
 
   useEffect(() => {
     authFetch(`${API_URL}/prompts`)
@@ -70,6 +77,7 @@ function DevEditor() {
         if (data.length > 0) {
           setSelected(data[0]);
           setDraft(data[0].content);
+          setDraftModel(data[0].model ?? DEFAULT_MODEL);
         }
       })
       .catch(console.error);
@@ -78,6 +86,7 @@ function DevEditor() {
   const handleSelect = useCallback((p) => {
     setSelected(p);
     setDraft(p.content);
+    setDraftModel(p.model ?? DEFAULT_MODEL);
     setStatus('idle');
   }, []);
 
@@ -88,7 +97,7 @@ function DevEditor() {
       const res = await authFetch(`${API_URL}/prompts/${selected.name}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ content: draft }),
+        body: JSON.stringify({ content: draft, model: draftModel }),
       });
       if (!res.ok) throw new Error();
       const updated = await res.json();
@@ -180,11 +189,41 @@ function DevEditor() {
         </div>
       )}
 
-      {/* Footer info */}
-      <div className="flex items-center gap-2 px-5 py-1.5 border-b border-(--border) bg-(--bg-secondary) shrink-0">
-        <span className="text-[10px] text-(--text-muted)">Modèle par défaut :</span>
-        <span className="text-[10px] font-mono text-(--text-primary)">{DEFAULT_MODEL}</span>
-      </div>
+      {/* Sélecteur de modèle par prompt */}
+      {selected && (
+        <div className="flex items-center gap-2 px-5 py-1.5 border-b border-(--border) bg-(--bg-secondary) shrink-0">
+          <span className="text-[10px] text-(--text-muted) shrink-0">Modèle :</span>
+          <div className="relative">
+            <select
+              value={draftModel}
+              onChange={(e) => {
+                setDraftModel(e.target.value);
+                if (status !== 'idle') setStatus('idle');
+              }}
+              className="appearance-none text-[10px] font-mono bg-(--bg-primary) border border-(--border) rounded px-2 py-0.5 pr-5 text-(--text-primary) cursor-pointer outline-none focus:border-(--bleu-fonce)"
+            >
+              {mistralModels.length === 0 && (
+                <option value={draftModel}>{draftModel}</option>
+              )}
+              {mistralModels.map((m) => (
+                <option key={m.id} value={m.id}>
+                  {m.name?.replace(/^[^:]+:\s*/, '') ?? m.id}
+                </option>
+              ))}
+            </select>
+            <ChevronDown size={10} className="absolute right-1.5 top-1/2 -translate-y-1/2 text-(--text-muted) pointer-events-none" />
+          </div>
+          {draftModel !== DEFAULT_MODEL && (
+            <button
+              type="button"
+              onClick={() => setDraftModel(DEFAULT_MODEL)}
+              className="text-[10px] text-(--bleu-fonce) hover:underline cursor-pointer"
+            >
+              Réinitialiser
+            </button>
+          )}
+        </div>
+      )}
 
       {/* Textarea */}
       {selected ? (

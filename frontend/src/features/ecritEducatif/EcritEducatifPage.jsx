@@ -23,7 +23,7 @@ import {
 import { CARD_CLASS, ROLE_LABELS } from "../../constants/shared";
 import { AGENTS } from "../../constants/agents.js";
 
-const ACCENT = AGENTS.find((a) => a.id === "ecrit-educatif"?.color);
+const ACCENT = AGENTS.find((a) => a.id === "ecrit-educatif")?.color;
 
 function inferStatus({ observations, result, isArchived }) {
   if (isArchived) return REPORT_STATUS.ARCHIVED;
@@ -131,7 +131,7 @@ function EcritEducatifPage() {
         isArchived,
         status: nextStatus,
         updatedAt: new Date().toISOString(),
-        structureType: organization?.type ?? "",
+        structureType: organization?.structure_type ?? "",
         childName,
       }),
     );
@@ -217,7 +217,7 @@ function EcritEducatifPage() {
     try {
       const text = await generateEcritEducatif({
         observations,
-        structureType: organization?.type ?? "",
+        structureType: organization?.structure_type ?? "",
         companyName: organization?.name ?? "",
         educatorName: fullName,
         educatorRole: ROLE_LABELS[role] ?? role,
@@ -274,7 +274,7 @@ function EcritEducatifPage() {
                   {organization?.name ?? "—"}
                 </p>
                 <p className="text-xs text-(--text-secondary)">
-                  {organization?.type ?? "—"}
+                  {organization?.structure_type ?? "—"}
                 </p>
               </div>
               <div className="w-px h-10 bg-(--border)" />
@@ -329,7 +329,7 @@ function EcritEducatifPage() {
                     {organization?.name ?? "—"}
                   </p>
                   <p className="text-(--text-secondary)">
-                    {organization?.type ?? "—"}
+                    {organization?.structure_type ?? "—"}
                   </p>
                 </div>
                 <div className="w-px bg-(--border)" />
@@ -479,7 +479,7 @@ function EcritEducatifPage() {
             downloadMeta={{
               type: "ECRIT",
               interventionType: "Écrit éducatif",
-              structureType: organization?.type ?? "",
+              structureType: organization?.structure_type ?? "",
               companyName: organization?.name ?? "",
               educatorName: fullName,
               childName: selectedReferenceId
