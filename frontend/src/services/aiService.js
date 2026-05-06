@@ -18,6 +18,10 @@ const openrouter = new OpenRouter({ apiKey, dangerouslyAllowBrowser: true });
 
 let promptsCache = [];
 
+export function resetPromptsCache() {
+  promptsCache = [];
+}
+
 async function fetchPrompts() {
   try {
     const res = await authFetch(`${API_URL}/prompts`);
@@ -64,22 +68,7 @@ async function getChatResponse({
   let text = completion.choices?.[0]?.message?.content;
   if (!text) throw new Error('Réponse OpenRouter vide ou inattendue.');
 
-  return text
-    .replace(
-      /⚠️\s*Aide IA\s*--\s*Validation humaine obligatoire avant diffusion[^\n]*/gi,
-      '',
-    )
-    .replace(
-      /Rédigé avec l'aide de l'IA\s*--\s*à relire et valider[^\n]*/gi,
-      '',
-    )
-    .replace(
-      /Texte généré avec l'aide d'une intelligence artificielle[^\n]*/gi,
-      '',
-    )
-    .replace(/généré avec l'aide d'une intelligence artificielle[^\n]*/gi, '')
-    .replace(/Assisté par IA[^\n]*/gi, '')
-    .trim();
+  return text.trim();
 }
 
 // Récupère le prompt JSON par nom, puis l'envoie au chat.

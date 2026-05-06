@@ -267,9 +267,6 @@ export function generateReportFilename(childName, educatorName, date, docType = 
 
 export async function downloadDocx({ text, childName, educatorName, date, ...rest }) {
   const cleanText = String(text || '')
-    .replace(/Aide IA – Validation humaine obligatoire avant diffusion\. Aucune donnée personnelle identifiable ne doit être utilisée\.\n*/gi, '')
-    .replace(/Redige avec l'aide de l'IA – a relire et valider par un·e professionnel·le\./gi, '')
-    .replace(/Rédigé avec l'aide de l'IA – à relire et valider par un·e professionnel·le\./gi, '')
     .replace(/TABLEAU\s+R[EÉ]CAPITULATIF\s+OBLIGATOIRE\s+DES\s+OBJECTIFS\s*\n*/gi, '')
     .replace(/^\s*\|?\s*Objectif opérationnel\s*\|\s*Action prévue\s*\|\s*Responsable\s*\|\s*Modalités\s*\|\s*Fréquence\s*\|\s*Échéance\s*\(.*?\)\s*\|\s*Indicateur d['']évaluation\s*\|?\s*$/gim, '')
     .replace(/^\s*\|[-:| ]+\|\s*$/gim, '')

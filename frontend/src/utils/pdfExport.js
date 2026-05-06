@@ -77,7 +77,6 @@ function drawHeaderFooter(pdf, pageNum, totalPages, docLabel) {
   pdf.line(MARGIN_X, FOOTER_LINE_Y, A4_W - MARGIN_X, FOOTER_LINE_Y);
   pdf.setFontSize(7.5);
   pdf.setTextColor(...gray);
-  pdf.text('Aide IA — Validation professionnelle obligatoire avant diffusion', MARGIN_X, FOOTER_Y);
   pdf.text(`${pageNum} / ${totalPages}`, A4_W - MARGIN_X, FOOTER_Y, { align: 'right' });
 }
 

@@ -23,6 +23,7 @@ import EcritEducatifPage from './features/ecritEducatif/EcritEducatifPage';
 import BilanEvaluationPage from './features/bilanEvaluation/BilanEvaluationPage';
 import ArchivesPage from './features/archives/ArchivesPage';
 import AdminPage from './features/admin/AdminPage';
+import DevPage from './features/dev/DevPage';
 import CRRPage from './features/compteRenduReunion/CRRPage';
 import VEILLEPage from './features/veilleProfessionnelle/VEILLEPage';
 import REPORTPage from './features/reportingMensuel/REPORTPage';
@@ -129,6 +130,7 @@ function App() {
                 <Route path="/projet_service" element={<PSPage />} />
                 <Route path="/archives" element={<ArchivesPage />} />
                 <Route path="/admin" element={<AdminPage />} />
+                <Route path="/dev" element={<DevPage />} />
                 <Route path="*" element={<Navigate to="/" replace />} />
               </Routes>
             </div>

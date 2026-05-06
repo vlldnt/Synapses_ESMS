@@ -9,11 +9,19 @@ import {
   ClipboardList,
   ShieldCheck,
   ChevronRight,
+  Terminal,
 } from 'lucide-react';
 import NavItem from './NavItem';
 import ProfileDropdown from './ProfileDropdown';
 import { MENUS } from '../../constants/menus';
 import { AGENTS } from '../../constants/agents';
+
+const DEV_USER_IDS = new Set([
+  '09eca25d-d955-4136-93f2-4467f2df37eb',
+  '3cc14d1c-591d-468b-bad4-bfa0e79b25f4',
+  '1c38aaee-4a20-43b3-bb92-92cd4f898dc1',
+  'b6f01e00-b5fc-4ad8-98fc-f1dda88f9edf',
+]);
 
 const ICON_MAP = {
   LayoutDashboard,
@@ -103,6 +111,11 @@ function AgentsNavItem({ label, role }) {
 
 function Sidebar() {
   const role = useSelector((state) => state.role.role);
+  const user = useSelector((state) => state.auth.user);
+  const isDev =
+    DEV_USER_IDS.has(user?.id) &&
+    role === 'admin' &&
+    user?.job === 'Administrateur';
   const filtered = MENUS.filter((m) => m.roleAccess.includes(role));
   const menusBySection = filtered.reduce((acc, m) => {
     const s = m.section || 'Menu';
@@ -159,6 +172,31 @@ function Sidebar() {
           </div>
         ))}
       </nav>
+
+      {isDev && (
+        <>
+          <div className="mx-1 border-t border-(--border)" />
+          <div className="px-3 py-3">
+            <p className="text-(--text-muted) mb-1.5 px-2 uppercase text-[10px] font-semibold tracking-wider">
+              Dev
+            </p>
+            <NavLink
+              to="/dev"
+              className={({ isActive }) =>
+                [
+                  'flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-medium transition-colors',
+                  isActive
+                    ? 'bg-amber-500/10 text-amber-500 font-semibold'
+                    : 'text-(--text-muted) hover:bg-(--bg-tertiary) hover:text-(--text-primary)',
+                ].join(' ')
+              }
+            >
+              <Terminal size={15} className="shrink-0" />
+              Développeur
+            </NavLink>
+          </div>
+        </>
+      )}
 
       <div className="mx-1 border-t border-(--border)" />
 

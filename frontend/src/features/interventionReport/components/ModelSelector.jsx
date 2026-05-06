@@ -18,13 +18,15 @@ function ModelSelector({ value, onChange }) {
     return () => document.removeEventListener('mousedown', handler);
   }, []);
 
+  const mistralModels = models.filter((m) => m.id.startsWith('mistralai/'));
+
   const filtered = search.trim()
-    ? models.filter(
+    ? mistralModels.filter(
         (m) =>
           m.id.toLowerCase().includes(search.toLowerCase()) ||
           (m.name ?? '').toLowerCase().includes(search.toLowerCase()),
       )
-    : models;
+    : mistralModels;
 
   const currentName = getModelName(value);
 

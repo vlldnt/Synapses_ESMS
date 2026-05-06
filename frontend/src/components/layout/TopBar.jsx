@@ -31,6 +31,10 @@ const routeTitles = {
     title: 'Archives',
     subtitle: "Consultez, gérez et retrouvez l'ensemble de vos documents générés",
   },
+  '/dev': {
+    title: 'Développeur',
+    subtitle: 'Accès restreint — Éditeur de prompts et configuration',
+  },
 };
 
 function TopBar() {
