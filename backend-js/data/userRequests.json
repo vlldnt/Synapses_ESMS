@@ -73,5 +73,20 @@
     "status": "accepted",
     "created_at": "2026-05-07T07:42:52.954Z",
     "accepted_at": "2026-05-07T07:43:20.418Z"
+  },
+  {
+    "id": "54797e80-d004-46fe-9e3d-4063034f44fb",
+    "first_name": "Adri",
+    "last_name": "adri",
+    "email": "vieilledent.adrien@gmail.com",
+    "job": "Psychologue",
+    "role": "agent",
+    "organization_id": "d81eea21-20b3-4a69-97f9-b33f999b79cd",
+    "is_admin": false,
+    "verification_token": null,
+    "verification_expiry": "2026-05-07T13:12:49.716Z",
+    "status": "accepted",
+    "created_at": "2026-05-07T12:57:49.716Z",
+    "accepted_at": "2026-05-07T12:58:25.774Z"
   }
 ]

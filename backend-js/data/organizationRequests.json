@@ -52,5 +52,19 @@
     "verification_token": "4a5f0268c21c1e08f6db684dd3fc691e36dd088aa40ea898013a90502c157571",
     "verification_expiry": "2026-05-06T18:15:53.172Z",
     "created_at": "2026-05-06T18:00:53.172Z"
+  },
+  {
+    "id": "9b2b89db-2e66-4a38-b200-45981bd7bad9",
+    "org_name": "Tom",
+    "structure_type": "Service jeunes majeurs",
+    "description": "Tom",
+    "first_name": "tom",
+    "last_name": "tom",
+    "contact_email": "9863@holbertonstudents.com",
+    "status": "approved",
+    "verification_token": null,
+    "verification_expiry": "2026-05-07T13:11:09.208Z",
+    "created_at": "2026-05-07T12:56:09.208Z",
+    "approved_at": "2026-05-07T12:57:03.039Z"
   }
 ]
