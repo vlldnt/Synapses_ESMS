@@ -46,5 +46,13 @@
     "educator": "f88a86b2-7fbd-49c0-97e5-75dd1e9aa3c9",
     "organization_id": "b8178a42-d8b8-41dc-ab43-5ff4743313d3",
     "created_at": "2026-05-07T09:27:54.786Z"
+  },
+  {
+    "id": "7b8e9efd-a947-4d50-a5b2-00e2cb7b2171",
+    "first_name": "Robert",
+    "last_name": "Robichet",
+    "educator": "f88a86b2-7fbd-49c0-97e5-75dd1e9aa3c9",
+    "organization_id": "b8178a42-d8b8-41dc-ab43-5ff4743313d3",
+    "created_at": "2026-05-07T09:30:12.066Z"
   }
 ]
