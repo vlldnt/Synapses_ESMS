@@ -31,3 +31,19 @@ class UserRequest(BaseModel):
         return {
             "token" : self.verification_token
         }
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "first_name": self.first_name,
+            "last_name": self.last_name,
+            "email": self.email,
+            "job": self.job,
+            "status": self.status.value if self.status else None,
+            "role": self.role,
+            "organization_id": self.organization_id,
+            "is_admin": self.is_admin,
+            "verification_token": self.verification_token,
+            "verification_expiry": self.verification_expiry.isoformat() if self.verification_expiry else None,
+            "approved_at": self.approved_at.isoformat() if self.approved_at else None
+        }

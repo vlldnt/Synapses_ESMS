@@ -2,6 +2,8 @@ from flask_restx import Namespace, Resource, fields
 from flask_jwt_extended import get_jwt_identity, jwt_required, get_jwt
 from app.services import facade
 from app.security.jwt import generete_token
+from app.services.mail_service import MailService
+from flask import current_app
 
 api = Namespace('auth', description="User authentication operation")
 
@@ -19,7 +21,7 @@ organization_request_model = api.model('organizationRequest', {
     'contact_email': fields.String(required=True, description='admin email', example="user@email.com"),
 })
 
-organization_validation_model = api.model('organizationvalidate', {
+validation_model = api.model('organizationvalidate', {
     'password' : fields.String(required=True, description='password', example=""),
     'validate_password': fields.String(required=True, description='second password', example=""),
 })
@@ -50,9 +52,26 @@ class Login(Resource):
             data = get_jwt()
 
             return {'message': f'Hello, user {user_id}, your organisation {data['organization_id']}'}, 200
-        
+
+
 @api.route('/organization-requests')
 class made_organization_request(Resource):
+    @jwt_required()
+    @api.doc(security="token")
+    def get(self):
+        """ can see list of all request"""
+        user_id = get_jwt_identity()
+        claims = get_jwt()
+
+        if not user_id:
+            api.abort(404, "User not found")
+
+        if claims.get("is_admin") is not True:
+            api.abort(403, "Forbidden action")
+
+        request_list = facade.list_request_org()
+        return [request.to_dict() for request in request_list], 200
+
     @api.expect(organization_request_model)
     def post(self):
         """ made a request for create the organization """
@@ -64,11 +83,34 @@ class made_organization_request(Resource):
                 api.abort(400, f'Invalid input data: {key}')
 
         new_request = facade.made_request_org(request)
-        return new_request.token(), 200
 
+        app_url = current_app.config["APP_URL"]
+
+        setPassword =  f"{app_url}/set-password/{new_request.verification_token}"
+
+        MailService.send_email(
+            to=new_request.contact_email,
+            first_name=new_request.first_name,
+            last_name=new_request.last_name,
+            org_name=new_request.org_name,
+            setPasswordUrl=setPassword
+        )
+
+        return new_request.token(), 200
+    
+@api.route('/api/organization-requests/info/<token_id>')
+class get_orgnaisation_request_by_token(Resource):
+    def get(self, token_id):
+        """ get a organization request with token"""
+        request = facade.get_request_by_token_org(token_id)
+        print(f"{token_id} {request}")
+        if not request:
+            api.abort(404, "request not found")
+        return request.to_dict(), 200
+    
 @api.route('/organization-requests/complete/<token_id>')
 class new_organization(Resource):
-    @api.expect(organization_validation_model)
+    @api.expect(validation_model)
     def post(self, token_id):
         """ validate the creation with password """
 
@@ -93,8 +135,17 @@ class new_organization(Resource):
 
         return result, 201
 
+@api.route("/user-requests/info/<token_id>")
+class list_resquest(Resource):
+    def get(self, token_id):
+        """ get a request user with this token """
+        request = facade.get_request_user_by_token(token_id)
+        if not request:
+            api.abort(404, "Request not found")
+        return request.to_dict()
+
 @api.route("/user-requests/complete/<token_id>")
-@api.expect(organization_validation_model)
+@api.expect(validation_model)
 class new_user(Resource):
     def post(self, token_id):
         """ validate the creation with password """

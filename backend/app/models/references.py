@@ -1,9 +1,8 @@
 from app import db
 from .basemodel import BaseModel
-from sqlalchemy.orm import relationship
 
 class Reference(BaseModel):
-    __tablename__ = "references"
+    __tablename__ = "reference"
 
     first_name = db.Column(db.String(50), nullable=False)
     last_name = db.Column(db.String(50), nullable=False)

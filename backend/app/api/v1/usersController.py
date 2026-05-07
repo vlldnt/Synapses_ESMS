@@ -19,13 +19,23 @@ user_update = api.model("user update", {
     'password': fields.String(required=True, description="User password", example="Johnd0e!"),
 })
 
-@api.route('/users')
+@api.route('/')
 class UserList(Resource):
+    @jwt_required()
+    @api.doc(security="token")
+    @api.response(400, 'Invalid input data')
+    @api.response(403, 'Forbidden action')
+    @api.response(404, 'admin not found')
     @api.response(200, 'List of users retrieved successfully')
     def get(self):
-        """Get a list of all users"""
+        """Get a list of users in the same organization"""
 
-        all_users = facade.get_all_users()
+        claims = get_jwt()
+        organisation_id = claims.get('organization_id')
+        if not organisation_id:
+            api.abort(400, "Organization ID missing from token")
+
+        all_users = facade.get_all_users(organisation_id)
         return [user.to_dict() for user in all_users], 200
     
     @api.expect(user_request)
@@ -57,8 +67,6 @@ class UserList(Resource):
         
         new_request = facade.made_request_user(request)
         return new_request.token(), 200
-
-
 
 
 @api.route('/<user_id>')

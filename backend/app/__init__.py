@@ -8,10 +8,11 @@ db = SQLAlchemy()
 bcrypt = Bcrypt()
 jwt = JWTManager()
 
-from app.api.v1.users import api as users_ns
-from app.api.v1.auth import api as auth_ns
-from app.api.v1.organisation import api as org_ns
-from app.api.v1.references import api as ref_ns
+from app.api.v1.usersController import api as users_ns
+from app.api.v1.authController import api as auth_ns
+from app.api.v1.organisationController import api as org_ns
+from app.api.v1.referencesController import api as ref_ns
+from app.api.v1.archiveController import api as archive_ns
 
 def createApp(config_class="config.DevelopmentConfig"):
     app = Flask(__name__)
@@ -32,11 +33,16 @@ def createApp(config_class="config.DevelopmentConfig"):
     api.add_namespace(auth_ns, path='/api')
     api.add_namespace(org_ns, path='/api')
     api.add_namespace(ref_ns, path='/api/references')
+    api.add_namespace(archive_ns, path='/api/archives')
 
     db.init_app(app)
     bcrypt.init_app(app)
     jwt.init_app(app)
 
+    from app.models.prompts import Prompt
+    from app.services.prompt_loader import load_initial_prompts
+
     with app.app_context():
         db.create_all()
+        load_initial_prompts(db, Prompt)
     return app

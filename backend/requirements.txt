@@ -1,14 +1,11 @@
-# Core Flask
 Flask
 flask-restx
 
-# Database
 Flask-SQLAlchemy
 psycopg2-binary
 
-# Security
 Flask-Bcrypt
 Flask-JWT-Extended
 
-# Environment variables
 python-dotenv
+resend

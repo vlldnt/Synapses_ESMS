@@ -22,7 +22,7 @@ class ApiFacade:
         self.organisationRequest_repo.add(request)
         return request
     
-    def list_request(self):
+    def list_request_org(self):
         return self.organisationRequest_repo.get_all()
     
     def get_request_by_token_org(self, token):
@@ -84,12 +84,11 @@ class ApiFacade:
     
     def complete_request_user(self, token, password):
         request = self.get_request_user_by_token(token)
-        print(f"request : {request.status}")
         if not request or request.status != UserRequestStatus.pending:
-            print(f"{request} {request.status}")
             return None
         if request.verification_expiry < datetime.utcnow():
-            print("2")
+            return None
+        if self.get_user_by_email(request.email):
             return None
         
         user = User(
@@ -120,8 +119,10 @@ class ApiFacade:
     def get_user(self, user_id):
         return self.user_repo.get(user_id)
     
-    def get_all_users(self):
-         return self.user_repo.get_all()
+    def get_all_users(self, organization_id=None):
+        if organization_id is None:
+            return self.user_repo.get_all()
+        return self.user_repo.get_all_by_attribute('organization_id', organization_id)
     
     def get_user_by_email(self, email):
         return self.user_repo.get_by_attribute('email', email)
@@ -150,11 +151,15 @@ class ApiFacade:
     
     """ References facade """
     def create_ref(self, reference_data):
-        reference = Reference(**reference_data)
-        return self.reference_repo.add(reference)
+        return self.reference_repo.add(reference_data)
     
     def get_reference(self, reference_id):
         return self.reference_repo.get(reference_id)
     
-    def get_all_references(self):
-        return self.reference_repo.get_all()
+    def delete_reference(self, reference_id):
+        return self.reference_repo.delete(reference_id)
+    
+    def get_all_references(self, organization_id=None):
+        if organization_id is None:
+            return self.reference_repo.get_all()
+        return self.reference_repo.get_all_by_attribute('organisation_id', organization_id)

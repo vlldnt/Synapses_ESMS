@@ -31,3 +31,18 @@ class OrganizationRequest(BaseModel):
         return {
             "token" : self.verification_token
         }
+    
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "org_name": self.org_name,
+            "structure_type": self.structure_type,
+            "description": self.description,
+            "first_name": self.first_name,
+            "last_name": self.last_name,
+            "contact_email": self.contact_email,
+            "status": self.status.value if self.status else None,
+            "verification_token": self.verification_token,
+            "verification_expiry": self.verification_expiry.isoformat() if self.verification_expiry else None,
+            "approved_at": self.approved_at.isoformat() if self.approved_at else None
+        }
