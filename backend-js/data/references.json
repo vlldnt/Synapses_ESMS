@@ -38,5 +38,13 @@
     "educator": "f88a86b2-7fbd-49c0-97e5-75dd1e9aa3c9",
     "organization_id": "b8178a42-d8b8-41dc-ab43-5ff4743313d3",
     "created_at": "2026-05-07T07:45:03.690Z"
+  },
+  {
+    "id": "6c0bf40c-5521-46da-a971-50743da7ad6b",
+    "first_name": "Adrien",
+    "last_name": "Vieilledent",
+    "educator": "f88a86b2-7fbd-49c0-97e5-75dd1e9aa3c9",
+    "organization_id": "b8178a42-d8b8-41dc-ab43-5ff4743313d3",
+    "created_at": "2026-05-07T09:27:54.786Z"
   }
 ]

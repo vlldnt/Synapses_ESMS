@@ -37,7 +37,7 @@ export async function createReference({ firstName, lastName, educatorId }) {
     throw new Error(data.error || `Erreur ${response.status}`);
   }
   const newRef = await response.json();
-  referencesCache = referencesCache ? [...referencesCache, newRef] : [newRef];
+  referencesCache = null;
   return newRef;
 }
 

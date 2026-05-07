@@ -5,7 +5,7 @@ import { createReference } from '../../services/referenceService';
 const inputCls =
   'w-full px-3 py-2 rounded-lg border bg-(--bg-secondary) text-(--text-primary) border-(--border) text-sm focus:outline-none focus:ring-2 focus:ring-(--bleu-fonce)/40';
 
-export default function CreateReferenceModal({ employees, onClose, onCreated }) {
+export default function CreateReferenceModal({ employees = [], onClose, onCreated, showEducator = true }) {
   const [fields, setFields] = useState({ firstName: '', lastName: '', educatorId: '' });
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
@@ -26,7 +26,7 @@ export default function CreateReferenceModal({ employees, onClose, onCreated }) 
       const newRef = await createReference({
         firstName: fields.firstName.trim(),
         lastName: fields.lastName.trim(),
-        educatorId: fields.educatorId || undefined,
+        educatorId: showEducator ? (fields.educatorId || undefined) : undefined,
       });
       onCreated(newRef);
       onClose();
@@ -64,17 +64,19 @@ export default function CreateReferenceModal({ employees, onClose, onCreated }) 
               <input required value={fields.lastName} onChange={set('lastName')} className={inputCls} placeholder='Nom' />
             </div>
           </div>
-          <div className='flex flex-col gap-1'>
-            <label className='text-xs text-(--text-muted)'>Référent assigné (optionnel)</label>
-            <select value={fields.educatorId} onChange={set('educatorId')} className={inputCls}>
-              <option value=''>Aucun</option>
-              {employees.map((emp) => (
-                <option key={emp.id} value={emp.id}>
-                  {emp.first_name} {emp.last_name}{emp.job ? ` — ${emp.job}` : ''}
-                </option>
-              ))}
-            </select>
-          </div>
+          {showEducator && (
+            <div className='flex flex-col gap-1'>
+              <label className='text-xs text-(--text-muted)'>Référent assigné (optionnel)</label>
+              <select value={fields.educatorId} onChange={set('educatorId')} className={inputCls}>
+                <option value=''>Aucun</option>
+                {employees.map((emp) => (
+                  <option key={emp.id} value={emp.id}>
+                    {emp.first_name} {emp.last_name}{emp.job ? ` — ${emp.job}` : ''}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
           {error && <p className='text-xs text-red-500'>{error}</p>}
           <button
             type='submit'
