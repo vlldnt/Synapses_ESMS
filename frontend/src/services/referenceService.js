@@ -41,6 +41,21 @@ export async function createReference({ firstName, lastName, educatorId }) {
   return newRef;
 }
 
+export async function updateReference(id, { firstName, lastName, educatorId }) {
+  const response = await authFetch(`${BASE}/references/${id}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ firstName, lastName, educatorId }),
+  });
+  if (!response.ok) {
+    const data = await response.json().catch(() => ({}));
+    throw new Error(data.error || `Erreur ${response.status}`);
+  }
+  const updated = await response.json();
+  if (referencesCache) referencesCache = referencesCache.map((r) => (r.id === id ? updated : r));
+  return updated;
+}
+
 export async function deleteReference(id) {
   const response = await authFetch(`${BASE}/references/${id}`, { method: 'DELETE' });
   if (!response.ok) {

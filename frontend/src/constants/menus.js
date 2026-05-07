@@ -24,6 +24,14 @@ export const MENUS = [
     roleAccess: ["agent", "direction", "admin"],
   },
   {
+    id: "gestion",
+    label: "Gestion",
+    route: "/gestion",
+    icon: "ClipboardList",
+    section: "Gestion",
+    roleAccess: ["agent"],
+  },
+  {
     id: "admin",
     label: "Administration",
     route: "/admin",
