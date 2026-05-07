@@ -1,7 +1,9 @@
 from flask_restx import Namespace, Resource, fields
 from app.models.userRequest import UserRequest
+from app.services.mail_service import MailService
 from flask_jwt_extended import get_jwt_identity, jwt_required, get_jwt
 from app.services import facade
+from flask import current_app
 
 api = Namespace('users', description="User operations")
 
@@ -66,6 +68,19 @@ class UserList(Resource):
         )
         
         new_request = facade.made_request_user(request)
+
+        app_url = current_app.config["APP_URL"]
+
+        setPassword =  f"{app_url}/set-password/{new_request.verification_token}"
+
+        MailService.send_email(
+            to=new_request.contact_email,
+            first_name=new_request.first_name,
+            last_name=new_request.last_name,
+            org_name=new_request.org_name,
+            setPasswordUrl=setPassword
+        )
+
         return new_request.token(), 200
 
 
