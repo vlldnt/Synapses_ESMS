@@ -11,7 +11,7 @@ import {
 } from 'lucide-react';
 import faviconUrl from '/favicon.png';
 import { useCurrentUser } from '../../hooks/useCurrentUser';
-import { getReferencesByEducator } from '../../services/referenceService';
+import { getReferencesByEducator, invalidateReferencesCache } from '../../services/referenceService';
 import { getHistory } from '../../services/historyService';
 
 function ReferenceItem({ reference }) {
@@ -66,6 +66,7 @@ function ProfileModal({ onClose }) {
   }, [user?.id]);
 
   const handleLogout = () => {
+    invalidateReferencesCache();
     logout();
     onClose();
   };
