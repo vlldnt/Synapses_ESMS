@@ -31,6 +31,8 @@ import RAPage from './features/rapportActivite/RAPage';
 import BAPage from './features/bilanActivite/BAPage';
 import PEPage from './features/projetEtablissement/PEPage';
 import PSPage from './features/projetService/PSPage';
+import HASPage from './features/evaluationHas/HASPage';
+import AAPPage from './features/appelProjet/AAPPage';
 
 function TopControls() {
   const dispatch = useDispatch();
@@ -128,6 +130,8 @@ function App() {
                 <Route path="/bilan_activite" element={<BAPage />} />
                 <Route path="/projet_etablissement" element={<PEPage />} />
                 <Route path="/projet_service" element={<PSPage />} />
+                <Route path="/evaluation_has" element={<HASPage />} />
+                <Route path="/appel_projet" element={<AAPPage />} />
                 <Route path="/archives" element={<ArchivesPage />} />
                 <Route path="/admin" element={<AdminPage />} />
                 <Route path="/dev" element={<DevPage />} />

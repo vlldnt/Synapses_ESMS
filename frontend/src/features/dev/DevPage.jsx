@@ -39,6 +39,8 @@ const PROMPT_TO_ROUTE = {
   bilan_activite:         '/bilan_activite',
   projet_etablissement:   '/projet_etablissement',
   projet_service:         '/projet_service',
+  evaluation_has:         '/evaluation_has',
+  appel_projet:           '/appel_projet',
 };
 
 const AGENT_BY_ROUTE = Object.fromEntries(AGENTS.filter((a) => a.to).map((a) => [a.to, a]));

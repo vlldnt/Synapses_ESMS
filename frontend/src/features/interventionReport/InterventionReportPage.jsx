@@ -26,6 +26,9 @@ import {
   REPORT_STATUS,
 } from "../../constants/intervention";
 import { CARD_CLASS, ROLE_LABELS } from "../../constants/shared";
+import { AGENTS } from "../../constants/agents";
+
+const ACCENT = AGENTS.find((a) => a.id === 'compte-rendu-intervention')?.color ?? '#673DE6';
 
 function inferStatus({ interventionType, transcription, result, isArchived }) {
   if (isArchived) return REPORT_STATUS.ARCHIVED;
@@ -486,7 +489,7 @@ function InterventionReportPage() {
             <div className="flex flex-row gap-3">
               <Button
                 type="submit"
-                color="blue"
+                color={ACCENT}
                 size="md"
                 disabled={loading || !transcription.trim()}
                 className="flex-1 md:flex-none"
@@ -494,7 +497,7 @@ function InterventionReportPage() {
                 {loading ? "Génération en cours…" : "Générer le compte rendu"}
               </Button>
               <Button
-                color="green"
+                color={ACCENT}
                 size="md"
                 onClick={handleReset}
                 className="flex-1 md:hidden"
@@ -532,7 +535,7 @@ function InterventionReportPage() {
         {/* ── Loading ── */}
         {loading && (
           <div className={`${CARD_CLASS} flex items-center gap-4`}>
-            <div className="w-5 h-5 rounded-full border-2 border-[#5A2FB8] border-t-transparent animate-spin shrink-0" />
+            <div className="w-5 h-5 rounded-full border-2 border-t-transparent animate-spin shrink-0" style={{ borderColor: ACCENT, borderTopColor: 'transparent' }} />
             <div className="flex flex-col gap-0.5">
               <span
                 key={loadingMessageIndex}

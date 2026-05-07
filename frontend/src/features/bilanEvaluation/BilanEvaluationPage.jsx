@@ -21,8 +21,9 @@ import {
   REPORT_STATUS,
 } from "../../constants/bilan";
 import { CARD_CLASS, ROLE_LABELS } from "../../constants/shared";
+import { AGENTS } from "../../constants/agents";
 
-const ACCENT = "var(--violet)";
+const ACCENT = AGENTS.find((a) => a.id === "bilan-evaluation")?.color ?? "#06B6D4";
 
 function inferStatus({ observations, result, isArchived }) {
   if (isArchived) return REPORT_STATUS.ARCHIVED;
@@ -331,10 +332,10 @@ function BilanEvaluationPage() {
           {/* ── Actions ── */}
           <div id="form-actions" className="flex flex-col gap-3">
             <div className="flex flex-row gap-3">
-              <Button type="submit" color="violet" size="md" disabled={loading || !observations.trim()} className="flex-1 md:flex-none">
+              <Button type="submit" color={ACCENT} size="md" disabled={loading || !observations.trim()} className="flex-1 md:flex-none">
                 {loading ? "Génération en cours…" : "Générer le bilan"}
               </Button>
-              <Button color="green" size="md" onClick={handleReset} className="flex-1 md:hidden">
+              <Button color={ACCENT} size="md" onClick={handleReset} className="flex-1 md:hidden">
                 Nouveau
               </Button>
             </div>
@@ -358,7 +359,7 @@ function BilanEvaluationPage() {
           <div className={`${CARD_CLASS} flex items-center gap-4`}>
             <div
               className="w-5 h-5 rounded-full border-2 border-t-transparent animate-spin shrink-0"
-              style={{ borderColor: "var(--violet)", borderTopColor: "transparent" }}
+              style={{ borderColor: ACCENT, borderTopColor: "transparent" }}
             />
             <div className="flex flex-col gap-0.5">
               <span key={loadingMessageIndex} className="text-sm text-(--text-secondary) animate-pulse transition-opacity duration-300">

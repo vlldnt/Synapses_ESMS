@@ -3,7 +3,7 @@ import { X } from 'lucide-react';
 import { authFetch } from '../../services/authServices';
 
 const inputCls =
-  'w-full px-3 py-2 rounded-lg border bg-(--bg-secondary) text-(--text-primary) border-(--border) text-sm focus:outline-none focus:ring-2 focus:ring-[#673DE6]/40';
+  'w-full px-3 py-2 rounded-lg border bg-(--bg-secondary) text-(--text-primary) border-(--border) text-sm focus:outline-none focus:ring-2 focus:ring-(--bleu-fonce)/40';
 
 export default function EditReferenceModal({ reference, employees, onClose, onUpdated }) {
   const [fields, setFields] = useState({
@@ -83,7 +83,7 @@ export default function EditReferenceModal({ reference, employees, onClose, onUp
             </select>
           </div>
           {error && <p className='text-xs text-red-500'>{error}</p>}
-          <button type='submit' disabled={submitting} className='mt-1 w-full py-2.5 rounded-lg bg-[#673DE6] text-white text-sm font-medium hover:bg-[#5A2FB8] disabled:opacity-60 cursor-pointer transition-colors'>
+          <button type='submit' disabled={submitting} className='mt-1 w-full py-2.5 rounded-lg bg-(--bleu-fonce) text-white text-sm font-medium hover:bg-(--bleu-active) disabled:opacity-60 cursor-pointer transition-colors'>
             {submitting ? 'Enregistrement…' : 'Enregistrer'}
           </button>
         </form>

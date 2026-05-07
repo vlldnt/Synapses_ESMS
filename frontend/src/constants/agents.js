@@ -1,9 +1,9 @@
 export const AGENTS = [
-  // ── Agents (couleurs froides) ────────────────────────────────────────────
+  // ── Agents (couleurs froides : violet → indigo → bleu → ciel → cyan) ─────
   {
     id: "compte-rendu-intervention",
     badge: "CRI",
-    color: "#673DE6",
+    color: "var(--bleu-fonce)",
     title: "Compte Rendu d'Intervention",
     to: "/compte_rendu_intervention",
     roles: ["agent", "admin"],
@@ -11,7 +11,7 @@ export const AGENTS = [
   {
     id: "ppa-medico-social",
     badge: "PPAMS",
-    color: "#42C4A1",
+    color: "#4F72FF",
     title: "PPA Médico-Social",
     to: "/projet_personnalise_medico_social",
     roles: ["agent", "admin"],
@@ -19,7 +19,7 @@ export const AGENTS = [
   {
     id: "ppa-social",
     badge: "PPAS",
-    color: "#4C78FF",
+    color: "#3B82F6",
     title: "PPA Social",
     to: "/projet_personnalise_social",
     roles: ["agent", "admin"],
@@ -27,7 +27,7 @@ export const AGENTS = [
   {
     id: "ecrit-educatif",
     badge: "ECRIT",
-    color: "#7B66FF",
+    color: "#0EA5E9",
     title: "Écrit Éducatif",
     to: "/ecrit_educatif",
     roles: ["agent", "admin"],
@@ -35,16 +35,16 @@ export const AGENTS = [
   {
     id: "bilan-evaluation",
     badge: "BILAN",
-    color: "#3AB0FF",
+    color: "#06B6D4",
     title: "Bilan d'Évaluation",
     to: "/bilan_evaluation",
     roles: ["agent", "admin"],
   },
-  // ── Direction (couleurs chaudes) ─────────────────────────────────────────
+  // ── Direction (couleurs chaudes : rose → rouge → orange → ambre → or) ────
   {
     id: "compte-rendu-reunion",
     badge: "CRR",
-    color: "#E11D48",
+    color: "#F43F5E",
     title: "Compte Rendu de Réunion",
     to: "/compte_rendu_reunion",
     roles: ["direction", "admin"],
@@ -52,7 +52,7 @@ export const AGENTS = [
   {
     id: "veille-professionnelle",
     badge: "VEILLE",
-    color: "#EA580C",
+    color: "#EF4444",
     title: "Veille Professionnelle",
     to: "/veille_professionnelle",
     roles: ["direction", "admin"],
@@ -68,7 +68,7 @@ export const AGENTS = [
   {
     id: "rapport-activite",
     badge: "RA",
-    color: "#D97706",
+    color: "#FB923C",
     title: "Rapport d'Activité",
     to: "/rapport_activite",
     roles: ["direction", "admin"],
@@ -76,7 +76,7 @@ export const AGENTS = [
   {
     id: "bilan-activite",
     badge: "BA",
-    color: "#F59E0B",
+    color: "#FBBF24",
     title: "Bilan d'Activité",
     to: "/bilan_activite",
     roles: ["direction", "admin"],
@@ -84,7 +84,7 @@ export const AGENTS = [
   {
     id: "projet-etablissement",
     badge: "PE",
-    color: "#F43F5E",
+    color: "#F59E0B",
     title: "Projet d'Établissement",
     to: "/projet_etablissement",
     roles: ["direction", "admin"],
@@ -92,7 +92,7 @@ export const AGENTS = [
   {
     id: "projet-service",
     badge: "PS",
-    color: "#FB923C",
+    color: "#EAB308",
     title: "Projet de Service",
     to: "/projet_service",
     roles: ["direction", "admin"],
@@ -100,17 +100,17 @@ export const AGENTS = [
   {
     id: "evaluation-interne-externe",
     badge: "HAS",
-    color: "#DB2777",
+    color: "#D97706",
     title: "Préparation Évaluation HAS",
-    to: null,
+    to: "/evaluation_has",
     roles: ["direction", "admin"],
   },
   {
     id: "appel-projet",
     badge: "AAP",
-    color: "#FBBF24",
+    color: "#B45309",
     title: "Appel à Projet",
-    to: null,
+    to: "/appel_projet",
     roles: ["direction", "admin"],
   },
 ];

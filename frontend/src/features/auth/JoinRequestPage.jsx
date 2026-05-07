@@ -107,7 +107,7 @@ function JoinRequestPage() {
           <p className='text-sm text-(--text-muted)'>
             Un email a été envoyé à <strong>{fields.contactEmail || 'votre adresse'}</strong>. Cliquez sur le lien pour créer votre mot de passe et activer votre compte.
           </p>
-          <Link to='/login' className='mt-2 text-sm text-[#673DE6] hover:underline'>
+          <Link to='/login' className='mt-2 text-sm text-(--bleu-fonce) hover:underline'>
             Retour à la connexion
           </Link>
         </div>
@@ -175,7 +175,7 @@ function JoinRequestPage() {
             maxLength={MAX.contactEmail} className={`${inputClass} ${errCls('contactEmail')}`} placeholder='Email' autoComplete='email' />
 
           <button type='submit' disabled={submitting}
-            className='mt-1 w-full py-2.5 md:py-3 rounded-lg text-white font-medium cursor-pointer text-sm md:text-base bg-[#673DE6] hover:bg-[#5A2FB8] disabled:opacity-60 transition-all duration-200'>
+            className='mt-1 w-full py-2.5 md:py-3 rounded-lg text-white font-medium cursor-pointer text-sm md:text-base bg-(--bleu-fonce) hover:bg-(--bleu-active) disabled:opacity-60 transition-all duration-200'>
             {submitting ? 'Envoi...' : 'Envoyer ma demande'}
           </button>
 

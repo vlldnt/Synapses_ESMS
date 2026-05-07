@@ -382,3 +382,45 @@ Analyse ces observations, identifie les axes Séraphin concernés et génère un
 
   return sendPrompt('ppa_social', userMessage, { temperature: 0.35, model });
 }
+
+// HAS — Préparation Évaluation HAS
+export async function generateEvaluationHas({
+  observations,
+  structureType,
+  companyName,
+  educatorName,
+  educatorRole,
+  date,
+  model,
+}) {
+  const userMessage = `
+${buildContext({ companyName, structureType, educatorName, educatorRole, date })}
+
+--- ÉLÉMENTS DE LA DÉMARCHE QUALITÉ ---
+${observations?.trim() || 'Aucun élément fourni.'}
+
+Analyse ces éléments et génère une préparation structurée à l'évaluation HAS : identification des thématiques concernées, points forts, axes d'amélioration, recommandations concrètes et plan d'action priorisé.
+`.trim();
+  return sendPrompt('evaluation_has', userMessage, { temperature: 0.4, model });
+}
+
+// AAP — Appel à Projet
+export async function generateAppelProjet({
+  observations,
+  structureType,
+  companyName,
+  educatorName,
+  educatorRole,
+  date,
+  model,
+}) {
+  const userMessage = `
+${buildContext({ companyName, structureType, educatorName, educatorRole, date })}
+
+--- ÉLÉMENTS DU PROJET ---
+${observations?.trim() || 'Aucun élément fourni.'}
+
+Analyse ces éléments et génère une réponse structurée à l'appel à projet : présentation du porteur, diagnostic territorial, description du projet, public cible, moyens humains et organisationnels, plan de financement indicatif, démarche qualité et calendrier de mise en œuvre.
+`.trim();
+  return sendPrompt('appel_projet', userMessage, { temperature: 0.4, model });
+}

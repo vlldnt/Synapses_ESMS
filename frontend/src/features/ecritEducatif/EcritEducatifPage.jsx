@@ -396,7 +396,7 @@ function EcritEducatifPage() {
             <div className="flex flex-row gap-3">
               <Button
                 type="submit"
-                color="rose"
+                color={ACCENT}
                 size="md"
                 disabled={loading || !observations.trim()}
                 className="flex-1 md:flex-none"
@@ -404,7 +404,7 @@ function EcritEducatifPage() {
                 {loading ? "Génération en cours…" : "Générer l'écrit éducatif"}
               </Button>
               <Button
-                color="green"
+                color={ACCENT}
                 size="md"
                 onClick={handleReset}
                 className="flex-1 md:hidden"
@@ -444,7 +444,7 @@ function EcritEducatifPage() {
             <div
               className="w-5 h-5 rounded-full border-2 border-t-transparent animate-spin shrink-0"
               style={{
-                borderColor: "var(--rose-fonce)",
+                borderColor: ACCENT,
                 borderTopColor: "transparent",
               }}
             />

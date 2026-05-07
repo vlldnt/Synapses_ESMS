@@ -39,7 +39,7 @@ function LoginPage() {
 
   const inputClass = (valid, touched) =>
     `w-full px-3 py-2 md:px-4 md:py-2.5 rounded-lg border bg-(--bg-secondary) text-(--text-primary) placeholder-(--text-muted) focus:outline-none focus:ring-2 focus:border-transparent transition-shadow text-sm md:text-base ${
-      !touched ? 'border-(--border) focus:ring-[#673DE6]'
+      !touched ? 'border-(--border) focus:ring-(--bleu-fonce)'
       : valid ? 'border-green-500 focus:ring-green-500'
       : 'border-red-500 focus:ring-red-500'
     }`;
@@ -104,7 +104,7 @@ function LoginPage() {
             type="submit"
             id="login-button"
             disabled={isLoading || !isFormValid}
-            className="mt-1 md:mt-2 w-full py-2.5 md:py-3 rounded-lg text-white font-medium cursor-pointer text-sm md:text-base bg-[#673DE6] hover:bg-[#5A2FB8] disabled:opacity-60 disabled:cursor-wait transition-all duration-200"
+            className="mt-1 md:mt-2 w-full py-2.5 md:py-3 rounded-lg text-white font-medium cursor-pointer text-sm md:text-base bg-(--bleu-fonce) hover:bg-(--bleu-active) disabled:opacity-60 disabled:cursor-wait transition-all duration-200"
           >
             {isLoading ? 'Connexion...' : 'Se connecter'}
           </button>

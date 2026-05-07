@@ -214,7 +214,7 @@ function AdminPage() {
               onClick={() => setActiveTab(tab.id)}
               className={`whitespace-nowrap px-4 py-2.5 text-sm font-medium border-b-2 -mb-px transition-colors cursor-pointer ${
                 activeTab === tab.id
-                  ? 'border-[#673DE6] text-[#673DE6]'
+                  ? 'border-(--bleu-fonce) text-(--bleu-fonce)'
                   : 'border-transparent text-(--text-muted) hover:text-(--text-primary)'
               }`}
             >
@@ -237,7 +237,7 @@ function AdminPage() {
                   <span className='text-sm font-semibold text-(--text-primary)'>Employés</span>
                   <span className='text-xs text-(--text-muted)'>{employees.length}</span>
                 </div>
-                <button type='button' onClick={() => setShowUserModal(true)} className='w-6 h-6 rounded-md bg-[#673DE6] text-white flex items-center justify-center hover:bg-[#5A2FB8] cursor-pointer transition-colors'>
+                <button type='button' onClick={() => setShowUserModal(true)} className='w-6 h-6 rounded-md bg-(--bleu-fonce) text-white flex items-center justify-center hover:bg-(--bleu-active) cursor-pointer transition-colors'>
                   <Plus size={12} />
                 </button>
               </div>
@@ -269,7 +269,7 @@ function AdminPage() {
                   <span className='text-sm font-semibold text-(--text-primary)'>Références</span>
                   <span className='text-xs text-(--text-muted)'>{references.length}</span>
                 </div>
-                <button type='button' onClick={() => setShowRefModal(true)} className='w-6 h-6 rounded-md bg-[#5A2FB8] text-white flex items-center justify-center hover:bg-[#673DE6] cursor-pointer transition-colors'>
+                <button type='button' onClick={() => setShowRefModal(true)} className='w-6 h-6 rounded-md bg-(--bleu-active) text-white flex items-center justify-center hover:bg-(--bleu-fonce) cursor-pointer transition-colors'>
                   <Plus size={12} />
                 </button>
               </div>
@@ -328,7 +328,7 @@ function AdminPage() {
                 <button
                   type='button'
                   onClick={() => setShowUserModal(true)}
-                  className='flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#673DE6] text-white text-xs font-medium hover:bg-[#5A2FB8] cursor-pointer transition-colors'
+                  className='flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-(--bleu-fonce) text-white text-xs font-medium hover:bg-(--bleu-active) cursor-pointer transition-colors'
                 >
                   <Plus size={13} /> Ajouter
                 </button>
@@ -356,7 +356,7 @@ function AdminPage() {
                   <div className='flex-1 min-w-0'>
                     <div className='flex items-center gap-2'>
                       <p className='text-sm font-medium text-(--text-primary)'>{emp.first_name} {emp.last_name}</p>
-                      {emp.id === user?.id && <span className='text-[10px] px-1.5 py-0.5 rounded-full bg-[#673DE6]/10 text-[#673DE6] font-medium'>Vous</span>}
+                      {emp.id === user?.id && <span className='text-[10px] px-1.5 py-0.5 rounded-full bg-(--bleu-fonce)/10 text-(--bleu-fonce) font-medium'>Vous</span>}
                     </div>
                     <p className='text-xs text-(--text-muted) truncate'>{emp.email}{emp.job ? ` · ${emp.job}` : ''}</p>
                   </div>
@@ -365,7 +365,7 @@ function AdminPage() {
                     <span className={`text-[11px] font-medium px-2 py-0.5 rounded-full ${emp.status === 'active' ? 'text-green-600 bg-green-50' : 'text-gray-500 bg-gray-100'}`}>
                       {emp.status === 'active' ? 'Actif' : 'Inactif'}
                     </span>
-                    <button type='button' onClick={() => setEditingEmp(emp)} className='p-1.5 rounded-md text-(--text-muted) hover:text-[#673DE6] hover:bg-(--bg-secondary) cursor-pointer transition-colors'>
+                    <button type='button' onClick={() => setEditingEmp(emp)} className='p-1.5 rounded-md text-(--text-muted) hover:text-(--bleu-fonce) hover:bg-(--bg-secondary) cursor-pointer transition-colors'>
                       <Pencil size={13} />
                     </button>
                     {emp.id !== user?.id && (
@@ -389,7 +389,7 @@ function AdminPage() {
                 <button
                   type='button'
                   onClick={() => setShowRefModal(true)}
-                  className='flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#673DE6] text-white text-xs font-medium hover:bg-[#5A2FB8] cursor-pointer transition-colors'
+                  className='flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-(--bleu-fonce) text-white text-xs font-medium hover:bg-(--bleu-active) cursor-pointer transition-colors'
                 >
                   <Plus size={13} /> Ajouter
                 </button>
@@ -417,7 +417,7 @@ function AdminPage() {
                       <p className='text-sm font-medium text-(--text-primary)'>{ref.first_name} {ref.last_name}</p>
                       {educator && <p className='text-xs text-(--text-muted)'>Référent : {educator.first_name} {educator.last_name}</p>}
                     </div>
-                    <button type='button' onClick={() => setEditingRef(ref)} className='p-1.5 rounded-md text-(--text-muted) hover:text-[#673DE6] hover:bg-(--bg-secondary) cursor-pointer transition-colors'>
+                    <button type='button' onClick={() => setEditingRef(ref)} className='p-1.5 rounded-md text-(--text-muted) hover:text-(--bleu-fonce) hover:bg-(--bg-secondary) cursor-pointer transition-colors'>
                       <Pencil size={13} />
                     </button>
                     <button
@@ -498,7 +498,7 @@ function AdminPage() {
                       type='button'
                       onClick={handleDownload}
                       disabled={isDownloading || !selectedDoc.docx_base_64}
-                      className='flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-[#673DE6] text-white text-xs font-medium hover:bg-[#5A2FB8] disabled:opacity-50 cursor-pointer transition-colors shrink-0'
+                      className='flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-(--bleu-fonce) text-white text-xs font-medium hover:bg-(--bleu-active) disabled:opacity-50 cursor-pointer transition-colors shrink-0'
                     >
                       <Download size={12} />
                       {isDownloading ? '…' : 'Télécharger'}
