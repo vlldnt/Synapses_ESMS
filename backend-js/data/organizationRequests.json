@@ -25,5 +25,32 @@
     "verification_token": "1a7d4e37f92587161661b6efcf518d40e29262e0c8042bc1ab29cd512387666f",
     "verification_expiry": "2026-05-04T08:06:08.948Z",
     "created_at": "2026-05-04T07:51:08.948Z"
+  },
+  {
+    "id": "3903939a-3f43-46a0-86c4-911c4604a73c",
+    "org_name": "Synapses",
+    "structure_type": "ITEP",
+    "description": "",
+    "first_name": "Adrien",
+    "last_name": "Vieilledent",
+    "contact_email": "vieilledent.adrien@gmail.com",
+    "status": "approved",
+    "verification_token": null,
+    "verification_expiry": "2026-05-05T15:20:54.748Z",
+    "created_at": "2026-05-05T15:05:54.748Z",
+    "approved_at": "2026-05-05T15:06:27.297Z"
+  },
+  {
+    "id": "a925a83b-700c-41b3-82b8-a1d9d3a74138",
+    "org_name": "IME l'échappée belle",
+    "structure_type": "IME",
+    "description": "je voudrais essayer votre service",
+    "first_name": "Arnaud",
+    "last_name": "Maxence",
+    "contact_email": "maigne.pierre@gmail.com",
+    "status": "pending_verification",
+    "verification_token": "4a5f0268c21c1e08f6db684dd3fc691e36dd088aa40ea898013a90502c157571",
+    "verification_expiry": "2026-05-06T18:15:53.172Z",
+    "created_at": "2026-05-06T18:00:53.172Z"
   }
 ]

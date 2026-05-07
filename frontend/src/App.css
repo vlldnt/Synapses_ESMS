@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Serif+Display:ital@0;1&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap');
 
 @import "tailwindcss";
 @custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
@@ -19,8 +19,9 @@
     --vert-clair: #6CE4A8;
     --vert-fonce: #42C4A1;
 
-    --bleu-clair: #1294C3;
-    --bleu-fonce: #0D66D4;
+    --bleu-clair: #7B66FF;
+    --bleu-fonce: #673DE6;
+    --bleu-active: #5A2FB8;
 
     --orange: #FCBE82;
     --violet: #9B2CB6;
@@ -28,8 +29,8 @@
     --jaune-clair: #FDE68A;
     --jaune: #FBBF24;
 
-    --font-body: system-ui, -apple-system, 'Segoe UI', sans-serif;
-    --font-title: 'DM Serif Display', Georgia, serif;
+    --font-body: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --font-title: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
 html {
@@ -55,34 +56,31 @@ input, textarea, select {
     font-size: max(16px, 1em);
 }
 
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
+h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-title);
+    font-weight: 600;
+    letter-spacing: -0.01em;
 }
 
 /* Thème global : backgrounds & textes */
 :root[data-theme="light"] {
-    --bg-primary: #fefefe;
-    --bg-secondary: #f9fafb;
-    --bg-tertiary: #f3f4f6;
-    --text-primary: #111827;
-    --text-secondary: #4b5563;
-    --text-muted: #9ca3af;
-    --border: #e5e7eb;
+    --bg-primary: #FFFFFF;
+    --bg-secondary: #F5F5F6;
+    --bg-tertiary: #EBEBEC;
+    --text-primary: #222225;
+    --text-secondary: #58585E;
+    --text-muted: #9D9EA4;
+    --border: #E2E2E4;
 }
 
 :root[data-theme="dark"] {
-    --bg-primary: #111827;
-    --bg-secondary: #1f2937;
-    --bg-tertiary: #374151;
-    --text-primary: #f9fafb;
-    --text-secondary: #d1d5db;
-    --text-muted: #6b7280;
-    --border: #374151;
+    --bg-primary: #18181A;
+    --bg-secondary: #222225;
+    --bg-tertiary: #2E2E32;
+    --text-primary: #F5F5F6;
+    --text-secondary: #9D9EA4;
+    --text-muted: #58585E;
+    --border: #2E2E32;
 }
 
 @keyframes gradient-drift {

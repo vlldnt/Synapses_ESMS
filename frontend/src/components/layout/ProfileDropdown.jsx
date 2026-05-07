@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { logout } from '../../services/authServices';
+import { invalidateReferencesCache } from '../../services/referenceService';
 import { setTheme } from '../../store/themeSlice';
 import { useCurrentUser } from '../../hooks/useCurrentUser';
 import { User, LogOut, Sun, Moon, ChevronDown, Download } from 'lucide-react';
@@ -39,6 +40,7 @@ function ProfileDropdown({ photo = null, mobile = false }) {
   }, []);
 
   const handleLogout = () => {
+    invalidateReferencesCache();
     logout();
     setOpen(false);
   };

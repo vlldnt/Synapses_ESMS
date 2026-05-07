@@ -9,6 +9,7 @@ import StepCard from "../../components/StepCard";
 import {
   generatePersonalizedProject,
   DEFAULT_MODEL,
+  PROMPT_NOT_FOUND,
 } from "../../services/aiService";
 import {
   getReferences,
@@ -26,7 +27,7 @@ import {
 import { CARD_CLASS, ROLE_LABELS } from "../../constants/shared";
 import { AGENTS } from "../../constants/agents";
 
-const ACCENT = AGENTS.find((a) => a.id === 'ppa-medico-social')?.color ?? '#42C4A1';
+const ACCENT = AGENTS.find((a) => a.id === 'ppa-medico-social')?.color ?? '#4F72FF';
 
 function inferStatus({ observations, result, isArchived }) {
   if (isArchived) return REPORT_STATUS.ARCHIVED;
@@ -135,7 +136,7 @@ function PersonalizedProjectPage() {
         isArchived,
         status: nextStatus,
         updatedAt: new Date().toISOString(),
-        structureType: organization?.type ?? "",
+        structureType: organization?.structure_type ?? "",
         childName,
       }),
     );
@@ -226,7 +227,7 @@ function PersonalizedProjectPage() {
     try {
       const text = await generatePersonalizedProject({
         observations,
-        structureType: organization?.type ?? "",
+        structureType: organization?.structure_type ?? "",
         companyName: organization?.name ?? "",
         educatorName: fullName,
         educatorRole: ROLE_LABELS[role] ?? role,
@@ -238,7 +239,9 @@ function PersonalizedProjectPage() {
       setElapsed(((Date.now() - start) / 1000).toFixed(1));
       setReportStatus(REPORT_STATUS.IN_PROGRESS);
     } catch (err) {
-      setResult(`Erreur : ${err.message}`);
+      setResult(err.message === PROMPT_NOT_FOUND
+        ? "Cette fonctionnalité n'est pas disponible pour le moment."
+        : `Erreur : ${err.message}`);
       setReportStatus(REPORT_STATUS.DRAFT);
     } finally {
       setLoading(false);
@@ -274,7 +277,7 @@ function PersonalizedProjectPage() {
               <div className="flex flex-col">
                 <p className="text-(--text-muted) text-xs">Structure</p>
                 <p className="font-semibold text-(--text-primary)">{organization?.name ?? "—"}</p>
-                <p className="text-xs text-(--text-secondary)">{organization?.type ?? "—"}</p>
+                <p className="text-xs text-(--text-secondary)">{organization?.structure_type ?? "—"}</p>
               </div>
               <div className="w-px h-10 bg-(--border)" />
               <div className="flex flex-col">
@@ -288,7 +291,7 @@ function PersonalizedProjectPage() {
                   id="reference-select"
                   value={selectedReferenceId}
                   onChange={(e) => setSelectedReferenceId(e.target.value)}
-                  className="rounded-xl border border-(--border) bg-(--bg-secondary) text-(--text-primary) px-4 py-2 text-base focus:outline-none focus:border-(--vert-fonce) transition-colors w-60"
+                  className="rounded-xl border border-(--border) bg-(--bg-secondary) text-(--text-primary) px-4 py-2 text-base focus:outline-none focus:border-(--bleu-fonce) transition-colors w-60"
                 >
                   <option value="">Sélectionnez...</option>
                   {references.map((child) => (
@@ -310,7 +313,7 @@ function PersonalizedProjectPage() {
                 <div className="flex flex-col flex-1">
                   <p className="text-(--text-muted) font-medium">Structure</p>
                   <p className="font-semibold text-(--text-primary)">{organization?.name ?? "—"}</p>
-                  <p className="text-(--text-secondary)">{organization?.type ?? "—"}</p>
+                  <p className="text-(--text-secondary)">{organization?.structure_type ?? "—"}</p>
                 </div>
                 <div className="w-px bg-(--border)" />
                 <div className="flex flex-col flex-1">
@@ -324,7 +327,7 @@ function PersonalizedProjectPage() {
                   id="reference-select-mobile"
                   value={selectedReferenceId}
                   onChange={(e) => setSelectedReferenceId(e.target.value)}
-                  className="rounded-lg border border-(--border) bg-(--bg-secondary) text-(--text-primary) px-3 py-1.5 focus:outline-none focus:border-(--vert-fonce) transition-colors w-full"
+                  className="rounded-lg border border-(--border) bg-(--bg-secondary) text-(--text-primary) px-3 py-1.5 focus:outline-none focus:border-(--bleu-fonce) transition-colors w-full"
                 >
                   <option value="">Sélectionnez un bénéficiaire…</option>
                   {references.map((child) => (
@@ -409,7 +412,7 @@ function PersonalizedProjectPage() {
         {/* ── Loading ── */}
         {loading && (
           <div className={`${CARD_CLASS} flex items-center gap-4`}>
-            <div className="w-5 h-5 rounded-full border-2 border-t-transparent animate-spin shrink-0" style={{ borderColor: "var(--vert-fonce)", borderTopColor: "transparent" }} />
+            <div className="w-5 h-5 rounded-full border-2 border-t-transparent animate-spin shrink-0" style={{ borderColor: ACCENT, borderTopColor: "transparent" }} />
             <div className="flex flex-col gap-0.5">
               <span
                 key={loadingMessageIndex}
@@ -441,7 +444,7 @@ function PersonalizedProjectPage() {
             downloadMeta={{
               type: "PPAMS",
               interventionType: "Projet Personnalisé d'Accompagnement",
-              structureType: organization?.type ?? "",
+              structureType: organization?.structure_type ?? "",
               companyName: organization?.name ?? "",
               educatorName: fullName,
               childName: selectedReferenceId

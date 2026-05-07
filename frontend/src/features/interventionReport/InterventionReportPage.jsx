@@ -9,6 +9,7 @@ import StepCard from "../../components/StepCard";
 import {
   generateInterventionReport,
   DEFAULT_MODEL,
+  PROMPT_NOT_FOUND,
 } from "../../services/aiService";
 import {
   getReferences,
@@ -25,6 +26,9 @@ import {
   REPORT_STATUS,
 } from "../../constants/intervention";
 import { CARD_CLASS, ROLE_LABELS } from "../../constants/shared";
+import { AGENTS } from "../../constants/agents";
+
+const ACCENT = AGENTS.find((a) => a.id === 'compte-rendu-intervention')?.color ?? '#673DE6';
 
 function inferStatus({ interventionType, transcription, result, isArchived }) {
   if (isArchived) return REPORT_STATUS.ARCHIVED;
@@ -156,7 +160,7 @@ function InterventionReportPage() {
         isArchived,
         status: nextStatus,
         updatedAt: new Date().toISOString(),
-        structureType: organization?.type ?? "",
+        structureType: organization?.structure_type ?? "",
         childName: childName,
       }),
     );
@@ -252,7 +256,7 @@ function InterventionReportPage() {
       const text = await generateInterventionReport({
         interventionType,
         transcription,
-        structureType: organization?.type ?? "",
+        structureType: organization?.structure_type ?? "",
         companyName: organization?.name ?? "",
         educatorName: fullName,
         educatorRole: ROLE_LABELS[role] ?? role,
@@ -264,7 +268,9 @@ function InterventionReportPage() {
       setElapsed(((Date.now() - start) / 1000).toFixed(1));
       setReportStatus(REPORT_STATUS.IN_PROGRESS);
     } catch (err) {
-      setResult(`Erreur : ${err.message}`);
+      setResult(err.message === PROMPT_NOT_FOUND
+        ? "Cette fonctionnalité n'est pas disponible pour le moment."
+        : `Erreur : ${err.message}`);
       setReportStatus(REPORT_STATUS.DRAFT);
     } finally {
       setLoading(false);
@@ -339,7 +345,7 @@ function InterventionReportPage() {
                   {organization?.name ?? "—"}
                 </p>
                 <p className="text-xs text-(--text-secondary)">
-                  {organization?.type ?? "—"}
+                  {organization?.structure_type ?? "—"}
                 </p>
               </div>
               <div className="w-px h-10 bg-(--border)" />
@@ -417,7 +423,7 @@ function InterventionReportPage() {
                     {organization?.name ?? "—"}
                   </p>
                   <p className="text-(--text-secondary)">
-                    {organization?.type ?? "—"}
+                    {organization?.structure_type ?? "—"}
                   </p>
                 </div>
                 <div className="w-px bg-(--border)" />
@@ -483,7 +489,7 @@ function InterventionReportPage() {
             <div className="flex flex-row gap-3">
               <Button
                 type="submit"
-                color="blue"
+                color={ACCENT}
                 size="md"
                 disabled={loading || !transcription.trim()}
                 className="flex-1 md:flex-none"
@@ -491,7 +497,7 @@ function InterventionReportPage() {
                 {loading ? "Génération en cours…" : "Générer le compte rendu"}
               </Button>
               <Button
-                color="green"
+                color={ACCENT}
                 size="md"
                 onClick={handleReset}
                 className="flex-1 md:hidden"
@@ -529,7 +535,7 @@ function InterventionReportPage() {
         {/* ── Loading ── */}
         {loading && (
           <div className={`${CARD_CLASS} flex items-center gap-4`}>
-            <div className="w-5 h-5 rounded-full border-2 border-[#0D66D4] border-t-transparent animate-spin shrink-0" />
+            <div className="w-5 h-5 rounded-full border-2 border-t-transparent animate-spin shrink-0" style={{ borderColor: ACCENT, borderTopColor: 'transparent' }} />
             <div className="flex flex-col gap-0.5">
               <span
                 key={loadingMessageIndex}
@@ -561,7 +567,7 @@ function InterventionReportPage() {
             downloadMeta={{
               type: "CRI",
               interventionType,
-              structureType: organization?.type ?? "",
+              structureType: organization?.structure_type ?? "",
               companyName: organization?.name ?? "",
               educatorName: fullName,
               childName: selectedReferenceId

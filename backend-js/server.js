@@ -24,6 +24,7 @@ import archiveRouter from './controllers/archiveController.js';
 import referenceRouter from './controllers/referenceController.js';
 import organizationRouter from './controllers/organizationController.js';
 import audioRouter, { initializeSpeechClient, setupWebSocketTranscription } from './controllers/audioController.js';
+import promptsRouter from './controllers/promptsController.js';
 
 const app = express();
 const server = http.createServer(app);
@@ -47,6 +48,7 @@ app.use('/api/archives', archiveRouter);
 app.use('/api/references', referenceRouter);
 app.use('/api', organizationRouter);
 app.use('/api', audioRouter);
+app.use('/api', promptsRouter);
 
 // ─── Health check ─────────────────────────────────────────────────────
 app.get('/health', (_req, res) => res.json({ status: 'ok', timestamp: new Date().toISOString() }));

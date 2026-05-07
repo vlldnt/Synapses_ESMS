@@ -9,6 +9,7 @@ import StepCard from "../../components/StepCard";
 import {
   generatePpasSocial,
   DEFAULT_MODEL,
+  PROMPT_NOT_FOUND,
 } from "../../services/aiService";
 import {
   getReferences,
@@ -24,8 +25,9 @@ import {
   REPORT_STATUS,
 } from "../../constants/ppas";
 import { CARD_CLASS, ROLE_LABELS } from "../../constants/shared";
+import { AGENTS } from "../../constants/agents";
 
-const ACCENT = "var(--bleu-clair)";
+const ACCENT = AGENTS.find((a) => a.id === "ppa-social")?.color ?? "#3B82F6";
 
 function inferStatus({ observations, result, isArchived }) {
   if (isArchived) return REPORT_STATUS.ARCHIVED;
@@ -129,7 +131,7 @@ function PpasSocialPage() {
         isArchived,
         status: nextStatus,
         updatedAt: new Date().toISOString(),
-        structureType: organization?.type ?? "",
+        structureType: organization?.structure_type ?? "",
         childName,
       }),
     );
@@ -209,7 +211,7 @@ function PpasSocialPage() {
     try {
       const text = await generatePpasSocial({
         observations,
-        structureType: organization?.type ?? "",
+        structureType: organization?.structure_type ?? "",
         companyName: organization?.name ?? "",
         educatorName: fullName,
         educatorRole: ROLE_LABELS[role] ?? role,
@@ -225,11 +227,9 @@ function PpasSocialPage() {
       const isMissingPromptError =
         message.includes("Prompt système non trouvé") ||
         message.includes("Erreur OpenRouter: Prompt système non trouvé");
-      setResult(
-        isMissingPromptError
-          ? "La génération d'écrit éducatif n'est pas encore disponible. Revenez bientôt !"
-          : `Erreur : ${message}`
-      );
+      setResult(err.message === PROMPT_NOT_FOUND
+        ? "Cette fonctionnalité n'est pas disponible pour le moment."
+        : `Erreur : ${err.message}`);
       setReportStatus(REPORT_STATUS.DRAFT);
     } finally {
       setLoading(false);
@@ -254,7 +254,7 @@ function PpasSocialPage() {
               <div className="flex flex-col">
                 <p className="text-(--text-muted) text-xs">Structure</p>
                 <p className="font-semibold text-(--text-primary)">{organization?.name ?? "—"}</p>
-                <p className="text-xs text-(--text-secondary)">{organization?.type ?? "—"}</p>
+                <p className="text-xs text-(--text-secondary)">{organization?.structure_type ?? "—"}</p>
               </div>
               <div className="w-px h-10 bg-(--border)" />
               <div className="flex flex-col">
@@ -291,7 +291,7 @@ function PpasSocialPage() {
                 <div className="flex flex-col flex-1">
                   <p className="text-(--text-muted) font-medium">Structure</p>
                   <p className="font-semibold text-(--text-primary)">{organization?.name ?? "—"}</p>
-                  <p className="text-(--text-secondary)">{organization?.type ?? "—"}</p>
+                  <p className="text-(--text-secondary)">{organization?.structure_type ?? "—"}</p>
                 </div>
                 <div className="w-px bg-(--border)" />
                 <div className="flex flex-col flex-1">
@@ -341,10 +341,10 @@ function PpasSocialPage() {
           {/* ── Actions ── */}
           <div id="form-actions" className="flex flex-col gap-3">
             <div className="flex flex-row gap-3">
-              <Button type="submit" color="blue-light" size="md" disabled={loading || !observations.trim()} className="flex-1 md:flex-none">
+              <Button type="submit" color={ACCENT} size="md" disabled={loading || !observations.trim()} className="flex-1 md:flex-none">
                 {loading ? "Génération en cours…" : "Générer le PPAS"}
               </Button>
-              <Button color="green" size="md" onClick={handleReset} className="flex-1 md:hidden">
+              <Button color={ACCENT} size="md" onClick={handleReset} className="flex-1 md:hidden">
                 Nouveau
               </Button>
             </div>
@@ -368,7 +368,7 @@ function PpasSocialPage() {
           <div className={`${CARD_CLASS} flex items-center gap-4`}>
             <div
               className="w-5 h-5 rounded-full border-2 border-t-transparent animate-spin shrink-0"
-              style={{ borderColor: "var(--bleu-clair)", borderTopColor: "transparent" }}
+              style={{ borderColor: ACCENT, borderTopColor: "transparent" }}
             />
             <div className="flex flex-col gap-0.5">
               <span key={loadingMessageIndex} className="text-sm text-(--text-secondary) animate-pulse transition-opacity duration-300">
@@ -394,7 +394,7 @@ function PpasSocialPage() {
             downloadMeta={{
               type: "PPAS",
               interventionType: "Projet Personnalisé d'Accompagnement Social",
-              structureType: organization?.type ?? "",
+              structureType: organization?.structure_type ?? "",
               companyName: organization?.name ?? "",
               educatorName: fullName,
               childName: selectedReferenceId

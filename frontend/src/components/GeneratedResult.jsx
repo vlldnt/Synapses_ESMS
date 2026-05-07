@@ -1,14 +1,15 @@
 import { useState, useEffect, useRef } from 'react';
-import { useSelector } from 'react-redux';
 import {
   RefreshCw, Pencil, Check, X,
   ClipboardCopy, ClipboardCheck,
-  FileDown, Loader2,
+  FileDown, Loader2, ChevronDown,
   ShieldCheck, LockKeyhole, RotateCcw,
+  FileText, FileType,
 } from 'lucide-react';
 import WordPreview from './WordPreview';
 import DownloadSuccessModal from './DownloadSuccessModal';
-import { downloadDocx, triggerDownload } from '../utils/wordExport';
+import { downloadDocx, triggerDownload, generateReportFilename } from '../utils/wordExport';
+import { downloadPdf } from '../utils/pdfExport';
 import { saveToHistory } from '../services/historyService';
 import { useCurrentUser } from '../hooks/useCurrentUser';
 
@@ -88,11 +89,14 @@ export default function GeneratedResult({
   // ── État local ─────────────────────────────────────────────────────────
   const [editedText, setEditedText] = useState(result);
   const [isEditing, setIsEditing] = useState(false);
-  const [draftText, setDraftText]  = useState(result);   // tampon pendant l'édition
+  const [draftText, setDraftText]  = useState(result);
   const [copyState, setCopyState]  = useState('idle');   // idle | copied
   const [dlState, setDlState]      = useState('idle');   // idle | loading | done
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [showExportMenu, setShowExportMenu] = useState(false);
   const textareaRef = useRef(null);
+  const previewRef = useRef(null);
+  const exportMenuRef = useRef(null);
 
   // Sync quand l'IA génère un nouveau résultat (régénération)
   useEffect(() => {
@@ -108,6 +112,18 @@ export default function GeneratedResult({
       textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
     }
   }, [isEditing, draftText]);
+
+  // Fermer le menu export au clic extérieur
+  useEffect(() => {
+    if (!showExportMenu) return;
+    const handler = (e) => {
+      if (exportMenuRef.current && !exportMenuRef.current.contains(e.target)) {
+        setShowExportMenu(false);
+      }
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [showExportMenu]);
 
   // ── Handlers ───────────────────────────────────────────────────────────
 
@@ -204,6 +220,28 @@ export default function GeneratedResult({
     }
   };
 
+  const handleDownloadPdf = async () => {
+    setShowExportMenu(false);
+    if (!previewRef.current) return;
+    setDlState('loading');
+    try {
+      const agent = downloadMeta.reportType || downloadMeta.type || 'DOC';
+      const { filename } = generateReportFilename(
+        downloadMeta.childName,
+        downloadMeta.educatorName,
+        downloadMeta.date,
+        agent,
+        'pdf',
+      );
+      const docLabel = downloadMeta.interventionType || downloadMeta.reportType || downloadMeta.type || '';
+      await downloadPdf({ element: previewRef.current, filename, docLabel });
+    } catch (err) {
+      console.error('Erreur export PDF:', err);
+    } finally {
+      setDlState('idle');
+    }
+  };
+
   const handleValidate = () => {
     onValidatedChange(true);
     setIsEditing(false);
@@ -288,17 +326,50 @@ export default function GeneratedResult({
             title="Copier le texte dans le presse-papier"
           />
 
-          {/* Télécharger Word */}
+          {/* Télécharger — dropdown Word / PDF */}
           {validated && (
-            <ActionButton
-              onClick={() => handleDownload()}
-              loading={dlState === 'loading'}
-              icon={dlState === 'done' ? Check : FileDown}
-              loadingIcon={Loader2}
-              label={dlState === 'loading' ? 'Génération…' : dlState === 'done' ? 'Téléchargé !' : 'Word'}
-              variant={dlState === 'done' ? 'success' : 'blue'}
-              title="Télécharger en format Word (.docx)"
-            />
+            <div className="relative" ref={exportMenuRef}>
+              <button
+                type="button"
+                onClick={() => setShowExportMenu((v) => !v)}
+                disabled={dlState === 'loading'}
+                className={[
+                  'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium',
+                  'transition-all duration-150 cursor-pointer select-none',
+                  'disabled:opacity-50 disabled:cursor-not-allowed',
+                  'border border-(--bleu-fonce) bg-(--bleu-fonce) text-white hover:opacity-90',
+                ].join(' ')}
+              >
+                {dlState === 'loading'
+                  ? <Loader2 size={13} className="animate-spin" />
+                  : <FileDown size={13} />}
+                <span className="hidden sm:inline">
+                  {dlState === 'loading' ? 'Génération…' : 'Exporter'}
+                </span>
+                <ChevronDown size={11} />
+              </button>
+
+              {showExportMenu && (
+                <div className="absolute right-0 mt-1 w-44 bg-(--bg-primary) border border-(--border) rounded-xl shadow-lg z-50 overflow-hidden">
+                  <button
+                    type="button"
+                    onClick={() => { setShowExportMenu(false); handleDownload(); }}
+                    className="w-full flex items-center gap-2.5 px-3.5 py-2.5 text-xs text-(--text-primary) hover:bg-(--bg-secondary) transition-colors cursor-pointer"
+                  >
+                    <FileType size={13} className="text-(--bleu-fonce)" />
+                    Word (.docx)
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleDownloadPdf}
+                    className="w-full flex items-center gap-2.5 px-3.5 py-2.5 text-xs text-(--text-primary) hover:bg-(--bg-secondary) transition-colors cursor-pointer border-t border-(--border)"
+                  >
+                    <FileText size={13} className="text-red-500" />
+                    PDF (.pdf)
+                  </button>
+                </div>
+              )}
+            </div>
           )}
         </div>
       </div>
@@ -362,7 +433,9 @@ export default function GeneratedResult({
                 Document validé — lecture seule
               </div>
             )}
+            <div ref={previewRef} data-pdf-root="true">
             <WordPreview text={editedText} />
+          </div>
             {generatedByModel?.id && (
               <p className="mt-4 text-xs text-(--text-muted) italic">
                 Genere par modele : <strong>{generatedByModel.name || generatedByModel.id}</strong>
@@ -411,15 +484,48 @@ export default function GeneratedResult({
               </span>
             </div>
             <div className="shrink-0 flex items-center gap-1.5">
-              <ActionButton
-                onClick={() => handleDownload()}
-                loading={dlState === 'loading'}
-                icon={dlState === 'done' ? Check : FileDown}
-                loadingIcon={Loader2}
-                label={dlState === 'loading' ? 'Génération…' : dlState === 'done' ? 'Téléchargé !' : 'Télécharger'}
-                variant={dlState === 'done' ? 'success' : 'green'}
-                title="Télécharger en format Word (.docx)"
-              />
+              {/* Dropdown export bas de page */}
+              <div className="relative" ref={exportMenuRef}>
+                <button
+                  type="button"
+                  onClick={() => setShowExportMenu((v) => !v)}
+                  disabled={dlState === 'loading'}
+                  className={[
+                    'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium',
+                    'transition-all duration-150 cursor-pointer select-none',
+                    'disabled:opacity-50 disabled:cursor-not-allowed',
+                    'border border-(--vert-fonce) bg-(--vert-fonce) text-white hover:opacity-90',
+                  ].join(' ')}
+                >
+                  {dlState === 'loading'
+                    ? <Loader2 size={13} className="animate-spin" />
+                    : <FileDown size={13} />}
+                  <span>{dlState === 'loading' ? 'Génération…' : 'Télécharger'}</span>
+                  <ChevronDown size={11} />
+                </button>
+
+                {showExportMenu && (
+                  <div className="absolute right-0 bottom-full mb-1 w-44 bg-(--bg-primary) border border-(--border) rounded-xl shadow-lg z-50 overflow-hidden">
+                    <button
+                      type="button"
+                      onClick={() => { setShowExportMenu(false); handleDownload(); }}
+                      className="w-full flex items-center gap-2.5 px-3.5 py-2.5 text-xs text-(--text-primary) hover:bg-(--bg-secondary) transition-colors cursor-pointer"
+                    >
+                      <FileType size={13} className="text-(--bleu-fonce)" />
+                      Word (.docx)
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleDownloadPdf}
+                      className="w-full flex items-center gap-2.5 px-3.5 py-2.5 text-xs text-(--text-primary) hover:bg-(--bg-secondary) transition-colors cursor-pointer border-t border-(--border)"
+                    >
+                      <FileText size={13} className="text-red-500" />
+                      PDF (.pdf)
+                    </button>
+                  </div>
+                )}
+              </div>
+
               <button
                 type="button"
                 onClick={handleUnvalidate}

@@ -7,7 +7,7 @@ const MONTHS = [
 ];
 
 const fieldClass =
-  'w-full px-3 py-2 md:px-4 md:py-2.5 rounded-lg border border-(--border) bg-(--bg-secondary) text-(--text-primary) placeholder-(--text-muted) focus:outline-none focus:ring-2 focus:ring-[#1294C3] focus:border-transparent transition-shadow text-[12px]! md:text-[14px]! lg:text-[16px]! placeholder:text-[10px]! md:placeholder:text-[12px]! lg:placeholder:text-[14px]! disabled:opacity-50 disabled:cursor-not-allowed';
+  'w-full px-3 py-2 md:px-4 md:py-2.5 rounded-lg border border-(--border) bg-(--bg-secondary) text-(--text-primary) placeholder-(--text-muted) focus:outline-none focus:ring-2 focus:ring-(--bleu-fonce) focus:border-transparent transition-shadow text-[12px]! md:text-[14px]! lg:text-[16px]! placeholder:text-[10px]! md:placeholder:text-[12px]! lg:placeholder:text-[14px]! disabled:opacity-50 disabled:cursor-not-allowed';
 
 function CalendarPicker({ value, onChange, min, max, onClose }) {
   const today = new Date();
@@ -112,9 +112,9 @@ function CalendarPicker({ value, onChange, min, max, onClose }) {
               className={`
                 h-8 w-full rounded-md text-xs transition-colors cursor-pointer
                 ${isSelected(day)
-                  ? 'bg-[#1294C3] text-white font-semibold'
+                  ? 'bg-(--bleu-fonce) text-white font-semibold'
                   : isToday(day)
-                    ? 'border border-[#1294C3] text-[#1294C3] font-semibold hover:bg-(--bg-tertiary)'
+                    ? 'border border-(--bleu-fonce) text-(--bleu-fonce) font-semibold hover:bg-(--bg-tertiary)'
                     : 'text-(--text-primary) hover:bg-(--bg-tertiary)'
                 }
                 ${isDisabled(day) ? 'opacity-30 cursor-not-allowed' : ''}
@@ -234,16 +234,16 @@ function Combobox({ id, value, onChange, placeholder, disabled, categories = [] 
   const itemClass = (index, isSelected) =>
     `w-full text-left px-3 py-2 text-sm transition-colors cursor-pointer ${
       index === activeIndex
-        ? 'bg-[#1294C3] text-white'
+        ? 'bg-(--bleu-fonce) text-white'
         : isSelected
-          ? 'bg-[#1294C3]/10 text-[#1294C3] font-medium'
+          ? 'bg-(--bleu-fonce)/10 text-(--bleu-fonce) font-medium'
           : 'text-(--text-primary) hover:bg-(--bg-tertiary)'
     }`;
 
   const otherClass = (index) =>
     `w-full text-left px-3 py-2 text-sm transition-colors cursor-pointer ${
       index === activeIndex
-        ? 'bg-[#1294C3] text-white'
+        ? 'bg-(--bleu-fonce) text-white'
         : 'text-(--text-muted) hover:bg-(--bg-tertiary)'
     }`;
 

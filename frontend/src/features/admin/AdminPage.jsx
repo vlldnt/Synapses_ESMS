@@ -1,12 +1,14 @@
 import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { Navigate, useLocation } from 'react-router-dom';
-import { Users, BookUser, FileText, Plus, Trash2, Download, X } from 'lucide-react';
+import { Users, BookUser, FileText, Plus, Trash2, Download, X, Pencil } from 'lucide-react';
 import { authFetch } from '../../services/authServices';
 import { deleteReference } from '../../services/referenceService';
 import { useCurrentUser } from '../../hooks/useCurrentUser';
 import CreateUserModal from '../../components/admin/CreateUserModal';
 import CreateReferenceModal from '../../components/admin/CreateReferenceModal';
+import EditUserModal from '../../components/admin/EditUserModal';
+import EditReferenceModal from '../../components/admin/EditReferenceModal';
 import { AGENTS } from '../../constants/agents';
 import { getDocTypeLabel, getDocColorFromLabel } from '../../utils/docTypeBadge';
 import { formatReportName } from '../../utils/reportNameFormatter';
@@ -66,6 +68,9 @@ function AdminPage() {
 
   const [showUserModal, setShowUserModal] = useState(false);
   const [showRefModal, setShowRefModal] = useState(false);
+  const [editingEmp, setEditingEmp] = useState(null);
+  const [editingRef, setEditingRef] = useState(null);
+  const [deletingEmpId, setDeletingEmpId] = useState(null);
 
   const [empRoleFilter, setEmpRoleFilter] = useState('all');
   const [empJobFilter, setEmpJobFilter] = useState('all');
@@ -139,6 +144,17 @@ function AdminPage() {
     return true;
   });
 
+  async function handleDeleteEmp(id) {
+    if (!window.confirm('Supprimer cet employé ?')) return;
+    setDeletingEmpId(id);
+    try {
+      const base = import.meta.env.VITE_BASENAME || '/synapses';
+      await authFetch(`${base}/api/users/${id}`, { method: 'DELETE' });
+      setEmployees((prev) => prev.filter((e) => e.id !== id));
+    } catch (err) { console.error(err); }
+    finally { setDeletingEmpId(null); }
+  }
+
   async function handleDeleteRef(id) {
     setDeletingRefId(id);
     try {
@@ -198,7 +214,7 @@ function AdminPage() {
               onClick={() => setActiveTab(tab.id)}
               className={`whitespace-nowrap px-4 py-2.5 text-sm font-medium border-b-2 -mb-px transition-colors cursor-pointer ${
                 activeTab === tab.id
-                  ? 'border-[#1294C3] text-[#1294C3]'
+                  ? 'border-(--bleu-fonce) text-(--bleu-fonce)'
                   : 'border-transparent text-(--text-muted) hover:text-(--text-primary)'
               }`}
             >
@@ -221,7 +237,7 @@ function AdminPage() {
                   <span className='text-sm font-semibold text-(--text-primary)'>Employés</span>
                   <span className='text-xs text-(--text-muted)'>{employees.length}</span>
                 </div>
-                <button type='button' onClick={() => setShowUserModal(true)} className='w-6 h-6 rounded-md bg-[#1294C3] text-white flex items-center justify-center hover:bg-[#0D66D4] cursor-pointer transition-colors'>
+                <button type='button' onClick={() => setShowUserModal(true)} className='w-6 h-6 rounded-md bg-(--bleu-fonce) text-white flex items-center justify-center hover:bg-(--bleu-active) cursor-pointer transition-colors'>
                   <Plus size={12} />
                 </button>
               </div>
@@ -253,7 +269,7 @@ function AdminPage() {
                   <span className='text-sm font-semibold text-(--text-primary)'>Références</span>
                   <span className='text-xs text-(--text-muted)'>{references.length}</span>
                 </div>
-                <button type='button' onClick={() => setShowRefModal(true)} className='w-6 h-6 rounded-md bg-[#0D66D4] text-white flex items-center justify-center hover:bg-[#1294C3] cursor-pointer transition-colors'>
+                <button type='button' onClick={() => setShowRefModal(true)} className='w-6 h-6 rounded-md bg-(--bleu-active) text-white flex items-center justify-center hover:bg-(--bleu-fonce) cursor-pointer transition-colors'>
                   <Plus size={12} />
                 </button>
               </div>
@@ -312,7 +328,7 @@ function AdminPage() {
                 <button
                   type='button'
                   onClick={() => setShowUserModal(true)}
-                  className='flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#1294C3] text-white text-xs font-medium hover:bg-[#0D66D4] cursor-pointer transition-colors'
+                  className='flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-(--bleu-fonce) text-white text-xs font-medium hover:bg-(--bleu-active) cursor-pointer transition-colors'
                 >
                   <Plus size={13} /> Ajouter
                 </button>
@@ -340,7 +356,7 @@ function AdminPage() {
                   <div className='flex-1 min-w-0'>
                     <div className='flex items-center gap-2'>
                       <p className='text-sm font-medium text-(--text-primary)'>{emp.first_name} {emp.last_name}</p>
-                      {emp.id === user?.id && <span className='text-[10px] px-1.5 py-0.5 rounded-full bg-[#1294C3]/10 text-[#1294C3] font-medium'>Vous</span>}
+                      {emp.id === user?.id && <span className='text-[10px] px-1.5 py-0.5 rounded-full bg-(--bleu-fonce)/10 text-(--bleu-fonce) font-medium'>Vous</span>}
                     </div>
                     <p className='text-xs text-(--text-muted) truncate'>{emp.email}{emp.job ? ` · ${emp.job}` : ''}</p>
                   </div>
@@ -349,6 +365,14 @@ function AdminPage() {
                     <span className={`text-[11px] font-medium px-2 py-0.5 rounded-full ${emp.status === 'active' ? 'text-green-600 bg-green-50' : 'text-gray-500 bg-gray-100'}`}>
                       {emp.status === 'active' ? 'Actif' : 'Inactif'}
                     </span>
+                    <button type='button' onClick={() => setEditingEmp(emp)} className='p-1.5 rounded-md text-(--text-muted) hover:text-(--bleu-fonce) hover:bg-(--bg-secondary) cursor-pointer transition-colors'>
+                      <Pencil size={13} />
+                    </button>
+                    {emp.id !== user?.id && (
+                      <button type='button' disabled={deletingEmpId === emp.id} onClick={() => handleDeleteEmp(emp.id)} className='p-1.5 rounded-md text-(--text-muted) hover:text-red-500 hover:bg-red-50 disabled:opacity-40 cursor-pointer transition-colors'>
+                        <Trash2 size={13} />
+                      </button>
+                    )}
                   </div>
                 </div>
               ))}
@@ -365,7 +389,7 @@ function AdminPage() {
                 <button
                   type='button'
                   onClick={() => setShowRefModal(true)}
-                  className='flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#1294C3] text-white text-xs font-medium hover:bg-[#0D66D4] cursor-pointer transition-colors'
+                  className='flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-(--bleu-fonce) text-white text-xs font-medium hover:bg-(--bleu-active) cursor-pointer transition-colors'
                 >
                   <Plus size={13} /> Ajouter
                 </button>
@@ -393,6 +417,9 @@ function AdminPage() {
                       <p className='text-sm font-medium text-(--text-primary)'>{ref.first_name} {ref.last_name}</p>
                       {educator && <p className='text-xs text-(--text-muted)'>Référent : {educator.first_name} {educator.last_name}</p>}
                     </div>
+                    <button type='button' onClick={() => setEditingRef(ref)} className='p-1.5 rounded-md text-(--text-muted) hover:text-(--bleu-fonce) hover:bg-(--bg-secondary) cursor-pointer transition-colors'>
+                      <Pencil size={13} />
+                    </button>
                     <button
                       type='button'
                       disabled={deletingRefId === ref.id}
@@ -436,7 +463,7 @@ function AdminPage() {
               </div>
             </div>
 
-            <div className='flex h-150'>
+            <div className={`flex ${filteredDocs.length >= 10 ? 'h-130' : ''}`}>
               <div className={`overflow-y-auto divide-y divide-(--border)/50 ${selectedDoc ? 'w-2/5 border-r border-(--border)' : 'w-full'}`}>
                 {filteredDocs.length === 0 ? (
                   <p className='px-5 py-10 text-center text-sm text-(--text-muted)'>Aucun document.</p>
@@ -471,7 +498,7 @@ function AdminPage() {
                       type='button'
                       onClick={handleDownload}
                       disabled={isDownloading || !selectedDoc.docx_base_64}
-                      className='flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-[#1294C3] text-white text-xs font-medium hover:bg-[#0D66D4] disabled:opacity-50 cursor-pointer transition-colors shrink-0'
+                      className='flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-(--bleu-fonce) text-white text-xs font-medium hover:bg-(--bleu-active) disabled:opacity-50 cursor-pointer transition-colors shrink-0'
                     >
                       <Download size={12} />
                       {isDownloading ? '…' : 'Télécharger'}
@@ -524,6 +551,29 @@ function AdminPage() {
           employees={employees}
           onClose={() => setShowRefModal(false)}
           onCreated={(newRef) => setReferences((prev) => [...prev, newRef])}
+        />
+      )}
+
+      {editingEmp && (
+        <EditUserModal
+          employee={editingEmp}
+          onClose={() => setEditingEmp(null)}
+          onUpdated={(updated) => {
+            setEmployees((prev) => prev.map((e) => e.id === updated.id ? updated : e));
+            setEditingEmp(null);
+          }}
+        />
+      )}
+
+      {editingRef && (
+        <EditReferenceModal
+          reference={editingRef}
+          employees={employees}
+          onClose={() => setEditingRef(null)}
+          onUpdated={(updated) => {
+            setReferences((prev) => prev.map((r) => r.id === updated.id ? updated : r));
+            setEditingRef(null);
+          }}
         />
       )}
     </div>

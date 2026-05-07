@@ -6,7 +6,7 @@ import GeneratingReportModal from "../../components/GeneratingReportModal";
 import TranscriptionInput from "../../components/TranscriptionInput.jsx";
 import TranscriptionCard from "../../components/TranscriptionCard";
 import StepCard from "../../components/StepCard";
-import { DEFAULT_MODEL } from "../../services/aiService";
+import { DEFAULT_MODEL, generateBilanEvaluation, PROMPT_NOT_FOUND } from "../../services/aiService";
 import {
   getReferences,
   formatReferenceName,
@@ -21,8 +21,9 @@ import {
   REPORT_STATUS,
 } from "../../constants/bilan";
 import { CARD_CLASS, ROLE_LABELS } from "../../constants/shared";
+import { AGENTS } from "../../constants/agents";
 
-const ACCENT = "var(--violet)";
+const ACCENT = AGENTS.find((a) => a.id === "bilan-evaluation")?.color ?? "#06B6D4";
 
 function inferStatus({ observations, result, isArchived }) {
   if (isArchived) return REPORT_STATUS.ARCHIVED;
@@ -126,7 +127,7 @@ function BilanEvaluationPage() {
         isArchived,
         status: nextStatus,
         updatedAt: new Date().toISOString(),
-        structureType: organization?.type ?? "",
+        structureType: organization?.structure_type ?? "",
         childName,
       }),
     );
@@ -195,7 +196,36 @@ function BilanEvaluationPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!observations.trim()) return;
-    setResult("La génération de bilan d'évaluation n'est pas encore disponible. Revenez bientôt !");
+    setLoading(true);
+    setResult("");
+    setValidated(false);
+    setElapsed(null);
+    setUsedModel(null);
+    setIsArchived(false);
+    setReportStatus(REPORT_STATUS.IN_PROGRESS);
+    const start = Date.now();
+    try {
+      const text = await generateBilanEvaluation({
+        observations,
+        structureType: organization?.structure_type ?? "",
+        companyName: organization?.name ?? "",
+        educatorName: fullName,
+        educatorRole: ROLE_LABELS[role] ?? role,
+        date: today,
+        model: selectedModelId,
+      });
+      setResult(text);
+      setUsedModel({ id: selectedModelId, name: selectedModelName });
+      setElapsed(((Date.now() - start) / 1000).toFixed(1));
+      setReportStatus(REPORT_STATUS.IN_PROGRESS);
+    } catch (err) {
+      setResult(err.message === PROMPT_NOT_FOUND
+        ? "Cette fonctionnalité n'est pas disponible pour le moment."
+        : `Erreur : ${err.message}`);
+      setReportStatus(REPORT_STATUS.DRAFT);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -216,7 +246,7 @@ function BilanEvaluationPage() {
               <div className="flex flex-col">
                 <p className="text-(--text-muted) text-xs">Structure</p>
                 <p className="font-semibold text-(--text-primary)">{organization?.name ?? "—"}</p>
-                <p className="text-xs text-(--text-secondary)">{organization?.type ?? "—"}</p>
+                <p className="text-xs text-(--text-secondary)">{organization?.structure_type ?? "—"}</p>
               </div>
               <div className="w-px h-10 bg-(--border)" />
               <div className="flex flex-col">
@@ -252,7 +282,7 @@ function BilanEvaluationPage() {
                 <div className="flex flex-col flex-1">
                   <p className="text-(--text-muted) font-medium">Structure</p>
                   <p className="font-semibold text-(--text-primary)">{organization?.name ?? "—"}</p>
-                  <p className="text-(--text-secondary)">{organization?.type ?? "—"}</p>
+                  <p className="text-(--text-secondary)">{organization?.structure_type ?? "—"}</p>
                 </div>
                 <div className="w-px bg-(--border)" />
                 <div className="flex flex-col flex-1">
@@ -302,10 +332,10 @@ function BilanEvaluationPage() {
           {/* ── Actions ── */}
           <div id="form-actions" className="flex flex-col gap-3">
             <div className="flex flex-row gap-3">
-              <Button type="submit" color="violet" size="md" disabled={loading || !observations.trim()} className="flex-1 md:flex-none">
+              <Button type="submit" color={ACCENT} size="md" disabled={loading || !observations.trim()} className="flex-1 md:flex-none">
                 {loading ? "Génération en cours…" : "Générer le bilan"}
               </Button>
-              <Button color="green" size="md" onClick={handleReset} className="flex-1 md:hidden">
+              <Button color={ACCENT} size="md" onClick={handleReset} className="flex-1 md:hidden">
                 Nouveau
               </Button>
             </div>
@@ -329,7 +359,7 @@ function BilanEvaluationPage() {
           <div className={`${CARD_CLASS} flex items-center gap-4`}>
             <div
               className="w-5 h-5 rounded-full border-2 border-t-transparent animate-spin shrink-0"
-              style={{ borderColor: "var(--violet)", borderTopColor: "transparent" }}
+              style={{ borderColor: ACCENT, borderTopColor: "transparent" }}
             />
             <div className="flex flex-col gap-0.5">
               <span key={loadingMessageIndex} className="text-sm text-(--text-secondary) animate-pulse transition-opacity duration-300">
@@ -355,7 +385,7 @@ function BilanEvaluationPage() {
             downloadMeta={{
               type: "BILAN",
               interventionType: "Bilan d'évaluation",
-              structureType: organization?.type ?? "",
+              structureType: organization?.structure_type ?? "",
               companyName: organization?.name ?? "",
               educatorName: fullName,
               childName: selectedReferenceId

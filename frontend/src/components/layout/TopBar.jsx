@@ -31,6 +31,18 @@ const routeTitles = {
     title: 'Archives',
     subtitle: "Consultez, gérez et retrouvez l'ensemble de vos documents générés",
   },
+  '/evaluation_has': {
+    title: 'Préparation Évaluation HAS',
+    subtitle: "Préparez votre démarche d'évaluation interne et externe",
+  },
+  '/appel_projet': {
+    title: 'Appel à Projet',
+    subtitle: "Structurez votre réponse à un appel à projet ou à manifestation d'intérêt",
+  },
+  '/dev': {
+    title: 'Développeur',
+    subtitle: 'Accès restreint — Éditeur de prompts et configuration',
+  },
 };
 
 function TopBar() {

@@ -6,7 +6,7 @@ import GeneratingReportModal from "../../components/GeneratingReportModal";
 import TranscriptionInput from "../../components/TranscriptionInput.jsx";
 import TranscriptionCard from "../../components/TranscriptionCard";
 import StepCard from "../../components/StepCard";
-import { DEFAULT_MODEL } from "../../services/aiService";
+import { DEFAULT_MODEL, generateEcritEducatif, PROMPT_NOT_FOUND } from "../../services/aiService";
 import {
   getReferences,
   formatReferenceName,
@@ -23,7 +23,7 @@ import {
 import { CARD_CLASS, ROLE_LABELS } from "../../constants/shared";
 import { AGENTS } from "../../constants/agents.js";
 
-const ACCENT = AGENTS.find((a) => a.id === "ecrit-educatif"?.color);
+const ACCENT = AGENTS.find((a) => a.id === "ecrit-educatif")?.color;
 
 function inferStatus({ observations, result, isArchived }) {
   if (isArchived) return REPORT_STATUS.ARCHIVED;
@@ -131,7 +131,7 @@ function EcritEducatifPage() {
         isArchived,
         status: nextStatus,
         updatedAt: new Date().toISOString(),
-        structureType: organization?.type ?? "",
+        structureType: organization?.structure_type ?? "",
         childName,
       }),
     );
@@ -206,9 +206,36 @@ function EcritEducatifPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!observations.trim()) return;
-    setResult(
-      "La génération d'écrit éducatif n'est pas encore disponible. Revenez bientôt !",
-    );
+    setLoading(true);
+    setResult("");
+    setValidated(false);
+    setElapsed(null);
+    setUsedModel(null);
+    setIsArchived(false);
+    setReportStatus(REPORT_STATUS.IN_PROGRESS);
+    const start = Date.now();
+    try {
+      const text = await generateEcritEducatif({
+        observations,
+        structureType: organization?.structure_type ?? "",
+        companyName: organization?.name ?? "",
+        educatorName: fullName,
+        educatorRole: ROLE_LABELS[role] ?? role,
+        date: today,
+        model: selectedModelId,
+      });
+      setResult(text);
+      setUsedModel({ id: selectedModelId, name: selectedModelName });
+      setElapsed(((Date.now() - start) / 1000).toFixed(1));
+      setReportStatus(REPORT_STATUS.IN_PROGRESS);
+    } catch (err) {
+      setResult(err.message === PROMPT_NOT_FOUND
+        ? "Cette fonctionnalité n'est pas disponible pour le moment."
+        : `Erreur : ${err.message}`);
+      setReportStatus(REPORT_STATUS.DRAFT);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -247,7 +274,7 @@ function EcritEducatifPage() {
                   {organization?.name ?? "—"}
                 </p>
                 <p className="text-xs text-(--text-secondary)">
-                  {organization?.type ?? "—"}
+                  {organization?.structure_type ?? "—"}
                 </p>
               </div>
               <div className="w-px h-10 bg-(--border)" />
@@ -302,7 +329,7 @@ function EcritEducatifPage() {
                     {organization?.name ?? "—"}
                   </p>
                   <p className="text-(--text-secondary)">
-                    {organization?.type ?? "—"}
+                    {organization?.structure_type ?? "—"}
                   </p>
                 </div>
                 <div className="w-px bg-(--border)" />
@@ -369,7 +396,7 @@ function EcritEducatifPage() {
             <div className="flex flex-row gap-3">
               <Button
                 type="submit"
-                color="rose"
+                color={ACCENT}
                 size="md"
                 disabled={loading || !observations.trim()}
                 className="flex-1 md:flex-none"
@@ -377,7 +404,7 @@ function EcritEducatifPage() {
                 {loading ? "Génération en cours…" : "Générer l'écrit éducatif"}
               </Button>
               <Button
-                color="green"
+                color={ACCENT}
                 size="md"
                 onClick={handleReset}
                 className="flex-1 md:hidden"
@@ -417,7 +444,7 @@ function EcritEducatifPage() {
             <div
               className="w-5 h-5 rounded-full border-2 border-t-transparent animate-spin shrink-0"
               style={{
-                borderColor: "var(--rose-fonce)",
+                borderColor: ACCENT,
                 borderTopColor: "transparent",
               }}
             />
@@ -452,7 +479,7 @@ function EcritEducatifPage() {
             downloadMeta={{
               type: "ECRIT",
               interventionType: "Écrit éducatif",
-              structureType: organization?.type ?? "",
+              structureType: organization?.structure_type ?? "",
               companyName: organization?.name ?? "",
               educatorName: fullName,
               childName: selectedReferenceId

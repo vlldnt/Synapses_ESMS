@@ -23,6 +23,17 @@ import EcritEducatifPage from './features/ecritEducatif/EcritEducatifPage';
 import BilanEvaluationPage from './features/bilanEvaluation/BilanEvaluationPage';
 import ArchivesPage from './features/archives/ArchivesPage';
 import AdminPage from './features/admin/AdminPage';
+import AgentGestionPage from './features/agentGestion/AgentGestionPage';
+import DevPage from './features/dev/DevPage';
+import CRRPage from './features/compteRenduReunion/CRRPage';
+import VEILLEPage from './features/veilleProfessionnelle/VEILLEPage';
+import REPORTPage from './features/reportingMensuel/REPORTPage';
+import RAPage from './features/rapportActivite/RAPage';
+import BAPage from './features/bilanActivite/BAPage';
+import PEPage from './features/projetEtablissement/PEPage';
+import PSPage from './features/projetService/PSPage';
+import HASPage from './features/evaluationHas/HASPage';
+import AAPPage from './features/appelProjet/AAPPage';
 
 function TopControls() {
   const dispatch = useDispatch();
@@ -113,8 +124,19 @@ function App() {
                 <Route path="/ppas" element={<Navigate to="/projet_personnalise_social" replace />} />
                 <Route path="/ecrit" element={<Navigate to="/ecrit_educatif" replace />} />
                 <Route path="/bilan" element={<Navigate to="/bilan_evaluation" replace />} />
+                <Route path="/compte_rendu_reunion" element={<CRRPage />} />
+                <Route path="/veille_professionnelle" element={<VEILLEPage />} />
+                <Route path="/reporting_mensuel" element={<REPORTPage />} />
+                <Route path="/rapport_activite" element={<RAPage />} />
+                <Route path="/bilan_activite" element={<BAPage />} />
+                <Route path="/projet_etablissement" element={<PEPage />} />
+                <Route path="/projet_service" element={<PSPage />} />
+                <Route path="/evaluation_has" element={<HASPage />} />
+                <Route path="/appel_projet" element={<AAPPage />} />
                 <Route path="/archives" element={<ArchivesPage />} />
+                <Route path="/gestion" element={<AgentGestionPage />} />
                 <Route path="/admin" element={<AdminPage />} />
+                <Route path="/dev" element={<DevPage />} />
                 <Route path="*" element={<Navigate to="/" replace />} />
               </Routes>
             </div>

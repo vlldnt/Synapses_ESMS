@@ -56,19 +56,24 @@ function DashboardPage() {
     (async () => {
       try {
         const basename = import.meta.env.VITE_BASENAME || '/synapses';
-        const promises = [
+        const [archives, orgsData] = await Promise.all([
           getHistory(user?.id),
           authFetch(`${basename}/api/organizations`).then(r => r.json()),
-        ];
-        if (role === 'admin') {
-          promises.push(authFetch(`${basename}/api/users`).then(r => r.json()));
-          promises.push(authFetch(`${basename}/api/references`).then(r => r.json()));
-        }
-        const [archives, orgsData, usersData, refsData] = await Promise.all(promises);
+        ]);
         setHistory(archives);
         setOrganizations(orgsData);
-        if (usersData) setUsers(Array.isArray(usersData) ? usersData : []);
-        if (refsData) setReferences(Array.isArray(refsData) ? refsData : []);
+
+        if (role === 'admin') {
+          const [usersData, refsData] = await Promise.all([
+            authFetch(`${basename}/api/users`).then(r => r.json()),
+            authFetch(`${basename}/api/references`).then(r => r.json()),
+          ]);
+          setUsers(Array.isArray(usersData) ? usersData : []);
+          setReferences(Array.isArray(refsData) ? refsData : []);
+        } else if (role === 'agent') {
+          const refsData = await authFetch(`${basename}/api/references`).then(r => r.json());
+          setReferences(Array.isArray(refsData) ? refsData : []);
+        }
       } catch (err) {
         console.error('Failed to load data:', err);
         setHistory([]);
@@ -215,14 +220,14 @@ function DashboardPage() {
                       state={{ tab: 'employes' }}
                       className="flex items-center gap-2 group"
                     >
-                      <span className="w-1.5 h-5 rounded-full bg-[#1294C3] shrink-0" />
-                      <span className="text-sm font-bold text-(--text-primary) group-hover:text-[#1294C3] transition-colors">Agents</span>
-                      <span className="text-xs font-medium text-white bg-[#1294C3] px-1.5 py-0.5 rounded-full">{users.length}</span>
+                      <span className="w-1.5 h-5 rounded-full bg-(--bleu-fonce) shrink-0" />
+                      <span className="text-sm font-bold text-(--text-primary) group-hover:text-(--bleu-fonce) transition-colors">Agents</span>
+                      <span className="text-xs font-medium text-white bg-(--bleu-fonce) px-1.5 py-0.5 rounded-full">{users.length}</span>
                     </Link>
                     <button
                       type="button"
                       onClick={() => setShowAddAgentModal(true)}
-                      className="text-xs px-3 py-1.5 rounded-lg bg-[#1294C3] text-white hover:bg-[#0D66D4] cursor-pointer transition-colors shrink-0"
+                      className="text-xs px-3 py-1.5 rounded-lg bg-(--bleu-fonce) text-white hover:bg-(--bleu-active) cursor-pointer transition-colors shrink-0"
                     >
                       + Ajouter
                     </button>
@@ -250,14 +255,14 @@ function DashboardPage() {
                       state={{ tab: 'references' }}
                       className="flex items-center gap-2 group"
                     >
-                      <span className="w-1.5 h-5 rounded-full bg-[#0D66D4] shrink-0" />
-                      <span className="text-sm font-bold text-(--text-primary) group-hover:text-[#0D66D4] transition-colors">Références</span>
-                      <span className="text-xs font-medium text-white bg-[#0D66D4] px-1.5 py-0.5 rounded-full">{references.length}</span>
+                      <span className="w-1.5 h-5 rounded-full bg-(--bleu-active) shrink-0" />
+                      <span className="text-sm font-bold text-(--text-primary) group-hover:text-(--bleu-active) transition-colors">Références</span>
+                      <span className="text-xs font-medium text-white bg-(--bleu-active) px-1.5 py-0.5 rounded-full">{references.length}</span>
                     </Link>
                     <button
                       type="button"
                       onClick={() => setShowAddRefModal(true)}
-                      className="text-xs px-3 py-1.5 rounded-lg bg-[#0D66D4] text-white hover:bg-[#1294C3] cursor-pointer transition-colors shrink-0"
+                      className="text-xs px-3 py-1.5 rounded-lg bg-(--bleu-active) text-white hover:bg-(--bleu-fonce) cursor-pointer transition-colors shrink-0"
                     >
                       + Ajouter
                     </button>
@@ -302,6 +307,85 @@ function DashboardPage() {
                         {doc.filename || doc.type || 'Document'}
                       </p>
                     ))}
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Agent Panel */}
+        {role === 'agent' && (
+          <div className="rounded-2xl border border-(--border) bg-(--bg-primary) shadow-sm overflow-hidden">
+            <div className="px-5 pt-5 pb-3 border-b border-(--border)">
+              <div className="flex items-center gap-2 flex-wrap">
+                <h2 className="text-sm md:text-base font-semibold text-(--text-primary)">Mon tableau de bord</h2>
+                <span className="text-[11px] font-medium text-(--text-muted) bg-(--bg-secondary) px-2 py-0.5 rounded-full border border-(--border)">Agent</span>
+              </div>
+            </div>
+            <div className="p-4 md:p-5">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+                {/* Mes références */}
+                <div className="bg-(--bg-primary) rounded-xl p-4 flex flex-col gap-3">
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-2">
+                      <span className="w-1.5 h-5 rounded-full bg-(--bleu-active) shrink-0" />
+                      <span className="text-sm font-bold text-(--text-primary)">Mes références</span>
+                      <span className="text-xs font-medium text-white bg-(--bleu-active) px-1.5 py-0.5 rounded-full">{references.length}</span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setShowAddRefModal(true)}
+                      className="text-xs px-3 py-1.5 rounded-lg bg-(--bleu-active) text-white hover:bg-(--bleu-fonce) cursor-pointer transition-colors shrink-0"
+                    >
+                      + Ajouter
+                    </button>
+                  </div>
+                  <span className="block h-px bg-(--border)" />
+                  <div className="flex flex-col gap-2 overflow-y-auto" style={{ maxHeight: '108px' }}>
+                    {references.length === 0 ? (
+                      <p className="text-xs text-(--text-muted)">Aucune référence assignée.</p>
+                    ) : (
+                      references.map((r) => (
+                        <div key={r.id} className="flex items-center gap-2.5 shrink-0">
+                          <div className="w-7 h-7 rounded-full bg-(--bg-secondary) flex items-center justify-center text-xs font-semibold text-(--text-secondary) shrink-0 uppercase">
+                            {r.first_name?.[0]}{r.last_name?.[0]}
+                          </div>
+                          <p className="text-xs font-medium text-(--text-primary) truncate">{r.first_name} {r.last_name}</p>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </div>
+
+                {/* Mes documents */}
+                <div className="bg-(--bg-primary) rounded-xl p-4 flex flex-col gap-3">
+                  <div className="flex items-center justify-between gap-2">
+                    <Link to="/archives" className="flex items-center gap-2 group">
+                      <span className="w-1.5 h-5 rounded-full bg-[#9B2CB6] shrink-0" />
+                      <span className="text-sm font-bold text-(--text-primary) group-hover:text-[#9B2CB6] transition-colors">Mes documents</span>
+                      <span className="text-xs font-medium text-white bg-[#9B2CB6] px-1.5 py-0.5 rounded-full">{history.length}</span>
+                    </Link>
+                    <Link
+                      to="/archives"
+                      className="text-xs px-3 py-1.5 rounded-lg bg-[#9B2CB6] text-white hover:opacity-80 transition-opacity shrink-0"
+                    >
+                      Voir →
+                    </Link>
+                  </div>
+                  <span className="block h-px bg-(--border)" />
+                  <div className="flex flex-col gap-2 overflow-y-auto" style={{ maxHeight: '108px' }}>
+                    {history.length === 0 ? (
+                      <p className="text-xs text-(--text-muted)">Aucun document généré.</p>
+                    ) : (
+                      history.map((doc) => (
+                        <p key={doc.id} className="text-xs text-(--text-primary) truncate shrink-0">
+                          {doc.filename || doc.type || 'Document'}
+                        </p>
+                      ))
+                    )}
                   </div>
                 </div>
 
@@ -446,7 +530,19 @@ function DashboardPage() {
         <CreateReferenceModal
           employees={users}
           onClose={() => setShowAddRefModal(false)}
-          onCreated={() => {
+          onCreated={(newRef) => {
+            setReferences((prev) => [...prev, newRef]);
+            setShowAddRefModal(false);
+          }}
+        />
+      )}
+
+      {role === 'agent' && showAddRefModal && (
+        <CreateReferenceModal
+          showEducator={false}
+          onClose={() => setShowAddRefModal(false)}
+          onCreated={(newRef) => {
+            setReferences((prev) => [...prev, newRef]);
             setShowAddRefModal(false);
           }}
         />
