@@ -227,9 +227,11 @@ router.get("/organization-requests/info/:token", async (req, res) => {
 
 // POST /api/organization-requests/complete/:token
 router.post("/organization-requests/complete/:token", async (req, res) => {
-  const { password } = req.body;
+  const { password, confirm } = req.body;
   if (!PASSWORD_REGEX.test(password))
     return res.status(400).json({ error: "Mot de passe invalide." });
+  if (password !== confirm)
+    return res.status(400).json({ error: "Les mots de passe ne correspondent pas." });
 
   try {
     const requests = await loadJsonFile("organizationRequests.json");
@@ -345,9 +347,11 @@ router.get("/user-requests/info/:token", async (req, res) => {
 
 // POST /api/user-requests/complete/:token
 router.post("/user-requests/complete/:token", async (req, res) => {
-  const { password } = req.body;
+  const { password, confirm } = req.body;
   if (!PASSWORD_REGEX.test(password))
     return res.status(400).json({ error: "Mot de passe invalide." });
+  if (password !== confirm)
+    return res.status(400).json({ error: "Les mots de passe ne correspondent pas." });
 
   try {
     const invitations = await loadJsonFile("userRequests.json");

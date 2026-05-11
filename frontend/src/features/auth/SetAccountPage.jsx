@@ -34,21 +34,26 @@ function SetAccountPage() {
   async function handleSubmit(e) {
     e.preventDefault();
     if (!PASSWORD_REGEX.test(password)) {
-      setError('8 caractères min · 1 majuscule · 1 chiffre · 1 caractère spécial');
+      setError(
+        '8 caractères min · 1 majuscule · 1 chiffre · 1 caractère spécial',
+      );
       return;
     }
     if (password !== confirm) {
       setError('Les mots de passe ne correspondent pas.');
       return;
-    }
+    } 
     setSubmitting(true);
     setError('');
     try {
-      const res = await fetch(`${basename}/api/user-requests/complete/${token}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ password }),
-      });
+      const res = await fetch(
+        `${basename}/api/user-requests/complete/${token}`, 
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ password, confirm }),
+        },
+      );
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || `Erreur ${res.status}`);
 
@@ -59,7 +64,9 @@ function SetAccountPage() {
         try {
           const payload = JSON.parse(atob(data.token.split('.')[1]));
           dispatch(setRole(payload.is_admin ? 'admin' : 'agent'));
-        } catch { /* ignore */ }
+        } catch {
+          /* ignore */
+        }
         const { is_admin, ...safeUser } = data.user;
         localStorage.setItem('auth_user', JSON.stringify(safeUser));
         dispatch(setUser(safeUser));
@@ -74,21 +81,41 @@ function SetAccountPage() {
 
   const passwordOk = PASSWORD_REGEX.test(password);
   const confirmOk = confirm && password === confirm;
-  const inputClass = 'w-full px-4 py-2.5 rounded-lg border bg-(--bg-secondary) text-(--text-primary) border-(--border) focus:outline-none focus:ring-2 focus:ring-(--bleu-fonce)/40';
+  const inputClass =
+    'w-full px-4 py-2.5 rounded-lg border bg-(--bg-secondary) text-(--text-primary) border-(--border) focus:outline-none focus:ring-2 focus:ring-(--bleu-fonce)/40';
 
   if (success) {
     return (
       <div className='min-h-dvh flex items-center justify-center bg-synapses-animated px-3'>
         <div className='flex flex-col items-center gap-4 text-center'>
           <div className='w-20 h-20 rounded-full bg-green-500/10 flex items-center justify-center'>
-            <svg className='w-10 h-10 text-green-500' fill='none' viewBox='0 0 24 24' stroke='currentColor' strokeWidth={2}>
-              <path strokeLinecap='round' strokeLinejoin='round' d='M5 13l4 4L19 7' />
+            <svg
+              className='w-10 h-10 text-green-500'
+              fill='none'
+              viewBox='0 0 24 24'
+              stroke='currentColor'
+              strokeWidth={2}
+            >
+              <path
+                strokeLinecap='round'
+                strokeLinejoin='round'
+                d='M5 13l4 4L19 7'
+              />
             </svg>
           </div>
           <div>
-            <h2 className='text-2xl font-bold text-white' style={{ fontFamily: 'Ailerons' }}>Bravo !</h2>
-            <p className='text-white/80 text-sm mt-1'>Votre compte a été créé avec succès.</p>
-            <p className='text-white/50 text-xs mt-2'>Redirection vers le tableau de bord…</p>
+            <h2
+              className='text-2xl font-bold text-white'
+              style={{ fontFamily: 'Ailerons' }}
+            >
+              Bravo !
+            </h2>
+            <p className='text-white/80 text-sm mt-1'>
+              Votre compte a été créé avec succès.
+            </p>
+            <p className='text-white/50 text-xs mt-2'>
+              Redirection vers le tableau de bord…
+            </p>
           </div>
         </div>
       </div>
@@ -99,8 +126,15 @@ function SetAccountPage() {
     <div className='min-h-dvh flex items-center justify-center bg-synapses-animated px-3 py-6'>
       <div className='w-full max-w-md bg-(--bg-primary)/90 backdrop-blur-sm rounded-3xl shadow-2xl px-6 py-8 border border-(--border)/50'>
         <div className='flex flex-col items-center mb-6'>
-          <img className='h-16 w-16 drop-shadow-lg mb-3' src={faviconUrl} alt='Logo Synapses' />
-          <h1 className='text-xl font-bold text-(--text-primary)' style={{ fontFamily: 'Ailerons' }}>
+          <img
+            className='h-16 w-16 drop-shadow-lg mb-3'
+            src={faviconUrl}
+            alt='Logo Synapses'
+          />
+          <h1
+            className='text-xl font-bold text-(--text-primary)'
+            style={{ fontFamily: 'Ailerons' }}
+          >
             Synapses ESMS
           </h1>
         </div>
@@ -110,17 +144,25 @@ function SetAccountPage() {
             <p className='text-sm text-red-500'>{infoError}</p>
           </div>
         ) : !info ? (
-          <p className='text-center text-sm text-(--text-muted)'>Vérification du lien…</p>
+          <p className='text-center text-sm text-(--text-muted)'>
+            Vérification du lien…
+          </p>
         ) : (
           <>
             <div className='mb-5 p-4 rounded-xl bg-(--bg-secondary) border border-(--border) text-sm flex flex-col gap-0.5'>
-              <p className='font-semibold text-(--text-primary)'>{info.first_name} {info.last_name}</p>
-              {info.job && <p className='text-(--text-muted) text-xs'>{info.job}</p>}
+              <p className='font-semibold text-(--text-primary)'>
+                {info.first_name} {info.last_name}
+              </p>
+              {info.job && (
+                <p className='text-(--text-muted) text-xs'>{info.job}</p>
+              )}
               <p className='text-(--text-muted) text-xs'>{info.org_name}</p>
               <p className='text-(--text-muted) text-xs'>{info.email}</p>
             </div>
 
-            <p className='text-sm text-(--text-muted) mb-4'>Créez votre mot de passe pour activer votre compte.</p>
+            <p className='text-sm text-(--text-muted) mb-4'>
+              Créez votre mot de passe pour activer votre compte.
+            </p>
 
             <form onSubmit={handleSubmit} className='flex flex-col gap-3'>
               <div className='flex flex-col gap-1'>
@@ -134,7 +176,8 @@ function SetAccountPage() {
                   autoComplete='new-password'
                 />
                 <p className='text-[11px] text-(--text-muted) px-1'>
-                  8 caractères min · 1 majuscule · 1 chiffre · 1 caractère spécial
+                  8 caractères min · 1 majuscule · 1 chiffre · 1 caractère
+                  spécial
                 </p>
               </div>
 
@@ -148,7 +191,9 @@ function SetAccountPage() {
                 autoComplete='new-password'
               />
 
-              {error && <p className='text-xs text-red-500 text-center'>{error}</p>}
+              {error && (
+                <p className='text-xs text-red-500 text-center'>{error}</p>
+              )}
 
               <button
                 type='submit'
