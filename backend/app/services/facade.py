@@ -1,4 +1,4 @@
-from app.persistance.all_repo import UserRepository, OrganisationRepository, OrganisationRequestRepository ,ReferenceRepository, UserRequestRepository
+from app.persistance.all_repo import UserRepository, OrganisationRepository, OrganisationRequestRepository ,ReferenceRepository, UserRequestRepository, ArchiveRepository, DocumentRepository
 from app.models.user import User
 from app.models.userRequest import Status as UserRequestStatus
 from app.models.organizations import Organization
@@ -14,6 +14,8 @@ class ApiFacade:
         self.organisation_repo = OrganisationRepository()
         self.organisationRequest_repo = OrganisationRequestRepository()
         self.reference_repo = ReferenceRepository()
+        self.archive_repo = ArchiveRepository()
+        self.document_repo = DocumentRepository()
 
     """ Request organization facade """
     def made_request_org(self, request_data):
@@ -163,3 +165,9 @@ class ApiFacade:
         if organization_id is None:
             return self.reference_repo.get_all()
         return self.reference_repo.get_all_by_attribute('organisation_id', organization_id)
+    
+    """ Archive facade """
+    def get_archive(self, user_id=None):
+        if user_id is None:
+            return self.archive_repo.get_all()
+        return self.reference_repo.get_all_by_attribute('users_id', user_id)

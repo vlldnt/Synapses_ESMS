@@ -24,4 +24,3 @@ class Document(BaseModel):
     reference_name = db.Column(db.String(50), nullable=False)
     creator_id = db.Column(db.String(36), db.ForeignKey('users.id'))
     organization_id = db.Column(db.String(36), db.ForeignKey('organization.id'))
-    docx_base_64 = db.Column(db.text, nullable=False)

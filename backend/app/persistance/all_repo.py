@@ -3,8 +3,9 @@ from app.models.organizations import Organization
 from app.models.organisationRequests import OrganizationRequest
 from app.models.references import Reference
 from app.models.userRequest import UserRequest
+from app.models.archive import Archives
+from app.models.document import Document
 from .repository import SQLAlchemyRepository
-from app import db
 
 class UserRepository(SQLAlchemyRepository):
     def __init__(self):
@@ -28,3 +29,11 @@ class OrganisationRequestRepository(SQLAlchemyRepository):
 class ReferenceRepository(SQLAlchemyRepository):
     def __init__(self):
         super().__init__(Reference)
+
+class ArchiveRepository(SQLAlchemyRepository):
+    def __init__(self):
+        super().__init__(Archives)
+
+class DocumentRepository(SQLAlchemyRepository):
+    def __init__(self):
+        super().__init__(Document)

@@ -46,9 +46,9 @@ class ReferencesList(Resource):
         except ValueError as error:
             return{'error': str(error)}, 400
         
-    @api.response(200, 'List of reference retrieved successfully')
     @jwt_required()
     @api.doc(security="token")
+    @api.response(200, 'List of reference retrieved successfully')
     def get(self):
         """get all references for the organization"""
 
