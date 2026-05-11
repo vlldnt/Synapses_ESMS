@@ -3,6 +3,7 @@ from flask_jwt_extended import get_jwt_identity, jwt_required, get_jwt
 from app.services import facade
 from app.security.jwt import generete_token
 from app.services.mail_service import MailService
+from datetime import datetime
 from flask import current_app
 
 api = Namespace('auth', description="User authentication operation")
@@ -18,12 +19,12 @@ organization_request_model = api.model('organizationRequest', {
     'description': fields.String(description='organization description', example=""),
     'first_name': fields.String(required=True, description='first name of admin', example="john"),
     'last_name': fields.String(required=True, description='last name of admin', example="constante"),
-    'contact_email': fields.String(required=True, description='admin email', example="user@email.com"),
+    'contact_email': fields.String(required=True, description='admin email', example="user@email.com")
 })
 
 validation_model = api.model('organizationvalidate', {
     'password' : fields.String(required=True, description='password', example=""),
-    'validate_password': fields.String(required=True, description='second password', example=""),
+    'confirm': fields.String(required=True, description='second password', example=""),
 })
 
 
@@ -34,12 +35,21 @@ class Login(Resource):
         """Authenticate user and return a JWT token"""
 
         credentials = api.payload
-        user = facade.get_user_by_email(credentials['email'])
-        if not user or not user.verify_password(credentials['password']):
-            return {'error': 'Invalid credentials'}, 401
+        email = credentials.get('email')
+        password = credentials.get('password')
+
+        if not email or not password:
+            return {'error': 'Email et mot de passe requis.'}, 400
+
+        user = facade.get_user_by_email(email)
+        if not user or not user.verify_password(password):
+            return {'error': 'Identifiants incorrects.'}, 401
+
+        if user.status != 'active':
+            return {'error': 'Compte inactif.'}, 403
 
         access_token = generete_token(user)
-        return {'access_token': access_token}, 200
+        return {'user': user.to_dict(), 'token': access_token}, 200
 
     @api.route('/protected')
     class ProtectedResource(Resource):
@@ -77,14 +87,27 @@ class made_organization_request(Resource):
         """ made a request for create the organization """
 
         request = api.payload
-        valid_inputs = ['org_name', 'structure_type', 'description', 'first_name', 'last_name', 'contact_email']
+        print(f"{request}")
+        valid_inputs = ['org_name', 'structure_type', 'description', 'first_name', 'last_name', 'contact_email', '_hp', '_t']
         for key in request:
             if key not in valid_inputs:
                 api.abort(400, f'Invalid input data: {key}')
 
-        new_request = facade.made_request_org(request)
+        # Honeypot check - hidden field should be empty
+        if request.get('_hp'):
+            api.abort(400, "Invalid request")
 
-        app_url = current_app.config["APP_URL"]
+        # Timing check - prevent too fast submissions (convert JS timestamp to datetime)
+        import time
+        current_time = int(time.time() * 1000)  # Current time in milliseconds
+        if current_time - request.get('_t', 0) < 5000:  # Require at least 5 seconds
+            api.abort(400, "too fast! wait 5 seconds")
+
+        # Remove validation fields before creating the request
+        request_data = {k: v for k, v in request.items() if k not in ['_hp', '_t']}
+        new_request = facade.made_request_org(request_data)
+
+        app_url = current_app.config.get("APP_URL")
 
         setPassword =  f"{app_url}/set-password/{new_request.verification_token}"
 
@@ -98,7 +121,7 @@ class made_organization_request(Resource):
 
         return new_request.token(), 200
     
-@api.route('/api/organization-requests/info/<token_id>')
+@api.route('/organization-requests/info/<token_id>')
 class get_orgnaisation_request_by_token(Resource):
     def get(self, token_id):
         """ get a organization request with token"""
@@ -115,7 +138,7 @@ class new_organization(Resource):
         """ validate the creation with password """
 
         validate = api.payload or {}
-        valid_inputs = ['password', 'validate_password']
+        valid_inputs = ['password', 'confirm']
         missing = [key for key in valid_inputs if key not in validate]
         extra = [key for key in validate if key not in valid_inputs]
         if missing or extra:
@@ -126,7 +149,7 @@ class new_organization(Resource):
                 errors.append(f"Invalid input data: {', '.join(extra)}")
             api.abort(400, '; '.join(errors))
 
-        if validate['password'] != validate['validate_password']:
+        if validate['password'] != validate['confirm']:
             return {'error': 'Passwords do not match'}, 400
 
         result = facade.complete_request_org(token_id, validate['password'])

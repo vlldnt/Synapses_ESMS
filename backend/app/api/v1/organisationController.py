@@ -1,5 +1,5 @@
 from flask_restx import Namespace, Resource, fields
-""" from flask_jwt_extended import get_jwt_identity, jwt_required """
+from flask_jwt_extended import get_jwt_identity, jwt_required, get_jwt
 from app.services import facade
 
 api = Namespace('organisation', description="organisation information")
@@ -21,13 +21,15 @@ class OrganisationList(Resource):
     
 @api.route('/<organisation_id>')
 class OrganisationResource(Resource):
+    @jwt_required()
+    @api.doc(security="token")
     @api.response(200, 'organisation is successfully retrieved')
     @api.response(404, 'the organisation does not exist')
 
     def get(self, organisation_id):
         """get organisation by his id"""
-
-        organisation = facade.get_organisation(organisation_id)
+        claims = get_jwt()
+        organisation = facade.get_organisation(claims["organization_id"])
         if not organisation:
             return {'error': 'the organization does not exist'}, 404
-        return organisation.to_dict(), 200
+        return {"organisation": organisation.to_dict()}, 200

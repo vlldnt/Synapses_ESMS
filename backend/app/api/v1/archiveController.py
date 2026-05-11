@@ -1,4 +1,5 @@
-from flask_restx import Namespace, Resource, fields
+from flask_restx import Namespace, Resource
+from flask import request
 from flask_jwt_extended import get_jwt_identity, jwt_required, get_jwt
 from app.services import facade
 
@@ -10,6 +11,8 @@ class archive_document(Resource):
     @api.doc(security='token')
     def get(self):
         """ get all document archive """
+        user_id = request.args.get("userId")
+        print(f"{user_id}")
 
     @jwt_required()
     @api.doc(security='token')

@@ -3,6 +3,7 @@ from flask_restx import Api
 from flask_bcrypt import Bcrypt
 from flask_jwt_extended import JWTManager
 from flask_sqlalchemy import SQLAlchemy
+from flask_cors import CORS
 
 db = SQLAlchemy()
 bcrypt = Bcrypt()
@@ -16,6 +17,8 @@ from app.api.v1.archiveController import api as archive_ns
 
 def createApp(config_class="config.DevelopmentConfig"):
     app = Flask(__name__)
+
+    CORS(app)
     app.config.from_object(config_class)
     authorizations = {
         'token': {
@@ -24,6 +27,8 @@ def createApp(config_class="config.DevelopmentConfig"):
             'name': 'Authorization',
         }
     }
+
+    app.url_map.strict_slashes = False
 
     api = Api(app, version='1.0', title='Synapses ESMS API',
               authorizations=authorizations,
