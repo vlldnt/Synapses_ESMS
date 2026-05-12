@@ -19,14 +19,14 @@ class OrganisationList(Resource):
         all_org = facade.get_all_organisation()
         return [org.to_dict() for org in all_org], 200
     
-@api.route('/<organisation_id>')
+@api.route('/organizations')
 class OrganisationResource(Resource):
     @jwt_required()
     @api.doc(security="token")
     @api.response(200, 'organisation is successfully retrieved')
     @api.response(404, 'the organisation does not exist')
 
-    def get(self, organisation_id):
+    def get(self):
         """get organisation by his id"""
         claims = get_jwt()
         organisation = facade.get_organisation(claims["organization_id"])
