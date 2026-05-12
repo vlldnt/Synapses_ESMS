@@ -5,6 +5,7 @@ import { Download, X, Clock3 } from 'lucide-react';
 import Button from '../../components/Button';
 import WordPreview from '../../components/WordPreview';
 import { getHistory } from '../../services/historyService';
+import { authFetch } from '../../services/authServices';
 import { useCurrentUser } from '../../hooks/useCurrentUser';
 import { getEnrichedInfo } from '../../utils/documentEnricher';
 import { downloadDocx, triggerDownload } from '../../utils/wordExport';
@@ -47,8 +48,8 @@ function ArchivesPage() {
         const basename = import.meta.env.VITE_BASENAME || '/synapses';
         const [archives, usersData, orgsData] = await Promise.all([
           getHistory(user?.id),
-          fetch(`${basename}/api/users`).then((r) => r.json()),
-          fetch(`${basename}/api/organizations`).then((r) => r.json()),
+          authFetch(`${basename}/api/users`).then((r) => r.json()),
+          authFetch(`${basename}/api/organizations`).then((r) => r.json()),
         ]);
         setHistory(archives);
         setUsers(Array.isArray(usersData) ? usersData : []);
