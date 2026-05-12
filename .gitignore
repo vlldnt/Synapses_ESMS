@@ -30,3 +30,6 @@ google-key.json
 
 .env
 .env.local
+
+__pycache__/
+venv/
