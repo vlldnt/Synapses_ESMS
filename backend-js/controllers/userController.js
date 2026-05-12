@@ -54,12 +54,10 @@ router.get('/', async (req, res) => {
 
 // POST /api/users
 router.post('/', requireRole('admin'), async (req, res) => {
-  const { firstName, lastName, email, job, role, organizationId } = req.body;
-  if (!firstName?.trim() || !lastName?.trim() || !email?.trim() || !organizationId) {
+  const { first_name, last_name, email, job, role } = req.body;
+  const organizationId = req.auth.organizationId;
+  if (!first_name?.trim() || !last_name?.trim() || !email?.trim()) {
     return res.status(400).json({ error: 'Champs obligatoires manquants.' });
-  }
-  if (organizationId !== req.auth.organizationId) {
-    return res.status(403).json({ error: 'Cannot create users in other organizations.' });
   }
   if (!EMAIL_REGEX.test(email)) return res.status(400).json({ error: 'Email invalide.' });
 
@@ -82,8 +80,8 @@ router.post('/', requireRole('admin'), async (req, res) => {
 
     const invitation = {
       id: crypto.randomUUID(),
-      first_name: firstName.trim(),
-      last_name: lastName.trim(),
+      first_name: first_name.trim(),
+      last_name: last_name.trim(),
       email: email.toLowerCase().trim(),
       job: job || '',
       role: role || 'agent',
@@ -101,8 +99,8 @@ router.post('/', requireRole('admin'), async (req, res) => {
     const appUrl = process.env.APP_URL || 'http://localhost:5173/synapses';
     const setAccountUrl = `${appUrl}/set-account/${verificationToken}`;
     sendInvitationEmail({
-      firstName: invitation.first_name,
-      lastName: invitation.last_name,
+      firstName: first_name.trim(),
+      lastName: last_name.trim(),
       email: invitation.email,
       orgName: org?.name || organizationId,
       setAccountUrl,

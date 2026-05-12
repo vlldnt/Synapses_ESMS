@@ -73,5 +73,19 @@
     "status": "accepted",
     "created_at": "2026-05-07T07:42:52.954Z",
     "accepted_at": "2026-05-07T07:43:20.418Z"
+  },
+  {
+    "id": "142febc9-abc7-4018-860c-309bfe9391b3",
+    "first_name": "Cyrp",
+    "last_name": "Curp",
+    "email": "9785@holbertonstudents.com",
+    "job": "Moniteur(rice) éducateur(rice)",
+    "role": "agent",
+    "organization_id": "b8178a42-d8b8-41dc-ab43-5ff4743313d3",
+    "is_admin": false,
+    "verification_token": "c31b01306ab5948e2a15bd8ace8a0301130f5d56b9c7c0694e6991bdf16dbbf3",
+    "verification_expiry": "2026-05-12T11:35:57.142Z",
+    "status": "pending",
+    "created_at": "2026-05-12T11:20:57.142Z"
   }
 ]
