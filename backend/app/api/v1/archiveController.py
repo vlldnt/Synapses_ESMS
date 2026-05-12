@@ -13,6 +13,7 @@ class archive_document(Resource):
         """ get all document archive """
         user_id = request.args.get("userId")
         print(f"{user_id}")
+        
 
     @jwt_required()
     @api.doc(security='token')
