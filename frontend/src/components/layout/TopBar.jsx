@@ -1,6 +1,8 @@
 import { useLocation } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 import faviconUrl from '/favicon.png';
 import ProfileDropdown from './ProfileDropdown';
+import { useCurrentUser } from '../../hooks/useCurrentUser';
 
 const routeTitles = {
   '/': {
@@ -48,6 +50,8 @@ const routeTitles = {
 function TopBar() {
   const location = useLocation();
   const { title, subtitle } = routeTitles[location.pathname] || routeTitles['/'];
+  const { fullName, organization } = useCurrentUser();
+  const role = useSelector((state) => state.role.role);
 
   return (
     <header

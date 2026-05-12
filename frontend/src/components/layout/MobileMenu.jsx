@@ -6,6 +6,7 @@ import {
   BotMessageSquare,
   History,
   ClipboardList,
+  ShieldCheck,
   Terminal,
 } from 'lucide-react';
 import { MENUS } from '../../constants/menus';
@@ -15,6 +16,7 @@ const ICON_MAP = {
   BotMessageSquare,
   History,
   ClipboardList,
+  ShieldCheck,
 };
 
 const DEV_USER_IDS = new Set([
@@ -32,8 +34,8 @@ function MobileMenu() {
     role === 'admin' &&
     user?.job === 'Administrateur';
 
-  const menus = MENUS.filter((m) => m.roleAccess.includes(role)).slice(0, 3);
-  const cols = isDev ? 4 : 3;
+  const menus = MENUS.filter((m) => m.roleAccess.includes(role));
+  const cols = isDev ? menus.length + 1 : menus.length;
 
   return (
     <nav id="mobile-menu" className="fixed bottom-0 left-0 right-0 z-60 border-t border-(--border) bg-(--bg-primary) px-0 pb-[max(env(safe-area-inset-bottom),0.25rem)] pt-0 shadow-[0_-6px_20px_rgba(0,0,0,0.08)]">

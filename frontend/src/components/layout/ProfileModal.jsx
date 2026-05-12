@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
-import { logout } from '../../services/authServices';
+import { logout, authFetch } from '../../services/authServices';
+import { useDispatch } from 'react-redux';
+import { setUser } from '../../store/authSlice';
 import { useNavigate } from 'react-router-dom';
 import {
   X,
@@ -8,6 +10,10 @@ import {
   Users,
   ChevronRight,
   Loader2,
+  Pencil,
+  Eye,
+  EyeOff,
+  Check,
 } from 'lucide-react';
 import faviconUrl from '/favicon.png';
 import { useCurrentUser } from '../../hooks/useCurrentUser';
@@ -44,14 +50,23 @@ function ReferenceItem({ reference }) {
   );
 }
 
+const inputCls = 'w-full px-3 py-2 rounded-lg border bg-(--bg-secondary) text-(--text-primary) border-(--border) text-sm focus:outline-none focus:ring-2 focus:ring-(--bleu-fonce)/40';
+
 function ProfileModal({ onClose }) {
   const { user, organization, initials, fullName } = useCurrentUser();
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const [references, setReferences] = useState([]);
   const [archiveCount, setArchiveCount] = useState(null);
   const [loading, setLoading] = useState(true);
   const [showRefs, setShowRefs] = useState(false);
+  const [editMode, setEditMode] = useState(false);
+  const [editFields, setEditFields] = useState({});
+  const [showPassword, setShowPassword] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState('');
+  const [saveSuccess, setSaveSuccess] = useState(false);
 
   useEffect(() => {
     if (!user?.id) return;
@@ -64,6 +79,54 @@ function ProfileModal({ onClose }) {
       },
     );
   }, [user?.id]);
+
+  function openEdit() {
+    setEditFields({
+      firstName: user?.first_name || '',
+      lastName: user?.last_name || '',
+      email: user?.email || '',
+      password: '',
+    });
+    setSaveError('');
+    setSaveSuccess(false);
+    setEditMode(true);
+  }
+
+  async function handleSave(e) {
+    e.preventDefault();
+    if (!editFields.firstName.trim() || !editFields.lastName.trim() || !editFields.email.trim()) {
+      setSaveError('Prénom, nom et email sont requis.');
+      return;
+    }
+    setSaving(true);
+    setSaveError('');
+    setSaveSuccess(false);
+    try {
+      const base = import.meta.env.VITE_BASENAME || '/synapses';
+      const body = {
+        first_name: editFields.firstName.trim(),
+        last_name: editFields.lastName.trim(),
+        email: editFields.email.trim(),
+      };
+      if (editFields.password.trim()) body.password = editFields.password.trim();
+      const res = await authFetch(`${base}/api/users/${user.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || `Erreur ${res.status}`);
+      const updated = { ...user, ...data };
+      localStorage.setItem('auth_user', JSON.stringify(updated));
+      dispatch(setUser(updated));
+      setSaveSuccess(true);
+      setTimeout(() => { setEditMode(false); setSaveSuccess(false); }, 1200);
+    } catch (err) {
+      setSaveError(err.message);
+    } finally {
+      setSaving(false);
+    }
+  }
 
   const handleLogout = () => {
     invalidateReferencesCache();
@@ -121,24 +184,107 @@ function ProfileModal({ onClose }) {
 
           {/* Name & info */}
           <div className='px-5 pt-2.5 pb-5 flex flex-col gap-1 flex-1'>
-            <p className='font-bold text-(--text-primary) text-lg leading-tight'>
-              {fullName}
-            </p>
-            <p className='text-xs text-(--text-muted)'>
-              {user?.job || '—'}
-              {organization?.name && (
-                <>
-                  <span className='text-(--border) ml-2 mr-2'>|</span>
-                  <span>{organization.name}</span>
-                </>
-              )}
-            </p>
-            <p className='text-xs text-(--text-muted) flex items-center gap-1.5 flex-wrap mt-0.5'>
-              <span className='truncate'>{user?.email || '—'}</span>
-            </p>
+            {!editMode ? (
+              <>
+                <div className='flex items-start justify-between gap-2'>
+                  <p className='font-bold text-(--text-primary) text-lg leading-tight'>{fullName}</p>
+                  <button
+                    type='button'
+                    onClick={openEdit}
+                    className='mt-1 p-1.5 rounded-lg border border-(--border) text-(--text-muted) hover:text-(--bleu-fonce) hover:bg-(--bg-secondary) transition-colors cursor-pointer shrink-0'
+                  >
+                    <Pencil size={13} />
+                  </button>
+                </div>
+                <p className='text-xs text-(--text-muted)'>
+                  {user?.job || '—'}
+                  {organization?.name && (
+                    <>
+                      <span className='text-(--border) ml-2 mr-2'>|</span>
+                      <span>{organization.name}</span>
+                    </>
+                  )}
+                </p>
+                <p className='text-xs text-(--text-muted) flex items-center gap-1.5 flex-wrap mt-0.5'>
+                  <span className='truncate'>{user?.email || '—'}</span>
+                </p>
+              </>
+            ) : (
+              <form onSubmit={handleSave} className='flex flex-col gap-2.5 mt-1'>
+                <div className='grid grid-cols-2 gap-2'>
+                  <div className='flex flex-col gap-1'>
+                    <label className='text-xs text-(--text-muted)'>Prénom</label>
+                    <input
+                      required
+                      value={editFields.firstName}
+                      onChange={(e) => setEditFields((f) => ({ ...f, firstName: e.target.value }))}
+                      className={inputCls}
+                      placeholder='Prénom'
+                    />
+                  </div>
+                  <div className='flex flex-col gap-1'>
+                    <label className='text-xs text-(--text-muted)'>Nom</label>
+                    <input
+                      required
+                      value={editFields.lastName}
+                      onChange={(e) => setEditFields((f) => ({ ...f, lastName: e.target.value }))}
+                      className={inputCls}
+                      placeholder='Nom'
+                    />
+                  </div>
+                </div>
+                <div className='flex flex-col gap-1'>
+                  <label className='text-xs text-(--text-muted)'>Email</label>
+                  <input
+                    required
+                    type='email'
+                    value={editFields.email}
+                    onChange={(e) => setEditFields((f) => ({ ...f, email: e.target.value }))}
+                    className={inputCls}
+                    placeholder='email@structure.fr'
+                  />
+                </div>
+                <div className='flex flex-col gap-1'>
+                  <label className='text-xs text-(--text-muted)'>Nouveau mot de passe <span className='text-(--text-muted)/60'>(optionnel)</span></label>
+                  <div className='relative'>
+                    <input
+                      type={showPassword ? 'text' : 'password'}
+                      value={editFields.password}
+                      onChange={(e) => setEditFields((f) => ({ ...f, password: e.target.value }))}
+                      className={`${inputCls} pr-9`}
+                      placeholder='Laisser vide pour ne pas changer'
+                    />
+                    <button
+                      type='button'
+                      onClick={() => setShowPassword((v) => !v)}
+                      className='absolute right-2.5 top-1/2 -translate-y-1/2 text-(--text-muted) hover:text-(--text-primary) cursor-pointer'
+                    >
+                      {showPassword ? <EyeOff size={14} /> : <Eye size={14} />}
+                    </button>
+                  </div>
+                </div>
+                {saveError && <p className='text-xs text-red-500'>{saveError}</p>}
+                <div className='flex gap-2 mt-1'>
+                  <button
+                    type='button'
+                    onClick={() => setEditMode(false)}
+                    className='flex-1 py-2 rounded-lg border border-(--border) text-(--text-primary) text-xs font-medium hover:bg-(--bg-secondary) transition-colors cursor-pointer'
+                  >
+                    Annuler
+                  </button>
+                  <button
+                    type='submit'
+                    disabled={saving || saveSuccess}
+                    className='flex-1 py-2 rounded-lg bg-(--bleu-fonce) text-white text-xs font-medium hover:bg-(--bleu-active) disabled:opacity-60 transition-colors cursor-pointer flex items-center justify-center gap-1.5'
+                  >
+                    {saveSuccess ? <><Check size={13} /> Sauvegardé</> : saving ? 'Sauvegarde…' : 'Enregistrer'}
+                  </button>
+                </div>
+              </form>
+            )}
 
             {/* Stats */}
-            <div className='flex flex-col gap-2 mt-4'>
+            {!editMode && <div className='flex flex-col gap-2 mt-4'>
               {/* Références count — toggle */}
               <button
                 onClick={() => setShowRefs((v) => !v)}
@@ -203,7 +349,7 @@ function ProfileModal({ onClose }) {
                   />
                 </div>
               </button>
-            </div>
+            </div>}
           </div>
         </div>
       </div>

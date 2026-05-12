@@ -43,7 +43,15 @@ export default function CreateUserModal({ organizationId, onClose, onCreated }) 
       const res = await authFetch(`${base}/api/users`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...fields, organizationId, is_admin: false }),
+        body: JSON.stringify({
+            first_name: fields.firstName.trim(),
+            last_name: fields.lastName.trim(),
+            email: fields.email.trim(),
+            job: fields.job,
+            role: fields.role,
+            organization_id: organizationId,
+            is_admin: false,
+          }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || `Erreur ${res.status}`);
