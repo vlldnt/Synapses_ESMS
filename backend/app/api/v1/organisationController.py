@@ -32,4 +32,4 @@ class OrganisationResource(Resource):
         organisation = facade.get_organisation(claims["organization_id"])
         if not organisation:
             return {'error': 'the organization does not exist'}, 404
-        return {"organisation": organisation.to_dict()}, 200
+        return [organisation.to_dict()], 200

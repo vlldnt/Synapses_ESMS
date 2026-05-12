@@ -51,19 +51,6 @@ class Login(Resource):
         access_token = generete_token(user)
         return {'user': user.to_dict(), 'token': access_token}, 200
 
-    @api.route('/protected')
-    class ProtectedResource(Resource):
-        @jwt_required()
-        @api.doc(security='token')
-        def get(self):
-            """A protected endpoint that requires a valid JWT token"""
-
-            user_id = get_jwt_identity();
-            data = get_jwt()
-
-            return {'message': f'Hello, user {user_id}, your organisation {data['organization_id']}'}, 200
-
-
 @api.route('/organization-requests')
 class made_organization_request(Resource):
     @jwt_required()

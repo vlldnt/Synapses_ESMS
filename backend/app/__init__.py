@@ -18,12 +18,7 @@ from app.api.v1.archiveController import api as archive_ns
 def createApp(config_class="config.DevelopmentConfig"):
     app = Flask(__name__)
 
-    CORS(
-    app,
-    supports_credentials=True,
-    resources={r"/api/*": {"origins": "*"}},
-    allow_headers=["Content-Type", "Authorization"]
-)
+    CORS(app, resources={r"/api/": {"origins": ""}}, allow_headers=["Content-Type", "Authorization"])
     app.config.from_object(config_class)
     authorizations = {
         'token': {
@@ -33,10 +28,11 @@ def createApp(config_class="config.DevelopmentConfig"):
         }
     }
 
+    app.url_map.strict_slashes = False
     api = Api(app, version='1.0', title='Synapses ESMS API',
               authorizations=authorizations,
               description="Synapses ESMS API")
-    
+
     api.add_namespace(users_ns, path='/api/users')
     api.add_namespace(auth_ns, path='/api')
     api.add_namespace(org_ns, path='/api')
