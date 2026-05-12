@@ -1,6 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useSelector } from 'react-redux';
 import { Download, X, Clock3 } from 'lucide-react';
 import Button from '../../components/Button';
 import WordPreview from '../../components/WordPreview';
@@ -33,8 +32,7 @@ function ArchivesPage() {
   const [selectedEntry, setSelectedEntry] = useState(null);
   const [isDownloading, setIsDownloading] = useState(false);
   const [history, setHistory] = useState([]);
-  const [users, setUsers] = useState([]);
-  const [organizations, setOrganizations] = useState([]);
+  const [organization, setOrganization] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [previewText, setPreviewText] = useState('');
   const [isPreviewLoading, setIsPreviewLoading] = useState(false);
@@ -42,18 +40,18 @@ function ArchivesPage() {
   const [typeFilter, setTypeFilter] = useState('all');
   const [sortOrder, setSortOrder] = useState('desc');
 
+
   useEffect(() => {
+    if (!user?.id) return;
+    const basename = import.meta.env.VITE_BASENAME || '/synapses';
     (async () => {
       try {
-        const basename = import.meta.env.VITE_BASENAME || '/synapses';
-        const [archives, usersData, orgsData] = await Promise.all([
-          getHistory(user?.id),
-          authFetch(`${basename}/api/users`).then((r) => r.json()),
+        const [archives, orgData] = await Promise.all([
+          getHistory(user.id),
           authFetch(`${basename}/api/organizations`).then((r) => r.json()),
         ]);
         setHistory(archives);
-        setUsers(Array.isArray(usersData) ? usersData : []);
-        setOrganizations(Array.isArray(orgsData) ? orgsData : []);
+        setOrganization(Array.isArray(orgData) ? orgData[0] ?? null : null);
       } catch (err) {
         console.error('Failed to load history:', err);
         setHistory([]);
@@ -349,7 +347,7 @@ function ArchivesPage() {
                 const docColor = agentForEntry
                   ? agentForEntry.color
                   : getDocColorFromLabel(typeLabel);
-                const enriched = getEnrichedInfo(entry, users, organizations);
+                const enriched = getEnrichedInfo(entry, [], organization ? [organization] : []);
                 return (
                   <button
                     key={entry.id}
