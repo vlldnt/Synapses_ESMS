@@ -11,14 +11,15 @@ user_request = api.model("user request", {
     'first_name': fields.String(required=True, description="User first name", example="user"),
     'last_name': fields.String(required=True, description="User last name", example="test"),
     'email': fields.String(required=True, description="User email", example="user@email.com"),
-    'job': fields.String(required=True, description="user job", exemple="Educateur")
+    'job': fields.String(required=True, description="user job", exemple="Educateur"),
 })
 
 user_update = api.model("user update", {
     'first_name': fields.String(required=True, description="User first name", example="user"),
+    'job': fields.String(required=True, description="job of the user"),
     'last_name': fields.String(required=True, description="User last name", example="test"),
-    'email': fields.String(required=True, description="User email", example="user@email.com"),
-    'password': fields.String(required=True, description="User password", example="Johnd0e!"),
+    'role': fields.String(required=True, description="User role", example="user@email.com"),
+    'status': fields.String(required=True, description="User status", example="Johnd0e!"),
 })
 
 @api.route('/')
@@ -53,7 +54,8 @@ class UserList(Resource):
             api.abort(403, "action Forbidden")
 
         request_payload = api.payload
-        valid_inputs = ['first_name', 'last_name', 'email', 'job']
+        print(f"{request_payload}")
+        valid_inputs = ['first_name', 'last_name', 'email', 'job', 'role', "organization_id", "is_admin"]
         for key in request_payload:
             if key not in valid_inputs:
                 api.abort(400, f'Invalid input data: {key}')
@@ -63,21 +65,21 @@ class UserList(Resource):
             last_name=request_payload['last_name'],
             email=request_payload['email'],
             job=request_payload['job'],
-            organization_id=data["organization_id"],
-            role="agent"
+            organization_id=request_payload["organization_id"],
+            role=request_payload['role'],
         )
         
         new_request = facade.made_request_user(request)
-
+        org_data = facade.get_organisation(request_payload['organization_id'])
         app_url = current_app.config["APP_URL"]
 
-        setPassword =  f"{app_url}/set-password/{new_request.verification_token}"
+        setPassword =  f"{app_url}/set-account/{new_request.verification_token}"
 
         MailService.send_email(
-            to=new_request.contact_email,
+            to=new_request.email,
             first_name=new_request.first_name,
             last_name=new_request.last_name,
-            org_name=new_request.org_name,
+            org_name=org_data.name,
             setPasswordUrl=setPassword
         )
 
@@ -119,7 +121,7 @@ class UserResource(Resource):
         
         user_data = api.payload
 
-        valid_inputs = ["first_name", "last_name", "email", "password"]
+        valid_inputs = ["first_name", "job", "last_name", "role", "status"]
         for key in user_data:
             if key not in valid_inputs:
                 api.abort(400, f'Invalid input data: {key}')

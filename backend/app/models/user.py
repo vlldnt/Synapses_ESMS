@@ -11,6 +11,7 @@ class User(BaseModel):
     is_admin = db.Column(db.Boolean, default=False)
     organization_id = db.Column(db.String(36), db.ForeignKey('organization.id'))
     job = db.Column(db.String(120), nullable=False)
+    role = db.Column(db.String(1200), nullable=False)
     status = db.Column(db.String(120), nullable=False)
 
     def verify_password(self, password):
@@ -30,5 +31,6 @@ class User(BaseModel):
             "organization_id" : self.organization_id,
             "is_admin": self.is_admin,
             "job": self.job,
+            "role": self.role,
             "status": self.status
         }

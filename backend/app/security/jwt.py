@@ -7,6 +7,7 @@ def generete_token(data):
         expires_delta=current_app.config["JWT_EXPIRES"],
         additional_claims={
             "is_admin": data.is_admin,
-            "organization_id": data.organization_id
+            "organization_id": data.organization_id,
+            "role": data.role
         }
     )

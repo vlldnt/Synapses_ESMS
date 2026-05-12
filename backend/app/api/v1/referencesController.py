@@ -83,3 +83,23 @@ class ReferencesResource(Resource):
 
         facade.delete_reference(reference_id)
         return {'message': 'reference successfully deleted'}, 200
+    
+    @jwt_required()
+    @api.doc(security="token")
+    @api.expect(ref_model)
+    def put(self, reference_id):
+        claims = get_jwt()
+        organisation_id = claims.get('organization_id')
+        if not organisation_id:
+            api.abort(400, "Organization ID missing from token")
+
+        reference = facade.get_reference(reference_id)
+        if not reference:
+            return {'error': 'reference not found'}, 404
+
+        if reference.organisation_id != organisation_id:
+            api.abort(403, "You can only delete references from your organization")
+
+        ref_data = api.payload
+        facade.update_references(reference_id, ref_data)
+        return {"message": "references sucessfuly modify"}

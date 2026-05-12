@@ -52,7 +52,8 @@ class ApiFacade:
             email=request.contact_email,
             is_admin=True,
             organization_id=organisation.id,
-            job="admin",
+            job="adminstrateur",
+            role="admin",
             status="active"
         )
         user.hash_password(password)
@@ -100,6 +101,7 @@ class ApiFacade:
             is_admin=request.is_admin,
             organization_id=request.organization_id,
             job=request.job,
+            role="agent",
             status="active"
         )
         print(f"request : {user}")
@@ -166,8 +168,12 @@ class ApiFacade:
             return self.reference_repo.get_all()
         return self.reference_repo.get_all_by_attribute('organisation_id', organization_id)
     
+    def update_references(self, ref_id, ref_data):
+        self.reference_repo.update(ref_id, ref_data)
+
     """ Archive facade """
     def get_archive(self, user_id=None):
+        print(f"{user_id}")
         if user_id is None:
             return self.archive_repo.get_all()
-        return self.reference_repo.get_all_by_attribute('users_id', user_id)
+        return self.archive_repo.get_all_by_attribute('creator_id', user_id)

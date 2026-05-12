@@ -161,7 +161,7 @@ class new_user(Resource):
         """ validate the creation with password """
 
         validate = api.payload or {}
-        valid_inputs = ['password', 'validate_password']
+        valid_inputs = ['password', 'confirm']
         missing = [key for key in valid_inputs if key not in validate]
         extra = [key for key in validate if key not in valid_inputs]
         if missing or extra:
@@ -172,7 +172,7 @@ class new_user(Resource):
                 errors.append(f"Invalid input data: {', '.join(extra)}")
             api.abort(400, '; '.join(errors))
 
-        if validate['password'] != validate['validate_password']:
+        if validate['password'] != validate['confirm']:
             return {'error': 'Passwords do not match'}, 400
 
         result = facade.complete_request_user(token_id, validate['password'])

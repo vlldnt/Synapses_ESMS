@@ -12,8 +12,10 @@ class archive_document(Resource):
     def get(self):
         """ get all document archive """
         user_id = request.args.get("userId")
-        print(f"{user_id}")
-        
+        if user_id:
+            docs = facade.get_archive(user_id)
+            return [doc for doc in docs]
+
 
     @jwt_required()
     @api.doc(security='token')
