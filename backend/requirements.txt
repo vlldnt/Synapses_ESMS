@@ -6,7 +6,7 @@ psycopg2-binary
 
 Flask-Bcrypt
 Flask-JWT-Extended
-Flask-core
+Flask-cors
 
 python-dotenv
 resend
