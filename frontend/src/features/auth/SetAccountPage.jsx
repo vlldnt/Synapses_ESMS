@@ -47,7 +47,7 @@ function SetAccountPage() {
       const res = await fetch(`${basename}/api/user-requests/complete/${token}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ password }),
+        body: JSON.stringify({ password, confirm }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || `Erreur ${res.status}`);
