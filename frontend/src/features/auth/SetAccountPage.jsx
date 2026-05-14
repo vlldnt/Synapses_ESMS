@@ -46,6 +46,7 @@ function SetAccountPage() {
     try {
       const res = await fetch(`${basename}/api/user-requests/complete/${token}`, {
         method: 'POST',
+        credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ password, confirm }),
       });
@@ -55,13 +56,8 @@ function SetAccountPage() {
       setSuccess(true);
 
       setTimeout(() => {
-        localStorage.setItem('auth_token', data.token);
-        try {
-          const payload = JSON.parse(atob(data.token.split('.')[1]));
-          dispatch(setRole(payload.is_admin ? 'admin' : 'agent'));
-        } catch { /* ignore */ }
         const { is_admin, ...safeUser } = data.user;
-        localStorage.setItem('auth_user', JSON.stringify(safeUser));
+        dispatch(setRole(safeUser.role || 'agent'));
         dispatch(setUser(safeUser));
         dispatch(setLogged(true));
       }, 2000);

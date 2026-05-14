@@ -1,9 +1,14 @@
+from flask import make_response, jsonify, request as flask_request
 from flask_restx import Namespace, Resource, fields
-from flask_jwt_extended import get_jwt_identity, jwt_required, get_jwt
+from flask_jwt_extended import (
+    get_jwt_identity, jwt_required, get_jwt,
+    set_access_cookies, set_refresh_cookies, unset_jwt_cookies, decode_token,
+)
 from app.services import facade
-from app.security.jwt import generete_token
+from app.security.jwt import generete_token, generate_refresh_token
 from app.services.mail_service import MailService
-from datetime import datetime
+from app.models.token_blocklist import TokenBlocklist
+from app import limiter
 from flask import current_app
 
 api = Namespace('auth', description="User authentication operation")
@@ -30,9 +35,11 @@ validation_model = api.model('organizationvalidate', {
 
 @api.route('/login')
 class Login(Resource):
+    decorators = [limiter.limit("10 per minute; 50 per hour")]
+
     @api.expect(login_model)
     def post(self):
-        """Authenticate user and return a JWT token"""
+        """Authenticate user and set HTTP-only JWT cookie"""
 
         credentials = api.payload
         email = credentials.get('email')
@@ -49,12 +56,70 @@ class Login(Resource):
             return {'error': 'Compte inactif.'}, 403
 
         access_token = generete_token(user)
-        return {'user': user.to_dict(), 'token': access_token}, 200
+        refresh_token = generate_refresh_token(user)
+        resp = make_response(jsonify({'user': user.to_dict()}), 200)
+        set_access_cookies(resp, access_token)
+        set_refresh_cookies(resp, refresh_token)
+        return resp
+
+
+@api.route('/logout')
+class Logout(Resource):
+    def post(self):
+        """Clear JWT cookies and revoke refresh token"""
+        refresh_cookie = flask_request.cookies.get('refresh_token_cookie')
+        if refresh_cookie:
+            try:
+                decoded = decode_token(refresh_cookie)
+                jti = decoded.get('jti')
+                if jti:
+                    TokenBlocklist.block(jti)
+            except Exception:
+                pass
+        resp = make_response(jsonify({'message': 'Déconnecté.'}), 200)
+        unset_jwt_cookies(resp)
+        return resp
+
+
+@api.route('/me')
+class Me(Resource):
+    @jwt_required()
+    def get(self):
+        """Return current authenticated user"""
+        user_id = get_jwt_identity()
+        user = facade.get_user(user_id)
+        if not user:
+            return {'error': 'Utilisateur introuvable.'}, 404
+        return user.to_dict(), 200
+
+
+@api.route('/token/refresh')
+class TokenRefresh(Resource):
+    @jwt_required(refresh=True)
+    def post(self):
+        """Rotate refresh token: revoke old one, issue new access + refresh"""
+        user_id = get_jwt_identity()
+        old_jti = get_jwt().get('jti')
+
+        user = facade.get_user(user_id)
+        if not user or user.status != 'active':
+            return {'error': 'Session invalide.'}, 401
+
+        # Revoke the used refresh token (rotation)
+        if old_jti:
+            TokenBlocklist.block(old_jti)
+
+        new_access_token = generete_token(user)
+        new_refresh_token = generate_refresh_token(user)
+        resp = make_response(jsonify({'message': 'Token renouvelé.'}), 200)
+        set_access_cookies(resp, new_access_token)
+        set_refresh_cookies(resp, new_refresh_token)
+        return resp
+
 
 @api.route('/organization-requests')
 class made_organization_request(Resource):
     @jwt_required()
-    @api.doc(security="token")
     def get(self):
         """ can see list of all request"""
         user_id = get_jwt_identity()
@@ -107,7 +172,7 @@ class made_organization_request(Resource):
         )
 
         return new_request.token(), 200
-    
+
 @api.route('/organization-requests/info/<token_id>')
 class get_orgnaisation_request_by_token(Resource):
     def get(self, token_id):
@@ -117,12 +182,12 @@ class get_orgnaisation_request_by_token(Resource):
         if not request:
             api.abort(404, "request not found")
         return request.to_dict(), 200
-    
+
 @api.route('/organization-requests/complete/<token_id>')
 class new_organization(Resource):
     @api.expect(validation_model)
     def post(self, token_id):
-        """ validate the creation with password """
+        """ validate the creation with password and set auth cookie """
 
         validate = api.payload or {}
         valid_inputs = ['password', 'confirm']
@@ -143,7 +208,14 @@ class new_organization(Resource):
         if not result:
             return {'error': 'Invalid or expired token / request already processed'}, 400
 
-        return result, 201
+        access_token = result.pop('token', None)
+        resp = make_response(jsonify(result), 201)
+        if access_token:
+            set_access_cookies(resp, access_token)
+            user = facade.get_user(result['user']['id'])
+            if user:
+                set_refresh_cookies(resp, generate_refresh_token(user))
+        return resp
 
 @api.route("/user-requests/info/<token_id>")
 class list_resquest(Resource):
@@ -158,7 +230,7 @@ class list_resquest(Resource):
 @api.expect(validation_model)
 class new_user(Resource):
     def post(self, token_id):
-        """ validate the creation with password """
+        """ validate the creation with password and set auth cookie """
 
         validate = api.payload or {}
         valid_inputs = ['password', 'confirm']
@@ -179,4 +251,11 @@ class new_user(Resource):
         if not result:
             return {'error': 'Invalid or expired token / request already processed'}, 400
 
-        return result, 201
+        access_token = result.pop('token', None)
+        resp = make_response(jsonify(result), 201)
+        if access_token:
+            set_access_cookies(resp, access_token)
+            user = facade.get_user(result['user']['id'])
+            if user:
+                set_refresh_cookies(resp, generate_refresh_token(user))
+        return resp
