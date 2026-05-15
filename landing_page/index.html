@@ -4,7 +4,6 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <!-- ── SEO primaire ─────────────────────────────────────────────────────── -->
   <title>Synapses ESMS — Rédaction professionnelle assistée par IA pour le secteur social</title>
   <meta name="description" content="Synapses ESMS génère vos documents professionnels (PPA, CRI, bilans, évaluations HAS…) grâce à l'IA. Conçu pour les ESMS — EHPAD, IME, SESSAD, CHRS, MECS. Conforme RGPD & IA Act." />
   <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
@@ -12,28 +11,26 @@
   <meta name="keywords" content="ESMS, rédaction IA, travailleur social, médico-social, PPA, compte rendu intervention, bilan évaluation, RGPD, EHPAD, IME, SESSAD, ESAT" />
   <link rel="canonical" href="https://synapses-esms.fr/" />
 
-  <!-- ── Favicons ─────────────────────────────────────────────────────────── -->
   <link rel="icon" type="image/png" href="./favicon.png" />
   <link rel="apple-touch-icon" href="./favicon.png" />
   <meta name="theme-color" content="#673DE6" />
 
-  <!-- ── Open Graph ───────────────────────────────────────────────────────── -->
   <meta property="og:type"        content="website" />
   <meta property="og:url"         content="https://synapses-esms.fr/" />
   <meta property="og:site_name"   content="Synapses ESMS" />
   <meta property="og:locale"      content="fr_FR" />
   <meta property="og:title"       content="Synapses ESMS — Rédaction professionnelle assistée par IA" />
   <meta property="og:description" content="Générez vos documents professionnels du secteur social et médico-social en quelques secondes grâce à l'IA. Conforme RGPD & IA Act." />
-  <meta property="og:image"       content="https://synapses-esms.fr/favicon.png" />
-  <meta property="og:image:alt"   content="Logo Synapses ESMS" />
+  <meta property="og:image"       content="https://synapses-esms.fr/og-image.png" />
+  <meta property="og:image:width"  content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt"   content="Synapses ESMS — Rédaction professionnelle assistée par IA" />
 
-  <!-- ── Twitter Card ─────────────────────────────────────────────────────── -->
-  <meta name="twitter:card"        content="summary" />
+  <meta name="twitter:card"        content="summary_large_image" />
   <meta name="twitter:title"       content="Synapses ESMS — Rédaction professionnelle assistée par IA" />
   <meta name="twitter:description" content="Générez vos documents professionnels du secteur social et médico-social en quelques secondes grâce à l'IA. Conforme RGPD & IA Act." />
-  <meta name="twitter:image"       content="https://synapses-esms.fr/favicon.png" />
+  <meta name="twitter:image"       content="https://synapses-esms.fr/og-image.png" />
 
-  <!-- ── Données structurées JSON-LD ─────────────────────────────────────── -->
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -43,25 +40,8 @@
         "@id": "https://synapses-esms.fr/#organization",
         "name": "Synapses ESMS",
         "url": "https://synapses-esms.fr",
-        "logo": {
-          "@type": "ImageObject",
-          "url": "https://synapses-esms.fr/favicon.png"
-        },
-        "contactPoint": {
-          "@type": "ContactPoint",
-          "email": "contact@synapses-esms.fr",
-          "contactType": "customer support",
-          "availableLanguage": "French"
-        }
-      },
-      {
-        "@type": "WebSite",
-        "@id": "https://synapses-esms.fr/#website",
-        "url": "https://synapses-esms.fr",
-        "name": "Synapses ESMS",
-        "description": "Rédaction professionnelle assistée par IA pour le secteur social et médico-social",
-        "publisher": { "@id": "https://synapses-esms.fr/#organization" },
-        "inLanguage": "fr-FR"
+        "logo": { "@type": "ImageObject", "url": "https://synapses-esms.fr/favicon.png" },
+        "contactPoint": { "@type": "ContactPoint", "email": "contact@synapses-esms.fr", "contactType": "customer support", "availableLanguage": "French" }
       },
       {
         "@type": "SoftwareApplication",
@@ -69,19 +49,8 @@
         "url": "https://synapses-esms.fr",
         "applicationCategory": "BusinessApplication",
         "operatingSystem": "Web",
-        "description": "Application IA de rédaction de documents professionnels pour les établissements et services médico-sociaux (ESMS). Génère des PPA, comptes rendus d'intervention, bilans d'évaluation, écrits éducatifs et bien plus.",
-        "featureList": [
-          "Compte rendu d'intervention",
-          "Projet personnalisé médico-social",
-          "Bilan d'évaluation",
-          "Évaluation HAS",
-          "Rapport d'activité",
-          "Compte rendu de réunion"
-        ],
-        "audience": {
-          "@type": "Audience",
-          "audienceType": "Travailleurs sociaux, établissements médico-sociaux, ESMS"
-        },
+        "description": "Application IA de rédaction de documents professionnels pour les ESMS.",
+        "audience": { "@type": "Audience", "audienceType": "Travailleurs sociaux, établissements médico-sociaux, ESMS" },
         "provider": { "@id": "https://synapses-esms.fr/#organization" },
         "inLanguage": "fr-FR"
       }
@@ -89,17 +58,16 @@
   }
   </script>
 
-  <!-- ── Tailwind CDN ──────────────────────────────────────────────────────── -->
+  <!-- Tailwind -->
   <script src="https://cdn.tailwindcss.com"></script>
-
-  <!-- ── Font Awesome 6 Free ──────────────────────────────────────────────── -->
+  <!-- Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
-
-  <!-- ── Google Fonts — DM Sans ───────────────────────────────────────────── -->
+  <!-- AOS -->
+  <link rel="stylesheet" href="https://unpkg.com/aos@2.3.4/dist/aos.css" />
+  <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&display=swap" />
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet" />
 
   <script>
     tailwind.config = {
@@ -128,26 +96,18 @@
     @font-face {
       font-family: 'Ailerons';
       src: url('./Ailerons-Typeface.otf') format('opentype');
-      font-weight: normal;
-      font-style: normal;
-      font-display: swap;
+      font-weight: normal; font-style: normal; font-display: swap;
     }
-
     * { box-sizing: border-box; }
-
     :root {
-      --bleu-fonce:  #673DE6;
-      --bleu-active: #5A2FB8;
-      --violet:      #9B2CB6;
-      --rose-fonce:  #F44E92;
-      --vert-fonce:  #42C4A1;
-      --orange:      #FCBE82;
+      --bleu-fonce: #673DE6; --bleu-active: #5A2FB8; --violet: #9B2CB6;
+      --rose-fonce: #F44E92; --vert-fonce: #42C4A1; --orange: #FCBE82;
     }
 
-    /* Gradient animé — hero uniquement */
+    /* ── Hero gradient animé ───────────────────────────────────────────── */
     .bg-synapses {
       background:
-        radial-gradient(circle at 0%   0%,   var(--bleu-fonce), transparent 50%),
+        radial-gradient(circle at 0%   0%,   var(--bleu-fonce), transparent 52%),
         radial-gradient(circle at 100% 0%,   var(--violet),     transparent 50%),
         radial-gradient(circle at 100% 100%, var(--rose-fonce), transparent 50%),
         radial-gradient(circle at 0%   100%, var(--vert-fonce), transparent 50%),
@@ -155,7 +115,6 @@
       background-size: 200% 200%;
       animation: drift 25s ease-in-out infinite;
     }
-
     @keyframes drift {
       0%   { background-position: 0%   0%;   }
       25%  { background-position: 100% 0%;   }
@@ -164,21 +123,61 @@
       100% { background-position: 0%   0%;   }
     }
 
+    /* ── Hero noise ─────────────────────────────────────────────────────── */
+    .hero-noise::after {
+      content: '';
+      position: absolute; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none; opacity: .35;
+    }
+
+    /* ── Modal ──────────────────────────────────────────────────────────── */
     .modal-overlay {
-      display: none;
-      position: fixed; inset: 0; z-index: 500;
-      background: rgba(0,0,0,.5);
-      backdrop-filter: blur(4px);
-      align-items: center;
-      justify-content: center;
-      padding: 1rem;
+      display: none; position: fixed; inset: 0; z-index: 500;
+      background: rgba(0,0,0,.55); backdrop-filter: blur(6px);
+      align-items: center; justify-content: center; padding: 1rem;
     }
     .modal-overlay.open { display: flex; }
 
     html { scroll-behavior: smooth; }
+    body, header, section, footer, .card {
+      transition: background-color .25s ease, border-color .25s ease, color .2s ease;
+    }
 
-    /* Transitions globales pour le dark mode */
-    body, header, section, footer, .card { transition: background-color .2s, border-color .2s, color .2s; }
+    /* ── Card hover glow ────────────────────────────────────────────────── */
+    .card-glow:hover {
+      box-shadow: 0 0 0 1px rgba(103,61,230,.15), 0 8px 32px rgba(103,61,230,.1), 0 2px 8px rgba(0,0,0,.06);
+    }
+    .dark .card-glow:hover {
+      box-shadow: 0 0 0 1px rgba(103,61,230,.25), 0 8px 32px rgba(103,61,230,.15), 0 2px 8px rgba(0,0,0,.3);
+    }
+
+    /* ── Section dividers ───────────────────────────────────────────────── */
+    .section-divider {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(103,61,230,.12), transparent);
+    }
+    .dark .section-divider {
+      background: linear-gradient(90deg, transparent, rgba(103,61,230,.2), transparent);
+    }
+
+    /* ── FAQ accordion ──────────────────────────────────────────────────── */
+    .faq-item .faq-body {
+      display: grid; grid-template-rows: 0fr;
+      transition: grid-template-rows .28s ease;
+    }
+    .faq-item.open .faq-body { grid-template-rows: 1fr; }
+    .faq-item .faq-body > div { overflow: hidden; }
+    .faq-item .faq-chevron { transition: transform .28s ease; }
+    .faq-item.open .faq-chevron { transform: rotate(180deg); }
+
+    /* ── Scrollbar slim ─────────────────────────────────────────────────── */
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(103,61,230,.3); border-radius: 99px; }
+
+    /* ── AOS override : désactive sur hero (above fold) ─────────────────── */
+    [data-aos] { pointer-events: auto !important; }
   </style>
 </head>
 
@@ -187,23 +186,25 @@
   <!-- ═══════════════════════════════════════════════
        NAV
   ════════════════════════════════════════════════ -->
-  <header class="fixed top-0 left-0 right-0 z-40 bg-white/85 dark:bg-gray-950/90 backdrop-blur-md border-b border-gray-100 dark:border-gray-800">
+  <header class="fixed top-0 left-0 right-0 z-40 bg-white/90 dark:bg-gray-950/95 backdrop-blur-md border-b border-gray-200/60 dark:border-gray-800/80">
     <div class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
-      <a href="#" class="flex items-center gap-3">
-        <img src="./favicon.png" alt="Logo Synapses" class="h-8 w-8" />
-        <span class="font-ailerons text-xl text-gray-900 dark:text-white hidden sm:block">Synapses ESMS</span>
+      <a href="#" class="flex items-center gap-3 group">
+        <img src="./favicon.png" alt="Logo Synapses" class="h-8 w-8 group-hover:scale-105 transition-transform duration-200" />
+        <span class="font-ailerons text-xl text-gray-900 dark:text-white hidden sm:block tracking-wide">Synapses ESMS</span>
       </a>
-      <nav class="flex items-center gap-2 sm:gap-4">
-        <a href="#fonctionnalites" class="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors hidden md:block">Fonctionnalités</a>
-        <a href="#confidentialite" class="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors hidden md:block">Confidentialité</a>
-        <!-- Theme toggle -->
+      <nav class="flex items-center gap-1 sm:gap-2" aria-label="Navigation principale">
+        <a href="#fonctionnalites" class="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white px-2.5 py-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800/60 transition-all duration-150 hidden lg:block">Fonctionnalités</a>
+        <a href="#pour-qui"        class="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white px-2.5 py-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800/60 transition-all duration-150 hidden lg:block">Pour qui&nbsp;?</a>
+        <a href="#confidentialite" class="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white px-2.5 py-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800/60 transition-all duration-150 hidden md:block">Confidentialité</a>
+        <a href="#faq"             class="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white px-2.5 py-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800/60 transition-all duration-150 hidden md:block">FAQ</a>
         <button id="theme-toggle" onclick="toggleTheme()"
-                class="p-2 rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors cursor-pointer"
+                class="p-2 rounded-lg text-gray-400 dark:text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-all duration-150 cursor-pointer ml-1"
                 aria-label="Changer le thème">
           <i id="theme-icon" class="fa-solid fa-moon text-sm"></i>
         </button>
-        <a href="http://localhost:5173/synapses" class="px-4 py-2 rounded-xl bg-bleu-fonce text-white text-sm font-medium hover:bg-bleu-active transition-colors">
-          Se connecter <i class="fa-solid fa-arrow-right ml-1 text-xs"></i>
+        <a href="http://localhost:5173/synapses"
+           class="ml-1 px-4 py-2 rounded-xl bg-bleu-fonce text-white text-sm font-medium hover:bg-bleu-active hover:shadow-lg hover:shadow-bleu-fonce/20 transition-all duration-200 flex items-center gap-1.5">
+          Se connecter <i class="fa-solid fa-arrow-right text-xs"></i>
         </a>
       </nav>
     </div>
@@ -211,45 +212,77 @@
 
 
   <!-- ═══════════════════════════════════════════════
-       HERO — gradient animé conservé
+       HERO  (pas d'AOS — above fold)
   ════════════════════════════════════════════════ -->
-  <section class="bg-synapses min-h-screen flex flex-col items-center justify-center px-4 pt-16 pb-24 text-center">
-    <img src="./favicon.png" alt="Logo Synapses" class="h-24 w-24 mb-6 drop-shadow-2xl" />
+  <section class="bg-synapses hero-noise relative min-h-screen flex flex-col items-center justify-center px-4 pt-20 pb-28 text-center overflow-hidden">
 
-    <h1 class="font-ailerons text-5xl sm:text-6xl md:text-7xl text-white tracking-wide mb-4 drop-shadow-lg">
+    <div class="mb-8 inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/12 backdrop-blur-sm border border-white/20 text-white/85 text-xs font-medium">
+      <span class="w-1.5 h-1.5 rounded-full bg-vert-fonce animate-pulse"></span>
+      Accès anticipé ouvert — Demandez votre accès gratuit
+    </div>
+
+    <img src="./favicon.png" alt="Logo Synapses ESMS" class="h-20 w-20 mb-7 drop-shadow-2xl" />
+
+    <h1 class="font-ailerons text-5xl sm:text-6xl md:text-7xl text-white tracking-wide mb-5 drop-shadow-lg leading-tight">
       Synapses ESMS
     </h1>
 
-    <p class="text-white/90 text-lg sm:text-xl md:text-2xl font-light max-w-2xl mb-3 leading-relaxed">
-      Rédaction professionnelle assistée par IA
+    <p class="text-white text-xl sm:text-2xl md:text-3xl font-semibold max-w-2xl mb-4 leading-snug drop-shadow">
+      Réduisez jusqu'à 70&nbsp;% votre temps de&nbsp;rédaction
     </p>
-    <p class="text-white/70 text-sm sm:text-base mb-10">
-      Secteur social &amp; médico-social &nbsp;·&nbsp; Conforme RGPD &amp; IA Act &nbsp;·&nbsp; Secret professionnel
+    <p class="text-white/75 text-base sm:text-lg max-w-xl mb-3 leading-relaxed font-light">
+      Documents professionnels générés par IA en quelques secondes,
+      conformes aux référentiels du secteur médico-social.
+    </p>
+    <p class="text-white/55 text-sm mb-11 tracking-wide">
+      EHPAD &nbsp;·&nbsp; IME &nbsp;·&nbsp; SESSAD &nbsp;·&nbsp; ESAT &nbsp;·&nbsp; CHRS &nbsp;·&nbsp; MECS &nbsp;·&nbsp; SAAD &nbsp;·&nbsp; SAMSAH
     </p>
 
-    <div class="flex flex-col sm:flex-row gap-3">
-      <a href="http://localhost:5173/synapses"
-         class="px-7 py-3.5 rounded-2xl bg-white text-bleu-fonce font-semibold text-sm sm:text-base shadow-xl hover:shadow-2xl hover:-translate-y-0.5 transition-all duration-200">
-        Accéder à l'application
+    <div class="flex flex-col sm:flex-row gap-3 mb-14">
+      <a href="mailto:contact@synapses-esms.fr"
+         class="px-8 py-3.5 rounded-2xl bg-white text-bleu-fonce font-semibold text-sm sm:text-base shadow-2xl hover:shadow-white/20 hover:-translate-y-0.5 transition-all duration-200 flex items-center justify-center gap-2">
+        <i class="fa-solid fa-envelope text-sm"></i>Demander un accès
       </a>
       <a href="#fonctionnalites"
-         class="px-7 py-3.5 rounded-2xl bg-white/15 text-white border border-white/30 font-medium text-sm sm:text-base hover:bg-white/25 transition-all duration-200 backdrop-blur-sm">
-        En savoir plus <i class="fa-solid fa-chevron-down ml-1 text-xs"></i>
+         class="px-8 py-3.5 rounded-2xl bg-white/12 text-white border border-white/25 font-medium text-sm sm:text-base hover:bg-white/20 hover:border-white/40 transition-all duration-200 backdrop-blur-sm flex items-center justify-center gap-2">
+        Découvrir la plateforme <i class="fa-solid fa-chevron-down text-xs"></i>
       </a>
     </div>
 
-    <div class="mt-14 flex flex-wrap justify-center gap-3">
-      <span class="px-3 py-1.5 rounded-full bg-white/15 backdrop-blur-sm text-white/80 text-xs border border-white/20">
-        <i class="fa-solid fa-lock mr-1.5"></i>Données hébergées en France
+    <div class="flex flex-wrap justify-center gap-6 sm:gap-10 mb-12">
+      <div class="text-center">
+        <p class="text-white font-bold text-2xl sm:text-3xl">14</p>
+        <p class="text-white/60 text-xs mt-0.5">types de documents</p>
+      </div>
+      <div class="w-px bg-white/15 hidden sm:block"></div>
+      <div class="text-center">
+        <p class="text-white font-bold text-2xl sm:text-3xl">−70&nbsp;%</p>
+        <p class="text-white/60 text-xs mt-0.5">temps de rédaction</p>
+      </div>
+      <div class="w-px bg-white/15 hidden sm:block"></div>
+      <div class="text-center">
+        <p class="text-white font-bold text-2xl sm:text-3xl">100&nbsp;%</p>
+        <p class="text-white/60 text-xs mt-0.5">hébergé en France</p>
+      </div>
+      <div class="w-px bg-white/15 hidden sm:block"></div>
+      <div class="text-center">
+        <p class="text-white font-bold text-2xl sm:text-3xl">0</p>
+        <p class="text-white/60 text-xs mt-0.5">traceur publicitaire</p>
+      </div>
+    </div>
+
+    <div class="flex flex-wrap justify-center gap-2.5">
+      <span class="px-3 py-1.5 rounded-full bg-white/10 backdrop-blur-sm text-white/80 text-xs border border-white/15 flex items-center gap-1.5">
+        <i class="fa-solid fa-lock"></i>Données hébergées en France
       </span>
-      <span class="px-3 py-1.5 rounded-full bg-white/15 backdrop-blur-sm text-white/80 text-xs border border-white/20">
-        <i class="fa-solid fa-scale-balanced mr-1.5"></i>Conforme RGPD &amp; IA Act
+      <span class="px-3 py-1.5 rounded-full bg-white/10 backdrop-blur-sm text-white/80 text-xs border border-white/15 flex items-center gap-1.5">
+        <i class="fa-solid fa-scale-balanced"></i>Conforme RGPD &amp; IA Act
       </span>
-      <span class="px-3 py-1.5 rounded-full bg-white/15 backdrop-blur-sm text-white/80 text-xs border border-white/20">
-        <i class="fa-solid fa-robot mr-1.5"></i>IA générative éthique
+      <span class="px-3 py-1.5 rounded-full bg-white/10 backdrop-blur-sm text-white/80 text-xs border border-white/15 flex items-center gap-1.5">
+        <i class="fa-solid fa-user-shield"></i>Secret professionnel respecté
       </span>
-      <span class="px-3 py-1.5 rounded-full bg-white/15 backdrop-blur-sm text-white/80 text-xs border border-white/20">
-        <i class="fa-solid fa-hospital mr-1.5"></i>Secteur médico-social
+      <span class="px-3 py-1.5 rounded-full bg-white/10 backdrop-blur-sm text-white/80 text-xs border border-white/15 flex items-center gap-1.5">
+        <i class="fa-solid fa-robot"></i>IA éthique &amp; transparente
       </span>
     </div>
   </section>
@@ -258,11 +291,13 @@
   <!-- ═══════════════════════════════════════════════
        FONCTIONNALITÉS
   ════════════════════════════════════════════════ -->
-  <section id="fonctionnalites" class="py-24 px-4 bg-white dark:bg-gray-950">
+  <div class="section-divider"></div>
+  <section id="fonctionnalites" class="py-28 px-4 bg-white dark:bg-gray-950">
     <div class="max-w-6xl mx-auto">
-      <div class="text-center mb-16">
-        <span class="text-xs font-semibold text-bleu-fonce uppercase tracking-widest">Fonctionnalités</span>
-        <h2 class="mt-2 text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white tracking-tight">
+
+      <div class="text-center mb-16" data-aos="fade-up">
+        <span class="inline-block text-xs font-semibold text-bleu-fonce uppercase tracking-widest bg-bleu-fonce/8 dark:bg-bleu-fonce/15 px-3 py-1 rounded-full">Fonctionnalités</span>
+        <h2 class="mt-4 text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white tracking-tight">
           Tout ce dont vos équipes ont besoin
         </h2>
         <p class="mt-4 text-gray-500 dark:text-gray-400 max-w-xl mx-auto text-base leading-relaxed">
@@ -273,64 +308,472 @@
 
       <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
 
-        <div class="card rounded-2xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 p-6 hover:shadow-lg hover:-translate-y-1 transition-all duration-200 group">
-          <div class="w-11 h-11 rounded-xl bg-bleu-fonce/10 dark:bg-bleu-fonce/15 flex items-center justify-center mb-4 group-hover:bg-bleu-fonce/20 transition-colors">
+        <div class="card card-glow rounded-2xl border border-gray-150 dark:border-gray-800 bg-white dark:bg-gray-900/80 p-6 hover:-translate-y-1 transition-all duration-200 group"
+             data-aos="fade-up" data-aos-delay="0">
+          <div class="w-11 h-11 rounded-xl bg-bleu-fonce/10 dark:bg-bleu-fonce/15 flex items-center justify-center mb-5 group-hover:bg-bleu-fonce/20 transition-colors">
             <i class="fa-solid fa-file-lines text-bleu-fonce text-base"></i>
           </div>
-          <h3 class="font-semibold text-gray-900 dark:text-white mb-2">14 documents IA</h3>
+          <h3 class="font-semibold text-gray-900 dark:text-white mb-2.5 text-[15px]">14 documents IA</h3>
           <p class="text-sm text-gray-500 dark:text-gray-400 leading-relaxed">
-            Compte rendu d'intervention, PPA médico-social, bilan d'évaluation, écrit éducatif, CRR, rapport d'activité, évaluation HAS et bien plus.
+            CRI, PPA, synthèses, transmissions, bilans, écrits éducatifs, comptes rendus de réunion, évaluations HAS et bien plus.
           </p>
         </div>
 
-        <div class="card rounded-2xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 p-6 hover:shadow-lg hover:-translate-y-1 transition-all duration-200 group">
-          <div class="w-11 h-11 rounded-xl bg-vert-fonce/10 dark:bg-vert-fonce/15 flex items-center justify-center mb-4 group-hover:bg-vert-fonce/20 transition-colors">
+        <div class="card card-glow rounded-2xl border border-gray-150 dark:border-gray-800 bg-white dark:bg-gray-900/80 p-6 hover:-translate-y-1 transition-all duration-200 group"
+             data-aos="fade-up" data-aos-delay="80">
+          <div class="w-11 h-11 rounded-xl bg-vert-fonce/10 dark:bg-vert-fonce/15 flex items-center justify-center mb-5 group-hover:bg-vert-fonce/20 transition-colors">
             <i class="fa-solid fa-shield-halved text-vert-fonce text-base"></i>
           </div>
-          <h3 class="font-semibold text-gray-900 dark:text-white mb-2">Données protégées</h3>
+          <h3 class="font-semibold text-gray-900 dark:text-white mb-2.5 text-[15px]">Données protégées</h3>
           <p class="text-sm text-gray-500 dark:text-gray-400 leading-relaxed">
-            Aucune donnée nominative ne quitte votre établissement. Les informations saisies restent confidentielles et ne sont jamais utilisées pour entraîner des modèles.
+            Aucune donnée nominative ne quitte votre établissement. Les informations ne sont jamais utilisées pour entraîner des modèles d'IA.
           </p>
         </div>
 
-        <div class="card rounded-2xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 p-6 hover:shadow-lg hover:-translate-y-1 transition-all duration-200 group">
-          <div class="w-11 h-11 rounded-xl bg-violet/10 dark:bg-violet/15 flex items-center justify-center mb-4 group-hover:bg-violet/20 transition-colors">
+        <div class="card card-glow rounded-2xl border border-gray-150 dark:border-gray-800 bg-white dark:bg-gray-900/80 p-6 hover:-translate-y-1 transition-all duration-200 group"
+             data-aos="fade-up" data-aos-delay="160">
+          <div class="w-11 h-11 rounded-xl bg-violet/10 dark:bg-violet/15 flex items-center justify-center mb-5 group-hover:bg-violet/20 transition-colors">
             <i class="fa-solid fa-scale-balanced text-violet text-base"></i>
           </div>
-          <h3 class="font-semibold text-gray-900 dark:text-white mb-2">Conforme RGPD &amp; IA Act</h3>
+          <h3 class="font-semibold text-gray-900 dark:text-white mb-2.5 text-[15px]">Conforme RGPD &amp; IA Act</h3>
           <p class="text-sm text-gray-500 dark:text-gray-400 leading-relaxed">
             Respect du secret professionnel, conformité au règlement européen sur l'IA et au RGPD. Conçu pour les obligations légales du secteur.
           </p>
         </div>
 
-        <div class="card rounded-2xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 p-6 hover:shadow-lg hover:-translate-y-1 transition-all duration-200 group">
-          <div class="w-11 h-11 rounded-xl bg-rose-fonce/10 dark:bg-rose-fonce/15 flex items-center justify-center mb-4 group-hover:bg-rose-fonce/20 transition-colors">
+        <div class="card card-glow rounded-2xl border border-gray-150 dark:border-gray-800 bg-white dark:bg-gray-900/80 p-6 hover:-translate-y-1 transition-all duration-200 group"
+             data-aos="fade-up" data-aos-delay="0">
+          <div class="w-11 h-11 rounded-xl bg-rose-fonce/10 dark:bg-rose-fonce/15 flex items-center justify-center mb-5 group-hover:bg-rose-fonce/20 transition-colors">
             <i class="fa-solid fa-hospital-user text-rose-fonce text-base"></i>
           </div>
-          <h3 class="font-semibold text-gray-900 dark:text-white mb-2">Secteur expert</h3>
+          <h3 class="font-semibold text-gray-900 dark:text-white mb-2.5 text-[15px]">Vocabulaire sectoriel</h3>
           <p class="text-sm text-gray-500 dark:text-gray-400 leading-relaxed">
-            Vocabulaire, référentiels et structures documentaires adaptés aux ESMS : EHPAD, IME, SESSAD, ESAT, CHRS, MECS et bien d'autres.
+            Terminologie et structures documentaires spécifiques : EHPAD, IME, SESSAD, ESAT, CHRS, MECS, SAAD, SAMSAH.
           </p>
         </div>
 
-        <div class="card rounded-2xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 p-6 hover:shadow-lg hover:-translate-y-1 transition-all duration-200 group">
-          <div class="w-11 h-11 rounded-xl bg-orange/30 dark:bg-orange/15 flex items-center justify-center mb-4 group-hover:bg-orange/40 transition-colors">
-            <i class="fa-solid fa-users text-yellow-600 dark:text-yellow-500 text-base"></i>
+        <div class="card card-glow rounded-2xl border border-gray-150 dark:border-gray-800 bg-white dark:bg-gray-900/80 p-6 hover:-translate-y-1 transition-all duration-200 group"
+             data-aos="fade-up" data-aos-delay="80">
+          <div class="w-11 h-11 rounded-xl bg-orange/25 dark:bg-orange/10 flex items-center justify-center mb-5 group-hover:bg-orange/35 transition-colors">
+            <i class="fa-solid fa-users text-yellow-600 dark:text-yellow-400 text-base"></i>
           </div>
-          <h3 class="font-semibold text-gray-900 dark:text-white mb-2">Multi-utilisateurs</h3>
+          <h3 class="font-semibold text-gray-900 dark:text-white mb-2.5 text-[15px]">Multi-utilisateurs</h3>
           <p class="text-sm text-gray-500 dark:text-gray-400 leading-relaxed">
-            Gestion d'équipe par établissement, rôles différenciés (administrateur, direction, agent), invitation par email.
+            Gestion d'équipe par établissement, rôles différenciés (administrateur, direction, agent), invitation par email sécurisée.
           </p>
         </div>
 
-        <div class="card rounded-2xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 p-6 hover:shadow-lg hover:-translate-y-1 transition-all duration-200 group">
-          <div class="w-11 h-11 rounded-xl bg-bleu-clair/10 dark:bg-bleu-clair/15 flex items-center justify-center mb-4 group-hover:bg-bleu-clair/20 transition-colors">
+        <div class="card card-glow rounded-2xl border border-gray-150 dark:border-gray-800 bg-white dark:bg-gray-900/80 p-6 hover:-translate-y-1 transition-all duration-200 group"
+             data-aos="fade-up" data-aos-delay="160">
+          <div class="w-11 h-11 rounded-xl bg-bleu-clair/10 dark:bg-bleu-clair/15 flex items-center justify-center mb-5 group-hover:bg-bleu-clair/20 transition-colors">
             <i class="fa-solid fa-bolt text-bleu-clair text-base"></i>
           </div>
-          <h3 class="font-semibold text-gray-900 dark:text-white mb-2">Gain de temps immédiat</h3>
+          <h3 class="font-semibold text-gray-900 dark:text-white mb-2.5 text-[15px]">Gain de temps immédiat</h3>
           <p class="text-sm text-gray-500 dark:text-gray-400 leading-relaxed">
-            Un document complet et structuré en quelques secondes à partir de vos notes terrain. Réduction significative du temps de rédaction administrative.
+            Un document complet et structuré en quelques secondes à partir de vos notes terrain. Réduction significative de la charge administrative.
           </p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ═══════════════════════════════════════════════
+       POUR QUI ?
+  ════════════════════════════════════════════════ -->
+  <div class="section-divider"></div>
+  <section id="pour-qui" class="py-28 px-4 bg-slate-50 dark:bg-gray-900">
+    <div class="max-w-6xl mx-auto">
+
+      <div class="text-center mb-16" data-aos="fade-up">
+        <span class="inline-block text-xs font-semibold text-rose-fonce uppercase tracking-widest bg-rose-fonce/8 dark:bg-rose-fonce/15 px-3 py-1 rounded-full">Pour qui&nbsp;?</span>
+        <h2 class="mt-4 text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white tracking-tight">
+          Conçu pour tous les professionnels du secteur
+        </h2>
+        <p class="mt-4 text-gray-500 dark:text-gray-400 max-w-xl mx-auto text-base leading-relaxed">
+          Synapses ESMS s'adapte à chaque rôle et chaque type d'établissement médico-social.
+        </p>
+      </div>
+
+      <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+
+        <div class="card card-glow rounded-2xl bg-white dark:bg-gray-800/60 border border-gray-200 dark:border-gray-700/60 p-5 text-center hover:-translate-y-1 transition-all duration-200 group"
+             data-aos="fade-up" data-aos-delay="0">
+          <div class="w-12 h-12 rounded-xl bg-bleu-fonce/10 dark:bg-bleu-fonce/15 flex items-center justify-center mx-auto mb-4 group-hover:bg-bleu-fonce/20 transition-colors">
+            <i class="fa-solid fa-person-chalkboard text-bleu-fonce text-lg"></i>
+          </div>
+          <h3 class="font-semibold text-gray-900 dark:text-white text-sm mb-1.5">Éducateurs spécialisés</h3>
+          <p class="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">CRI, écrits éducatifs, notes d'évolution, bilans intermédiaires</p>
+        </div>
+
+        <div class="card card-glow rounded-2xl bg-white dark:bg-gray-800/60 border border-gray-200 dark:border-gray-700/60 p-5 text-center hover:-translate-y-1 transition-all duration-200 group"
+             data-aos="fade-up" data-aos-delay="80">
+          <div class="w-12 h-12 rounded-xl bg-vert-fonce/10 dark:bg-vert-fonce/15 flex items-center justify-center mx-auto mb-4 group-hover:bg-vert-fonce/20 transition-colors">
+            <i class="fa-solid fa-hands-holding-circle text-vert-fonce text-lg"></i>
+          </div>
+          <h3 class="font-semibold text-gray-900 dark:text-white text-sm mb-1.5">Assistants sociaux</h3>
+          <p class="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">Rapports sociaux, notes sociales, rapports pour audience judiciaire</p>
+        </div>
+
+        <div class="card card-glow rounded-2xl bg-white dark:bg-gray-800/60 border border-gray-200 dark:border-gray-700/60 p-5 text-center hover:-translate-y-1 transition-all duration-200 group"
+             data-aos="fade-up" data-aos-delay="160">
+          <div class="w-12 h-12 rounded-xl bg-violet/10 dark:bg-violet/15 flex items-center justify-center mx-auto mb-4 group-hover:bg-violet/20 transition-colors">
+            <i class="fa-solid fa-briefcase text-violet text-lg"></i>
+          </div>
+          <h3 class="font-semibold text-gray-900 dark:text-white text-sm mb-1.5">Directions ESMS</h3>
+          <p class="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">Rapports d'activité, évaluations HAS, comptes rendus de direction</p>
+        </div>
+
+        <div class="card card-glow rounded-2xl bg-white dark:bg-gray-800/60 border border-gray-200 dark:border-gray-700/60 p-5 text-center hover:-translate-y-1 transition-all duration-200 group"
+             data-aos="fade-up" data-aos-delay="240">
+          <div class="w-12 h-12 rounded-xl bg-rose-fonce/10 dark:bg-rose-fonce/15 flex items-center justify-center mx-auto mb-4 group-hover:bg-rose-fonce/20 transition-colors">
+            <i class="fa-solid fa-brain text-rose-fonce text-lg"></i>
+          </div>
+          <h3 class="font-semibold text-gray-900 dark:text-white text-sm mb-1.5">Psychologues</h3>
+          <p class="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">Bilans psychologiques, synthèses cliniques, comptes rendus de suivi</p>
+        </div>
+
+        <div class="card card-glow rounded-2xl bg-white dark:bg-gray-800/60 border border-gray-200 dark:border-gray-700/60 p-5 text-center hover:-translate-y-1 transition-all duration-200 group"
+             data-aos="fade-up" data-aos-delay="0">
+          <div class="w-12 h-12 rounded-xl bg-orange/25 dark:bg-orange/10 flex items-center justify-center mx-auto mb-4 group-hover:bg-orange/35 transition-colors">
+            <i class="fa-solid fa-list-check text-yellow-600 dark:text-yellow-400 text-lg"></i>
+          </div>
+          <h3 class="font-semibold text-gray-900 dark:text-white text-sm mb-1.5">Coordinateurs de parcours</h3>
+          <p class="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">PPA, synthèses de parcours, comptes rendus pluridisciplinaires</p>
+        </div>
+
+        <div class="card card-glow rounded-2xl bg-white dark:bg-gray-800/60 border border-gray-200 dark:border-gray-700/60 p-5 text-center hover:-translate-y-1 transition-all duration-200 group"
+             data-aos="fade-up" data-aos-delay="80">
+          <div class="w-12 h-12 rounded-xl bg-bleu-clair/10 dark:bg-bleu-clair/15 flex items-center justify-center mx-auto mb-4 group-hover:bg-bleu-clair/20 transition-colors">
+            <i class="fa-solid fa-house-medical text-bleu-clair text-lg"></i>
+          </div>
+          <h3 class="font-semibold text-gray-900 dark:text-white text-sm mb-1.5">Moniteurs éducateurs</h3>
+          <p class="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">Transmissions, notes de comportement, fiches d'observation</p>
+        </div>
+
+        <div class="card card-glow rounded-2xl bg-white dark:bg-gray-800/60 border border-gray-200 dark:border-gray-700/60 p-5 text-center hover:-translate-y-1 transition-all duration-200 group"
+             data-aos="fade-up" data-aos-delay="160">
+          <div class="w-12 h-12 rounded-xl bg-vert-fonce/10 dark:bg-vert-fonce/15 flex items-center justify-center mx-auto mb-4 group-hover:bg-vert-fonce/20 transition-colors">
+            <i class="fa-solid fa-heart-pulse text-vert-fonce text-lg"></i>
+          </div>
+          <h3 class="font-semibold text-gray-900 dark:text-white text-sm mb-1.5">AMP / AES</h3>
+          <p class="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">Transmissions, notes de soin, grilles d'observation, comptes rendus</p>
+        </div>
+
+        <div class="card card-glow rounded-2xl bg-white dark:bg-gray-800/60 border border-gray-200 dark:border-gray-700/60 p-5 text-center hover:-translate-y-1 transition-all duration-200 group"
+             data-aos="fade-up" data-aos-delay="240">
+          <div class="w-12 h-12 rounded-xl bg-violet/10 dark:bg-violet/15 flex items-center justify-center mx-auto mb-4 group-hover:bg-violet/20 transition-colors">
+            <i class="fa-solid fa-stethoscope text-violet text-lg"></i>
+          </div>
+          <h3 class="font-semibold text-gray-900 dark:text-white text-sm mb-1.5">Infirmiers coordinateurs</h3>
+          <p class="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">Bilans infirmiers, transmissions ciblées, fiches de liaison</p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ═══════════════════════════════════════════════
+       COMMENT ÇA MARCHE
+  ════════════════════════════════════════════════ -->
+  <div class="section-divider"></div>
+  <section id="comment-ca-marche" class="py-28 px-4 bg-white dark:bg-gray-950">
+    <div class="max-w-5xl mx-auto">
+
+      <div class="text-center mb-16" data-aos="fade-up">
+        <span class="inline-block text-xs font-semibold text-bleu-clair uppercase tracking-widest bg-bleu-clair/8 dark:bg-bleu-clair/15 px-3 py-1 rounded-full">Comment ça marche</span>
+        <h2 class="mt-4 text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white tracking-tight">
+          Un document professionnel en 4 étapes
+        </h2>
+        <p class="mt-4 text-gray-500 dark:text-gray-400 max-w-lg mx-auto text-base leading-relaxed">
+          Aucune formation requise. Opérationnel dès la première utilisation.
+        </p>
+      </div>
+
+      <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+
+        <div class="relative flex flex-col items-center text-center group"
+             data-aos="fade-up" data-aos-delay="0">
+          <div class="w-14 h-14 rounded-2xl bg-bleu-fonce flex items-center justify-center mb-5 shadow-lg shadow-bleu-fonce/25 group-hover:scale-105 group-hover:shadow-xl group-hover:shadow-bleu-fonce/30 transition-all duration-200">
+            <i class="fa-solid fa-microphone text-white text-xl"></i>
+          </div>
+          <div class="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-bleu-fonce/15 dark:bg-bleu-fonce/20 flex items-center justify-center text-xs font-bold text-bleu-fonce">1</div>
+          <h3 class="font-semibold text-gray-900 dark:text-white mb-2 text-[15px]">Saisissez ou dictez</h3>
+          <p class="text-sm text-gray-500 dark:text-gray-400 leading-relaxed">
+            Tapez vos notes ou dictez-les directement au micro — depuis votre téléphone, en déplacement, juste après l'intervention.
+          </p>
+        </div>
+
+        <div class="relative flex flex-col items-center text-center group"
+             data-aos="fade-up" data-aos-delay="100">
+          <div class="w-14 h-14 rounded-2xl bg-violet flex items-center justify-center mb-5 shadow-lg shadow-violet/25 group-hover:scale-105 group-hover:shadow-xl group-hover:shadow-violet/30 transition-all duration-200">
+            <i class="fa-solid fa-microchip text-white text-xl"></i>
+          </div>
+          <div class="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-violet/15 dark:bg-violet/20 flex items-center justify-center text-xs font-bold text-violet">2</div>
+          <h3 class="font-semibold text-gray-900 dark:text-white mb-2 text-[15px]">L'IA structure</h3>
+          <p class="text-sm text-gray-500 dark:text-gray-400 leading-relaxed">
+            L'intelligence artificielle génère un document structuré, conforme aux référentiels sectoriels.
+          </p>
+        </div>
+
+        <div class="relative flex flex-col items-center text-center group"
+             data-aos="fade-up" data-aos-delay="200">
+          <div class="w-14 h-14 rounded-2xl bg-vert-fonce flex items-center justify-center mb-5 shadow-lg shadow-vert-fonce/25 group-hover:scale-105 group-hover:shadow-xl group-hover:shadow-vert-fonce/30 transition-all duration-200">
+            <i class="fa-solid fa-magnifying-glass text-white text-xl"></i>
+          </div>
+          <div class="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-vert-fonce/15 dark:bg-vert-fonce/20 flex items-center justify-center text-xs font-bold text-vert-fonce">3</div>
+          <h3 class="font-semibold text-gray-900 dark:text-white mb-2 text-[15px]">Relisez et adaptez</h3>
+          <p class="text-sm text-gray-500 dark:text-gray-400 leading-relaxed">
+            Vous restez maître du contenu. Modifiez, ajustez, validez. L'IA assiste, le professionnel décide.
+          </p>
+        </div>
+
+        <div class="relative flex flex-col items-center text-center group"
+             data-aos="fade-up" data-aos-delay="300">
+          <div class="w-14 h-14 rounded-2xl bg-rose-fonce flex items-center justify-center mb-5 shadow-lg shadow-rose-fonce/25 group-hover:scale-105 group-hover:shadow-xl group-hover:shadow-rose-fonce/30 transition-all duration-200">
+            <i class="fa-solid fa-file-export text-white text-xl"></i>
+          </div>
+          <div class="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-rose-fonce/15 dark:bg-rose-fonce/20 flex items-center justify-center text-xs font-bold text-rose-fonce">4</div>
+          <h3 class="font-semibold text-gray-900 dark:text-white mb-2 text-[15px]">Exportez</h3>
+          <p class="text-sm text-gray-500 dark:text-gray-400 leading-relaxed">
+            Document exporté immédiatement. Prêt à intégrer dans votre logiciel métier ou à imprimer.
+          </p>
+        </div>
+
+      </div>
+
+      <div class="mt-14 rounded-2xl bg-bleu-fonce/5 dark:bg-bleu-fonce/10 border border-bleu-fonce/12 dark:border-bleu-fonce/20 p-6 text-center"
+           data-aos="fade-up" data-aos-delay="100">
+        <p class="text-gray-700 dark:text-gray-300 text-sm leading-relaxed max-w-xl mx-auto">
+          <strong class="text-gray-900 dark:text-white">L'IA ne remplace pas le professionnel.</strong> Elle prend en charge la mise en forme et la structuration,
+          vous laissant vous concentrer sur l'essentiel : l'accompagnement des personnes.
+        </p>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ═══════════════════════════════════════════════
+       DOCUMENTS GÉNÉRÉS
+  ════════════════════════════════════════════════ -->
+  <div class="section-divider"></div>
+  <section id="documents" class="py-28 px-4 bg-slate-50 dark:bg-gray-900">
+    <div class="max-w-6xl mx-auto">
+
+      <div class="text-center mb-16" data-aos="fade-up">
+        <span class="inline-block text-xs font-semibold text-violet uppercase tracking-widest bg-violet/8 dark:bg-violet/15 px-3 py-1 rounded-full">Documents générés</span>
+        <h2 class="mt-4 text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white tracking-tight">
+          14 documents professionnels du secteur
+        </h2>
+        <p class="mt-4 text-gray-500 dark:text-gray-400 max-w-lg mx-auto text-base leading-relaxed">
+          Chaque document respecte les nomenclatures, les structures et le vocabulaire
+          attendus dans votre établissement et par les autorités de contrôle.
+        </p>
+      </div>
+
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+
+        <div class="card card-glow rounded-2xl bg-white dark:bg-gray-800/60 border border-gray-200 dark:border-gray-700/60 p-5 hover:-translate-y-0.5 transition-all duration-200 flex items-start gap-4"
+             data-aos="fade-up" data-aos-delay="0">
+          <div class="w-9 h-9 rounded-lg bg-bleu-fonce/10 dark:bg-bleu-fonce/15 flex items-center justify-center shrink-0 mt-0.5">
+            <i class="fa-solid fa-clipboard-list text-bleu-fonce text-sm"></i>
+          </div>
+          <div>
+            <p class="font-semibold text-gray-900 dark:text-white text-sm">Compte Rendu d'Intervention</p>
+            <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5 leading-relaxed">CRI — formalisation des interventions à domicile ou en établissement</p>
+          </div>
+        </div>
+
+        <div class="card card-glow rounded-2xl bg-white dark:bg-gray-800/60 border border-gray-200 dark:border-gray-700/60 p-5 hover:-translate-y-0.5 transition-all duration-200 flex items-start gap-4"
+             data-aos="fade-up" data-aos-delay="60">
+          <div class="w-9 h-9 rounded-lg bg-violet/10 dark:bg-violet/15 flex items-center justify-center shrink-0 mt-0.5">
+            <i class="fa-solid fa-route text-violet text-sm"></i>
+          </div>
+          <div>
+            <p class="font-semibold text-gray-900 dark:text-white text-sm">Projet Personnalisé d'Accompagnement</p>
+            <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5 leading-relaxed">PPA — objectifs, axes de travail, échéances, professionnels référents</p>
+          </div>
+        </div>
+
+        <div class="card card-glow rounded-2xl bg-white dark:bg-gray-800/60 border border-gray-200 dark:border-gray-700/60 p-5 hover:-translate-y-0.5 transition-all duration-200 flex items-start gap-4"
+             data-aos="fade-up" data-aos-delay="120">
+          <div class="w-9 h-9 rounded-lg bg-vert-fonce/10 dark:bg-vert-fonce/15 flex items-center justify-center shrink-0 mt-0.5">
+            <i class="fa-solid fa-notes-medical text-vert-fonce text-sm"></i>
+          </div>
+          <div>
+            <p class="font-semibold text-gray-900 dark:text-white text-sm">Transmissions ciblées</p>
+            <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5 leading-relaxed">Notes de transmission inter-équipes, SOAP structuré, continuité de soin</p>
+          </div>
+        </div>
+
+        <div class="card card-glow rounded-2xl bg-white dark:bg-gray-800/60 border border-gray-200 dark:border-gray-700/60 p-5 hover:-translate-y-0.5 transition-all duration-200 flex items-start gap-4"
+             data-aos="fade-up" data-aos-delay="0">
+          <div class="w-9 h-9 rounded-lg bg-rose-fonce/10 dark:bg-rose-fonce/15 flex items-center justify-center shrink-0 mt-0.5">
+            <i class="fa-solid fa-file-circle-check text-rose-fonce text-sm"></i>
+          </div>
+          <div>
+            <p class="font-semibold text-gray-900 dark:text-white text-sm">Synthèse de situation</p>
+            <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5 leading-relaxed">Bilan global de la situation socio-éducative ou médico-sociale</p>
+          </div>
+        </div>
+
+        <div class="card card-glow rounded-2xl bg-white dark:bg-gray-800/60 border border-gray-200 dark:border-gray-700/60 p-5 hover:-translate-y-0.5 transition-all duration-200 flex items-start gap-4"
+             data-aos="fade-up" data-aos-delay="60">
+          <div class="w-9 h-9 rounded-lg bg-orange/25 dark:bg-orange/10 flex items-center justify-center shrink-0 mt-0.5">
+            <i class="fa-solid fa-chart-line text-yellow-600 dark:text-yellow-400 text-sm"></i>
+          </div>
+          <div>
+            <p class="font-semibold text-gray-900 dark:text-white text-sm">Bilan d'évaluation intermédiaire</p>
+            <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5 leading-relaxed">Évaluation des objectifs du PPA, progression, réajustements proposés</p>
+          </div>
+        </div>
+
+        <div class="card card-glow rounded-2xl bg-white dark:bg-gray-800/60 border border-gray-200 dark:border-gray-700/60 p-5 hover:-translate-y-0.5 transition-all duration-200 flex items-start gap-4"
+             data-aos="fade-up" data-aos-delay="120">
+          <div class="w-9 h-9 rounded-lg bg-bleu-clair/10 dark:bg-bleu-clair/15 flex items-center justify-center shrink-0 mt-0.5">
+            <i class="fa-solid fa-star-half-stroke text-bleu-clair text-sm"></i>
+          </div>
+          <div>
+            <p class="font-semibold text-gray-900 dark:text-white text-sm">Évaluation selon référentiel HAS</p>
+            <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5 leading-relaxed">Structure conforme aux recommandations de la Haute Autorité de Santé</p>
+          </div>
+        </div>
+
+        <div class="card card-glow rounded-2xl bg-white dark:bg-gray-800/60 border border-gray-200 dark:border-gray-700/60 p-5 hover:-translate-y-0.5 transition-all duration-200 flex items-start gap-4"
+             data-aos="fade-up" data-aos-delay="0">
+          <div class="w-9 h-9 rounded-lg bg-bleu-fonce/10 dark:bg-bleu-fonce/15 flex items-center justify-center shrink-0 mt-0.5">
+            <i class="fa-solid fa-gavel text-bleu-fonce text-sm"></i>
+          </div>
+          <div>
+            <p class="font-semibold text-gray-900 dark:text-white text-sm">Rapport social / Note sociale</p>
+            <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5 leading-relaxed">Rapport d'enquête sociale, note sociale, rapport pour audience judiciaire</p>
+          </div>
+        </div>
+
+        <div class="card card-glow rounded-2xl bg-white dark:bg-gray-800/60 border border-gray-200 dark:border-gray-700/60 p-5 hover:-translate-y-0.5 transition-all duration-200 flex items-start gap-4"
+             data-aos="fade-up" data-aos-delay="60">
+          <div class="w-9 h-9 rounded-lg bg-vert-fonce/10 dark:bg-vert-fonce/15 flex items-center justify-center shrink-0 mt-0.5">
+            <i class="fa-solid fa-pen-nib text-vert-fonce text-sm"></i>
+          </div>
+          <div>
+            <p class="font-semibold text-gray-900 dark:text-white text-sm">Écrit éducatif</p>
+            <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5 leading-relaxed">Note éducative, bilan éducatif, compte rendu d'activité ou de séjour</p>
+          </div>
+        </div>
+
+        <div class="card card-glow rounded-2xl bg-white dark:bg-gray-800/60 border border-gray-200 dark:border-gray-700/60 p-5 hover:-translate-y-0.5 transition-all duration-200 flex items-start gap-4"
+             data-aos="fade-up" data-aos-delay="120">
+          <div class="w-9 h-9 rounded-lg bg-violet/10 dark:bg-violet/15 flex items-center justify-center shrink-0 mt-0.5">
+            <i class="fa-solid fa-people-group text-violet text-sm"></i>
+          </div>
+          <div>
+            <p class="font-semibold text-gray-900 dark:text-white text-sm">Compte rendu de réunion</p>
+            <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5 leading-relaxed">CRR, synthèse pluridisciplinaire, réunion d'équipe, réunion de service</p>
+          </div>
+        </div>
+
+        <div class="card card-glow rounded-2xl bg-white dark:bg-gray-800/60 border border-gray-200 dark:border-gray-700/60 p-5 hover:-translate-y-0.5 transition-all duration-200 flex items-start gap-4"
+             data-aos="fade-up" data-aos-delay="0">
+          <div class="w-9 h-9 rounded-lg bg-rose-fonce/10 dark:bg-rose-fonce/15 flex items-center justify-center shrink-0 mt-0.5">
+            <i class="fa-solid fa-triangle-exclamation text-rose-fonce text-sm"></i>
+          </div>
+          <div>
+            <p class="font-semibold text-gray-900 dark:text-white text-sm">Fiche d'événement indésirable</p>
+            <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5 leading-relaxed">FEI, signalement interne, rapport d'incident, information préoccupante</p>
+          </div>
+        </div>
+
+        <div class="card card-glow rounded-2xl bg-white dark:bg-gray-800/60 border border-gray-200 dark:border-gray-700/60 p-5 hover:-translate-y-0.5 transition-all duration-200 flex items-start gap-4"
+             data-aos="fade-up" data-aos-delay="60">
+          <div class="w-9 h-9 rounded-lg bg-orange/25 dark:bg-orange/10 flex items-center justify-center shrink-0 mt-0.5">
+            <i class="fa-solid fa-chart-bar text-yellow-600 dark:text-yellow-400 text-sm"></i>
+          </div>
+          <div>
+            <p class="font-semibold text-gray-900 dark:text-white text-sm">Rapport d'activité</p>
+            <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5 leading-relaxed">Rapport annuel, bilan trimestriel, rapport pour financeur ou DDETS</p>
+          </div>
+        </div>
+
+        <div class="card card-glow rounded-2xl bg-white dark:bg-gray-800/60 border border-gray-200 dark:border-gray-700/60 p-5 hover:-translate-y-0.5 transition-all duration-200 flex items-start gap-4"
+             data-aos="fade-up" data-aos-delay="120">
+          <div class="w-9 h-9 rounded-lg bg-bleu-clair/10 dark:bg-bleu-clair/15 flex items-center justify-center shrink-0 mt-0.5">
+            <i class="fa-solid fa-eye text-bleu-clair text-sm"></i>
+          </div>
+          <div>
+            <p class="font-semibold text-gray-900 dark:text-white text-sm">Grille d'observation comportementale</p>
+            <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5 leading-relaxed">Observation structurée, analyse fonctionnelle, suivi longitudinal</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ═══════════════════════════════════════════════
+       IMPACT — BÉNÉFICES (stats grandes supprimées : déjà dans le hero)
+  ════════════════════════════════════════════════ -->
+  <div class="section-divider"></div>
+  <section class="py-28 px-4 bg-white dark:bg-gray-950">
+    <div class="max-w-5xl mx-auto">
+
+      <div class="text-center mb-14" data-aos="fade-up">
+        <span class="inline-block text-xs font-semibold text-vert-fonce uppercase tracking-widest bg-vert-fonce/8 dark:bg-vert-fonce/15 px-3 py-1 rounded-full">Impact concret</span>
+        <h2 class="mt-4 text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white tracking-tight">
+          Moins de paperasse, plus de présence
+        </h2>
+        <p class="mt-4 text-gray-500 dark:text-gray-400 max-w-lg mx-auto text-base leading-relaxed">
+          La charge administrative est l'un des premiers facteurs d'épuisement professionnel dans le secteur médico-social.
+          Synapses ESMS s'attaque directement à ce problème.
+        </p>
+      </div>
+
+      <div class="grid sm:grid-cols-2 gap-4">
+
+        <div class="flex items-start gap-4 p-5 rounded-2xl bg-slate-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700/60"
+             data-aos="fade-right" data-aos-delay="0">
+          <div class="w-10 h-10 rounded-xl bg-bleu-fonce/10 dark:bg-bleu-fonce/15 flex items-center justify-center shrink-0">
+            <i class="fa-solid fa-brain text-bleu-fonce"></i>
+          </div>
+          <div>
+            <p class="font-semibold text-gray-900 dark:text-white text-sm mb-1">Réduction de la charge mentale</p>
+            <p class="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">Fini le syndrome de la page blanche. La structure est proposée, vous la complétez.</p>
+          </div>
+        </div>
+
+        <div class="flex items-start gap-4 p-5 rounded-2xl bg-slate-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700/60"
+             data-aos="fade-left" data-aos-delay="0">
+          <div class="w-10 h-10 rounded-xl bg-vert-fonce/10 dark:bg-vert-fonce/15 flex items-center justify-center shrink-0">
+            <i class="fa-solid fa-align-center text-vert-fonce"></i>
+          </div>
+          <div>
+            <p class="font-semibold text-gray-900 dark:text-white text-sm mb-1">Harmonisation des écrits</p>
+            <p class="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">Homogénéité du style rédactionnel au sein de toute l'équipe et de l'établissement.</p>
+          </div>
+        </div>
+
+        <div class="flex items-start gap-4 p-5 rounded-2xl bg-slate-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700/60"
+             data-aos="fade-right" data-aos-delay="80">
+          <div class="w-10 h-10 rounded-xl bg-violet/10 dark:bg-violet/15 flex items-center justify-center shrink-0">
+            <i class="fa-solid fa-graduation-cap text-violet"></i>
+          </div>
+          <div>
+            <p class="font-semibold text-gray-900 dark:text-white text-sm mb-1">Montée en compétence</p>
+            <p class="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">Accompagne les nouveaux professionnels dans la maîtrise des écrits institutionnels.</p>
+          </div>
+        </div>
+
+        <div class="flex items-start gap-4 p-5 rounded-2xl bg-slate-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700/60"
+             data-aos="fade-left" data-aos-delay="80">
+          <div class="w-10 h-10 rounded-xl bg-rose-fonce/10 dark:bg-rose-fonce/15 flex items-center justify-center shrink-0">
+            <i class="fa-solid fa-clock-rotate-left text-rose-fonce"></i>
+          </div>
+          <div>
+            <p class="font-semibold text-gray-900 dark:text-white text-sm mb-1">Rédaction pendant que c'est frais</p>
+            <p class="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">Dictez votre CRI ou PPA directement après l'intervention, depuis votre téléphone.</p>
+          </div>
         </div>
 
       </div>
@@ -341,107 +784,291 @@
   <!-- ═══════════════════════════════════════════════
        CONFIDENTIALITÉ / RGPD
   ════════════════════════════════════════════════ -->
-  <section id="confidentialite" class="py-24 px-4 bg-slate-50 dark:bg-gray-900">
+  <div class="section-divider"></div>
+  <section id="confidentialite" class="py-28 px-4 bg-slate-50 dark:bg-gray-900">
     <div class="max-w-5xl mx-auto">
-      <div class="grid md:grid-cols-2 gap-12 items-center">
+      <div class="grid md:grid-cols-2 gap-14 items-center">
 
-        <div>
-          <span class="text-xs font-semibold text-vert-fonce uppercase tracking-widest">Confidentialité</span>
-          <h2 class="mt-2 text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white tracking-tight">
+        <div data-aos="fade-right">
+          <span class="inline-block text-xs font-semibold text-vert-fonce uppercase tracking-widest bg-vert-fonce/8 dark:bg-vert-fonce/15 px-3 py-1 rounded-full">Confidentialité</span>
+          <h2 class="mt-4 text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white tracking-tight">
             Vos données vous appartiennent
           </h2>
-          <p class="mt-4 text-gray-500 dark:text-gray-400 leading-relaxed">
-            Synapses ESMS a été conçu dès l'origine avec le principe de <em>privacy by design</em>.
+          <p class="mt-4 text-gray-600 dark:text-gray-400 leading-relaxed">
+            Synapses ESMS a été conçu dès l'origine selon le principe de
+            <em class="text-gray-800 dark:text-gray-300 not-italic font-medium">privacy by design</em>.
             La protection des données des personnes accompagnées est au cœur de chaque décision technique.
           </p>
-
           <ul class="mt-8 flex flex-col gap-4">
-            <li class="flex items-start gap-3">
+            <li class="flex items-start gap-3.5">
               <span class="mt-0.5 w-5 h-5 rounded-full bg-vert-fonce/15 flex items-center justify-center shrink-0">
                 <i class="fa-solid fa-check text-vert-fonce" style="font-size:9px"></i>
               </span>
               <span class="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
-                <strong class="text-gray-900 dark:text-white">Aucune donnée nominative</strong> ne quitte votre établissement sans votre accord explicite
+                <strong class="text-gray-900 dark:text-white">Aucune donnée nominative</strong> ne quitte votre établissement sans accord explicite
               </span>
             </li>
-            <li class="flex items-start gap-3">
+            <li class="flex items-start gap-3.5">
               <span class="mt-0.5 w-5 h-5 rounded-full bg-vert-fonce/15 flex items-center justify-center shrink-0">
                 <i class="fa-solid fa-check text-vert-fonce" style="font-size:9px"></i>
               </span>
               <span class="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
-                <strong class="text-gray-900 dark:text-white">Cookies strictement nécessaires</strong> — aucun traceur publicitaire ni analytique
+                <strong class="text-gray-900 dark:text-white">Zéro réentraînement</strong> — vos données ne servent jamais à améliorer les modèles d'IA
               </span>
             </li>
-            <li class="flex items-start gap-3">
+            <li class="flex items-start gap-3.5">
               <span class="mt-0.5 w-5 h-5 rounded-full bg-vert-fonce/15 flex items-center justify-center shrink-0">
                 <i class="fa-solid fa-check text-vert-fonce" style="font-size:9px"></i>
               </span>
               <span class="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
-                <strong class="text-gray-900 dark:text-white">Chiffrement de bout en bout</strong> des communications (HTTPS, JWT HTTP-only)
+                <strong class="text-gray-900 dark:text-white">Cookies strictement nécessaires</strong> — aucun traceur publicitaire ni analytique tiers
               </span>
             </li>
-            <li class="flex items-start gap-3">
+            <li class="flex items-start gap-3.5">
               <span class="mt-0.5 w-5 h-5 rounded-full bg-vert-fonce/15 flex items-center justify-center shrink-0">
                 <i class="fa-solid fa-check text-vert-fonce" style="font-size:9px"></i>
               </span>
               <span class="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
-                Droits RGPD exercables à tout moment : accès, rectification, effacement, limitation
+                <strong class="text-gray-900 dark:text-white">Chiffrement de bout en bout</strong> — HTTPS strict, JWT HTTP-only, protection CSRF
+              </span>
+            </li>
+            <li class="flex items-start gap-3.5">
+              <span class="mt-0.5 w-5 h-5 rounded-full bg-vert-fonce/15 flex items-center justify-center shrink-0">
+                <i class="fa-solid fa-check text-vert-fonce" style="font-size:9px"></i>
+              </span>
+              <span class="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
+                Droits RGPD exercables à tout moment : accès, rectification, effacement, limitation, portabilité
               </span>
             </li>
           </ul>
         </div>
 
-        <div class="grid grid-cols-2 gap-4">
-          <div class="card rounded-2xl bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-5 shadow-sm text-center">
+        <div class="grid grid-cols-2 gap-4" data-aos="fade-left">
+          <div class="card card-glow rounded-2xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-5 shadow-sm text-center hover:-translate-y-0.5 transition-all duration-200">
             <div class="w-12 h-12 rounded-xl bg-bleu-fonce/10 dark:bg-bleu-fonce/20 flex items-center justify-center mx-auto mb-3">
               <i class="fa-solid fa-scale-balanced text-bleu-fonce text-xl"></i>
             </div>
             <p class="font-semibold text-gray-900 dark:text-white text-sm">RGPD</p>
-            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1 leading-relaxed">Règlement européen sur la protection des données</p>
+            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1 leading-relaxed">Règlement européen sur la protection des données personnelles</p>
           </div>
-          <div class="card rounded-2xl bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-5 shadow-sm text-center">
+          <div class="card card-glow rounded-2xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-5 shadow-sm text-center hover:-translate-y-0.5 transition-all duration-200">
             <div class="w-12 h-12 rounded-xl bg-violet/10 dark:bg-violet/20 flex items-center justify-center mx-auto mb-3">
               <i class="fa-solid fa-robot text-violet text-xl"></i>
             </div>
             <p class="font-semibold text-gray-900 dark:text-white text-sm">IA Act</p>
             <p class="text-xs text-gray-500 dark:text-gray-400 mt-1 leading-relaxed">Règlement européen sur l'intelligence artificielle</p>
           </div>
-          <div class="card rounded-2xl bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-5 shadow-sm text-center">
+          <div class="card card-glow rounded-2xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-5 shadow-sm text-center hover:-translate-y-0.5 transition-all duration-200">
             <div class="w-12 h-12 rounded-xl bg-rose-fonce/10 dark:bg-rose-fonce/20 flex items-center justify-center mx-auto mb-3">
               <i class="fa-solid fa-user-shield text-rose-fonce text-xl"></i>
             </div>
             <p class="font-semibold text-gray-900 dark:text-white text-sm">Secret pro</p>
             <p class="text-xs text-gray-500 dark:text-gray-400 mt-1 leading-relaxed">Respect du secret professionnel des travailleurs sociaux</p>
           </div>
-          <div class="card rounded-2xl bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-5 shadow-sm text-center">
+          <div class="card card-glow rounded-2xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-5 shadow-sm text-center hover:-translate-y-0.5 transition-all duration-200">
             <div class="w-12 h-12 rounded-xl bg-vert-fonce/10 dark:bg-vert-fonce/20 flex items-center justify-center mx-auto mb-3">
               <i class="fa-solid fa-server text-vert-fonce text-xl"></i>
             </div>
             <p class="font-semibold text-gray-900 dark:text-white text-sm">Hébergement FR</p>
-            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1 leading-relaxed">Infrastructure hébergée en France</p>
+            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1 leading-relaxed">Infrastructure 100&nbsp;% hébergée en France</p>
           </div>
         </div>
+
       </div>
     </div>
   </section>
 
 
   <!-- ═══════════════════════════════════════════════
-       CTA — section sombre professionnelle
+       FAQ
   ════════════════════════════════════════════════ -->
-  <section class="relative py-24 px-4 text-center overflow-hidden bg-slate-900 dark:bg-gray-950">
-    <!-- Accent gradient très subtil -->
-    <div class="absolute inset-0 opacity-25 pointer-events-none" style="background: radial-gradient(ellipse at 50% 0%, #673DE6 0%, transparent 65%), radial-gradient(ellipse at 100% 100%, #9B2CB6 0%, transparent 55%)"></div>
-    <div class="relative z-10">
-      <img src="./favicon.png" alt="" class="h-14 w-14 mx-auto mb-6 drop-shadow-xl opacity-90" />
-      <h2 class="font-ailerons text-3xl sm:text-4xl text-white mb-4 tracking-wide">Prêt à gagner du temps ?</h2>
-      <p class="text-slate-400 mb-8 text-base max-w-md mx-auto leading-relaxed">
-        Rejoignez les équipes du secteur social et médico-social qui font confiance à Synapses ESMS.
+  <div class="section-divider"></div>
+  <section id="faq" class="py-28 px-4 bg-white dark:bg-gray-950">
+    <div class="max-w-3xl mx-auto">
+
+      <div class="text-center mb-14" data-aos="fade-up">
+        <span class="inline-block text-xs font-semibold text-bleu-fonce uppercase tracking-widest bg-bleu-fonce/8 dark:bg-bleu-fonce/15 px-3 py-1 rounded-full">FAQ</span>
+        <h2 class="mt-4 text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white tracking-tight">
+          Questions fréquentes
+        </h2>
+        <p class="mt-4 text-gray-500 dark:text-gray-400 max-w-md mx-auto text-base leading-relaxed">
+          Tout ce que vous devez savoir avant de commencer.
+        </p>
+      </div>
+
+      <div class="flex flex-col gap-2.5" id="faq-list">
+
+        <div class="faq-item rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900/60 overflow-hidden"
+             data-aos="fade-up" data-aos-delay="0">
+          <button class="faq-trigger w-full flex items-center justify-between px-6 py-5 text-left gap-4 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800/40 transition-colors">
+            <span class="font-semibold text-gray-900 dark:text-white text-sm leading-snug">Mes données et celles des personnes accompagnées sont-elles confidentielles&nbsp;?</span>
+            <i class="fa-solid fa-chevron-down faq-chevron text-gray-400 text-xs shrink-0"></i>
+          </button>
+          <div class="faq-body">
+            <div class="px-6 pb-5">
+              <p class="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
+                Oui, absolument. Synapses ESMS est conçu selon le principe de <em>privacy by design</em>.
+                Aucune donnée nominative ne quitte votre établissement sans accord explicite.
+                Les informations saisies ne sont jamais transmises à des tiers et ne servent pas à entraîner des modèles d'IA.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="faq-item rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900/60 overflow-hidden"
+             data-aos="fade-up" data-aos-delay="50">
+          <button class="faq-trigger w-full flex items-center justify-between px-6 py-5 text-left gap-4 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800/40 transition-colors">
+            <span class="font-semibold text-gray-900 dark:text-white text-sm leading-snug">L'IA va-t-elle remplacer les travailleurs sociaux et éducateurs&nbsp;?</span>
+            <i class="fa-solid fa-chevron-down faq-chevron text-gray-400 text-xs shrink-0"></i>
+          </button>
+          <div class="faq-body">
+            <div class="px-6 pb-5">
+              <p class="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
+                Non. Synapses ESMS est un outil d'assistance à la rédaction, pas un système de décision.
+                L'IA prend en charge la mise en forme à partir de vos notes.
+                Le professionnel reste seul responsable du contenu, de son analyse et de la validation finale.
+                L'objectif est de libérer du temps pour vous concentrer sur l'accompagnement humain.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="faq-item rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900/60 overflow-hidden"
+             data-aos="fade-up" data-aos-delay="100">
+          <button class="faq-trigger w-full flex items-center justify-between px-6 py-5 text-left gap-4 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800/40 transition-colors">
+            <span class="font-semibold text-gray-900 dark:text-white text-sm leading-snug">Où sont hébergées mes données&nbsp;?</span>
+            <i class="fa-solid fa-chevron-down faq-chevron text-gray-400 text-xs shrink-0"></i>
+          </button>
+          <div class="faq-body">
+            <div class="px-6 pb-5">
+              <p class="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
+                L'ensemble de l'infrastructure est hébergé en France, sur des serveurs soumis au droit français et européen.
+                Aucune donnée n'est transmise vers des serveurs hors de l'Union européenne.
+                Cela garantit la souveraineté des données et la conformité avec le RGPD.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="faq-item rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900/60 overflow-hidden"
+             data-aos="fade-up" data-aos-delay="150">
+          <button class="faq-trigger w-full flex items-center justify-between px-6 py-5 text-left gap-4 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800/40 transition-colors">
+            <span class="font-semibold text-gray-900 dark:text-white text-sm leading-snug">Synapses ESMS est-il conforme au RGPD et à l'IA Act&nbsp;?</span>
+            <i class="fa-solid fa-chevron-down faq-chevron text-gray-400 text-xs shrink-0"></i>
+          </button>
+          <div class="faq-body">
+            <div class="px-6 pb-5">
+              <p class="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
+                Oui. La plateforme respecte le RGPD et le Règlement européen sur l'IA (IA Act).
+                Les traitements sont minimisés, les données sécurisées, et vous pouvez exercer vos droits (accès, rectification, effacement, limitation)
+                à tout moment à <a href="mailto:contact@synapses-esms.fr" class="text-bleu-fonce hover:underline">contact@synapses-esms.fr</a>.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="faq-item rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900/60 overflow-hidden"
+             data-aos="fade-up" data-aos-delay="200">
+          <button class="faq-trigger w-full flex items-center justify-between px-6 py-5 text-left gap-4 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800/40 transition-colors">
+            <span class="font-semibold text-gray-900 dark:text-white text-sm leading-snug">Comment accéder à la plateforme&nbsp;? Y a-t-il un engagement&nbsp;?</span>
+            <i class="fa-solid fa-chevron-down faq-chevron text-gray-400 text-xs shrink-0"></i>
+          </button>
+          <div class="faq-body">
+            <div class="px-6 pb-5">
+              <p class="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
+                L'accès est en phase anticipée. Envoyez une demande via le formulaire de contact ou à
+                <a href="mailto:contact@synapses-esms.fr" class="text-bleu-fonce hover:underline">contact@synapses-esms.fr</a>
+                pour obtenir vos identifiants. Aucun engagement contractuel pendant cette phase.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="faq-item rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900/60 overflow-hidden"
+             data-aos="fade-up" data-aos-delay="250">
+          <button class="faq-trigger w-full flex items-center justify-between px-6 py-5 text-left gap-4 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800/40 transition-colors">
+            <span class="font-semibold text-gray-900 dark:text-white text-sm leading-snug">Faut-il une formation pour utiliser Synapses ESMS&nbsp;?</span>
+            <i class="fa-solid fa-chevron-down faq-chevron text-gray-400 text-xs shrink-0"></i>
+          </button>
+          <div class="faq-body">
+            <div class="px-6 pb-5">
+              <p class="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
+                Non. L'interface est accessible à tous les niveaux de maîtrise numérique.
+                Les professionnels peuvent générer leur premier document dès la première connexion.
+                Une documentation et un support email sont disponibles si besoin.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="faq-item rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900/60 overflow-hidden"
+             data-aos="fade-up" data-aos-delay="300">
+          <button class="faq-trigger w-full flex items-center justify-between px-6 py-5 text-left gap-4 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800/40 transition-colors">
+            <span class="font-semibold text-gray-900 dark:text-white text-sm leading-snug">Puis-je faire confiance aux documents générés&nbsp;?</span>
+            <i class="fa-solid fa-chevron-down faq-chevron text-gray-400 text-xs shrink-0"></i>
+          </button>
+          <div class="faq-body">
+            <div class="px-6 pb-5">
+              <p class="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
+                Les documents générés constituent une base de travail structurée et professionnelle.
+                Ils doivent systématiquement être relus et validés par le professionnel avant diffusion ou archivage.
+                Votre expertise métier reste indispensable — l'IA assiste, le professionnel décide et signe.
+              </p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ═══════════════════════════════════════════════
+       CTA FINAL
+  ════════════════════════════════════════════════ -->
+  <div class="section-divider"></div>
+  <section class="relative py-32 px-4 text-center overflow-hidden bg-slate-900 dark:bg-gray-950">
+    <div class="absolute inset-0 pointer-events-none" style="background: radial-gradient(ellipse at 30% 50%, rgba(103,61,230,.18) 0%, transparent 60%), radial-gradient(ellipse at 80% 20%, rgba(155,44,182,.14) 0%, transparent 55%), radial-gradient(ellipse at 60% 90%, rgba(244,78,146,.08) 0%, transparent 50%)"></div>
+    <div class="absolute inset-0 pointer-events-none opacity-[0.03]" style="background-image: linear-gradient(rgba(255,255,255,.5) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.5) 1px, transparent 1px); background-size: 40px 40px;"></div>
+
+    <div class="relative z-10 max-w-2xl mx-auto">
+      <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/8 border border-white/12 text-white/70 text-xs font-medium mb-8"
+           data-aos="fade-down">
+        <span class="w-1.5 h-1.5 rounded-full bg-vert-fonce animate-pulse"></span>
+        Accès anticipé — Sans engagement
+      </div>
+
+      <img src="./favicon.png" alt="" class="h-14 w-14 mx-auto mb-6 drop-shadow-2xl opacity-90"
+           data-aos="zoom-in" data-aos-delay="100" />
+      <h2 class="font-ailerons text-4xl sm:text-5xl text-white mb-5 tracking-wide leading-tight"
+          data-aos="fade-up" data-aos-delay="150">
+        Prêt à gagner du temps&nbsp;?
+      </h2>
+      <p class="text-slate-400 mb-10 text-base max-w-lg mx-auto leading-relaxed"
+         data-aos="fade-up" data-aos-delay="200">
+        Rejoignez les professionnels du secteur social et médico-social qui font confiance à Synapses ESMS
+        pour alléger leur charge administrative.
       </p>
-      <a href="mailto:contact@synapses-esms.fr"
-         class="inline-block px-8 py-3.5 rounded-2xl bg-bleu-fonce text-white font-semibold shadow-xl hover:bg-bleu-active hover:-translate-y-0.5 transition-all duration-200">
-        <i class="fa-solid fa-envelope mr-2"></i>Demander un accès
-      </a>
+
+      <div class="flex flex-col sm:flex-row justify-center gap-3 mb-12"
+           data-aos="fade-up" data-aos-delay="250">
+        <a href="mailto:contact@synapses-esms.fr"
+           class="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-2xl bg-bleu-fonce text-white font-semibold shadow-2xl shadow-bleu-fonce/30 hover:bg-bleu-active hover:-translate-y-0.5 hover:shadow-bleu-fonce/40 transition-all duration-200 text-sm sm:text-base">
+          <i class="fa-solid fa-envelope"></i>Demander un accès
+        </a>
+        <a href="#faq"
+           class="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-2xl bg-white/8 text-white/80 border border-white/15 font-medium hover:bg-white/14 hover:border-white/25 transition-all duration-200 text-sm sm:text-base">
+          Lire la FAQ <i class="fa-solid fa-arrow-down text-xs"></i>
+        </a>
+      </div>
+
+      <div class="flex flex-wrap justify-center gap-4 text-xs text-slate-500"
+           data-aos="fade-up" data-aos-delay="300">
+        <span class="flex items-center gap-1.5"><i class="fa-solid fa-lock text-slate-600"></i>Données en France</span>
+        <span class="flex items-center gap-1.5"><i class="fa-solid fa-scale-balanced text-slate-600"></i>RGPD conforme</span>
+        <span class="flex items-center gap-1.5"><i class="fa-solid fa-shield-halved text-slate-600"></i>Secret professionnel</span>
+        <span class="flex items-center gap-1.5"><i class="fa-solid fa-handshake text-slate-600"></i>Sans engagement</span>
+      </div>
     </div>
   </section>
 
@@ -451,27 +1078,24 @@
   ════════════════════════════════════════════════ -->
   <footer class="bg-gray-950 dark:bg-black text-gray-400">
 
-    <div class="max-w-6xl mx-auto px-4 sm:px-6 py-16 grid md:grid-cols-2 gap-14">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 py-16 grid md:grid-cols-3 gap-12">
 
-      <!-- Identité -->
-      <div class="flex flex-col gap-6">
+      <div class="md:col-span-1 flex flex-col gap-6">
         <div>
           <div class="flex items-center gap-3 mb-4">
-            <img src="./favicon.png" alt="Logo Synapses" class="h-10 w-10 opacity-90" />
-            <span class="font-ailerons text-2xl text-white">Synapses ESMS</span>
+            <img src="./favicon.png" alt="Logo Synapses" class="h-9 w-9 opacity-90" />
+            <span class="font-ailerons text-xl text-white">Synapses ESMS</span>
           </div>
-          <p class="text-sm text-gray-500 leading-relaxed max-w-sm">
+          <p class="text-sm text-gray-500 leading-relaxed">
             Rédaction professionnelle assistée par IA pour le secteur social et médico-social.
-            Conçu avec le principe de <em>privacy by design</em>, conforme RGPD &amp; IA Act.
+            Conçu selon le principe de <em>privacy by design</em>, conforme RGPD &amp; IA Act.
           </p>
         </div>
 
         <ul class="flex flex-col gap-3 text-sm">
           <li class="flex items-center gap-2.5">
             <i class="fa-solid fa-envelope text-gray-600 w-4 text-center"></i>
-            <a href="mailto:contact@synapses-esms.fr" class="text-gray-400 hover:text-white transition-colors">
-              contact@synapses-esms.fr
-            </a>
+            <a href="mailto:contact@synapses-esms.fr" class="text-gray-400 hover:text-white transition-colors">contact@synapses-esms.fr</a>
           </li>
           <li class="flex items-center gap-2.5">
             <i class="fa-solid fa-lock text-gray-600 w-4 text-center"></i>
@@ -479,61 +1103,73 @@
           </li>
           <li class="flex items-center gap-2.5">
             <i class="fa-solid fa-shield-halved text-gray-600 w-4 text-center"></i>
-            <button onclick="openConsentModal()" class="text-gray-400 hover:text-white transition-colors cursor-pointer text-left">
-              Gestion des cookies
-            </button>
+            <button onclick="openConsentModal()" class="text-gray-400 hover:text-white transition-colors cursor-pointer text-left">Gestion des cookies</button>
           </li>
         </ul>
 
-        <div class="flex flex-wrap gap-2 pt-2">
-          <span class="inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full border border-gray-800 text-gray-500">
-            <i class="fa-solid fa-scale-balanced text-xs"></i> RGPD
-          </span>
-          <span class="inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full border border-gray-800 text-gray-500">
-            <i class="fa-solid fa-robot text-xs"></i> IA Act
-          </span>
-          <span class="inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full border border-gray-800 text-gray-500">
-            <i class="fa-solid fa-user-shield text-xs"></i> Secret pro
+        <div class="flex flex-wrap gap-2">
+          <span class="inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full border border-gray-800 text-gray-500 hover:border-gray-700 hover:text-gray-400 transition-colors"><i class="fa-solid fa-scale-balanced text-xs"></i> RGPD</span>
+          <span class="inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full border border-gray-800 text-gray-500 hover:border-gray-700 hover:text-gray-400 transition-colors"><i class="fa-solid fa-robot text-xs"></i> IA Act</span>
+          <span class="inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full border border-gray-800 text-gray-500 hover:border-gray-700 hover:text-gray-400 transition-colors"><i class="fa-solid fa-user-shield text-xs"></i> Secret pro</span>
+        </div>
+
+        <div class="text-xs text-gray-700">
+          <span class="inline-flex items-center gap-1.5">
+            <span class="w-1.5 h-1.5 rounded-full bg-vert-fonce"></span>
+            Service opérationnel
           </span>
         </div>
       </div>
 
-      <!-- Formulaire de contact -->
+      <div class="flex flex-col gap-5">
+        <h4 class="text-white text-sm font-semibold">Navigation</h4>
+        <ul class="flex flex-col gap-2.5 text-sm">
+          <li><a href="#fonctionnalites" class="text-gray-500 hover:text-gray-300 transition-colors">Fonctionnalités</a></li>
+          <li><a href="#pour-qui" class="text-gray-500 hover:text-gray-300 transition-colors">Pour qui&nbsp;?</a></li>
+          <li><a href="#comment-ca-marche" class="text-gray-500 hover:text-gray-300 transition-colors">Comment ça marche</a></li>
+          <li><a href="#documents" class="text-gray-500 hover:text-gray-300 transition-colors">Documents générés</a></li>
+          <li><a href="#confidentialite" class="text-gray-500 hover:text-gray-300 transition-colors">Confidentialité</a></li>
+          <li><a href="#faq" class="text-gray-500 hover:text-gray-300 transition-colors">FAQ</a></li>
+        </ul>
+        <h4 class="text-white text-sm font-semibold mt-2">Légal</h4>
+        <ul class="flex flex-col gap-2.5 text-sm">
+          <li><button onclick="openConsentModal()" class="text-gray-500 hover:text-gray-300 transition-colors cursor-pointer text-left">Politique de cookies</button></li>
+          <li><a href="mailto:contact@synapses-esms.fr" class="text-gray-500 hover:text-gray-300 transition-colors">Mentions légales</a></li>
+          <li><a href="mailto:contact@synapses-esms.fr" class="text-gray-500 hover:text-gray-300 transition-colors">Politique de confidentialité</a></li>
+          <li><a href="mailto:contact@synapses-esms.fr" class="text-gray-500 hover:text-gray-300 transition-colors">CGU</a></li>
+        </ul>
+      </div>
+
       <div>
-        <h3 class="text-white font-semibold text-lg mb-1">Nous contacter</h3>
-        <p class="text-sm text-gray-500 mb-6">Une question ? Une demande d'accès ? Écrivez-nous.</p>
+        <h3 class="text-white font-semibold text-base mb-1">Nous contacter</h3>
+        <p class="text-sm text-gray-500 mb-5">Une question&nbsp;? Une demande d'accès&nbsp;? Écrivez-nous.</p>
 
-        <form id="contact-form" data-api="http://localhost:3002" class="flex flex-col gap-4" novalidate>
-
+        <form id="contact-form" data-api="http://localhost:3002" class="flex flex-col gap-3.5" novalidate>
           <div class="grid grid-cols-2 gap-3">
             <div class="flex flex-col gap-1.5">
               <label for="contact-prenom" class="text-xs text-gray-400 font-medium">Prénom <span class="text-rose-400">*</span></label>
               <input id="contact-prenom" name="prenom" type="text" autocomplete="given-name" placeholder="Marie"
-                     class="w-full bg-gray-900 border border-gray-700 rounded-xl px-3 py-2.5 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-bleu-fonce transition-colors" />
+                     class="w-full bg-gray-900 border border-gray-700 rounded-xl px-3 py-2.5 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-bleu-fonce focus:ring-1 focus:ring-bleu-fonce/30 transition-all" />
             </div>
             <div class="flex flex-col gap-1.5">
               <label for="contact-nom" class="text-xs text-gray-400 font-medium">Nom <span class="text-rose-400">*</span></label>
               <input id="contact-nom" name="nom" type="text" autocomplete="family-name" placeholder="Dupont"
-                     class="w-full bg-gray-900 border border-gray-700 rounded-xl px-3 py-2.5 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-bleu-fonce transition-colors" />
+                     class="w-full bg-gray-900 border border-gray-700 rounded-xl px-3 py-2.5 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-bleu-fonce focus:ring-1 focus:ring-bleu-fonce/30 transition-all" />
             </div>
           </div>
-
           <div class="flex flex-col gap-1.5">
             <label for="contact-email" class="text-xs text-gray-400 font-medium">Email <span class="text-rose-400">*</span></label>
             <input id="contact-email" name="email" type="email" autocomplete="email" placeholder="marie.dupont@etablissement.fr"
-                   class="w-full bg-gray-900 border border-gray-700 rounded-xl px-3 py-2.5 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-bleu-fonce transition-colors" />
+                   class="w-full bg-gray-900 border border-gray-700 rounded-xl px-3 py-2.5 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-bleu-fonce focus:ring-1 focus:ring-bleu-fonce/30 transition-all" />
           </div>
-
           <div class="flex flex-col gap-1.5">
             <label for="contact-message" class="text-xs text-gray-400 font-medium">Message <span class="text-rose-400">*</span></label>
             <textarea id="contact-message" name="message" rows="4" placeholder="Votre message..."
-                      class="w-full bg-gray-900 border border-gray-700 rounded-xl px-3 py-2.5 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-bleu-fonce transition-colors resize-none"></textarea>
+                      class="w-full bg-gray-900 border border-gray-700 rounded-xl px-3 py-2.5 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-bleu-fonce focus:ring-1 focus:ring-bleu-fonce/30 transition-all resize-none"></textarea>
           </div>
-
-          <div id="contact-feedback" class="hidden text-xs px-3 py-2 rounded-lg"></div>
-
+          <div id="contact-feedback" class="hidden text-xs px-3 py-2.5 rounded-xl"></div>
           <button type="submit" id="contact-submit"
-                  class="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-bleu-fonce text-white text-sm font-medium hover:bg-bleu-active transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed">
+                  class="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-bleu-fonce text-white text-sm font-medium hover:bg-bleu-active hover:shadow-lg hover:shadow-bleu-fonce/20 transition-all duration-200 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed">
             <i class="fa-solid fa-paper-plane text-xs"></i>
             <span id="contact-submit-label">Envoyer le message</span>
           </button>
@@ -541,11 +1177,11 @@
       </div>
     </div>
 
-    <!-- Barre basse -->
-    <div class="border-t border-gray-800">
-      <div class="max-w-6xl mx-auto px-4 sm:px-6 py-5 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-gray-600">
+    <div class="border-t border-gray-800/80">
+      <div class="max-w-6xl mx-auto px-4 sm:px-6 py-5 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-gray-700">
         <span>© 2025 Synapses ESMS — Tous droits réservés</span>
-        <span>Conçu pour les travailleurs sociaux et médico-sociaux</span>
+        <span>v1.0 — Accès anticipé</span>
+        <span class="hidden sm:block">Conçu pour les travailleurs sociaux et médico-sociaux</span>
       </div>
     </div>
   </footer>
@@ -554,28 +1190,21 @@
   <!-- ═══════════════════════════════════════════════
        BANDEAU CONSENTEMENT
   ════════════════════════════════════════════════ -->
-  <div id="consent-banner"
-       style="display:none"
+  <div id="consent-banner" style="display:none"
        class="fixed bottom-0 left-0 right-0 z-50 px-3 pb-4 pointer-events-none">
     <div class="max-w-3xl mx-auto pointer-events-auto">
-      <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-2xl px-4 py-4 md:px-5 flex flex-col sm:flex-row sm:items-center gap-3">
+      <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-2xl shadow-black/10 px-4 py-4 md:px-5 flex flex-col sm:flex-row sm:items-center gap-3">
         <div class="flex items-start gap-3 flex-1 min-w-0">
           <i class="fa-solid fa-shield-halved text-bleu-fonce shrink-0 mt-0.5"></i>
           <p class="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
-            <span class="font-medium text-gray-900 dark:text-white">Cookies strictement nécessaires.</span>
+            <span class="font-semibold text-gray-800 dark:text-white">Cookies strictement nécessaires.</span>
             Synapses ESMS utilise uniquement des cookies d'authentification et de sécurité, exemptés de consentement.
             Aucun traceur publicitaire ni analytique.
           </p>
         </div>
         <div class="flex items-center gap-2 shrink-0">
-          <button onclick="openConsentModal()"
-                  class="text-xs text-gray-400 dark:text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 hover:underline transition-colors cursor-pointer whitespace-nowrap">
-            En savoir plus
-          </button>
-          <button onclick="dismissBanner()"
-                  class="px-4 py-2 rounded-xl bg-bleu-fonce text-white text-xs font-medium hover:bg-bleu-active transition-colors cursor-pointer whitespace-nowrap">
-            J'ai compris
-          </button>
+          <button onclick="openConsentModal()" class="text-xs text-gray-400 dark:text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 hover:underline transition-colors cursor-pointer whitespace-nowrap">En savoir plus</button>
+          <button onclick="dismissBanner()" class="px-4 py-2 rounded-xl bg-bleu-fonce text-white text-xs font-medium hover:bg-bleu-active transition-colors cursor-pointer whitespace-nowrap">J'ai compris</button>
         </div>
       </div>
     </div>
@@ -587,18 +1216,15 @@
   ════════════════════════════════════════════════ -->
   <div id="consent-modal" class="modal-overlay" onclick="if(event.target===this) closeConsentModal()">
     <div class="w-full max-w-2xl bg-white dark:bg-gray-900 rounded-2xl shadow-2xl border border-gray-100 dark:border-gray-700 flex flex-col max-h-[90vh]">
-
       <div class="flex items-center justify-between px-6 py-5 border-b border-gray-100 dark:border-gray-700 shrink-0">
         <div class="flex items-center gap-3">
           <i class="fa-solid fa-shield-halved text-bleu-fonce"></i>
           <h2 class="text-base font-semibold text-gray-900 dark:text-white">Gestion des cookies</h2>
         </div>
-        <button onclick="closeConsentModal()"
-                class="p-1.5 rounded-lg text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-700 dark:hover:text-gray-300 transition-colors cursor-pointer">
+        <button onclick="closeConsentModal()" class="p-1.5 rounded-lg text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-700 dark:hover:text-gray-300 transition-colors cursor-pointer" aria-label="Fermer">
           <i class="fa-solid fa-xmark text-base"></i>
         </button>
       </div>
-
       <div class="overflow-y-auto px-6 py-5 flex flex-col gap-6">
         <div>
           <div class="flex items-center gap-2 mb-3">
@@ -606,9 +1232,7 @@
             <span class="text-sm font-semibold text-gray-900 dark:text-white">Cookies strictement nécessaires</span>
             <span class="ml-auto text-xs px-2 py-0.5 rounded-full bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-400 font-medium border border-green-100 dark:border-green-800">Toujours actifs</span>
           </div>
-          <p class="text-xs text-gray-500 dark:text-gray-400 mb-4 leading-relaxed">
-            Ces cookies sont indispensables au fonctionnement de l'application. Ils ne peuvent pas être désactivés.
-          </p>
+          <p class="text-xs text-gray-500 dark:text-gray-400 mb-4 leading-relaxed">Ces cookies sont indispensables au fonctionnement de l'application. Ils ne peuvent pas être désactivés.</p>
           <div class="rounded-xl border border-gray-100 dark:border-gray-700 overflow-hidden">
             <table class="w-full text-xs">
               <thead>
@@ -654,30 +1278,41 @@
             </table>
           </div>
         </div>
-
         <div class="rounded-xl bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-4 text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
           <strong class="text-gray-900 dark:text-white">Synapses ESMS n'utilise aucun cookie publicitaire, analytique ou de suivi tiers.</strong>
           Aucune donnée de navigation n'est transmise à des services externes.
         </div>
-
         <div class="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
           Conformément au RGPD, vous disposez de droits d'accès, de rectification, d'effacement et de limitation.
-          Vous pouvez les exercer à :
-          <a href="mailto:contact@synapses-esms.fr" class="text-bleu-fonce hover:underline">contact@synapses-esms.fr</a>.
+          Vous pouvez les exercer à : <a href="mailto:contact@synapses-esms.fr" class="text-bleu-fonce hover:underline">contact@synapses-esms.fr</a>.
         </div>
       </div>
-
       <div class="px-6 py-4 border-t border-gray-100 dark:border-gray-700 shrink-0">
-        <button onclick="closeConsentModal()"
-                class="w-full py-2.5 rounded-xl bg-bleu-fonce text-white text-sm font-medium hover:bg-bleu-active transition-colors cursor-pointer">
-          Fermer
-        </button>
+        <button onclick="closeConsentModal()" class="w-full py-2.5 rounded-xl bg-bleu-fonce text-white text-sm font-medium hover:bg-bleu-active transition-colors cursor-pointer">Fermer</button>
       </div>
     </div>
   </div>
 
 
   <script src="./main.js"></script>
+  <script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
+  <script>
+    AOS.init({
+      duration: 520,
+      easing: 'ease-out-quad',
+      once: true,
+      offset: 55,
+    });
+
+    document.querySelectorAll('.faq-trigger').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const item = btn.closest('.faq-item');
+        const isOpen = item.classList.contains('open');
+        document.querySelectorAll('.faq-item.open').forEach(el => el.classList.remove('open'));
+        if (!isOpen) item.classList.add('open');
+      });
+    });
+  </script>
 
 </body>
 </html>
