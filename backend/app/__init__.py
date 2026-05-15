@@ -20,6 +20,7 @@ from app.api.v1.organisationController import api as org_ns
 from app.api.v1.referencesController import api as ref_ns
 from app.api.v1.archiveController import api as archive_ns
 from app.api.v1.aiController import api as ai_ns
+from app.api.v1.contactController import api as contact_ns
 
 
 def _check_production_secrets(app):
@@ -53,7 +54,10 @@ def createApp(config_class="config.DevelopmentConfig"):
     cors_origins = app.config.get("CORS_ORIGINS", os.getenv("CORS_ORIGINS", "http://localhost:5173"))
     CORS(
         app,
-        resources={r"/api/*": {"origins": cors_origins}},
+        resources={
+            r"/api/contact": {"origins": "*"},
+            r"/api/*":        {"origins": cors_origins},
+        },
         supports_credentials=True,
         allow_headers=["Content-Type", "X-CSRF-TOKEN"],
     )
@@ -77,6 +81,7 @@ def createApp(config_class="config.DevelopmentConfig"):
     api.add_namespace(ref_ns, path='/api/references')
     api.add_namespace(archive_ns, path='/api/archives')
     api.add_namespace(ai_ns, path='/api/ai')
+    api.add_namespace(contact_ns, path='/api')
 
     # ── Extensions ────────────────────────────────────────────────────────────
     db.init_app(app)
