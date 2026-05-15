@@ -7,7 +7,13 @@ load_dotenv()
 class Config:
     SECRET_KEY = os.getenv('SECRET_KEY')
     JWT_SECRET_KEY = os.getenv("JWT_SECRET")
-    JWT_EXPIRES = timedelta(days=5)
+    JWT_EXPIRES = timedelta(minutes=15)
+    JWT_REFRESH_TOKEN_EXPIRES = timedelta(days=7)
+    JWT_TOKEN_LOCATION = ['cookies']
+    JWT_COOKIE_SECURE = os.getenv("FLASK_env") == "production"
+    JWT_COOKIE_SAMESITE = "Lax"
+    JWT_COOKIECSRF_PROTECT = True
+    JWT_ACCESS_CSRF_HEADER_name = "X-CSRF-TOKEN"
     DEBUG = False
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
@@ -18,6 +24,9 @@ class DevelopmentConfig(Config):
     RESEND_API_KEY = os.getenv("RESEND_API_KEY")
     ADMIN_EMAIL= os.getenv("ADMIN_EMAIL")
     APP_URL = os.getenv('APP_URL')
+    CORS_ORIGINS = os.getenv("CORS_ORIGINS", "http://localhost:5173")
+    OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
+    OPENROUTER_BASE_URL = "https://openrouter.ai/api/v1"
 
 class ProductionConfig(Config):
     DEBUG = False   

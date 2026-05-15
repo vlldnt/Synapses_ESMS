@@ -1,4 +1,4 @@
-from flask_jwt_extended import create_access_token
+from flask_jwt_extended import create_access_token, create_refresh_token
 from flask import current_app
 
 def generete_token(data):
@@ -10,4 +10,10 @@ def generete_token(data):
             "organization_id": data.organization_id,
             "role": data.role
         }
+    )
+
+def generete_refresh_token(data):
+    return create_refresh_token(
+        identity= str(data.id),
+        expires_delta=current_app.config["JWT_REFRESH_TOKEN_EXPIRES"]
     )
