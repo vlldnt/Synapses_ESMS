@@ -98,10 +98,55 @@
       src: url('./Ailerons-Typeface.otf') format('opentype');
       font-weight: normal; font-style: normal; font-display: swap;
     }
-    * { box-sizing: border-box; }
+    *, *::before, *::after { box-sizing: border-box; }
+
+    /* ════════════════════════════════════════════
+       CSS VARIABLES — système de couleurs global
+       ════════════════════════════════════════════ */
     :root {
-      --bleu-fonce: #673DE6; --bleu-active: #5A2FB8; --violet: #9B2CB6;
-      --rose-fonce: #F44E92; --vert-fonce: #42C4A1; --orange: #FCBE82;
+      /* ─── Marque ─────────────────────────────────────── */
+      --c-brand:        #673DE6;   /* violet primaire */
+      --c-brand-hover:  #5A2FB8;   /* hover + actif */
+      --c-brand-light:  #7B66FF;   /* variante claire */
+      --c-brand-sub:    rgba(103,61,230,.08);   /* fond subtil */
+      --c-brand-border: rgba(103,61,230,.18);   /* bordure marque */
+      --c-cyan:         #06B6D4;   /* accent cyan */
+      --c-teal:         #42C4A1;   /* accent vert-eau */
+      --c-rose:         #F44E92;   /* accent rose */
+      --c-orange:       #FCBE82;   /* accent orange */
+      --c-violet:       #9B2CB6;   /* accent violet foncé */
+
+      /* ─── Surfaces (mode clair) ──────────────────────── */
+      --c-page:         #FFFFFF;   /* fond principal */
+      --c-page-alt:     #F8F7FF;   /* fond sections alternées */
+      --c-card:         #FFFFFF;   /* fond cartes */
+      --c-input:        #F4F3FF;   /* fond champs de saisie */
+      --c-footer:       #0F0E1A;   /* fond footer (sombre) */
+
+      /* ─── Texte (mode clair) ─────────────────────────── */
+      --c-txt:          #111827;   /* titre principal */
+      --c-txt-2:        #374151;   /* corps de texte */
+      --c-txt-soft:     #6B7280;   /* texte secondaire */
+      --c-txt-faint:    #9CA3AF;   /* texte très discret */
+
+      /* ─── Bordures (mode clair) ──────────────────────── */
+      --c-border:       #E9E9F2;   /* bordure standard */
+      --c-border-brand: rgba(103,61,230,.2);    /* bordure marque */
+      --c-divider:      rgba(103,61,230,.1);    /* séparateur */
+
+      /* ─── Ombres ─────────────────────────────────────── */
+      --s-card:         0 1px 3px rgba(0,0,0,.06), 0 4px 16px rgba(103,61,230,.06);
+      --s-card-hover:   0 0 0 1px rgba(103,61,230,.12), 0 8px 32px rgba(103,61,230,.1);
+      --s-btn:          0 4px 14px rgba(103,61,230,.35);
+
+      /* ─── Variables legacy (utilisées dans tailwind.config) ── */
+      --bleu-fonce:  #673DE6;
+      --bleu-active: #5A2FB8;
+      --bleu-clair:  #06B6D4;
+      --violet:      #9B2CB6;
+      --rose-fonce:  #F44E92;
+      --vert-fonce:  #42C4A1;
+      --orange:      #FCBE82;
     }
 
     /* ── Hero gradient animé ───────────────────────────────────────────── */
@@ -146,20 +191,37 @@
 
     /* ── Card hover glow ────────────────────────────────────────────────── */
     .card-glow:hover {
-      box-shadow: 0 0 0 1px rgba(103,61,230,.15), 0 8px 32px rgba(103,61,230,.1), 0 2px 8px rgba(0,0,0,.06);
+      box-shadow: var(--s-card-hover);
     }
     .dark .card-glow:hover {
-      box-shadow: 0 0 0 1px rgba(103,61,230,.25), 0 8px 32px rgba(103,61,230,.15), 0 2px 8px rgba(0,0,0,.3);
+      box-shadow: 0 0 0 1px rgba(103,61,230,.25), 0 8px 32px rgba(103,61,230,.18), 0 2px 8px rgba(0,0,0,.3);
     }
 
     /* ── Section dividers ───────────────────────────────────────────────── */
     .section-divider {
       height: 1px;
-      background: linear-gradient(90deg, transparent, rgba(103,61,230,.12), transparent);
+      background: linear-gradient(90deg, transparent, var(--c-divider), transparent);
     }
     .dark .section-divider {
-      background: linear-gradient(90deg, transparent, rgba(103,61,230,.2), transparent);
+      background: linear-gradient(90deg, transparent, rgba(103,61,230,.22), transparent);
     }
+
+    /* ── Bouton principal ───────────────────────────────────────────────── */
+    .btn-brand {
+      background: var(--c-brand);
+      color: #fff;
+      box-shadow: var(--s-btn);
+      transition: background .18s, box-shadow .18s, transform .18s;
+    }
+    .btn-brand:hover {
+      background: var(--c-brand-hover);
+      box-shadow: 0 6px 20px rgba(103,61,230,.45);
+      transform: translateY(-1px);
+    }
+
+    /* ── Bordure marque ─────────────────────────────────────────────────── */
+    .border-brand { border-color: var(--c-brand-border); }
+    .bg-brand-sub { background: var(--c-brand-sub); }
 
     /* ── FAQ accordion ──────────────────────────────────────────────────── */
     .faq-item .faq-body {
@@ -178,6 +240,14 @@
 
     /* ── AOS override : désactive sur hero (above fold) ─────────────────── */
     [data-aos] { pointer-events: auto !important; }
+
+    /* ── Liste interactive de documents ────────────────────────────────── */
+    .doc-item.is-active .doc-row { background: var(--doc-bg, rgba(103,61,230,.08)); }
+    .doc-item.is-active .doc-num { background: var(--doc-color, #673DE6) !important; color: #fff !important; }
+    .doc-item.is-active .doc-icon,
+    .doc-item.is-active .doc-name { color: var(--doc-color, #673DE6) !important; }
+    .doc-item.is-active .doc-mobile-desc { max-height: 80px !important; }
+    .doc-item.is-active .doc-chevron { transform: rotate(90deg); color: var(--doc-color, #673DE6) !important; }
   </style>
 </head>
 
@@ -573,137 +643,178 @@
         </p>
       </div>
 
-      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div class="flex flex-col lg:flex-row gap-8 lg:gap-12 items-start">
 
-        <div class="card card-glow rounded-2xl bg-white dark:bg-gray-800/60 border border-gray-200 dark:border-gray-700/60 p-5 hover:-translate-y-0.5 transition-all duration-200 flex items-start gap-4"
-             data-aos="fade-up" data-aos-delay="0">
-          <div class="w-9 h-9 rounded-lg bg-bleu-fonce/10 dark:bg-bleu-fonce/15 flex items-center justify-center shrink-0 mt-0.5">
-            <i class="fa-solid fa-clipboard-list text-bleu-fonce text-sm"></i>
-          </div>
-          <div>
-            <p class="font-semibold text-gray-900 dark:text-white text-sm">Compte Rendu d'Intervention</p>
-            <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5 leading-relaxed">CRI — formalisation des interventions à domicile ou en établissement</p>
-          </div>
-        </div>
+        <!-- ── Liste numérotée interactive ── -->
+        <ul id="doc-list" class="flex-1 w-full space-y-0.5">
 
-        <div class="card card-glow rounded-2xl bg-white dark:bg-gray-800/60 border border-gray-200 dark:border-gray-700/60 p-5 hover:-translate-y-0.5 transition-all duration-200 flex items-start gap-4"
-             data-aos="fade-up" data-aos-delay="60">
-          <div class="w-9 h-9 rounded-lg bg-violet/10 dark:bg-violet/15 flex items-center justify-center shrink-0 mt-0.5">
-            <i class="fa-solid fa-route text-violet text-sm"></i>
-          </div>
-          <div>
-            <p class="font-semibold text-gray-900 dark:text-white text-sm">Projet Personnalisé d'Accompagnement</p>
-            <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5 leading-relaxed">PPA — objectifs, axes de travail, échéances, professionnels référents</p>
-          </div>
-        </div>
+          <li class="doc-item cursor-pointer select-none" data-doc="0" data-aos="fade-right" data-aos-delay="0">
+            <div class="doc-row flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-150 hover:bg-white dark:hover:bg-gray-800/60 hover:shadow-sm group">
+              <span class="doc-num w-6 h-6 rounded-md text-[10px] font-bold font-mono shrink-0 flex items-center justify-center transition-all duration-200 bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-500">01</span>
+              <i class="fa-solid fa-clipboard-list text-sm w-4 text-center shrink-0 doc-icon text-gray-400 dark:text-gray-500 transition-colors duration-150"></i>
+              <span class="doc-name text-[13px] font-medium text-gray-600 dark:text-gray-400 transition-colors duration-150 flex-1 min-w-0">Compte Rendu d'Intervention</span>
+              <span class="text-[10px] font-mono text-gray-300 dark:text-gray-600 shrink-0 hidden sm:block">CRI</span>
+              <i class="fa-solid fa-chevron-right doc-chevron text-[9px] text-gray-300 dark:text-gray-600 shrink-0 lg:hidden transition-all duration-200"></i>
+            </div>
+            <div class="doc-mobile-desc lg:hidden overflow-hidden" style="max-height:0;transition:max-height .3s ease">
+              <p class="text-xs text-gray-500 dark:text-gray-400 leading-relaxed pl-[46px] pr-3 pb-2.5">Formalisation des interventions à domicile ou en établissement, avec le contexte et les actions menées.</p>
+            </div>
+          </li>
 
-        <div class="card card-glow rounded-2xl bg-white dark:bg-gray-800/60 border border-gray-200 dark:border-gray-700/60 p-5 hover:-translate-y-0.5 transition-all duration-200 flex items-start gap-4"
-             data-aos="fade-up" data-aos-delay="120">
-          <div class="w-9 h-9 rounded-lg bg-vert-fonce/10 dark:bg-vert-fonce/15 flex items-center justify-center shrink-0 mt-0.5">
-            <i class="fa-solid fa-notes-medical text-vert-fonce text-sm"></i>
-          </div>
-          <div>
-            <p class="font-semibold text-gray-900 dark:text-white text-sm">Transmissions ciblées</p>
-            <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5 leading-relaxed">Notes de transmission inter-équipes, SOAP structuré, continuité de soin</p>
-          </div>
-        </div>
+          <li class="doc-item cursor-pointer select-none" data-doc="1" data-aos="fade-right" data-aos-delay="40">
+            <div class="doc-row flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-150 hover:bg-white dark:hover:bg-gray-800/60 hover:shadow-sm group">
+              <span class="doc-num w-6 h-6 rounded-md text-[10px] font-bold font-mono shrink-0 flex items-center justify-center transition-all duration-200 bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-500">02</span>
+              <i class="fa-solid fa-route text-sm w-4 text-center shrink-0 doc-icon text-gray-400 dark:text-gray-500 transition-colors duration-150"></i>
+              <span class="doc-name text-[13px] font-medium text-gray-600 dark:text-gray-400 transition-colors duration-150 flex-1 min-w-0">Projet Personnalisé d'Accompagnement</span>
+              <span class="text-[10px] font-mono text-gray-300 dark:text-gray-600 shrink-0 hidden sm:block">PPA</span>
+              <i class="fa-solid fa-chevron-right doc-chevron text-[9px] text-gray-300 dark:text-gray-600 shrink-0 lg:hidden transition-all duration-200"></i>
+            </div>
+            <div class="doc-mobile-desc lg:hidden overflow-hidden" style="max-height:0;transition:max-height .3s ease">
+              <p class="text-xs text-gray-500 dark:text-gray-400 leading-relaxed pl-[46px] pr-3 pb-2.5">Objectifs individualisés, axes de travail, échéances et professionnels référents pour chaque personne accompagnée.</p>
+            </div>
+          </li>
 
-        <div class="card card-glow rounded-2xl bg-white dark:bg-gray-800/60 border border-gray-200 dark:border-gray-700/60 p-5 hover:-translate-y-0.5 transition-all duration-200 flex items-start gap-4"
-             data-aos="fade-up" data-aos-delay="0">
-          <div class="w-9 h-9 rounded-lg bg-rose-fonce/10 dark:bg-rose-fonce/15 flex items-center justify-center shrink-0 mt-0.5">
-            <i class="fa-solid fa-file-circle-check text-rose-fonce text-sm"></i>
-          </div>
-          <div>
-            <p class="font-semibold text-gray-900 dark:text-white text-sm">Synthèse de situation</p>
-            <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5 leading-relaxed">Bilan global de la situation socio-éducative ou médico-sociale</p>
-          </div>
-        </div>
+          <li class="doc-item cursor-pointer select-none" data-doc="2" data-aos="fade-right" data-aos-delay="80">
+            <div class="doc-row flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-150 hover:bg-white dark:hover:bg-gray-800/60 hover:shadow-sm group">
+              <span class="doc-num w-6 h-6 rounded-md text-[10px] font-bold font-mono shrink-0 flex items-center justify-center transition-all duration-200 bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-500">03</span>
+              <i class="fa-solid fa-notes-medical text-sm w-4 text-center shrink-0 doc-icon text-gray-400 dark:text-gray-500 transition-colors duration-150"></i>
+              <span class="doc-name text-[13px] font-medium text-gray-600 dark:text-gray-400 transition-colors duration-150 flex-1 min-w-0">Transmissions ciblées</span>
+              <span class="text-[10px] font-mono text-gray-300 dark:text-gray-600 shrink-0 hidden sm:block">SOAP</span>
+              <i class="fa-solid fa-chevron-right doc-chevron text-[9px] text-gray-300 dark:text-gray-600 shrink-0 lg:hidden transition-all duration-200"></i>
+            </div>
+            <div class="doc-mobile-desc lg:hidden overflow-hidden" style="max-height:0;transition:max-height .3s ease">
+              <p class="text-xs text-gray-500 dark:text-gray-400 leading-relaxed pl-[46px] pr-3 pb-2.5">Notes de transmission inter-équipes structurées selon le modèle SOAP, pour assurer la continuité de soin.</p>
+            </div>
+          </li>
 
-        <div class="card card-glow rounded-2xl bg-white dark:bg-gray-800/60 border border-gray-200 dark:border-gray-700/60 p-5 hover:-translate-y-0.5 transition-all duration-200 flex items-start gap-4"
-             data-aos="fade-up" data-aos-delay="60">
-          <div class="w-9 h-9 rounded-lg bg-orange/25 dark:bg-orange/10 flex items-center justify-center shrink-0 mt-0.5">
-            <i class="fa-solid fa-chart-line text-yellow-600 dark:text-yellow-400 text-sm"></i>
-          </div>
-          <div>
-            <p class="font-semibold text-gray-900 dark:text-white text-sm">Bilan d'évaluation intermédiaire</p>
-            <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5 leading-relaxed">Évaluation des objectifs du PPA, progression, réajustements proposés</p>
-          </div>
-        </div>
+          <li class="doc-item cursor-pointer select-none" data-doc="3" data-aos="fade-right" data-aos-delay="120">
+            <div class="doc-row flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-150 hover:bg-white dark:hover:bg-gray-800/60 hover:shadow-sm group">
+              <span class="doc-num w-6 h-6 rounded-md text-[10px] font-bold font-mono shrink-0 flex items-center justify-center transition-all duration-200 bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-500">04</span>
+              <i class="fa-solid fa-file-circle-check text-sm w-4 text-center shrink-0 doc-icon text-gray-400 dark:text-gray-500 transition-colors duration-150"></i>
+              <span class="doc-name text-[13px] font-medium text-gray-600 dark:text-gray-400 transition-colors duration-150 flex-1 min-w-0">Synthèse de situation</span>
+              <span class="text-[10px] font-mono text-gray-300 dark:text-gray-600 shrink-0 hidden sm:block">Synthèse</span>
+              <i class="fa-solid fa-chevron-right doc-chevron text-[9px] text-gray-300 dark:text-gray-600 shrink-0 lg:hidden transition-all duration-200"></i>
+            </div>
+            <div class="doc-mobile-desc lg:hidden overflow-hidden" style="max-height:0;transition:max-height .3s ease">
+              <p class="text-xs text-gray-500 dark:text-gray-400 leading-relaxed pl-[46px] pr-3 pb-2.5">Bilan global de la situation socio-éducative ou médico-sociale d'une personne accompagnée.</p>
+            </div>
+          </li>
 
-        <div class="card card-glow rounded-2xl bg-white dark:bg-gray-800/60 border border-gray-200 dark:border-gray-700/60 p-5 hover:-translate-y-0.5 transition-all duration-200 flex items-start gap-4"
-             data-aos="fade-up" data-aos-delay="120">
-          <div class="w-9 h-9 rounded-lg bg-bleu-clair/10 dark:bg-bleu-clair/15 flex items-center justify-center shrink-0 mt-0.5">
-            <i class="fa-solid fa-star-half-stroke text-bleu-clair text-sm"></i>
-          </div>
-          <div>
-            <p class="font-semibold text-gray-900 dark:text-white text-sm">Évaluation selon référentiel HAS</p>
-            <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5 leading-relaxed">Structure conforme aux recommandations de la Haute Autorité de Santé</p>
-          </div>
-        </div>
+          <li class="doc-item cursor-pointer select-none" data-doc="4" data-aos="fade-right" data-aos-delay="160">
+            <div class="doc-row flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-150 hover:bg-white dark:hover:bg-gray-800/60 hover:shadow-sm group">
+              <span class="doc-num w-6 h-6 rounded-md text-[10px] font-bold font-mono shrink-0 flex items-center justify-center transition-all duration-200 bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-500">05</span>
+              <i class="fa-solid fa-chart-line text-sm w-4 text-center shrink-0 doc-icon text-gray-400 dark:text-gray-500 transition-colors duration-150"></i>
+              <span class="doc-name text-[13px] font-medium text-gray-600 dark:text-gray-400 transition-colors duration-150 flex-1 min-w-0">Bilan d'évaluation intermédiaire</span>
+              <span class="text-[10px] font-mono text-gray-300 dark:text-gray-600 shrink-0 hidden sm:block">Bilan</span>
+              <i class="fa-solid fa-chevron-right doc-chevron text-[9px] text-gray-300 dark:text-gray-600 shrink-0 lg:hidden transition-all duration-200"></i>
+            </div>
+            <div class="doc-mobile-desc lg:hidden overflow-hidden" style="max-height:0;transition:max-height .3s ease">
+              <p class="text-xs text-gray-500 dark:text-gray-400 leading-relaxed pl-[46px] pr-3 pb-2.5">Évaluation des objectifs du PPA, progression observée et réajustements proposés.</p>
+            </div>
+          </li>
 
-        <div class="card card-glow rounded-2xl bg-white dark:bg-gray-800/60 border border-gray-200 dark:border-gray-700/60 p-5 hover:-translate-y-0.5 transition-all duration-200 flex items-start gap-4"
-             data-aos="fade-up" data-aos-delay="0">
-          <div class="w-9 h-9 rounded-lg bg-bleu-fonce/10 dark:bg-bleu-fonce/15 flex items-center justify-center shrink-0 mt-0.5">
-            <i class="fa-solid fa-gavel text-bleu-fonce text-sm"></i>
-          </div>
-          <div>
-            <p class="font-semibold text-gray-900 dark:text-white text-sm">Rapport social / Note sociale</p>
-            <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5 leading-relaxed">Rapport d'enquête sociale, note sociale, rapport pour audience judiciaire</p>
-          </div>
-        </div>
+          <li class="doc-item cursor-pointer select-none" data-doc="5" data-aos="fade-right" data-aos-delay="200">
+            <div class="doc-row flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-150 hover:bg-white dark:hover:bg-gray-800/60 hover:shadow-sm group">
+              <span class="doc-num w-6 h-6 rounded-md text-[10px] font-bold font-mono shrink-0 flex items-center justify-center transition-all duration-200 bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-500">06</span>
+              <i class="fa-solid fa-star-half-stroke text-sm w-4 text-center shrink-0 doc-icon text-gray-400 dark:text-gray-500 transition-colors duration-150"></i>
+              <span class="doc-name text-[13px] font-medium text-gray-600 dark:text-gray-400 transition-colors duration-150 flex-1 min-w-0">Évaluation selon référentiel HAS</span>
+              <span class="text-[10px] font-mono text-gray-300 dark:text-gray-600 shrink-0 hidden sm:block">HAS</span>
+              <i class="fa-solid fa-chevron-right doc-chevron text-[9px] text-gray-300 dark:text-gray-600 shrink-0 lg:hidden transition-all duration-200"></i>
+            </div>
+            <div class="doc-mobile-desc lg:hidden overflow-hidden" style="max-height:0;transition:max-height .3s ease">
+              <p class="text-xs text-gray-500 dark:text-gray-400 leading-relaxed pl-[46px] pr-3 pb-2.5">Structure conforme aux recommandations de la Haute Autorité de Santé pour l'évaluation de la qualité.</p>
+            </div>
+          </li>
 
-        <div class="card card-glow rounded-2xl bg-white dark:bg-gray-800/60 border border-gray-200 dark:border-gray-700/60 p-5 hover:-translate-y-0.5 transition-all duration-200 flex items-start gap-4"
-             data-aos="fade-up" data-aos-delay="60">
-          <div class="w-9 h-9 rounded-lg bg-vert-fonce/10 dark:bg-vert-fonce/15 flex items-center justify-center shrink-0 mt-0.5">
-            <i class="fa-solid fa-pen-nib text-vert-fonce text-sm"></i>
-          </div>
-          <div>
-            <p class="font-semibold text-gray-900 dark:text-white text-sm">Écrit éducatif</p>
-            <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5 leading-relaxed">Note éducative, bilan éducatif, compte rendu d'activité ou de séjour</p>
-          </div>
-        </div>
+          <li class="doc-item cursor-pointer select-none" data-doc="6" data-aos="fade-right" data-aos-delay="240">
+            <div class="doc-row flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-150 hover:bg-white dark:hover:bg-gray-800/60 hover:shadow-sm group">
+              <span class="doc-num w-6 h-6 rounded-md text-[10px] font-bold font-mono shrink-0 flex items-center justify-center transition-all duration-200 bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-500">07</span>
+              <i class="fa-solid fa-gavel text-sm w-4 text-center shrink-0 doc-icon text-gray-400 dark:text-gray-500 transition-colors duration-150"></i>
+              <span class="doc-name text-[13px] font-medium text-gray-600 dark:text-gray-400 transition-colors duration-150 flex-1 min-w-0">Rapport social / Note sociale</span>
+              <span class="text-[10px] font-mono text-gray-300 dark:text-gray-600 shrink-0 hidden sm:block">Rapport</span>
+              <i class="fa-solid fa-chevron-right doc-chevron text-[9px] text-gray-300 dark:text-gray-600 shrink-0 lg:hidden transition-all duration-200"></i>
+            </div>
+            <div class="doc-mobile-desc lg:hidden overflow-hidden" style="max-height:0;transition:max-height .3s ease">
+              <p class="text-xs text-gray-500 dark:text-gray-400 leading-relaxed pl-[46px] pr-3 pb-2.5">Rapport d'enquête sociale, note sociale ou rapport pour audience judiciaire.</p>
+            </div>
+          </li>
 
-        <div class="card card-glow rounded-2xl bg-white dark:bg-gray-800/60 border border-gray-200 dark:border-gray-700/60 p-5 hover:-translate-y-0.5 transition-all duration-200 flex items-start gap-4"
-             data-aos="fade-up" data-aos-delay="120">
-          <div class="w-9 h-9 rounded-lg bg-violet/10 dark:bg-violet/15 flex items-center justify-center shrink-0 mt-0.5">
-            <i class="fa-solid fa-people-group text-violet text-sm"></i>
-          </div>
-          <div>
-            <p class="font-semibold text-gray-900 dark:text-white text-sm">Compte rendu de réunion</p>
-            <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5 leading-relaxed">CRR, synthèse pluridisciplinaire, réunion d'équipe, réunion de service</p>
-          </div>
-        </div>
+          <li class="doc-item cursor-pointer select-none" data-doc="7" data-aos="fade-right" data-aos-delay="280">
+            <div class="doc-row flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-150 hover:bg-white dark:hover:bg-gray-800/60 hover:shadow-sm group">
+              <span class="doc-num w-6 h-6 rounded-md text-[10px] font-bold font-mono shrink-0 flex items-center justify-center transition-all duration-200 bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-500">08</span>
+              <i class="fa-solid fa-pen-nib text-sm w-4 text-center shrink-0 doc-icon text-gray-400 dark:text-gray-500 transition-colors duration-150"></i>
+              <span class="doc-name text-[13px] font-medium text-gray-600 dark:text-gray-400 transition-colors duration-150 flex-1 min-w-0">Écrit éducatif</span>
+              <span class="text-[10px] font-mono text-gray-300 dark:text-gray-600 shrink-0 hidden sm:block">Éducatif</span>
+              <i class="fa-solid fa-chevron-right doc-chevron text-[9px] text-gray-300 dark:text-gray-600 shrink-0 lg:hidden transition-all duration-200"></i>
+            </div>
+            <div class="doc-mobile-desc lg:hidden overflow-hidden" style="max-height:0;transition:max-height .3s ease">
+              <p class="text-xs text-gray-500 dark:text-gray-400 leading-relaxed pl-[46px] pr-3 pb-2.5">Note éducative, bilan éducatif, compte rendu d'activité ou de séjour éducatif.</p>
+            </div>
+          </li>
 
-        <div class="card card-glow rounded-2xl bg-white dark:bg-gray-800/60 border border-gray-200 dark:border-gray-700/60 p-5 hover:-translate-y-0.5 transition-all duration-200 flex items-start gap-4"
-             data-aos="fade-up" data-aos-delay="0">
-          <div class="w-9 h-9 rounded-lg bg-rose-fonce/10 dark:bg-rose-fonce/15 flex items-center justify-center shrink-0 mt-0.5">
-            <i class="fa-solid fa-triangle-exclamation text-rose-fonce text-sm"></i>
-          </div>
-          <div>
-            <p class="font-semibold text-gray-900 dark:text-white text-sm">Fiche d'événement indésirable</p>
-            <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5 leading-relaxed">FEI, signalement interne, rapport d'incident, information préoccupante</p>
-          </div>
-        </div>
+          <li class="doc-item cursor-pointer select-none" data-doc="8" data-aos="fade-right" data-aos-delay="320">
+            <div class="doc-row flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-150 hover:bg-white dark:hover:bg-gray-800/60 hover:shadow-sm group">
+              <span class="doc-num w-6 h-6 rounded-md text-[10px] font-bold font-mono shrink-0 flex items-center justify-center transition-all duration-200 bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-500">09</span>
+              <i class="fa-solid fa-people-group text-sm w-4 text-center shrink-0 doc-icon text-gray-400 dark:text-gray-500 transition-colors duration-150"></i>
+              <span class="doc-name text-[13px] font-medium text-gray-600 dark:text-gray-400 transition-colors duration-150 flex-1 min-w-0">Compte rendu de réunion</span>
+              <span class="text-[10px] font-mono text-gray-300 dark:text-gray-600 shrink-0 hidden sm:block">CRR</span>
+              <i class="fa-solid fa-chevron-right doc-chevron text-[9px] text-gray-300 dark:text-gray-600 shrink-0 lg:hidden transition-all duration-200"></i>
+            </div>
+            <div class="doc-mobile-desc lg:hidden overflow-hidden" style="max-height:0;transition:max-height .3s ease">
+              <p class="text-xs text-gray-500 dark:text-gray-400 leading-relaxed pl-[46px] pr-3 pb-2.5">CRR, synthèse pluridisciplinaire, compte rendu de réunion d'équipe ou de service.</p>
+            </div>
+          </li>
 
-        <div class="card card-glow rounded-2xl bg-white dark:bg-gray-800/60 border border-gray-200 dark:border-gray-700/60 p-5 hover:-translate-y-0.5 transition-all duration-200 flex items-start gap-4"
-             data-aos="fade-up" data-aos-delay="60">
-          <div class="w-9 h-9 rounded-lg bg-orange/25 dark:bg-orange/10 flex items-center justify-center shrink-0 mt-0.5">
-            <i class="fa-solid fa-chart-bar text-yellow-600 dark:text-yellow-400 text-sm"></i>
-          </div>
-          <div>
-            <p class="font-semibold text-gray-900 dark:text-white text-sm">Rapport d'activité</p>
-            <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5 leading-relaxed">Rapport annuel, bilan trimestriel, rapport pour financeur ou DDETS</p>
-          </div>
-        </div>
+          <li class="doc-item cursor-pointer select-none" data-doc="9" data-aos="fade-right" data-aos-delay="360">
+            <div class="doc-row flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-150 hover:bg-white dark:hover:bg-gray-800/60 hover:shadow-sm group">
+              <span class="doc-num w-6 h-6 rounded-md text-[10px] font-bold font-mono shrink-0 flex items-center justify-center transition-all duration-200 bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-500">10</span>
+              <i class="fa-solid fa-triangle-exclamation text-sm w-4 text-center shrink-0 doc-icon text-gray-400 dark:text-gray-500 transition-colors duration-150"></i>
+              <span class="doc-name text-[13px] font-medium text-gray-600 dark:text-gray-400 transition-colors duration-150 flex-1 min-w-0">Fiche d'événement indésirable</span>
+              <span class="text-[10px] font-mono text-gray-300 dark:text-gray-600 shrink-0 hidden sm:block">FEI</span>
+              <i class="fa-solid fa-chevron-right doc-chevron text-[9px] text-gray-300 dark:text-gray-600 shrink-0 lg:hidden transition-all duration-200"></i>
+            </div>
+            <div class="doc-mobile-desc lg:hidden overflow-hidden" style="max-height:0;transition:max-height .3s ease">
+              <p class="text-xs text-gray-500 dark:text-gray-400 leading-relaxed pl-[46px] pr-3 pb-2.5">FEI, signalement interne, rapport d'incident ou information préoccupante.</p>
+            </div>
+          </li>
 
-        <div class="card card-glow rounded-2xl bg-white dark:bg-gray-800/60 border border-gray-200 dark:border-gray-700/60 p-5 hover:-translate-y-0.5 transition-all duration-200 flex items-start gap-4"
-             data-aos="fade-up" data-aos-delay="120">
-          <div class="w-9 h-9 rounded-lg bg-bleu-clair/10 dark:bg-bleu-clair/15 flex items-center justify-center shrink-0 mt-0.5">
-            <i class="fa-solid fa-eye text-bleu-clair text-sm"></i>
-          </div>
-          <div>
-            <p class="font-semibold text-gray-900 dark:text-white text-sm">Grille d'observation comportementale</p>
-            <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5 leading-relaxed">Observation structurée, analyse fonctionnelle, suivi longitudinal</p>
+          <li class="doc-item cursor-pointer select-none" data-doc="10" data-aos="fade-right" data-aos-delay="400">
+            <div class="doc-row flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-150 hover:bg-white dark:hover:bg-gray-800/60 hover:shadow-sm group">
+              <span class="doc-num w-6 h-6 rounded-md text-[10px] font-bold font-mono shrink-0 flex items-center justify-center transition-all duration-200 bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-500">11</span>
+              <i class="fa-solid fa-chart-bar text-sm w-4 text-center shrink-0 doc-icon text-gray-400 dark:text-gray-500 transition-colors duration-150"></i>
+              <span class="doc-name text-[13px] font-medium text-gray-600 dark:text-gray-400 transition-colors duration-150 flex-1 min-w-0">Rapport d'activité</span>
+              <span class="text-[10px] font-mono text-gray-300 dark:text-gray-600 shrink-0 hidden sm:block">Activité</span>
+              <i class="fa-solid fa-chevron-right doc-chevron text-[9px] text-gray-300 dark:text-gray-600 shrink-0 lg:hidden transition-all duration-200"></i>
+            </div>
+            <div class="doc-mobile-desc lg:hidden overflow-hidden" style="max-height:0;transition:max-height .3s ease">
+              <p class="text-xs text-gray-500 dark:text-gray-400 leading-relaxed pl-[46px] pr-3 pb-2.5">Rapport annuel, bilan trimestriel, rapport pour financeur ou DDETS.</p>
+            </div>
+          </li>
+
+          <li class="doc-item cursor-pointer select-none" data-doc="11" data-aos="fade-right" data-aos-delay="440">
+            <div class="doc-row flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-150 hover:bg-white dark:hover:bg-gray-800/60 hover:shadow-sm group">
+              <span class="doc-num w-6 h-6 rounded-md text-[10px] font-bold font-mono shrink-0 flex items-center justify-center transition-all duration-200 bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-500">12</span>
+              <i class="fa-solid fa-eye text-sm w-4 text-center shrink-0 doc-icon text-gray-400 dark:text-gray-500 transition-colors duration-150"></i>
+              <span class="doc-name text-[13px] font-medium text-gray-600 dark:text-gray-400 transition-colors duration-150 flex-1 min-w-0">Grille d'observation comportementale</span>
+              <span class="text-[10px] font-mono text-gray-300 dark:text-gray-600 shrink-0 hidden sm:block">Observation</span>
+              <i class="fa-solid fa-chevron-right doc-chevron text-[9px] text-gray-300 dark:text-gray-600 shrink-0 lg:hidden transition-all duration-200"></i>
+            </div>
+            <div class="doc-mobile-desc lg:hidden overflow-hidden" style="max-height:0;transition:max-height .3s ease">
+              <p class="text-xs text-gray-500 dark:text-gray-400 leading-relaxed pl-[46px] pr-3 pb-2.5">Observation structurée, analyse fonctionnelle et suivi longitudinal des comportements.</p>
+            </div>
+          </li>
+
+        </ul>
+
+        <!-- ── Panneau détail (desktop uniquement) ── -->
+        <div class="hidden lg:block lg:sticky lg:top-28 w-72 shrink-0" data-aos="fade-left" data-aos-delay="200">
+          <div id="doc-detail-panel" class="rounded-2xl border border-gray-200 dark:border-gray-700/60 bg-white dark:bg-gray-800/60 p-6 transition-all duration-300">
+            <div id="doc-detail-icon-wrap" class="w-10 h-10 rounded-xl flex items-center justify-center mb-4 bg-gray-100 dark:bg-gray-800 transition-all duration-300">
+              <i id="doc-detail-icon" class="fa-solid fa-file text-lg text-gray-400 transition-all duration-300"></i>
+            </div>
+            <p id="doc-detail-tag" class="text-[10px] font-mono uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-1.5">—</p>
+            <p id="doc-detail-name" class="font-semibold text-gray-900 dark:text-white text-[15px] leading-snug mb-3">Sélectionnez un document</p>
+            <p id="doc-detail-desc" class="text-sm text-gray-500 dark:text-gray-400 leading-relaxed">Survolez ou cliquez sur un type de document pour afficher sa description.</p>
           </div>
         </div>
 
@@ -730,52 +841,98 @@
         </p>
       </div>
 
-      <div class="grid sm:grid-cols-2 gap-4">
+      <!-- 3 cartes bénéfices -->
+      <div class="grid sm:grid-cols-3 gap-4 mb-4" data-aos="fade-up" data-aos-delay="60">
 
-        <div class="flex items-start gap-4 p-5 rounded-2xl bg-slate-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700/60"
-             data-aos="fade-right" data-aos-delay="0">
+        <div class="flex items-start gap-4 p-5 rounded-2xl bg-slate-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700/60">
           <div class="w-10 h-10 rounded-xl bg-bleu-fonce/10 dark:bg-bleu-fonce/15 flex items-center justify-center shrink-0">
             <i class="fa-solid fa-brain text-bleu-fonce"></i>
           </div>
           <div>
-            <p class="font-semibold text-gray-900 dark:text-white text-sm mb-1">Réduction de la charge mentale</p>
-            <p class="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">Fini le syndrome de la page blanche. La structure est proposée, vous la complétez.</p>
+            <p class="font-semibold text-gray-900 dark:text-white text-sm mb-1">Moins de charge mentale</p>
+            <p class="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">Fini la page blanche. La structure est proposée, vous la complétez.</p>
           </div>
         </div>
 
-        <div class="flex items-start gap-4 p-5 rounded-2xl bg-slate-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700/60"
-             data-aos="fade-left" data-aos-delay="0">
+        <div class="flex items-start gap-4 p-5 rounded-2xl bg-slate-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700/60">
           <div class="w-10 h-10 rounded-xl bg-vert-fonce/10 dark:bg-vert-fonce/15 flex items-center justify-center shrink-0">
             <i class="fa-solid fa-align-center text-vert-fonce"></i>
           </div>
           <div>
             <p class="font-semibold text-gray-900 dark:text-white text-sm mb-1">Harmonisation des écrits</p>
-            <p class="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">Homogénéité du style rédactionnel au sein de toute l'équipe et de l'établissement.</p>
+            <p class="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">Homogénéité du style rédactionnel au sein de toute l'équipe.</p>
           </div>
         </div>
 
-        <div class="flex items-start gap-4 p-5 rounded-2xl bg-slate-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700/60"
-             data-aos="fade-right" data-aos-delay="80">
+        <div class="flex items-start gap-4 p-5 rounded-2xl bg-slate-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700/60">
           <div class="w-10 h-10 rounded-xl bg-violet/10 dark:bg-violet/15 flex items-center justify-center shrink-0">
             <i class="fa-solid fa-graduation-cap text-violet"></i>
           </div>
           <div>
             <p class="font-semibold text-gray-900 dark:text-white text-sm mb-1">Montée en compétence</p>
-            <p class="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">Accompagne les nouveaux professionnels dans la maîtrise des écrits institutionnels.</p>
+            <p class="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">Accompagne les nouveaux professionnels dans les écrits institutionnels.</p>
           </div>
         </div>
 
-        <div class="flex items-start gap-4 p-5 rounded-2xl bg-slate-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700/60"
-             data-aos="fade-left" data-aos-delay="80">
-          <div class="w-10 h-10 rounded-xl bg-rose-fonce/10 dark:bg-rose-fonce/15 flex items-center justify-center shrink-0">
-            <i class="fa-solid fa-clock-rotate-left text-rose-fonce"></i>
+      </div>
+
+      <!-- Graphique gain de temps — pleine largeur -->
+      <div class="rounded-2xl border border-bleu-fonce/15 dark:border-bleu-fonce/20 bg-gradient-to-br from-bleu-fonce/[.04] to-violet/[.03] dark:bg-gray-800/50 p-6 sm:p-8"
+           data-aos="fade-up" data-aos-delay="120">
+        <div class="flex flex-col sm:flex-row gap-8 items-center">
+
+          <!-- Chiffre clé -->
+          <div class="shrink-0 text-center sm:text-left">
+            <div class="text-5xl sm:text-6xl font-black text-bleu-fonce leading-none">−90&nbsp;%</div>
+            <div class="text-sm font-semibold text-gray-700 dark:text-gray-200 mt-1.5">de temps de rédaction</div>
+            <div class="text-xs text-gray-400 dark:text-gray-500 mt-0.5">retour terrain ESMS</div>
           </div>
-          <div>
-            <p class="font-semibold text-gray-900 dark:text-white text-sm mb-1">Rédaction pendant que c'est frais</p>
-            <p class="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">Dictez votre CRI ou PPA directement après l'intervention, depuis votre téléphone.</p>
+
+          <!-- Barres comparatives -->
+          <div class="flex-1 w-full flex flex-col gap-4">
+
+            <!-- Barre : sans IA -->
+            <div>
+              <div class="flex justify-between items-center mb-2">
+                <span class="text-xs font-medium text-gray-500 dark:text-gray-400 flex items-center gap-1.5">
+                  <i class="fa-regular fa-clock text-gray-400"></i>Sans IA — rédaction traditionnelle
+                </span>
+                <span class="text-xs font-bold text-red-400">≈ 40 min</span>
+              </div>
+              <div class="relative h-10 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200/60 dark:border-red-800/30 overflow-hidden">
+                <div class="absolute inset-0 bg-gradient-to-r from-red-400/75 to-red-300/50 flex items-center px-4">
+                  <span class="text-white text-xs font-medium truncate">Mémoriser · Structurer · Rédiger · Mettre en forme</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Barre : avec Synapses -->
+            <div>
+              <div class="flex justify-between items-center mb-2">
+                <span class="text-xs font-medium text-gray-500 dark:text-gray-400 flex items-center gap-1.5">
+                  <i class="fa-solid fa-bolt text-vert-fonce"></i>Avec Synapses ESMS
+                </span>
+                <span class="text-xs font-bold text-vert-fonce">≈ 2–3 min</span>
+              </div>
+              <div class="relative h-10 rounded-xl bg-teal-50 dark:bg-teal-900/10 border border-teal-200/50 dark:border-teal-800/20 overflow-hidden">
+                <!-- Petite barre verte proportionnelle ~6% -->
+                <div class="absolute left-0 top-0 bottom-0 rounded-l-xl bg-gradient-to-r from-vert-fonce to-teal-400" style="width:6%"></div>
+                <div class="absolute left-[8%] top-0 bottom-0 flex items-center">
+                  <span class="text-xs font-medium text-vert-fonce">Notes → document complet en quelques secondes</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Badge résultat -->
+            <div class="flex flex-wrap items-center gap-3 pt-1">
+              <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-vert-fonce/10 border border-vert-fonce/20 text-vert-fonce text-xs font-semibold">
+                <i class="fa-solid fa-arrow-trend-down text-xs"></i>Gain moyen : 36 minutes par document
+              </span>
+              <span class="text-xs text-gray-400 dark:text-gray-500">Dictée depuis le téléphone, CRI ou PPA directement après l'intervention.</span>
+            </div>
+
           </div>
         </div>
-
       </div>
     </div>
   </section>
@@ -1298,9 +1455,9 @@
   <script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
   <script>
     AOS.init({
-      duration: 520,
-      easing: 'ease-out-quad',
-      once: true,
+      duration: 850,
+      easing: 'ease-out-cubic',
+      once: false,
       offset: 55,
     });
 
