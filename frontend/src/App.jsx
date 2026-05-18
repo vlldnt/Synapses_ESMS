@@ -35,6 +35,7 @@ import PEPage from './features/projetEtablissement/PEPage';
 import PSPage from './features/projetService/PSPage';
 import HASPage from './features/evaluationHas/HASPage';
 import AAPPage from './features/appelProjet/AAPPage';
+import ConsentBanner from './components/cookies/ConsentBanner';
 
 function TopControls() {
   const dispatch = useDispatch();
@@ -89,6 +90,7 @@ function App() {
 
   return (
     <>
+      <ConsentBanner />
       <TopControls />
       {!isLogged ? (
         <Routes>

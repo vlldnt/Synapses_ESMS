@@ -21,9 +21,9 @@ class Config:
 class DevelopmentConfig(Config):
     DEBUG = True
     SQLALCHEMY_DATABASE_URI = os.getenv("SQLALCHEMY_DATABASE_URI")
-    PORT = int (os.getenv("BACKEND_PORT", 3002))
+    PORT = int(os.getenv("BACKEND_PORT", 3002))
     RESEND_API_KEY = os.getenv("RESEND_API_KEY")
-    ADMIN_EMAIL= os.getenv("ADMIN_EMAIL")
+    ADMIN_EMAIL = os.getenv("ADMIN_EMAIL")
     APP_URL = os.getenv('APP_URL')
     CORS_ORIGINS = os.getenv("CORS_ORIGINS", "http://localhost:5173")
     OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")

@@ -10,11 +10,13 @@ import {
   ShieldCheck,
   ChevronRight,
   Terminal,
+  Cookie,
 } from 'lucide-react';
 import NavItem from './NavItem';
 import ProfileDropdown from './ProfileDropdown';
 import { MENUS } from '../../constants/menus';
 import { AGENTS } from '../../constants/agents';
+import { useCookieModal } from '../cookies/ConsentBanner';
 
 const DEV_USER_IDS = new Set([
   '09eca25d-d955-4136-93f2-4467f2df37eb',
@@ -112,6 +114,7 @@ function AgentsNavItem({ label, role }) {
 function Sidebar() {
   const role = useSelector((state) => state.role.role);
   const user = useSelector((state) => state.auth.user);
+  const { openModal, modal } = useCookieModal();
   const isDev =
     DEV_USER_IDS.has(user?.id) &&
     role === 'admin' &&
@@ -200,10 +203,21 @@ function Sidebar() {
 
       <div className="mx-1 border-t border-(--border)" />
 
-      {/* Profil */}
-      <div className="px-3 py-4">
+      {/* Cookies + Profil */}
+      <div className="px-3 pt-2 pb-1">
+        <button
+          onClick={openModal}
+          className="flex items-center gap-2 w-full px-3 py-1.5 rounded-lg text-[11px] text-(--text-muted) hover:bg-(--bg-tertiary) hover:text-(--text-primary) transition-colors cursor-pointer"
+        >
+          <Cookie size={13} className="shrink-0" />
+          <span>Gestion des cookies</span>
+        </button>
+      </div>
+      <div className="px-3 pb-4">
         <ProfileDropdown />
       </div>
+
+      {modal}
     </aside>
   );
 }

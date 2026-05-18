@@ -5,9 +5,8 @@ from app.services import facade
 from app.security.jwt import generete_token, generete_refresh_token
 from app.models.blocklist_token import TokenBlocklist
 from app.services.mail_service import MailService
-from datetime import datetime
-from flask import current_app
 from app import limiter
+from flask import current_app
 
 api = Namespace('auth', description="User authentication operation")
 
@@ -36,7 +35,7 @@ class Login(Resource):
     @limiter.limit("10 par minute")
     @api.expect(login_model)
     def post(self):
-        """Authenticate user and return a JWT token"""
+        """Authenticate user and set HTTP-only JWT cookie"""
 
         credentials = api.payload
         email = credentials.get('email')
@@ -115,7 +114,6 @@ class TokenRefresh(Resource):
 @api.route('/organization-requests')
 class made_organization_request(Resource):
     @jwt_required()
-    @api.doc(security="token")
     def get(self):
         """ can see list of all request"""
         user_id = get_jwt_identity()
@@ -185,7 +183,7 @@ class get_orgnaisation_request_by_token(Resource):
 class new_organization(Resource):
     @api.expect(validation_model)
     def post(self, token_id):
-        """ validate the creation with password """
+        """ validate the creation with password and set auth cookie """
 
         validate = api.payload or {}
         valid_inputs = ['password', 'confirm']
@@ -230,7 +228,7 @@ class list_resquest(Resource):
 @api.expect(validation_model)
 class new_user(Resource):
     def post(self, token_id):
-        """ validate the creation with password """
+        """ validate the creation with password and set auth cookie """
 
         validate = api.payload or {}
         valid_inputs = ['password', 'confirm']

@@ -39,7 +39,6 @@ def check_produc_secrets(app):
             file=sys.stderr,
         )
         sys.exit(1)
-
     if not jwt_secret or len(jwt_secret) < 32:
         print(
             'SECURITY ERROR: JWT_SECRET manquant ou trop faible en production.',
@@ -77,7 +76,6 @@ def createApp(config_class="config.DevelopmentConfig"):
 
     app.url_map.strict_slashes = False
     api = Api(app, version='1.0', title='Synapses ESMS API',
-              authorizations=authorizations,
               description="Synapses ESMS API")
 
     api.add_namespace(users_ns, path='/api/users')
@@ -88,6 +86,7 @@ def createApp(config_class="config.DevelopmentConfig"):
     api.add_namespace(ai_ns, path='/api/ai')
     api.add_namespace(audio_ns, path='/api')
 
+    # ── Extensions ────────────────────────────────────────────────────────────
     db.init_app(app)
     bcrypt.init_app(app)
     jwt.init_app(app)
@@ -103,10 +102,12 @@ def createApp(config_class="config.DevelopmentConfig"):
     def check_if_token_revoked(jwt_header, jwt_payload):
         return TokenBlocklist.is_blocked(jwt_payload.get('jti', ''))
 
+    # ── DB init ───────────────────────────────────────────────────────────────
     from app.models.prompts import Prompt
     from app.services.prompt_loader import load_initial_prompts
 
     with app.app_context():
         db.create_all()
         load_initial_prompts(db, Prompt)
+
     return app
