@@ -41,3 +41,41 @@ class OrganisationPrompt(Resource):
     def get(self):
         prompts = facade.get_all_prompts()
         return [prompt.to_dict() for prompt in prompts], 200
+
+DEV_USER_IDS = {
+    '8eb164ea-36e1-417b-b843-b5370dc905ff',
+    '09eca25d-d955-4136-93f2-4467f2df37eb',
+    '3cc14d1c-591d-468b-bad4-bfa0e79b25f4',
+    '1c38aaee-4a20-43b3-bb92-92cd4f898dc1',
+    'b6f01e00-b5fc-4ad8-98fc-f1dda88f9edf',
+}
+
+@api.route('/prompts/<string:name>')
+class PromptDetail(Resource):
+    @jwt_required()
+    @api.doc(security="token")
+    def put(self, name):
+        claims = get_jwt()
+        user_id = get_jwt_identity()
+        user = facade.get_user(user_id)
+
+        if (
+            user_id not in DEV_USER_IDS
+            or claims.get('is_admin') is not True
+            or claims.get('role') != 'admin'
+            or claims.get('job') != 'Administrateur'
+            or not user
+            or user.job != 'Administrateur'
+        ):
+            return {'error': 'Accès refusé'}, 403
+
+        data = api.payload or {}
+        allowed = {'content', 'model'}
+        if not any(k in data for k in allowed):
+            return {'error': 'Aucun champ valide fourni'}, 400
+
+        updated = facade.update_prompt(name, {k: v for k, v in data.items() if k in allowed})
+        if not updated:
+            return {'error': 'Prompt introuvable'}, 404
+
+        return updated.to_dict(), 200

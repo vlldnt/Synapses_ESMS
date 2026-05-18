@@ -198,3 +198,14 @@ class ApiFacade:
     """ Prompt facade """
     def get_all_prompts(self):
         return self.prompt_repo.get_all()
+
+    def get_prompt_by_name(self, name):
+        return self.prompt_repo.get_by_attribute('name', name)
+
+    def update_prompt(self, name, data):
+        prompt = self.prompt_repo.get_by_attribute('name', name)
+        if not prompt:
+            return None
+        allowed = {'content', 'model'}
+        self.prompt_repo.update(prompt.id, {k: v for k, v in data.items() if k in allowed})
+        return self.prompt_repo.get_by_attribute('name', name)

@@ -9,6 +9,7 @@ def generete_token(data):
             "is_admin": data.is_admin,
             "organization_id": str(data.organization_id),
             "role": data.role,
+            "job": data.job,
         }
     )
 

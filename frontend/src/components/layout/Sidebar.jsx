@@ -19,6 +19,7 @@ import { AGENTS } from '../../constants/agents';
 import { useCookieModal } from '../cookies/ConsentBanner';
 
 const DEV_USER_IDS = new Set([
+  '8eb164ea-36e1-417b-b843-b5370dc905ff',
   '09eca25d-d955-4136-93f2-4467f2df37eb',
   '3cc14d1c-591d-468b-bad4-bfa0e79b25f4',
   '1c38aaee-4a20-43b3-bb92-92cd4f898dc1',
