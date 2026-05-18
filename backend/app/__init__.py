@@ -102,13 +102,6 @@ def createApp(config_class="config.DevelopmentConfig"):
     def check_if_token_revoked(jwt_header, jwt_payload):
         return TokenBlocklist.is_blocked(jwt_payload.get('jti', ''))
 
-    # ── JWT blocklist (refresh token revocation) ──────────────────────────────
-    from app.models.token_blocklist import TokenBlocklist
-
-    @jwt.token_in_blocklist_loader
-    def check_if_token_revoked(jwt_header, jwt_payload):
-        return TokenBlocklist.is_blocked(jwt_payload.get('jti', ''))
-
     # ── DB init ───────────────────────────────────────────────────────────────
     from app.models.prompts import Prompt
     from app.services.prompt_loader import load_initial_prompts

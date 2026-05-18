@@ -5,10 +5,8 @@ from app.services import facade
 from app.security.jwt import generete_token, generete_refresh_token
 from app.models.blocklist_token import TokenBlocklist
 from app.services.mail_service import MailService
-from app.models.token_blocklist import TokenBlocklist
 from app import limiter
 from flask import current_app
-from app import limiter
 
 api = Namespace('auth', description="User authentication operation")
 
