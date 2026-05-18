@@ -14,6 +14,6 @@ class TokenBlocklist(BaseModel):
     @classmethod
     def block(cls, jti: str):
         if not cls.is_blocked(jti):
-            db.session(cls(jti=jti))
+            db.session.add(cls(jti=jti))
             db.session.commit()
     

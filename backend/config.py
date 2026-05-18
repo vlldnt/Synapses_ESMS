@@ -12,8 +12,9 @@ class Config:
     JWT_TOKEN_LOCATION = ['cookies']
     JWT_COOKIE_SECURE = os.getenv("FLASK_env") == "production"
     JWT_COOKIE_SAMESITE = "Lax"
-    JWT_COOKIECSRF_PROTECT = True
-    JWT_ACCESS_CSRF_HEADER_name = "X-CSRF-TOKEN"
+    JWT_COOKIE_CSRF_PROTECT = True
+    JWT_ACCESS_CSRF_HEADER_NAME = "X-CSRF-TOKEN"
+    JWT_COOKIE_PATH = "/"
     DEBUG = False
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
