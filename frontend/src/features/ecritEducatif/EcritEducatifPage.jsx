@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Button from "../../components/Button";
 import RgpdNotice from "../../components/RgpdNotice";
 import GeneratedResult from "../../components/GeneratedResult";
@@ -57,6 +57,7 @@ function EcritEducatifPage() {
   );
   const [references, setReferences] = useState([]);
   const [observations, setObservations] = useState(draft.observations || "");
+  const controllerRef = useRef(null);
   const [loading, setLoading] = useState(false);
   const [loadingMessageIndex, setLoadingMessageIndex] = useState(0);
   const [showGeneratingModal, setShowGeneratingModal] = useState(false);
@@ -203,9 +204,15 @@ function EcritEducatifPage() {
     }
   };
 
+  const handleCancelGeneration = () => {
+    cancelRef.current = true;
+    setLoading(false);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!observations.trim()) return;
+    if (!observations.trim() || !selectedReferenceId) return;
+    cancelRef.current = false;
     setLoading(true);
     setResult("");
     setValidated(false);
@@ -224,17 +231,20 @@ function EcritEducatifPage() {
         date: today,
         model: selectedModelId,
       });
+      if (cancelRef.current) return;
       setResult(text);
       setUsedModel({ id: selectedModelId, name: selectedModelName });
       setElapsed(((Date.now() - start) / 1000).toFixed(1));
       setReportStatus(REPORT_STATUS.IN_PROGRESS);
     } catch (err) {
+      if (cancelRef.current) return;
       setResult(err.message === PROMPT_NOT_FOUND
         ? "Cette fonctionnalité n'est pas disponible pour le moment."
         : `Erreur : ${err.message}`);
       setReportStatus(REPORT_STATUS.DRAFT);
     } finally {
-      setLoading(false);
+      if (!cancelRef.current) setLoading(false);
+      cancelRef.current = false;
     }
   };
 
@@ -398,7 +408,7 @@ function EcritEducatifPage() {
                 type="submit"
                 color={ACCENT}
                 size="md"
-                disabled={loading || !observations.trim()}
+                disabled={loading || !observations.trim() || !selectedReferenceId}
                 className="flex-1 md:flex-none"
               >
                 {loading ? "Génération en cours…" : "Générer l'écrit éducatif"}
@@ -497,6 +507,7 @@ function EcritEducatifPage() {
         <GeneratingReportModal
           isOpen={showGeneratingModal}
           message={LOADING_MESSAGES[loadingMessageIndex]}
+          onCancel={handleCancelGeneration}
         />
       </div>
     </div>

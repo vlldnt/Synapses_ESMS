@@ -142,7 +142,7 @@ class ApiFacade:
 
         self.user_repo.update(user_id, user_data)
         return self.user_repo.get(user_id)
-    
+
     """ Organisation facade """
     def create_org(self, organisation_data):
         organisation = Organization(**organisation_data)
@@ -181,6 +181,15 @@ class ApiFacade:
     
     def create_archive(self, data):
         return self.archive_repo.add(data)
+
+    def get_archive_by_id(self, archive_id):
+        return self.archive_repo.get(archive_id)
+
+    def delete_archive(self, archive_id):
+        return self.archive_repo.delete(archive_id)
+
+    def delete_document(self, document_id):
+        return self.document_repo.delete(document_id)
     
     """ document facade """
     def create_document(self, data):

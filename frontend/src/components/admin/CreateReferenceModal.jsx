@@ -20,13 +20,17 @@ export default function CreateReferenceModal({ employees = [], onClose, onCreate
       setError('Prénom et nom sont requis.');
       return;
     }
+    if (showEducator && !fields.educatorId) {
+      setError('Veuillez sélectionner un éducateur référent.');
+      return;
+    }
     setSubmitting(true);
     setError('');
     try {
       const newRef = await createReference({
         firstName: fields.firstName.trim(),
         lastName: fields.lastName.trim(),
-        educatorId: showEducator ? (fields.educatorId || undefined) : undefined,
+        educatorId: showEducator ? fields.educatorId : undefined,
       });
       onCreated(newRef);
       onClose();
@@ -66,9 +70,9 @@ export default function CreateReferenceModal({ employees = [], onClose, onCreate
           </div>
           {showEducator && (
             <div className='flex flex-col gap-1'>
-              <label className='text-xs text-(--text-muted)'>Référent assigné (optionnel)</label>
-              <select value={fields.educatorId} onChange={set('educatorId')} className={inputCls}>
-                <option value=''>Aucun</option>
+              <label className='text-xs text-(--text-muted)'>Éducateur référent <span className='text-red-500'>*</span></label>
+              <select value={fields.educatorId} onChange={set('educatorId')} className={inputCls} required>
+                <option value=''>Sélectionner un éducateur…</option>
                 {employees.map((emp) => (
                   <option key={emp.id} value={emp.id}>
                     {emp.first_name} {emp.last_name}{emp.job ? ` — ${emp.job}` : ''}

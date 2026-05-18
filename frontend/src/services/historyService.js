@@ -1,6 +1,6 @@
 import { authFetch } from './authServices';
 
-const API_URL = './api';
+const API_URL = `${import.meta.env.VITE_BASENAME || '/synapses'}/api`;
 
 const historyCacheByKey = new Map();
 
@@ -16,87 +16,53 @@ function getEntryTimestamp(entry) {
 export async function saveToHistory({
   date,
   interventionType,
-  structureType,
-  companyName,
   educatorName,
-  educator,
+  educatorRole,
   filename,
   displayName,
-  reference,
-  docxBase64,
+  content,
   type,
   childName,
   creatorId,
 }) {
-  const resolvedCreatorId = creatorId || educator?.id || 'unknown';
-  const educatorObj = educator || { name: educatorName || '—', id: resolvedCreatorId };
-  const displayEducatorName = educatorObj.name || educatorName || '—';
-
   const entry = {
-    status: 'archived',
-    filename: filename || `CR_${date || 'intervention'}.docx`,
-    display_name:
-      displayName ||
-      `CRI ${displayEducatorName} ${new Date(date).toLocaleDateString('fr-FR')}`,
+    filename: filename || `document_${date || 'archive'}.docx`,
+    display_name: displayName || filename || 'Document archivé',
     date: date || new Date().toISOString().slice(0, 10),
     intervention_type: interventionType || '—',
     type: type || 'CRI',
     reference_name: childName || '—',
-    docx_base_64: docxBase64 || '',
-    creator_id: resolvedCreatorId,
-    created_at: new Date().toISOString(),
-    structure_type: structureType || '—',
-    company_name: companyName || '—',
-    educator: educatorObj,
-    reference: reference || '—',
+    content: content || '',
+    educator_name: educatorName || '',
+    educator_role: educatorRole || '',
+    creator_id: creatorId || '',
   };
 
-  try {
-    const response = await authFetch(`${API_URL}/archives`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(entry),
-    });
+  const response = await authFetch(`${API_URL}/archives`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(entry),
+  });
 
-    if (!response.ok) throw new Error(`API error: ${response.status}`);
+  if (!response.ok) throw new Error(`API error: ${response.status}`);
 
-    const savedEntry = await response.json();
+  const savedEntry = await response.json();
 
-    const userKey = cacheKeyForUser(resolvedCreatorId);
-    historyCacheByKey.set(userKey, [
-      savedEntry,
-      ...(historyCacheByKey.get(userKey) || []),
-    ]);
+  const userKey = cacheKeyForUser(creatorId);
+  historyCacheByKey.set(userKey, [savedEntry, ...(historyCacheByKey.get(userKey) || [])]);
+  historyCacheByKey.set('__all__', [savedEntry, ...(historyCacheByKey.get('__all__') || [])]);
 
-    const allKey = cacheKeyForUser();
-    historyCacheByKey.set(allKey, [
-      savedEntry,
-      ...(historyCacheByKey.get(allKey) || []),
-    ]);
-
-    return savedEntry;
-  } catch (err) {
-    console.error('Error saving archive:', err);
-    throw err;
-  }
+  return savedEntry;
 }
 
 export async function getHistory(userId) {
   const key = cacheKeyForUser(userId);
-
   try {
-    const params = new URLSearchParams();
-    if (userId) params.set('userId', userId);
-    const query = params.toString();
-
-    const response = await authFetch(
-      `${API_URL}/archives${query ? `?${query}` : ''}`,
-    );
+    const params = userId ? `?userId=${userId}` : '';
+    const response = await authFetch(`${API_URL}/archives${params}`);
     if (!response.ok) throw new Error(`API error: ${response.status}`);
-
     const archives = await response.json();
     historyCacheByKey.set(key, archives);
-
     return archives.sort((a, b) => getEntryTimestamp(b) - getEntryTimestamp(a));
   } catch (err) {
     console.warn('Error fetching archives, falling back to cache:', err);
@@ -106,22 +72,10 @@ export async function getHistory(userId) {
 }
 
 export async function deleteFromHistory(id) {
-  try {
-    const response = await authFetch(`${API_URL}/archives/${id}`, {
-      method: 'DELETE',
-    });
-    if (!response.ok) throw new Error(`API error: ${response.status}`);
-
-    for (const [key, entries] of historyCacheByKey.entries()) {
-      historyCacheByKey.set(
-        key,
-        entries.filter((e) => e.id !== id),
-      );
-    }
-
-    return true;
-  } catch (err) {
-    console.error('Error deleting archive:', err);
-    throw err;
+  const response = await authFetch(`${API_URL}/archives/${id}`, { method: 'DELETE' });
+  if (!response.ok) throw new Error(`API error: ${response.status}`);
+  for (const [key, entries] of historyCacheByKey.entries()) {
+    historyCacheByKey.set(key, entries.filter((e) => e.id !== id));
   }
+  return true;
 }

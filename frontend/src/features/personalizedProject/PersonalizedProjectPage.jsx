@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Button from "../../components/Button";
 import RgpdNotice from "../../components/RgpdNotice";
 import GeneratedResult from "../../components/GeneratedResult";
@@ -61,6 +61,7 @@ function PersonalizedProjectPage() {
   );
   const [references, setReferences] = useState([]);
   const [observations, setObservations] = useState(draft.observations || "");
+  const controllerRef = useRef(null);
   const [loading, setLoading] = useState(false);
   const [loadingMessageIndex, setLoadingMessageIndex] = useState(0);
   const [showGeneratingModal, setShowGeneratingModal] = useState(false);
@@ -213,9 +214,16 @@ function PersonalizedProjectPage() {
     }
   };
 
+  const handleCancelGeneration = () => {
+    controllerRef.current?.abort();
+    setLoading(false);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!observations.trim()) return;
+    if (!observations.trim() || !selectedReferenceId) return;
+    const controller = new AbortController();
+    controllerRef.current = controller;
     setLoading(true);
     setResult("");
     setValidated(false);
@@ -233,18 +241,20 @@ function PersonalizedProjectPage() {
         educatorRole: ROLE_LABELS[role] ?? role,
         date: today,
         model: selectedModelId,
+        signal: controller.signal,
       });
       setResult(text);
       setUsedModel({ id: selectedModelId, name: selectedModelName });
       setElapsed(((Date.now() - start) / 1000).toFixed(1));
       setReportStatus(REPORT_STATUS.IN_PROGRESS);
     } catch (err) {
+      if (err.name === 'AbortError') return;
       setResult(err.message === PROMPT_NOT_FOUND
         ? "Cette fonctionnalité n'est pas disponible pour le moment."
         : `Erreur : ${err.message}`);
       setReportStatus(REPORT_STATUS.DRAFT);
     } finally {
-      setLoading(false);
+      if (!controller.signal.aborted) setLoading(false);
     }
   };
 
@@ -372,7 +382,7 @@ function PersonalizedProjectPage() {
                 type="submit"
                 color={ACCENT}
                 size="md"
-                disabled={loading || !observations.trim()}
+                disabled={loading || !observations.trim() || !selectedReferenceId}
                 className="flex-1 md:flex-none"
               >
                 {loading ? "Génération en cours…" : "Générer le PPA"}
@@ -463,6 +473,7 @@ function PersonalizedProjectPage() {
         <GeneratingReportModal
           isOpen={showGeneratingModal}
           message={LOADING_MESSAGES[loadingMessageIndex]}
+          onCancel={handleCancelGeneration}
         />
       </div>
     </div>

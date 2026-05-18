@@ -112,10 +112,9 @@ export async function authFetch(url, options = {}) {
     headers: buildHeaders(),
   });
 
-  if (resp.status === 401) {
+  if (resp.status === 401 || resp.status === 422) {
     const refreshed = await _refresh();
     if (refreshed) {
-      // Retry with the new CSRF token minted after refresh
       resp = await fetch(url, {
         ...options,
         credentials: 'include',

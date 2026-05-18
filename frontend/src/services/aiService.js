@@ -44,6 +44,7 @@ async function getChatResponse({
   userMessage,
   temperature = 0.4,
   model = DEFAULT_MODEL,
+  signal,
 }) {
   if (!systemPrompt) throw new Error('Prompt système non trouvé');
 
@@ -58,11 +59,15 @@ async function getChatResponse({
       ],
       temperature,
     }),
+    signal,
   });
 
   if (!resp.ok) {
     const err = await resp.json().catch(() => ({}));
-    throw new Error(err.error || `Erreur API ${resp.status}`);
+    const errMsg = typeof err.error === 'string'
+      ? err.error
+      : err.error?.message || err.message || err.msg || `Erreur API ${resp.status}`;
+    throw new Error(errMsg);
   }
 
   const completion = await resp.json();
@@ -78,7 +83,7 @@ export const PROMPT_NOT_FOUND = 'PROMPT_NOT_FOUND';
 async function sendPrompt(
   promptName,
   userMessage,
-  { temperature = 0.4, model } = {},
+  { temperature = 0.4, model, signal } = {},
 ) {
   const promptData = await getPrompt(promptName);
   if (!promptData) throw new Error(PROMPT_NOT_FOUND);
@@ -88,8 +93,10 @@ async function sendPrompt(
       userMessage,
       temperature,
       model: model ?? promptData.model ?? DEFAULT_MODEL,
+      signal,
     });
   } catch (err) {
+    if (err.name === 'AbortError') throw err;
     console.error(`❌ sendPrompt("${promptName}") error:`, err.message);
     throw err;
   }
@@ -122,6 +129,7 @@ export async function generateInterventionReport({
   educatorRole,
   date,
   model = DEFAULT_MODEL,
+  signal,
 }) {
   const userMessage = `
 ${buildContext({ companyName, structureType, educatorName, educatorRole, date })}
@@ -136,6 +144,7 @@ Extrais les informations pertinentes de cette transcription et rédige un compte
   const result = await sendPrompt('cr_intervention', userMessage, {
     temperature: 0.4,
     model,
+    signal,
   });
 
   const typeMatch = result.match(/\[TYPE_INTERVENTION:\s*(.+?)\]/);
@@ -155,6 +164,7 @@ export async function generatePersonalizedProject({
   educatorRole,
   date,
   model = DEFAULT_MODEL,
+  signal,
 }) {
   const userMessage = `
 ${buildContext({ companyName, structureType, educatorName, educatorRole, date })}
@@ -168,6 +178,7 @@ Analyse ces observations, identifie les besoins selon la nomenclature SERAFIN-PH
   return sendPrompt('ppa_medico_social', userMessage, {
     temperature: 0.35,
     model,
+    signal,
   });
 }
 
@@ -180,6 +191,7 @@ export async function generateBilanEvaluation({
   educatorRole,
   date,
   model = DEFAULT_MODEL,
+  signal,
 }) {
   const userMessage = `
 ${buildContext({ companyName, structureType, educatorName, educatorRole, date })}
@@ -190,7 +202,7 @@ ${observations?.trim() || 'Aucune observation fournie.'}
 Analyse ces éléments et génère un bilan d'évaluation professionnel structuré, avec des titres adaptés au contenu réel. Valorise les acquis et les progrès avant les difficultés. Formule des objectifs éducatifs si le contexte le justifie.
 `.trim();
 
-  return sendPrompt('bilan_evaluation', userMessage, { temperature: 0.35, model });
+  return sendPrompt('bilan_evaluation', userMessage, { temperature: 0.35, model, signal });
 }
 
 // Écrit éducatif
@@ -202,6 +214,7 @@ export async function generateEcritEducatif({
   educatorRole,
   date,
   model = DEFAULT_MODEL,
+  signal,
 }) {
   const userMessage = `
 ${buildContext({ companyName, structureType, educatorName, educatorRole, date })}
@@ -212,7 +225,7 @@ ${observations?.trim() || 'Aucune observation fournie.'}
 Analyse ces notes et génère un écrit éducatif professionnel structuré, avec des titres adaptés au contexte réel. Ne force aucune section inutile. Valorise les ressources et points d'appui avant les difficultés.
 `.trim();
 
-  return sendPrompt('ecrit_educatif', userMessage, { temperature: 0.35, model });
+  return sendPrompt('ecrit_educatif', userMessage, { temperature: 0.35, model, signal });
 }
 
 // CRR — Compte Rendu de Réunion
@@ -371,6 +384,7 @@ export async function generatePpasSocial({
   educatorRole,
   date,
   model = DEFAULT_MODEL,
+  signal,
 }) {
   const userMessage = `
 ${buildContext({ companyName, structureType, educatorName, educatorRole, date })}
@@ -381,7 +395,7 @@ ${observations?.trim() || 'Aucune observation fournie.'}
 Analyse ces observations, identifie les axes Séraphin concernés et génère un PPAS complet en 7 sections. Pour toute information absente, indique « À compléter par le professionnel référent ». Valorise les ressources et le pouvoir d'agir de la personne.
 `.trim();
 
-  return sendPrompt('ppa_social', userMessage, { temperature: 0.35, model });
+  return sendPrompt('ppa_social', userMessage, { temperature: 0.35, model, signal });
 }
 
 // HAS — Préparation Évaluation HAS

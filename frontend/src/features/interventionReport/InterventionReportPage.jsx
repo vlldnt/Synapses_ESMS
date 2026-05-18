@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Button from "../../components/Button";
 import RgpdNotice from "../../components/RgpdNotice";
 import GeneratedResult from "../../components/GeneratedResult";
@@ -95,6 +95,7 @@ function InterventionReportPage() {
   const [selectedEducatorId, setSelectedEducatorId] = useState(
     draft.selectedEducatorId || user?.id,
   );
+  const controllerRef = useRef(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -241,9 +242,16 @@ function InterventionReportPage() {
     }
   };
 
+  const handleCancelGeneration = () => {
+    controllerRef.current?.abort();
+    setLoading(false);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!transcription.trim()) return;
+    if (!transcription.trim() || !selectedReferenceId) return;
+    const controller = new AbortController();
+    controllerRef.current = controller;
     setLoading(true);
     setResult("");
     setValidated(false);
@@ -262,18 +270,20 @@ function InterventionReportPage() {
         educatorRole: ROLE_LABELS[role] ?? role,
         date: today,
         model: selectedModelId,
+        signal: controller.signal,
       });
       setResult(text);
       setUsedModel({ id: selectedModelId, name: selectedModelName });
       setElapsed(((Date.now() - start) / 1000).toFixed(1));
       setReportStatus(REPORT_STATUS.IN_PROGRESS);
     } catch (err) {
+      if (err.name === 'AbortError') return;
       setResult(err.message === PROMPT_NOT_FOUND
         ? "Cette fonctionnalité n'est pas disponible pour le moment."
         : `Erreur : ${err.message}`);
       setReportStatus(REPORT_STATUS.DRAFT);
     } finally {
-      setLoading(false);
+      if (!controller.signal.aborted) setLoading(false);
     }
   };
 
@@ -491,7 +501,7 @@ function InterventionReportPage() {
                 type="submit"
                 color={ACCENT}
                 size="md"
-                disabled={loading || !transcription.trim()}
+                disabled={loading || !transcription.trim() || !selectedReferenceId}
                 className="flex-1 md:flex-none"
               >
                 {loading ? "Génération en cours…" : "Générer le compte rendu"}
@@ -586,6 +596,7 @@ function InterventionReportPage() {
         <GeneratingReportModal
           isOpen={showGeneratingModal}
           message={LOADING_MESSAGES[loadingMessageIndex]}
+          onCancel={handleCancelGeneration}
         />
       </div>
     </div>

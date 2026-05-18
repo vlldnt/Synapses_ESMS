@@ -131,7 +131,7 @@ function AdminPage() {
   });
 
   const filteredReferences = references.filter((ref) => {
-    if (refEducatorFilter !== 'all' && ref.educator !== refEducatorFilter) return false;
+    if (refEducatorFilter !== 'all' && ref.educator_id !== refEducatorFilter) return false;
     return true;
   });
 
@@ -277,7 +277,7 @@ function AdminPage() {
                 {references.length === 0 ? (
                   <p className='px-4 py-6 text-center text-xs text-(--text-muted)'>Aucune référence</p>
                 ) : references.map((ref) => {
-                  const educator = employees.find((e) => e.id === ref.educator);
+                  const educator = employees.find((e) => e.id === ref.educator_id);
                   return (
                     <div key={ref.id} className='flex items-center gap-2.5 px-4 py-2.5'>
                       <div className='w-7 h-7 rounded-full bg-(--bg-secondary) flex items-center justify-center text-xs font-semibold text-(--text-secondary) shrink-0 uppercase'>
@@ -407,7 +407,7 @@ function AdminPage() {
               {filteredReferences.length === 0 ? (
                 <p className='px-5 py-10 text-center text-sm text-(--text-muted)'>Aucune référence.</p>
               ) : filteredReferences.map((ref) => {
-                const educator = employees.find((e) => e.id === ref.educator);
+                const educator = employees.find((e) => e.id === ref.educator_id);
                 return (
                   <div key={ref.id} className='flex items-center gap-3 px-5 py-3.5'>
                     <div className='w-9 h-9 rounded-full bg-(--bg-tertiary) flex items-center justify-center text-sm font-semibold text-(--text-secondary) shrink-0 uppercase'>
@@ -415,7 +415,7 @@ function AdminPage() {
                     </div>
                     <div className='flex-1 min-w-0'>
                       <p className='text-sm font-medium text-(--text-primary)'>{ref.first_name} {ref.last_name}</p>
-                      {educator && <p className='text-xs text-(--text-muted)'>Référent : {educator.first_name} {educator.last_name}</p>}
+                      {educator && <p className='text-xs font-semibold text-(--text-muted)'>Réf : {educator.first_name} {educator.last_name}</p>}
                     </div>
                     <button type='button' onClick={() => setEditingRef(ref)} className='p-1.5 rounded-md text-(--text-muted) hover:text-(--bleu-fonce) hover:bg-(--bg-secondary) cursor-pointer transition-colors'>
                       <Pencil size={13} />

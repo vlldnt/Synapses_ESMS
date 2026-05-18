@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Download, X, Clock3 } from 'lucide-react';
+import { Download, X, Clock3, Trash2, AlertTriangle } from 'lucide-react';
 import Button from '../../components/Button';
 import WordPreview from '../../components/WordPreview';
 import { getHistory } from '../../services/historyService';
@@ -39,6 +39,17 @@ function ArchivesPage() {
   const [childFilter, setChildFilter] = useState('all');
   const [typeFilter, setTypeFilter] = useState('all');
   const [sortOrder, setSortOrder] = useState('desc');
+  const [deleteTarget, setDeleteTarget] = useState(null);
+  const [deleteConfirm, setDeleteConfirm] = useState('');
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [downloadToast, setDownloadToast] = useState(null);
+
+  const isAdmin = user?.role === 'admin';
+
+  const showToast = (msg) => {
+    setDownloadToast(msg);
+    setTimeout(() => setDownloadToast(null), 3000);
+  };
 
 
   useEffect(() => {
@@ -196,6 +207,24 @@ function ArchivesPage() {
     };
   }, [selectedEntry]);
 
+  const handleDeleteConfirm = async () => {
+    if (!deleteTarget || deleteConfirm !== 'supprimer') return;
+    setIsDeleting(true);
+    const basename = import.meta.env.VITE_BASENAME || '/synapses';
+    try {
+      const res = await authFetch(`${basename}/api/archives/${deleteTarget.id}`, { method: 'DELETE' });
+      if (!res.ok) throw new Error(`Erreur ${res.status}`);
+      setHistory((prev) => prev.filter((e) => e.id !== deleteTarget.id));
+      if (selectedEntry?.id === deleteTarget.id) setSelectedEntry(null);
+    } catch (err) {
+      console.error('Erreur suppression archive:', err);
+    } finally {
+      setIsDeleting(false);
+      setDeleteTarget(null);
+      setDeleteConfirm('');
+    }
+  };
+
   const handleDownload = async () => {
     if (!selectedEntry || !selectedEntry.docx_base_64) return;
     setIsDownloading(true);
@@ -209,12 +238,14 @@ function ArchivesPage() {
         type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
       });
       triggerDownload(blob, selectedEntry.filename);
+      showToast('Votre document Word est téléchargé');
     } finally {
       setIsDownloading(false);
     }
   };
 
   return (
+    <>
     <div className='h-full overflow-y-auto py-6 px-2 md:px-5 md:py-8'>
       <div className='mx-auto w-full max-w-5xl flex flex-col gap-5'>
         <div>
@@ -349,52 +380,59 @@ function ArchivesPage() {
                   : getDocColorFromLabel(typeLabel);
                 const enriched = getEnrichedInfo(entry, [], organization ? [organization] : []);
                 return (
-                  <button
-                    key={entry.id}
-                    type='button'
-                    onClick={() => setSelectedEntry(entry)}
-                    className='w-full text-left px-5 py-4 flex items-center gap-3 hover:bg-(--bg-secondary) transition-colors cursor-pointer'
-                  >
-                    <div className='min-w-0 flex-1'>
-                      <p className='text-sm font-semibold text-(--text-primary) truncate'>
-                        {formatReportName(entry)}
-                      </p>
-                      <p className='text-xs text-(--text-muted) truncate'>
-                        {entry.intervention_type} · {enriched.companyName}
-                      </p>
-                    </div>
-                    <span
-                      className='inline-flex items-center justify-center px-2.5 h-7 rounded-full text-[11px] font-bold shrink-0 min-w-11 text-white'
-                      style={{ background: docColor }}
+                  <div key={entry.id} className='flex items-center hover:bg-(--bg-secondary) transition-colors'>
+                    <button
+                      type='button'
+                      onClick={() => setSelectedEntry(entry)}
+                      className='flex-1 text-left px-5 py-4 flex items-center gap-3 cursor-pointer min-w-0'
                     >
-                      {typeLabel}
-                    </span>
-                    <div className='flex items-center gap-3 shrink-0'>
-                      <div className='flex flex-col items-end gap-0.5'>
-                        {entry.reference_name && (
-                          <span className='text-xs text-(--text-muted)/70 font-medium'>
-                            {entry.reference_name}
-                          </span>
-                        )}
-                        {(entry.date || entry.created_at) && (
-                          <span className='text-[11px] text-(--text-muted)/50'>
-                            {new Intl.DateTimeFormat('fr-FR', {
-                              day: '2-digit',
-                              month: 'short',
-                              year: 'numeric',
-                            }).format(
-                              new Date(
-                                entry.date || entry.created_at,
-                              ),
-                            )}
-                          </span>
-                        )}
+                      <div className='min-w-0 flex-1'>
+                        <p className='text-sm font-semibold text-(--text-primary) truncate'>
+                          {formatReportName(entry)}
+                        </p>
+                        <p className='text-xs text-(--text-muted) truncate'>
+                          {entry.intervention_type}
+                        </p>
                       </div>
-                      <span className='text-[10px] px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300'>
-                        Archive
+                      <span
+                        className='inline-flex items-center justify-center px-2.5 h-7 rounded-full text-[11px] font-bold shrink-0 min-w-11 text-white'
+                        style={{ background: docColor }}
+                      >
+                        {typeLabel}
                       </span>
-                    </div>
-                  </button>
+                      <div className='flex items-center gap-3 shrink-0'>
+                        <div className='flex flex-col items-end gap-0.5'>
+                          {entry.reference_name && (
+                            <span className='text-xs text-(--text-muted)/70 font-medium'>
+                              {entry.reference_name}
+                            </span>
+                          )}
+                          {(entry.date || entry.created_at) && (
+                            <span className='text-[11px] text-(--text-muted)/50'>
+                              {new Intl.DateTimeFormat('fr-FR', {
+                                day: '2-digit',
+                                month: 'short',
+                                year: 'numeric',
+                              }).format(new Date(entry.date || entry.created_at))}
+                            </span>
+                          )}
+                        </div>
+                        <span className='text-[10px] px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300'>
+                          Archive
+                        </span>
+                      </div>
+                    </button>
+                    {isAdmin && (
+                      <button
+                        type='button'
+                        onClick={() => { setDeleteTarget(entry); setDeleteConfirm(''); }}
+                        className='mr-4 p-1.5 rounded-md text-(--text-muted) hover:text-red-500 hover:bg-red-50 cursor-pointer transition-colors shrink-0'
+                        title='Supprimer'
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    )}
+                  </div>
                 );
               })}
             </div>
@@ -457,6 +495,65 @@ function ArchivesPage() {
         </div>
       )}
     </div>
+
+      {deleteTarget && (
+        <div className='fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4'>
+          <div className='w-full max-w-md bg-(--bg-primary) rounded-2xl shadow-2xl border border-(--border) overflow-hidden'>
+            <div className='px-5 py-4 border-b border-(--border) flex items-center gap-2'>
+              <AlertTriangle size={16} className='text-red-500 shrink-0' />
+              <h2 className='text-sm font-semibold text-(--text-primary)'>Supprimer l'archive</h2>
+            </div>
+            <div className='p-5 flex flex-col gap-4'>
+              <p className='text-sm text-(--text-muted)'>
+                Vous êtes sur le point de supprimer définitivement le document
+                {' '}<span className='font-medium text-(--text-primary)'>{formatReportName(deleteTarget)}</span>.
+              </p>
+              <p className='text-xs font-semibold text-red-500'>
+                ⚠ Cette action est irréversible. Le document et son archive seront supprimés.
+              </p>
+              <div className='flex flex-col gap-1.5'>
+                <label className='text-xs text-(--text-muted)'>
+                  Tapez <span className='font-mono font-bold text-(--text-primary)'>supprimer</span> pour confirmer
+                </label>
+                <input
+                  type='text'
+                  value={deleteConfirm}
+                  onChange={(e) => setDeleteConfirm(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && deleteConfirm === 'supprimer' && !isDeleting && handleDeleteConfirm()}
+                  placeholder='supprimer'
+                  className='w-full px-3 py-2 rounded-lg border bg-(--bg-secondary) text-(--text-primary) border-(--border) text-sm focus:outline-none focus:ring-2 focus:ring-red-400/40'
+                  autoFocus
+                />
+              </div>
+              <div className='flex gap-2 justify-end'>
+                <button
+                  type='button'
+                  onClick={() => { setDeleteTarget(null); setDeleteConfirm(''); }}
+                  className='px-4 py-2 rounded-lg border border-(--border) text-sm text-(--text-secondary) hover:bg-(--bg-secondary) cursor-pointer transition-colors'
+                >
+                  Annuler
+                </button>
+                <button
+                  type='button'
+                  disabled={deleteConfirm !== 'supprimer' || isDeleting}
+                  onClick={handleDeleteConfirm}
+                  className='px-4 py-2 rounded-lg bg-red-500 text-white text-sm font-medium hover:bg-red-600 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition-colors'
+                >
+                  {isDeleting ? 'Suppression…' : 'Supprimer définitivement'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {downloadToast && (
+        <div className='fixed bottom-6 left-1/2 -translate-x-1/2 z-50 px-4 py-2.5 rounded-xl bg-(--bg-primary) border border-(--border) shadow-lg text-sm text-(--text-primary) flex items-center gap-2 animate-in fade-in slide-in-from-bottom-2 duration-200'>
+          <span className='w-2 h-2 rounded-full bg-emerald-500 shrink-0' />
+          {downloadToast}
+        </div>
+      )}
+    </>
   );
 }
 

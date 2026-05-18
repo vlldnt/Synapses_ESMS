@@ -38,6 +38,8 @@ class AIChat(Resource):
                 json=data,
                 timeout=90,
             )
+            if not response.ok:
+                print(f"[OpenRouter] {response.status_code}: {response.text[:500]}")
             return response.json(), response.status_code
         except requests.Timeout:
             return {'error': 'Openrouter timeout.'}, 504
