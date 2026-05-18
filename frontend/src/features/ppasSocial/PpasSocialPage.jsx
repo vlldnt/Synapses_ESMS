@@ -199,14 +199,15 @@ function PpasSocialPage() {
   };
 
   const handleCancelGeneration = () => {
-    cancelRef.current = true;
+    controllerRef.current?.abort();
     setLoading(false);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!observations.trim() || !selectedReferenceId) return;
-    cancelRef.current = false;
+    const controller = new AbortController();
+    controllerRef.current = controller;
     setLoading(true);
     setResult("");
     setValidated(false);
@@ -224,21 +225,20 @@ function PpasSocialPage() {
         educatorRole: ROLE_LABELS[role] ?? role,
         date: today,
         model: selectedModelId,
+        signal: controller.signal,
       });
-      if (cancelRef.current) return;
       setResult(text);
       setUsedModel({ id: selectedModelId, name: selectedModelName });
       setElapsed(((Date.now() - start) / 1000).toFixed(1));
       setReportStatus(REPORT_STATUS.IN_PROGRESS);
     } catch (err) {
-      if (cancelRef.current) return;
+      if (err.name === 'AbortError') return;
       setResult(err.message === PROMPT_NOT_FOUND
         ? "Cette fonctionnalité n'est pas disponible pour le moment."
         : `Erreur : ${err.message}`);
       setReportStatus(REPORT_STATUS.DRAFT);
     } finally {
-      if (!cancelRef.current) setLoading(false);
-      cancelRef.current = false;
+      if (!controller.signal.aborted) setLoading(false);
     }
   };
 

@@ -237,6 +237,7 @@ export async function generateCompteRenduReunion({
   educatorRole,
   date,
   model = DEFAULT_MODEL,
+  signal,
 }) {
   const userMessage = `
 ${buildContext({ companyName, structureType, educatorName, educatorRole, date })}
@@ -246,7 +247,7 @@ ${observations?.trim() || 'Aucune note fournie.'}
 
 Analyse ces notes et génère un compte rendu de réunion professionnel structuré avec ordre du jour, participants (par fonction), points abordés, décisions prises et actions à engager.
 `.trim();
-  return sendPrompt('compte_rendu_reunion', userMessage, { temperature: 0.35, model });
+  return sendPrompt('compte_rendu_reunion', userMessage, { temperature: 0.35, model, signal });
 }
 
 // VEILLE — Veille Professionnelle
@@ -258,6 +259,7 @@ export async function generateVeilleProfessionnelle({
   educatorRole,
   date,
   model = DEFAULT_MODEL,
+  signal,
 }) {
   const userMessage = `
 ${buildContext({ companyName, structureType, educatorName, educatorRole, date })}
@@ -267,7 +269,7 @@ ${observations?.trim() || 'Aucun élément fourni.'}
 
 Analyse ces éléments et génère une note de veille professionnelle structurée : contexte réglementaire ou thématique, synthèse des évolutions, impacts pour la structure et recommandations pratiques.
 `.trim();
-  return sendPrompt('veille_professionnelle', userMessage, { temperature: 0.4, model });
+  return sendPrompt('veille_professionnelle', userMessage, { temperature: 0.4, model, signal });
 }
 
 // RM — Reporting Mensuel
@@ -279,6 +281,7 @@ export async function generateReportingMensuel({
   educatorRole,
   date,
   model = DEFAULT_MODEL,
+  signal,
 }) {
   const userMessage = `
 ${buildContext({ companyName, structureType, educatorName, educatorRole, date })}
@@ -288,7 +291,7 @@ ${observations?.trim() || 'Aucune donnée fournie.'}
 
 Analyse ces données et génère un reporting mensuel structuré : indicateurs d'activité, faits marquants, points de vigilance, perspectives pour le mois suivant.
 `.trim();
-  return sendPrompt('reporting_mensuel', userMessage, { temperature: 0.35, model });
+  return sendPrompt('reporting_mensuel', userMessage, { temperature: 0.35, model, signal });
 }
 
 // RA — Rapport d'Activité
@@ -300,6 +303,7 @@ export async function generateRapportActivite({
   educatorRole,
   date,
   model = DEFAULT_MODEL,
+  signal,
 }) {
   const userMessage = `
 ${buildContext({ companyName, structureType, educatorName, educatorRole, date })}
@@ -309,7 +313,7 @@ ${observations?.trim() || 'Aucun élément fourni.'}
 
 Analyse ces éléments et génère un rapport d'activité professionnel structuré : présentation de la structure, bilan quantitatif et qualitatif des actions, points forts, axes d'amélioration et perspectives.
 `.trim();
-  return sendPrompt('rapport_activite', userMessage, { temperature: 0.35, model });
+  return sendPrompt('rapport_activite', userMessage, { temperature: 0.35, model, signal });
 }
 
 // BA — Bilan d'Activité
@@ -321,6 +325,7 @@ export async function generateBilanActivite({
   educatorRole,
   date,
   model = DEFAULT_MODEL,
+  signal,
 }) {
   const userMessage = `
 ${buildContext({ companyName, structureType, educatorName, educatorRole, date })}
@@ -330,7 +335,7 @@ ${observations?.trim() || 'Aucun élément fourni.'}
 
 Analyse ces éléments et génère un bilan d'activité structuré : évaluation des objectifs fixés, réalisations, indicateurs clés, enseignements tirés et orientations pour la prochaine période.
 `.trim();
-  return sendPrompt('bilan_activite', userMessage, { temperature: 0.35, model });
+  return sendPrompt('bilan_activite', userMessage, { temperature: 0.35, model, signal });
 }
 
 // PE — Projet d'Établissement
@@ -342,6 +347,7 @@ export async function generateProjetEtablissement({
   educatorRole,
   date,
   model = DEFAULT_MODEL,
+  signal,
 }) {
   const userMessage = `
 ${buildContext({ companyName, structureType, educatorName, educatorRole, date })}
@@ -351,7 +357,7 @@ ${observations?.trim() || 'Aucun élément fourni.'}
 
 Analyse ces éléments et génère un projet d'établissement structuré : présentation et valeurs, diagnostic de la situation, orientations stratégiques, objectifs à 5 ans, plan d'action et modalités d'évaluation.
 `.trim();
-  return sendPrompt('projet_etablissement', userMessage, { temperature: 0.4, model });
+  return sendPrompt('projet_etablissement', userMessage, { temperature: 0.4, model, signal });
 }
 
 // PS — Projet de Service
@@ -363,6 +369,7 @@ export async function generateProjetService({
   educatorRole,
   date,
   model = DEFAULT_MODEL,
+  signal,
 }) {
   const userMessage = `
 ${buildContext({ companyName, structureType, educatorName, educatorRole, date })}
@@ -372,7 +379,7 @@ ${observations?.trim() || 'Aucun élément fourni.'}
 
 Analyse ces éléments et génère un projet de service structuré : missions et périmètre du service, diagnostic, objectifs opérationnels, organisation et ressources, modalités de suivi et d'évaluation.
 `.trim();
-  return sendPrompt('projet_service', userMessage, { temperature: 0.4, model });
+  return sendPrompt('projet_service', userMessage, { temperature: 0.4, model, signal });
 }
 
 // PPAS — Projet Personnalisé d'Accompagnement Social (axes Séraphin)
@@ -407,6 +414,7 @@ export async function generateEvaluationHas({
   educatorRole,
   date,
   model,
+  signal,
 }) {
   const userMessage = `
 ${buildContext({ companyName, structureType, educatorName, educatorRole, date })}
@@ -416,7 +424,7 @@ ${observations?.trim() || 'Aucun élément fourni.'}
 
 Analyse ces éléments et génère une préparation structurée à l'évaluation HAS : identification des thématiques concernées, points forts, axes d'amélioration, recommandations concrètes et plan d'action priorisé.
 `.trim();
-  return sendPrompt('evaluation_has', userMessage, { temperature: 0.4, model });
+  return sendPrompt('evaluation_has', userMessage, { temperature: 0.4, model, signal });
 }
 
 // AAP — Appel à Projet
@@ -428,6 +436,7 @@ export async function generateAppelProjet({
   educatorRole,
   date,
   model,
+  signal,
 }) {
   const userMessage = `
 ${buildContext({ companyName, structureType, educatorName, educatorRole, date })}
@@ -437,5 +446,5 @@ ${observations?.trim() || 'Aucun élément fourni.'}
 
 Analyse ces éléments et génère une réponse structurée à l'appel à projet : présentation du porteur, diagnostic territorial, description du projet, public cible, moyens humains et organisationnels, plan de financement indicatif, démarche qualité et calendrier de mise en œuvre.
 `.trim();
-  return sendPrompt('appel_projet', userMessage, { temperature: 0.4, model });
+  return sendPrompt('appel_projet', userMessage, { temperature: 0.4, model, signal });
 }
