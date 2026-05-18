@@ -179,6 +179,13 @@ class ApiFacade:
             return self.archive_repo.get_all()
         return self.archive_repo.get_all_by_attribute('creator_id', user_id)
     
+    def create_archive(self, data):
+        return self.archive_repo.add(data)
+    
+    """ document facade """
+    def create_document(self, data):
+        return self.document_repo.add(data)
+
     """ Prompt facade """
     def get_all_prompts(self):
         return self.prompt_repo.get_all()

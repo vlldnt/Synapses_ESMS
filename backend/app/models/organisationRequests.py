@@ -7,7 +7,7 @@ from enum import Enum
 class Status(Enum):
     pending = "pending"
     approved = "approved"
-    rjected = "rejected"
+    rejected = "rejected"
 
 class OrganizationRequest(BaseModel):
     __tablename__ = "organizationRequest"
