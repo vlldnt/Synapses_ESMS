@@ -12,8 +12,8 @@ def generete_token(data):
         }
     )
 
-def generate_refresh_token(data):
+def generete_refresh_token(data):
     return create_refresh_token(
-        identity=str(data.id),
-        expires_delta=current_app.config["JWT_REFRESH_TOKEN_EXPIRES"],
+        identity= str(data.id),
+        expires_delta=current_app.config["JWT_REFRESH_TOKEN_EXPIRES"]
     )

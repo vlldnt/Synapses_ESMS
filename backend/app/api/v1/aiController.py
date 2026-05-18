@@ -3,16 +3,15 @@ from flask import current_app
 from flask_restx import Namespace, Resource, fields
 from flask_jwt_extended import jwt_required
 
-api = Namespace('ai', description="OpenRouter proxy — clé API conservée côté serveur")
+api = Namespace('ai', description="Open router - key server only")
 
-chat_model = api.model('ChatRequest', {
+chat_model = api.model("ChatRequest", {
     'model': fields.String(required=True),
     'messages': fields.List(fields.Raw, required=True),
     'temperature': fields.Float(default=0.4),
 })
 
-
-def _openrouter_headers():
+def openrouter_header():
     api_key = current_app.config.get('OPENROUTER_API_KEY', '')
     app_url = current_app.config.get('APP_URL', '')
     return {
@@ -22,45 +21,45 @@ def _openrouter_headers():
         'X-Title': 'Synapses ESMS',
     }
 
-
+#---AI CHAT ENDPOINT---------------------------------------------------------------------------------------------
 @api.route('/chat')
 class AIChat(Resource):
     @jwt_required()
     @api.expect(chat_model)
     def post(self):
-        """Proxy vers OpenRouter /chat/completions"""
-        payload = api.payload or {}
+        """ Chat proxy to OpenRouter """
+        data = api.payload or {}
         base = current_app.config.get('OPENROUTER_BASE_URL', 'https://openrouter.ai/api/v1')
 
         try:
-            resp = requests.post(
+            response = requests.post(
                 f'{base}/chat/completions',
-                headers=_openrouter_headers(),
-                json=payload,
+                headers=openrouter_header(),
+                json=data,
                 timeout=90,
             )
-            return resp.json(), resp.status_code
+            return response.json(), response.status_code
         except requests.Timeout:
-            return {'error': 'OpenRouter timeout.'}, 504
-        except requests.RequestException as e:
-            return {'error': str(e)}, 502
-
-
+            return {'error': 'Openrouter timeout.'}, 504
+        except requests.RequestException as error:
+            return {'error': str(error)}, 502
+        
+#---AI MODEL ENDPOINT---------------------------------------------------------------------------------------------
 @api.route('/models')
 class AIModels(Resource):
     @jwt_required()
     def get(self):
-        """Proxy vers OpenRouter /models"""
+        """ Models proxy to OpenRouter """
         base = current_app.config.get('OPENROUTER_BASE_URL', 'https://openrouter.ai/api/v1')
-
+        print(f"{base}")
         try:
-            resp = requests.get(
+            response = requests.get(
                 f'{base}/models',
-                headers=_openrouter_headers(),
+                headers=openrouter_header(),
                 timeout=15,
             )
-            return resp.json(), resp.status_code
+            return response.json(), response.status_code
         except requests.Timeout:
-            return {'error': 'OpenRouter timeout.'}, 504
-        except requests.RequestException as e:
-            return {'error': str(e)}, 502
+            return {'error': 'Openrouter timeout.'}, 504
+        except requests.RequestException as error:
+            return {'error': str(error)}, 502

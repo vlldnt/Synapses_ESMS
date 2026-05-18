@@ -9,6 +9,7 @@ api = Namespace('references', description="references operations")
 ref_model = api.model("references", {
     "first_name": fields.String(required=True, description="references first name", example="Jotaro"),
     "last_name": fields.String(required=True, description="references first name", example="Kujo"),
+    "educator_id": fields.String(required=False, description="ref educator")
 })
 
 @api.route("/")
@@ -22,16 +23,21 @@ class ReferencesList(Resource):
         """ engister a reference """
         try:
             ref_data = api.payload
-            educator = get_jwt_identity()
             claims = get_jwt()
+            role = claims.get('role')
             organisation_id = claims.get('organization_id')
             if not organisation_id:
                 api.abort(400, "Organization ID missing from token")
             
-            valid_inputs = ["first_name", "last_name"]
+            valid_inputs = ["first_name", "last_name", "educator_id"]
             for key in ref_data:
                 if key not in valid_inputs:
                     api.abort(400, f'Invalid input data: {key}')
+            
+            if role == "admin":
+                educator = ref_data["educator_id"]
+            else:
+                educator = get_jwt_identity()
 
             reference = Reference(
                 first_name= ref_data["first_name"],

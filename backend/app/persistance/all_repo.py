@@ -5,6 +5,7 @@ from app.models.references import Reference
 from app.models.userRequest import UserRequest
 from app.models.archive import Archives
 from app.models.document import Document
+from app.models.prompts import Prompt
 from .repository import SQLAlchemyRepository
 
 class UserRepository(SQLAlchemyRepository):
@@ -37,3 +38,8 @@ class ArchiveRepository(SQLAlchemyRepository):
 class DocumentRepository(SQLAlchemyRepository):
     def __init__(self):
         super().__init__(Document)
+
+class PromptRepository(SQLAlchemyRepository):
+    def __init__(self):
+        super().__init__(Prompt)
+

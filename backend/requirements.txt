@@ -6,9 +6,10 @@ psycopg2-binary
 
 Flask-Bcrypt
 Flask-JWT-Extended
-Flask-Cors
-Flask-Limiter
+Flask-cors
+flask-limiter
 
 python-dotenv
-requests
 resend
+google-cloud-speech 
+flask-sock 

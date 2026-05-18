@@ -6,7 +6,6 @@ import { setTheme } from './store/themeSlice';
 import { setOrganization, setInitialized } from './store/authSlice';
 import { getOrganizationById } from './services/organizationService';
 import { checkAuthStatus } from './services/authServices';
-import ConsentBanner from './components/cookies/ConsentBanner';
 import { Sun, Moon, Loader2 } from 'lucide-react';
 import './App.css';
 import Sidebar from './components/layout/Sidebar';

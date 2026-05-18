@@ -33,3 +33,11 @@ class OrganisationResource(Resource):
         if not organisation:
             return {'error': 'the organization does not exist'}, 404
         return [organisation.to_dict()], 200
+
+@api.route('/prompts')
+class OrganisationPrompt(Resource):
+    @jwt_required()
+    @api.doc(security="token")
+    def get(self):
+        prompts = facade.get_all_prompts()
+        return [prompt.to_dict() for prompt in prompts], 200
