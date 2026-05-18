@@ -117,7 +117,6 @@ function ProfileModal({ onClose }) {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || `Erreur ${res.status}`);
       const updated = { ...user, ...data };
-      localStorage.setItem('auth_user', JSON.stringify(updated));
       dispatch(setUser(updated));
       setSaveSuccess(true);
       setTimeout(() => { setEditMode(false); setSaveSuccess(false); }, 1200);

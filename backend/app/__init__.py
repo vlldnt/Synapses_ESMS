@@ -8,17 +8,23 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
+from flask_sock import Sock
 
 db = SQLAlchemy()
 bcrypt = Bcrypt()
 jwt = JWTManager()
 limiter = Limiter(key_func=get_remote_address, default_limits=[])
+sock = Sock()
 
+from app.services.speech import init_speech_client
+from app.sockets.audioSocket import register_audio_socket
 from app.api.v1.usersController import api as users_ns
 from app.api.v1.authController import api as auth_ns
 from app.api.v1.organisationController import api as org_ns
 from app.api.v1.referencesController import api as ref_ns
 from app.api.v1.archiveController import api as archive_ns
+from app.api.v1.aiController import api as ai_ns
+from app.api.v1.audioController import api as audio_ns
 
 def check_produc_secrets(app):
     """ check secret produce """
@@ -79,11 +85,23 @@ def createApp(config_class="config.DevelopmentConfig"):
     api.add_namespace(org_ns, path='/api')
     api.add_namespace(ref_ns, path='/api/references')
     api.add_namespace(archive_ns, path='/api/archives')
+    api.add_namespace(ai_ns, path='/api/ai')
+    api.add_namespace(audio_ns, path='/api')
 
     db.init_app(app)
     bcrypt.init_app(app)
     jwt.init_app(app)
     limiter.init_app(app)
+    sock.init_app(app)
+    
+    init_speech_client(app.config.get("GOOGLE_SPEECH_KEY", "google-key.json"))
+    register_audio_socket(app)
+
+    from app.models.blocklist_token import TokenBlocklist
+
+    @jwt.token_in_blocklist_loader
+    def check_if_token_revoked(jwt_header, jwt_payload):
+        return TokenBlocklist.is_blocked(jwt_payload.get('jti', ''))
 
     from app.models.prompts import Prompt
     from app.services.prompt_loader import load_initial_prompts

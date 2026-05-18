@@ -1,4 +1,3 @@
-import { OpenRouter } from '@openrouter/sdk';
 import { authFetch } from './authServices';
 
 // ─── CONFIG ───────────────────────────────────────────────────────────────────
@@ -7,12 +6,6 @@ export const DEFAULT_MODEL = 'mistralai/voxtral-small-24b-2507';
 
 const basename = import.meta.env.VITE_BASENAME || '/synapses';
 const API_URL = `${basename}/api`;
-
-const apiKey = import.meta.env.VITE_OPENROUTER_API_KEY;
-if (!apiKey)
-  console.error('❌ VITE_OPENROUTER_API_KEY not configured in .env.local');
-
-const openrouter = new OpenRouter({ apiKey, dangerouslyAllowBrowser: true });
 
 // ─── PROMPTS — fetch & cache depuis /api/prompts ──────────────────────────────
 
@@ -54,18 +47,26 @@ async function getChatResponse({
 }) {
   if (!systemPrompt) throw new Error('Prompt système non trouvé');
 
-  const completion = await openrouter.chat.send({
-    chatRequest: {
+  const resp = await authFetch(`${API_URL}/ai/chat`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
       model,
       messages: [
         { role: 'system', content: systemPrompt },
         { role: 'user', content: userMessage },
       ],
       temperature,
-    },
+    }),
   });
 
-  let text = completion.choices?.[0]?.message?.content;
+  if (!resp.ok) {
+    const err = await resp.json().catch(() => ({}));
+    throw new Error(err.error || `Erreur API ${resp.status}`);
+  }
+
+  const completion = await resp.json();
+  const text = completion.choices?.[0]?.message?.content;
   if (!text) throw new Error('Réponse OpenRouter vide ou inattendue.');
 
   return text.trim();

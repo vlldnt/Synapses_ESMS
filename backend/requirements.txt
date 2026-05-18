@@ -11,3 +11,5 @@ flask-limiter
 
 python-dotenv
 resend
+google-cloud-speech 
+flask-sock 

@@ -1,15 +1,17 @@
 import { useState, useEffect } from 'react';
+import { authFetch } from '../services/authServices';
+
+const basename = import.meta.env.VITE_BASENAME || '/synapses';
+const API_URL = `${basename}/api`;
 
 let _cache = null;
 let _promise = null;
 
-async function fetchModels(apiKey) {
+async function fetchModels() {
   if (_cache !== null) return _cache;
   if (_promise) return _promise;
 
-  _promise = fetch('https://openrouter.ai/api/v1/models', {
-    headers: { Authorization: `Bearer ${apiKey}` },
-  })
+  _promise = authFetch(`${API_URL}/ai/models`)
     .then((r) => {
       if (!r.ok) throw new Error(`HTTP ${r.status}`);
       return r.json();
@@ -18,32 +20,28 @@ async function fetchModels(apiKey) {
       _cache = data.data ?? [];
       return _cache;
     })
-    .finally(() => {
-      _promise = null;
-    });
+    .catch(() => [])
+    .finally(() => { _promise = null; });
 
   return _promise;
 }
 
 export function useModels() {
-  const apiKey = import.meta.env.VITE_OPENROUTER_API_KEY;
-  const canFetch = Boolean(apiKey);
-
   const [models, setModels] = useState(_cache ?? []);
-  const [isLoading, setIsLoading] = useState(canFetch && !_cache);
+  const [isLoading, setIsLoading] = useState(!_cache);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    if (!apiKey || _cache !== null) {
+    if (_cache !== null) {
       setIsLoading(false);
       return;
     }
 
-    fetchModels(apiKey)
+    fetchModels()
       .then((list) => setModels(list))
       .catch((err) => setError(err.message))
       .finally(() => setIsLoading(false));
-  }, [apiKey]);
+  }, []);
 
   const getModelName = (id) => {
     const m = models.find((m) => m.id === id);

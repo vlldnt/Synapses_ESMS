@@ -1,11 +1,12 @@
 import { useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { Routes, Route, Navigate } from 'react-router-dom';
+
 import { setTheme } from './store/themeSlice';
-import { setOrganization } from './store/authSlice';
-import { setRole } from './store/roleSlice';
+import { setOrganization, setInitialized } from './store/authSlice';
 import { getOrganizationById } from './services/organizationService';
-import { Sun, Moon } from 'lucide-react';
+import { checkAuthStatus } from './services/authServices';
+import { Sun, Moon, Loader2 } from 'lucide-react';
 import './App.css';
 import Sidebar from './components/layout/Sidebar';
 import MobileMenu from './components/layout/MobileMenu';
@@ -57,9 +58,8 @@ function TopControls() {
 function App() {
   const dispatch = useDispatch();
   const isLogged = useSelector((state) => state.auth.isLogged);
+  const isInitialized = useSelector((state) => state.auth.isInitialized);
   const theme = useSelector((state) => state.theme.theme);
-  const role = useSelector((state) => state.role.role);
-
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
   }, [theme]);
@@ -67,25 +67,25 @@ function App() {
   const user = useSelector((state) => state.auth.user);
   const organization = useSelector((state) => state.auth.organization);
 
-  // dérive le rôle depuis le JWT au refresh
+  // Rehydrate auth from HTTP-only cookie on every page load/refresh
   useEffect(() => {
-    if (isLogged) {
-      const token = localStorage.getItem('auth_token');
-      if (token) {
-        try {
-          const payload = JSON.parse(atob(token.split('.')[1]));
-          dispatch(setRole(payload.role || 'agent'));
-        } catch { /* ignore */ }
-      }
-    }
-  }, [isLogged, dispatch]);
+    checkAuthStatus().finally(() => dispatch(setInitialized()));
+  }, [dispatch]);
 
-  // recharge l'org au refresh si le token est encore valide
+  // Reload org when user becomes available
   useEffect(() => {
     if (isLogged && user?.organization_id && !organization) {
       getOrganizationById(user.organization_id).then((org) => dispatch(setOrganization(org)));
     }
   }, [isLogged, user, organization, dispatch]);
+
+  if (!isInitialized) {
+    return (
+      <div className="min-h-dvh flex items-center justify-center bg-(--bg-secondary)">
+        <Loader2 size={32} className="animate-spin text-(--text-muted)" />
+      </div>
+    );
+  }
 
   return (
     <>

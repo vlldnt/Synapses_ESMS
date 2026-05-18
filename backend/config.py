@@ -27,6 +27,7 @@ class DevelopmentConfig(Config):
     CORS_ORIGINS = os.getenv("CORS_ORIGINS", "http://localhost:5173")
     OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
     OPENROUTER_BASE_URL = "https://openrouter.ai/api/v1"
+    GOOGLE_SPEECH_KEY = os.getenv("GOOGLE_SPEECH_KEY", "data/google-key.json")
 
 class ProductionConfig(Config):
     DEBUG = False   
