@@ -450,11 +450,6 @@ export default function GeneratedResult({
             <div ref={previewRef} data-pdf-root="true">
             <WordPreview text={editedText} />
           </div>
-            {generatedByModel?.id && (
-              <p className="mt-4 text-xs text-(--text-muted) italic">
-                Genere par modele : <strong>{generatedByModel.name || generatedByModel.id}</strong>
-              </p>
-            )}
           </div>
         )}
       </div>

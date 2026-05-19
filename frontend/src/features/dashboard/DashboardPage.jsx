@@ -446,7 +446,7 @@ function DashboardPage() {
 
       </div>
 
-      {isDownloading && <DownloadLoadingModal />}
+      <DownloadLoadingModal isOpen={isDownloading} />
       <DownloadToast filename={downloadToast} onClose={clearToast} />
 
       {/* Modal aperçu document */}

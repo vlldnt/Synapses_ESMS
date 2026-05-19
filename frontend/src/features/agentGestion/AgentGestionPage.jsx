@@ -19,6 +19,11 @@ import DownloadToast from '../../components/DownloadToast';
 const selectCls =
   'text-xs px-2.5 py-1.5 rounded-lg border border-(--border) bg-(--bg-secondary) text-(--text-primary) focus:outline-none cursor-pointer';
 
+const WORD_BTN = 'flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-white text-xs font-medium disabled:opacity-50 cursor-pointer transition-opacity';
+const PDF_BTN  = 'flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-white text-xs font-medium disabled:opacity-50 cursor-pointer transition-opacity';
+const WORD_STYLE = { background: 'linear-gradient(135deg, #0B46DB, #3093F1)' };
+const PDF_STYLE  = { background: '#EA0E00' };
+
 function findAgentBadge(entry) {
   const direct = (entry.type || entry.reportType || '').toString().toLowerCase();
   const intervention = (entry.intervention_type || entry.interventionType || '').toString().toLowerCase();
@@ -47,7 +52,7 @@ function DocBadge({ doc }) {
   const color = agent ? agent.color : getDocColorFromLabel(label);
   return (
     <span
-      className="inline-flex items-center justify-center px-2 h-5 rounded-full text-[10px] font-bold shrink-0 text-white min-w-9"
+      className="inline-flex items-center justify-center w-14 h-5 rounded-full text-[10px] font-bold shrink-0 text-white"
       style={{ background: color }}
     >
       {label}
@@ -72,11 +77,13 @@ function AgentGestionPage() {
   const [docRefFilter, setDocRefFilter] = useState('all');
 
   const [selectedDoc, setSelectedDoc] = useState(null);
+  const [showMobileModal, setShowMobileModal] = useState(false);
   const [previewText, setPreviewText] = useState('');
   const [isPreviewLoading, setIsPreviewLoading] = useState(false);
   const [deletingDocId, setDeletingDocId] = useState(null);
   const [selectedRef, setSelectedRef] = useState(null);
   const previewRef = useRef(null);
+  const mobilePreviewRef = useRef(null);
   const { handleDownload, isLoading: isDownloading, toast: downloadToast, clearToast } = useDocumentDownload();
 
   useEffect(() => {
@@ -131,9 +138,20 @@ function AgentGestionPage() {
     try {
       await deleteFromHistory(id);
       setDocuments((prev) => prev.filter((d) => d.id !== id));
-      if (selectedDoc?.id === id) setSelectedDoc(null);
+      if (selectedDoc?.id === id) { setSelectedDoc(null); setShowMobileModal(false); }
     } catch (err) { console.error(err); }
     finally { setDeletingDocId(null); }
+  }
+
+  function selectDoc(doc) {
+    const isActive = selectedDoc?.id === doc.id;
+    if (isActive) {
+      setSelectedDoc(null);
+      setShowMobileModal(false);
+    } else {
+      setSelectedDoc(doc);
+      setShowMobileModal(true);
+    }
   }
 
   const tabs = [
@@ -141,9 +159,17 @@ function AgentGestionPage() {
     { id: 'documents', label: `Mes documents (${documents.length})` },
   ];
 
+  const docPreviewContent = (ref) => (
+    isPreviewLoading
+      ? <p className='text-sm text-(--text-muted)'>Chargement…</p>
+      : previewText
+        ? <WordPreview text={previewText} />
+        : <p className='text-sm text-(--text-muted)'>Aucun contenu à afficher</p>
+  );
+
   return (
     <div id='agent-gestion-page' className='h-full overflow-y-auto py-6 px-3 md:px-8 md:py-8'>
-      {isDownloading && <DownloadLoadingModal />}
+      <DownloadLoadingModal isOpen={isDownloading} />
       <DownloadToast filename={downloadToast} onClose={clearToast} />
       <div className='mx-auto w-full flex flex-col gap-5'>
 
@@ -290,7 +316,8 @@ function AgentGestionPage() {
             </div>
 
             <div className={`flex ${filteredDocs.length >= 10 ? 'h-130' : ''}`}>
-              <div className={`overflow-y-auto divide-y divide-(--border)/50 ${selectedDoc ? 'w-2/5 border-r border-(--border)' : 'w-full'}`}>
+              {/* ── Liste (desktop: 2/5 si doc sélectionné, sinon full ; mobile: toujours full) ── */}
+              <div className={`overflow-y-auto divide-y divide-(--border)/50 ${selectedDoc ? 'hidden md:block md:w-2/5 md:border-r md:border-(--border)' : 'w-full'}`}>
                 {filteredDocs.length === 0 ? (
                   <p className='px-5 py-10 text-center text-sm text-(--text-muted)'>Aucun document.</p>
                 ) : filteredDocs.map((doc) => {
@@ -299,12 +326,12 @@ function AgentGestionPage() {
                     <button
                       key={doc.id}
                       type='button'
-                      onClick={() => setSelectedDoc(active ? null : doc)}
+                      onClick={() => selectDoc(doc)}
                       className={`w-full text-left flex items-center gap-3 px-4 py-3 transition-colors cursor-pointer ${active ? 'bg-(--bg-secondary)' : 'hover:bg-(--bg-secondary)'}`}
                     >
                       <DocBadge doc={doc} />
                       <div className='flex-1 min-w-0'>
-                        <p className='text-xs font-medium text-(--text-primary) truncate'>{formatReportName(doc)}</p>
+                        <p className={`text-xs truncate text-(--text-primary) ${active ? 'font-semibold' : 'font-medium'}`}>{formatReportName(doc)}</p>
                         <p className='text-[11px] text-(--text-muted) truncate'>{doc.reference_name || doc.reference || '—'}</p>
                       </div>
                       <span className='text-[11px] text-(--text-muted) shrink-0'>{timeAgo(doc.created_at || doc.date)}</span>
@@ -313,56 +340,60 @@ function AgentGestionPage() {
                 })}
               </div>
 
+              {/* ── Panneau desktop (md+) ── */}
               {selectedDoc && (
-                <div className='w-3/5 flex flex-col overflow-hidden'>
-                  <div className='px-4 py-3 border-b border-(--border) flex items-center gap-2'>
-                    <div className='flex-1 min-w-0'>
-                      <p className='text-xs font-semibold text-(--text-primary) truncate'>{formatReportName(selectedDoc)}</p>
-                      <p className='text-[11px] text-(--text-muted)'>{timeAgo(selectedDoc.created_at || selectedDoc.date)}</p>
-                    </div>
-                    <button
-                      type='button'
-                      onClick={() => handleDownload('word', selectedDoc)}
-                      disabled={isDownloading || !selectedDoc.docx_base_64}
-                      className='flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-(--bleu-fonce) text-white text-xs font-medium hover:bg-(--bleu-active) disabled:opacity-50 cursor-pointer transition-colors shrink-0'
-                    >
-                      <Download size={12} />
-                      Word
-                    </button>
-                    <button
-                      type='button'
-                      onClick={() => handleDownload('pdf', selectedDoc, previewRef.current)}
-                      disabled={isDownloading || !selectedDoc.docx_base_64}
-                      className='flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-(--border) bg-(--bg-secondary) text-(--text-primary) text-xs font-medium hover:bg-(--bg-tertiary) disabled:opacity-50 cursor-pointer transition-colors shrink-0'
-                    >
-                      <Download size={12} />
-                      PDF
-                    </button>
+                <div className='hidden md:flex w-full md:w-3/5 flex-col overflow-hidden'>
+                  {/* Barre minimale : delete + close seulement */}
+                  <div className='px-3 py-2 border-b border-(--border) flex items-center justify-end gap-1'>
                     <button
                       type='button'
                       disabled={deletingDocId === selectedDoc.id}
                       onClick={() => handleDeleteDoc(selectedDoc.id)}
-                      className='p-1.5 rounded-md text-(--text-muted) hover:text-red-500 hover:bg-red-50 disabled:opacity-40 cursor-pointer transition-colors shrink-0'
+                      className='p-1.5 rounded-md text-(--text-muted) hover:text-red-500 hover:bg-red-50 disabled:opacity-40 cursor-pointer transition-colors'
                     >
-                      <Trash2 size={14} />
+                      <Trash2 size={13} />
                     </button>
                     <button
                       type='button'
                       onClick={() => setSelectedDoc(null)}
-                      className='p-1.5 rounded-md text-(--text-muted) hover:text-(--text-primary) hover:bg-(--bg-secondary) cursor-pointer transition-colors shrink-0'
+                      className='p-1.5 rounded-md text-(--text-muted) hover:text-(--text-primary) hover:bg-(--bg-secondary) cursor-pointer transition-colors'
                     >
-                      <X size={14} />
+                      <X size={13} />
                     </button>
                   </div>
+
+                  {/* Contenu du document */}
                   <div className='flex-1 overflow-y-auto p-4 bg-(--bg-secondary)'>
                     <div ref={previewRef} className='rounded-xl border border-(--border) bg-(--bg-primary) p-4'>
-                      {isPreviewLoading ? (
-                        <p className='text-sm text-(--text-muted)'>Chargement…</p>
-                      ) : previewText ? (
-                        <WordPreview text={previewText} />
-                      ) : (
-                        <p className='text-sm text-(--text-muted)'>Aucun contenu à afficher</p>
-                      )}
+                      {/* Boutons Word + PDF au-dessus du titre */}
+                      <div className='flex gap-2 mb-4'>
+                        <button
+                          type='button'
+                          onClick={() => handleDownload('word', selectedDoc)}
+                          disabled={isDownloading || !selectedDoc.docx_base_64}
+                          className={WORD_BTN}
+                          style={WORD_STYLE}
+                        >
+                          <Download size={12} /> Word
+                        </button>
+                        <button
+                          type='button'
+                          onClick={() => handleDownload('pdf', selectedDoc, previewRef.current)}
+                          disabled={isDownloading || !selectedDoc.docx_base_64}
+                          className={PDF_BTN}
+                          style={PDF_STYLE}
+                        >
+                          <Download size={12} /> PDF
+                        </button>
+                      </div>
+
+                      {/* Titre du document */}
+                      <div className='mb-4 pb-3 border-b border-(--border)'>
+                        <p className='text-sm font-semibold text-(--text-primary)'>{formatReportName(selectedDoc)}</p>
+                        <p className='text-[11px] text-(--text-muted) mt-0.5'>{timeAgo(selectedDoc.created_at || selectedDoc.date)}</p>
+                      </div>
+
+                      {docPreviewContent(previewRef)}
                     </div>
                   </div>
                 </div>
@@ -372,6 +403,71 @@ function AgentGestionPage() {
         )}
 
       </div>
+
+      {/* ── Modal mobile/tablette ── */}
+      {showMobileModal && selectedDoc && (
+        <div
+          className='fixed inset-0 z-50 bg-black/50 flex flex-col justify-end md:hidden'
+          onClick={() => setShowMobileModal(false)}
+        >
+          <div
+            className='bg-(--bg-primary) rounded-t-2xl flex flex-col max-h-[92vh]'
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header modal */}
+            <div className='flex items-center gap-3 px-4 py-3 border-b border-(--border)'>
+              <div className='flex-1 min-w-0'>
+                <p className='text-sm font-semibold text-(--text-primary) truncate'>{formatReportName(selectedDoc)}</p>
+                <p className='text-[11px] text-(--text-muted)'>{timeAgo(selectedDoc.created_at || selectedDoc.date)}</p>
+              </div>
+              <button
+                type='button'
+                disabled={deletingDocId === selectedDoc.id}
+                onClick={() => handleDeleteDoc(selectedDoc.id)}
+                className='p-1.5 rounded-md text-(--text-muted) hover:text-red-500 hover:bg-red-50 disabled:opacity-40 cursor-pointer transition-colors'
+              >
+                <Trash2 size={14} />
+              </button>
+              <button
+                type='button'
+                onClick={() => setShowMobileModal(false)}
+                className='p-1.5 rounded-md text-(--text-muted) hover:text-(--text-primary) hover:bg-(--bg-secondary) cursor-pointer transition-colors'
+              >
+                <X size={16} />
+              </button>
+            </div>
+
+            {/* Boutons Word + PDF */}
+            <div className='flex gap-2 px-4 py-2.5 border-b border-(--border)'>
+              <button
+                type='button'
+                onClick={() => handleDownload('word', selectedDoc)}
+                disabled={isDownloading || !selectedDoc.docx_base_64}
+                className='flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-white text-xs font-medium disabled:opacity-50 cursor-pointer transition-opacity'
+                style={WORD_STYLE}
+              >
+                <Download size={12} /> Word
+              </button>
+              <button
+                type='button'
+                onClick={() => handleDownload('pdf', selectedDoc, mobilePreviewRef.current)}
+                disabled={isDownloading || !selectedDoc.docx_base_64}
+                className='flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-white text-xs font-medium disabled:opacity-50 cursor-pointer transition-opacity'
+                style={PDF_STYLE}
+              >
+                <Download size={12} /> PDF
+              </button>
+            </div>
+
+            {/* Contenu */}
+            <div className='flex-1 overflow-y-auto p-4'>
+              <div ref={mobilePreviewRef}>
+                {docPreviewContent(mobilePreviewRef)}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {showRefModal && (
         <CreateReferenceModal

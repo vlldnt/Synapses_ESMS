@@ -193,7 +193,7 @@ function AdminPage() {
 
   return (
     <div id='admin-page' className='h-full overflow-y-auto py-6 px-3 md:px-8 md:py-8'>
-      {isDownloading && <DownloadLoadingModal />}
+      <DownloadLoadingModal isOpen={isDownloading} />
       <DownloadToast filename={downloadToast} onClose={clearToast} />
       <div className='mx-auto w-full flex flex-col gap-5'>
 

@@ -14,7 +14,7 @@ export function useDocumentDownload() {
   async function handleDownload(format = 'word', doc, previewElement = null) {
     if (!doc?.docx_base_64) return;
     setIsLoading(true);
-    await new Promise((r) => setTimeout(r, 1500));
+    await new Promise((r) => setTimeout(r, 1200));
     try {
       if (format === 'pdf') {
         if (!previewElement) return;

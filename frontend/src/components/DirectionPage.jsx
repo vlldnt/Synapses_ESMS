@@ -212,7 +212,7 @@ export default function DirectionPage({ config }) {
           </StepCard>
 
           <div id='form-actions' className='flex flex-col gap-3'>
-            <div className='flex flex-row gap-3'>
+            <div className='flex flex-row items-center gap-3'>
               <button
                 type='submit'
                 disabled={loading || !observations.trim()}
@@ -221,6 +221,8 @@ export default function DirectionPage({ config }) {
               >
                 {loading ? 'Génération en cours…' : buttonLabel}
               </button>
+              {!loading && !result && <span className='text-xs text-(--text-muted)'>Temps estimé : 10–15 s</span>}
+              {!loading && elapsed && <span className='text-xs text-(--text-muted)'>Généré en {elapsed}s</span>}
               <button
                 type='button'
                 onClick={reset}
@@ -229,10 +231,7 @@ export default function DirectionPage({ config }) {
                 Nouveau
               </button>
             </div>
-            <div className='flex items-center gap-3'>
-              <ModelSelector value={selectedModelId} onChange={handleModelChange} />
-              {!loading && !result && <span className='text-xs text-(--text-muted)'>Temps estimé : 10–15 s</span>}
-              {!loading && elapsed && <span className='text-xs text-(--text-muted)'>Généré en {elapsed}s</span>}
+            <div className='flex items-center'>
               <button type='button' onClick={reset} className='hidden md:inline-flex ml-auto text-xs text-(--text-muted) hover:text-(--text-primary) transition-colors cursor-pointer'>
                 {resetLabel}
               </button>
@@ -243,10 +242,7 @@ export default function DirectionPage({ config }) {
         {loading && (
           <div className={`${CARD_CLASS} flex items-center gap-4`}>
             <div className='w-5 h-5 rounded-full border-2 border-t-transparent animate-spin shrink-0' style={{ borderColor: accent, borderTopColor: 'transparent' }} />
-            <div className='flex flex-col gap-0.5'>
-              <span key={loadingMessageIndex} className='text-sm text-(--text-secondary) animate-pulse'>{loadingMessages[loadingMessageIndex]}</span>
-              <span className='text-[10px] text-(--text-muted) font-mono'>{selectedModelId}</span>
-            </div>
+            <span key={loadingMessageIndex} className='text-sm text-(--text-secondary) animate-pulse'>{loadingMessages[loadingMessageIndex]}</span>
           </div>
         )}
 

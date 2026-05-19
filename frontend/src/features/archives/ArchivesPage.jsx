@@ -225,7 +225,7 @@ function ArchivesPage() {
 
   return (
     <>
-    {isDownloading && <DownloadLoadingModal />}
+    <DownloadLoadingModal isOpen={isDownloading} />
     <DownloadToast filename={downloadToast} onClose={clearToast} />
     <div className='h-full overflow-y-auto py-6 px-2 md:px-5 md:py-8'>
       <div className='mx-auto w-full max-w-5xl flex flex-col gap-5'>

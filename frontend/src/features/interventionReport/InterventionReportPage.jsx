@@ -1,6 +1,5 @@
 import AgentPage from '../../components/AgentPage';
 import { generateInterventionReport } from '../../services/aiService';
-import { INTERVENTION_TYPES } from '../../constants/intervention';
 
 const LOADING_MESSAGES = [
   "L'IA analyse votre transcription et structure le compte rendu…",
@@ -33,7 +32,6 @@ export default function InterventionReportPage() {
       loadingMessages: LOADING_MESSAGES,
       interventionType: '',
       type: 'CRI',
-      interventionTypeOptions: INTERVENTION_TYPES,
       showAdminEducatorSelect: true,
     }} />
   );
