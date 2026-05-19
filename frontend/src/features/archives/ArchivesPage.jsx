@@ -423,12 +423,12 @@ function ArchivesPage() {
 
       {selectedEntry && (
         <div
-          className='fixed inset-0 z-90 bg-black/55 backdrop-blur-[1px] p-3 md:p-6'
+          className='fixed inset-0 z-50 bg-black/55 backdrop-blur-[1px] flex flex-col justify-end md:p-6 md:justify-start'
           onClick={(e) =>
             e.target === e.currentTarget && setSelectedEntry(null)
           }
         >
-          <div className='mx-auto w-full max-w-5xl h-full flex flex-col rounded-2xl border border-(--border) bg-(--bg-primary) shadow-2xl overflow-hidden'>
+          <div className='bg-(--bg-primary) rounded-t-2xl border border-(--border) shadow-2xl overflow-hidden flex flex-col max-h-[92vh] md:mx-auto md:w-full md:max-w-5xl md:h-full md:rounded-2xl'>
             <div className='px-4 py-3 border-b border-(--border) flex items-center gap-3'>
               <div className='min-w-0 flex-1'>
                 <p className='text-sm font-semibold text-(--text-primary) truncate'>
