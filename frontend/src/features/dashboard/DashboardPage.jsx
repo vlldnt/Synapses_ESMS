@@ -50,11 +50,8 @@ function DashboardPage() {
 
   useEffect(() => {
     const now = new Date();
-    const weekday = new Intl.DateTimeFormat('fr-FR', { weekday: 'long' }).format(now);
-    const day = new Intl.DateTimeFormat('fr-FR', { day: '2-digit' }).format(now);
-    const month = new Intl.DateTimeFormat('fr-FR', { month: '2-digit' }).format(now);
-    const year = new Intl.DateTimeFormat('fr-FR', { year: 'numeric' }).format(now);
-    setDate(`${weekday} ${day}/${month}/${year}`);
+    const [weekday, date] = now.toLocaleDateString('fr-FR', { weekday: 'long', day: '2-digit', month: '2-digit', year: 'numeric' }).split(' ');
+    setDate(`${weekday} ${date}`);
 
     (async () => {
       try {

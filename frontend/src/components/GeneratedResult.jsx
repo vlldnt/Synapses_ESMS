@@ -4,7 +4,7 @@ import {
   ClipboardCopy, ClipboardCheck,
   FileDown, Loader2, ChevronDown,
   ShieldCheck, LockKeyhole, RotateCcw,
-  FileText, FileType,
+  FileText, FileType, Archive,
 } from 'lucide-react';
 import WordPreview from './WordPreview';
 import DownloadSuccessModal from './DownloadSuccessModal';
@@ -96,6 +96,8 @@ export default function GeneratedResult({
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [showExportMenu, setShowExportMenu] = useState(false);
   const [downloadToast, setDownloadToast] = useState(null);
+  const [archiving, setArchiving] = useState(false);
+  const [archiveToast, setArchiveToast] = useState(false);
   const textareaRef = useRef(null);
   const previewRef = useRef(null);
   const exportMenuRef = useRef(null);
@@ -253,6 +255,39 @@ export default function GeneratedResult({
     } finally {
       setShowSuccessModal(false);
       setDlState('idle');
+    }
+  };
+
+  const handleArchiveOnly = async () => {
+    setArchiving(true);
+    try {
+      const agent = downloadMeta.reportType || downloadMeta.type || 'DOC';
+      const { filename, displayName } = generateReportFilename(
+        downloadMeta.childName,
+        downloadMeta.educatorName,
+        downloadMeta.date,
+        agent,
+        'docx',
+      );
+      await saveToHistory({
+        filename,
+        displayName,
+        date: downloadMeta.date,
+        interventionType: downloadMeta.interventionType || agent,
+        type: agent,
+        content: editedText,
+        educatorName: downloadMeta.educatorName || '',
+        educatorRole: downloadMeta.educatorRole || '',
+        creatorId: user?.id,
+        childName: downloadMeta.childName || '',
+      });
+      onArchived?.();
+      setArchiveToast(true);
+      setTimeout(() => setArchiveToast(false), 5000);
+    } catch (err) {
+      console.error('Erreur archivage:', err);
+    } finally {
+      setArchiving(false);
     }
   };
 
@@ -537,6 +572,16 @@ export default function GeneratedResult({
 
               <button
                 type="button"
+                onClick={handleArchiveOnly}
+                disabled={archiving}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-white disabled:opacity-50 cursor-pointer transition-opacity"
+                style={{ background: 'linear-gradient(135deg, #7C3AED, #A78BFA)' }}
+              >
+                {archiving ? <Loader2 size={12} className="animate-spin" /> : <Archive size={12} />}
+                Archiver
+              </button>
+              <button
+                type="button"
                 onClick={handleUnvalidate}
                 className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs text-(--text-muted) hover:text-red-500 border border-(--border) hover:border-red-300 transition-colors cursor-pointer"
               >
@@ -550,6 +595,7 @@ export default function GeneratedResult({
 
       <DownloadSuccessModal isOpen={showSuccessModal} onClose={() => setShowSuccessModal(false)} />
       <DownloadToast filename={downloadToast} onClose={() => setDownloadToast(null)} />
+      <DownloadToast message={archiveToast ? 'Document archivé dans Mes documents' : null} onClose={() => setArchiveToast(false)} />
     </div>
   );
 }

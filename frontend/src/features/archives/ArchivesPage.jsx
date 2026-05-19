@@ -442,7 +442,8 @@ function ArchivesPage() {
                 type='button'
                 onClick={() => handleDownload('word', selectedEntry)}
                 disabled={isDownloading || !selectedEntry.docx_base_64}
-                className='flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-(--bleu-fonce) text-white text-xs font-medium hover:bg-(--bleu-active) disabled:opacity-50 cursor-pointer transition-colors shrink-0'
+                className='flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-white text-xs font-medium disabled:opacity-50 cursor-pointer transition-opacity shrink-0'
+                style={{ background: 'linear-gradient(135deg, #0B46DB, #3093F1)' }}
               >
                 <Download size={12} />
                 Word
@@ -451,7 +452,8 @@ function ArchivesPage() {
                 type='button'
                 onClick={() => handleDownload('pdf', selectedEntry, previewRef.current)}
                 disabled={isDownloading || !selectedEntry.docx_base_64}
-                className='flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-(--border) bg-(--bg-secondary) text-(--text-primary) text-xs font-medium hover:bg-(--bg-tertiary) disabled:opacity-50 cursor-pointer transition-colors shrink-0'
+                className='flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-white text-xs font-medium disabled:opacity-50 cursor-pointer transition-opacity shrink-0'
+                style={{ background: '#EA0E00' }}
               >
                 <Download size={12} />
                 PDF

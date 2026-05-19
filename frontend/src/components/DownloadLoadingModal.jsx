@@ -42,7 +42,7 @@ export default function DownloadLoadingModal({ isOpen }) {
 
   return (
     <div
-      className={`fixed bottom-6 right-6 z-50 w-80 transition-all duration-500 ${
+      className={`fixed bottom-6 right-6 z-9999 w-80 transition-all duration-500 ${
         phase === 'visible'
           ? 'opacity-100 translate-y-0 translate-x-0 scale-100'
           : 'opacity-0 -translate-y-32 translate-x-12 scale-75'
