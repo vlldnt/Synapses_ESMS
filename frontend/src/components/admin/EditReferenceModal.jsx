@@ -32,9 +32,9 @@ export default function EditReferenceModal({ reference, employees = [], onClose,
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          firstName: fields.firstName.trim(),
-          lastName: fields.lastName.trim(),
-          ...(showEducator ? { educatorId: fields.educatorId || null } : {}),
+          first_name: fields.firstName.trim(),
+          last_name: fields.lastName.trim(),
+          ...(showEducator ? { educator_id: fields.educatorId || null } : {}),
         }),
       });
       const data = await res.json();

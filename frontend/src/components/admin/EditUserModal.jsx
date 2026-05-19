@@ -100,7 +100,7 @@ export default function EditUserModal({ employee, onClose, onUpdated }) {
           <div className='grid grid-cols-2 gap-3'>
             <div className='flex flex-col gap-1'>
               <label className='text-xs text-(--text-muted)'>Rôle</label>
-              <select value={fields.role} onChange={set('role')} className={inputCls}>
+              <select value={fields.role} onChange={set('role')} disabled={employee.role === 'admin'} className={`${inputCls} disabled:opacity-50 disabled:cursor-not-allowed`}>
                 <option value='agent'>Agent</option>
                 <option value='direction'>Direction</option>
                 <option value='admin'>Admin</option>
@@ -108,7 +108,7 @@ export default function EditUserModal({ employee, onClose, onUpdated }) {
             </div>
             <div className='flex flex-col gap-1'>
               <label className='text-xs text-(--text-muted)'>Statut</label>
-              <select value={fields.status} onChange={set('status')} className={inputCls}>
+              <select value={fields.status} onChange={set('status')} disabled={employee.role === 'admin'} className={`${inputCls} disabled:opacity-50 disabled:cursor-not-allowed`}>
                 <option value='active'>Actif</option>
                 <option value='inactive'>Inactif</option>
               </select>

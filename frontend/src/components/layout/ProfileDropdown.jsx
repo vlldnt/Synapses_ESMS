@@ -4,7 +4,7 @@ import { logout } from '../../services/authServices';
 import { invalidateReferencesCache } from '../../services/referenceService';
 import { setTheme } from '../../store/themeSlice';
 import { useCurrentUser } from '../../hooks/useCurrentUser';
-import { User, LogOut, Sun, Moon, ChevronDown, Download } from 'lucide-react';
+import { User, LogOut, Sun, Moon, ChevronDown, Download, Briefcase, Building2 } from 'lucide-react';
 import { PWAInstallModal } from '../PWAInstallGuide';
 import ProfileModal from './ProfileModal';
 
@@ -15,11 +15,8 @@ function ProfileDropdown({ photo = null, mobile = false }) {
   const dropdownRef = useRef(null);
   const dispatch = useDispatch();
   const theme = useSelector((state) => state.theme.theme);
+  const role = useSelector((state) => state.role.role);
   const { fullName, job, initials, organization } = useCurrentUser();
-
-  const jobType = organization
-    ? `${job} · ${organization.name}`
-    : job;
 
   const isDark = theme === 'dark';
 
@@ -85,7 +82,18 @@ function ProfileDropdown({ photo = null, mobile = false }) {
               <span className="font-medium text-(--text-primary) text-sm">
                 {fullName}
               </span>
-              <span className="text-(--text-muted) text-xs">{jobType}</span>
+              {job && (
+                <span className="text-(--text-muted) text-xs flex items-center gap-1">
+                  <Briefcase size={11} className="shrink-0" />
+                  {job}
+                </span>
+              )}
+              {organization?.name && (
+                <span className="text-(--text-muted) text-xs flex items-center gap-1">
+                  <Building2 size={11} className="shrink-0" />
+                  {organization.name}
+                </span>
+              )}
             </div>
             <ChevronDown
               size={16}
@@ -105,16 +113,28 @@ function ProfileDropdown({ photo = null, mobile = false }) {
               : 'absolute bottom-full left-0 mb-2 w-full bg-(--bg-primary) rounded-xl shadow-lg border border-(--border) py-2 z-70'
           }
         >
-          {mobile && (
-            <div className="px-4 py-2">
-              <p className="font-medium text-(--text-primary) text-sm">
-                {fullName}
+          <div className="px-4 py-2 flex flex-col gap-0.5">
+            <p className="font-medium text-(--text-primary) text-sm">{fullName}</p>
+            {job && (
+              <p className="text-(--text-muted) text-xs flex items-center gap-1">
+                <Briefcase size={11} className="shrink-0" />
+                {job}
               </p>
-              <p className="text-(--text-muted) text-xs">{jobType}</p>
-            </div>
-          )}
+            )}
+            {organization?.name && (
+              <p className="text-(--text-muted) text-xs flex items-center gap-1">
+                <Building2 size={11} className="shrink-0" />
+                {organization.name}
+              </p>
+            )}
+            {role && (
+              <span className="mt-0.5 self-start text-[10px] px-2 py-0.5 rounded-full bg-(--bg-secondary) border border-(--border) text-(--text-muted) capitalize">
+                {role}
+              </span>
+            )}
+          </div>
 
-          {mobile && <div className="mx-3 my-1 border-t border-(--border)" />}
+          <div className="mx-3 my-1 border-t border-(--border)" />
 
           <button
             id="profile-settings"

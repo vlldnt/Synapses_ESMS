@@ -1,4 +1,4 @@
-from app.persistance.all_repo import UserRepository, OrganisationRepository, OrganisationRequestRepository ,ReferenceRepository, UserRequestRepository, ArchiveRepository, DocumentRepository
+from app.persistance.all_repo import UserRepository, OrganisationRepository, OrganisationRequestRepository ,ReferenceRepository, UserRequestRepository, ArchiveRepository, DocumentRepository, PromptRepository
 from app.models.user import User
 from app.models.userRequest import Status as UserRequestStatus
 from app.models.organizations import Organization
@@ -16,6 +16,7 @@ class ApiFacade:
         self.reference_repo = ReferenceRepository()
         self.archive_repo = ArchiveRepository()
         self.document_repo = DocumentRepository()
+        self.prompt_repo = PromptRepository()
 
     """ Request organization facade """
     def made_request_org(self, request_data):
@@ -52,7 +53,8 @@ class ApiFacade:
             email=request.contact_email,
             is_admin=True,
             organization_id=organisation.id,
-            job="admin",
+            job="adminstrateur",
+            role="admin",
             status="active"
         )
         user.hash_password(password)
@@ -100,6 +102,7 @@ class ApiFacade:
             is_admin=request.is_admin,
             organization_id=request.organization_id,
             job=request.job,
+            role="agent",
             status="active"
         )
         print(f"request : {user}")
@@ -139,7 +142,7 @@ class ApiFacade:
 
         self.user_repo.update(user_id, user_data)
         return self.user_repo.get(user_id)
-    
+
     """ Organisation facade """
     def create_org(self, organisation_data):
         organisation = Organization(**organisation_data)
@@ -166,8 +169,43 @@ class ApiFacade:
             return self.reference_repo.get_all()
         return self.reference_repo.get_all_by_attribute('organisation_id', organization_id)
     
+    def update_references(self, ref_id, ref_data):
+        self.reference_repo.update(ref_id, ref_data)
+
     """ Archive facade """
     def get_archive(self, user_id=None):
+        print(f"{user_id}")
         if user_id is None:
             return self.archive_repo.get_all()
-        return self.reference_repo.get_all_by_attribute('users_id', user_id)
+        return self.archive_repo.get_all_by_attribute('creator_id', user_id)
+    
+    def create_archive(self, data):
+        return self.archive_repo.add(data)
+
+    def get_archive_by_id(self, archive_id):
+        return self.archive_repo.get(archive_id)
+
+    def delete_archive(self, archive_id):
+        return self.archive_repo.delete(archive_id)
+
+    def delete_document(self, document_id):
+        return self.document_repo.delete(document_id)
+    
+    """ document facade """
+    def create_document(self, data):
+        return self.document_repo.add(data)
+
+    """ Prompt facade """
+    def get_all_prompts(self):
+        return self.prompt_repo.get_all()
+
+    def get_prompt_by_name(self, name):
+        return self.prompt_repo.get_by_attribute('name', name)
+
+    def update_prompt(self, name, data):
+        prompt = self.prompt_repo.get_by_attribute('name', name)
+        if not prompt:
+            return None
+        allowed = {'content', 'model'}
+        self.prompt_repo.update(prompt.id, {k: v for k, v in data.items() if k in allowed})
+        return self.prompt_repo.get_by_attribute('name', name)

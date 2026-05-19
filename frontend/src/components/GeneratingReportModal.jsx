@@ -1,12 +1,16 @@
 import { useEffect, useState } from 'react';
 import { Loader2 } from 'lucide-react';
 
-export default function GeneratingReportModal({ isOpen, message = '' }) {
+export default function GeneratingReportModal({ isOpen, message = '', onCancel }) {
   const [progress, setProgress] = useState(0);
 
   useEffect(() => {
     if (!isOpen) return;
 
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') onCancel?.();
+    };
+    window.addEventListener('keydown', handleKeyDown);
     setProgress(0);
     const interval = setInterval(() => {
       setProgress((prev) => {
@@ -18,8 +22,11 @@ export default function GeneratingReportModal({ isOpen, message = '' }) {
       });
     }, 500);
 
-    return () => clearInterval(interval);
-  }, [isOpen]);
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isOpen, onCancel]);
 
   if (!isOpen) return null;
 
@@ -71,10 +78,19 @@ export default function GeneratingReportModal({ isOpen, message = '' }) {
           {message}
         </p>
 
-        {/* Barre de progression textuelle */}
-        <div className="text-xs text-(--text-muted) font-mono">
+        <div className="text-xs text-(--text-muted) font-mono mb-5">
           {Math.round(progress)}%
         </div>
+
+        {onCancel && (
+          <button
+            type="button"
+            onClick={onCancel}
+            className="text-xs text-(--text-muted) hover:text-(--text-primary) transition-colors cursor-pointer"
+          >
+            Annuler (Échap)
+          </button>
+        )}
       </div>
     </div>
   );

@@ -1,4 +1,3 @@
-import { OpenRouter } from '@openrouter/sdk';
 import { authFetch } from './authServices';
 
 // ─── CONFIG ───────────────────────────────────────────────────────────────────
@@ -7,12 +6,6 @@ export const DEFAULT_MODEL = 'mistralai/voxtral-small-24b-2507';
 
 const basename = import.meta.env.VITE_BASENAME || '/synapses';
 const API_URL = `${basename}/api`;
-
-const apiKey = import.meta.env.VITE_OPENROUTER_API_KEY;
-if (!apiKey)
-  console.error('❌ VITE_OPENROUTER_API_KEY not configured in .env.local');
-
-const openrouter = new OpenRouter({ apiKey, dangerouslyAllowBrowser: true });
 
 // ─── PROMPTS — fetch & cache depuis /api/prompts ──────────────────────────────
 
@@ -51,21 +44,34 @@ async function getChatResponse({
   userMessage,
   temperature = 0.4,
   model = DEFAULT_MODEL,
+  signal,
 }) {
   if (!systemPrompt) throw new Error('Prompt système non trouvé');
 
-  const completion = await openrouter.chat.send({
-    chatRequest: {
+  const resp = await authFetch(`${API_URL}/ai/chat`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
       model,
       messages: [
         { role: 'system', content: systemPrompt },
         { role: 'user', content: userMessage },
       ],
       temperature,
-    },
+    }),
+    signal,
   });
 
-  let text = completion.choices?.[0]?.message?.content;
+  if (!resp.ok) {
+    const err = await resp.json().catch(() => ({}));
+    const errMsg = typeof err.error === 'string'
+      ? err.error
+      : err.error?.message || err.message || err.msg || `Erreur API ${resp.status}`;
+    throw new Error(errMsg);
+  }
+
+  const completion = await resp.json();
+  const text = completion.choices?.[0]?.message?.content;
   if (!text) throw new Error('Réponse OpenRouter vide ou inattendue.');
 
   return text.trim();
@@ -77,7 +83,7 @@ export const PROMPT_NOT_FOUND = 'PROMPT_NOT_FOUND';
 async function sendPrompt(
   promptName,
   userMessage,
-  { temperature = 0.4, model } = {},
+  { temperature = 0.4, model, signal } = {},
 ) {
   const promptData = await getPrompt(promptName);
   if (!promptData) throw new Error(PROMPT_NOT_FOUND);
@@ -87,8 +93,10 @@ async function sendPrompt(
       userMessage,
       temperature,
       model: model ?? promptData.model ?? DEFAULT_MODEL,
+      signal,
     });
   } catch (err) {
+    if (err.name === 'AbortError') throw err;
     console.error(`❌ sendPrompt("${promptName}") error:`, err.message);
     throw err;
   }
@@ -121,6 +129,7 @@ export async function generateInterventionReport({
   educatorRole,
   date,
   model = DEFAULT_MODEL,
+  signal,
 }) {
   const userMessage = `
 ${buildContext({ companyName, structureType, educatorName, educatorRole, date })}
@@ -135,6 +144,7 @@ Extrais les informations pertinentes de cette transcription et rédige un compte
   const result = await sendPrompt('cr_intervention', userMessage, {
     temperature: 0.4,
     model,
+    signal,
   });
 
   const typeMatch = result.match(/\[TYPE_INTERVENTION:\s*(.+?)\]/);
@@ -154,6 +164,7 @@ export async function generatePersonalizedProject({
   educatorRole,
   date,
   model = DEFAULT_MODEL,
+  signal,
 }) {
   const userMessage = `
 ${buildContext({ companyName, structureType, educatorName, educatorRole, date })}
@@ -167,6 +178,7 @@ Analyse ces observations, identifie les besoins selon la nomenclature SERAFIN-PH
   return sendPrompt('ppa_medico_social', userMessage, {
     temperature: 0.35,
     model,
+    signal,
   });
 }
 
@@ -179,6 +191,7 @@ export async function generateBilanEvaluation({
   educatorRole,
   date,
   model = DEFAULT_MODEL,
+  signal,
 }) {
   const userMessage = `
 ${buildContext({ companyName, structureType, educatorName, educatorRole, date })}
@@ -189,7 +202,7 @@ ${observations?.trim() || 'Aucune observation fournie.'}
 Analyse ces éléments et génère un bilan d'évaluation professionnel structuré, avec des titres adaptés au contenu réel. Valorise les acquis et les progrès avant les difficultés. Formule des objectifs éducatifs si le contexte le justifie.
 `.trim();
 
-  return sendPrompt('bilan_evaluation', userMessage, { temperature: 0.35, model });
+  return sendPrompt('bilan_evaluation', userMessage, { temperature: 0.35, model, signal });
 }
 
 // Écrit éducatif
@@ -201,6 +214,7 @@ export async function generateEcritEducatif({
   educatorRole,
   date,
   model = DEFAULT_MODEL,
+  signal,
 }) {
   const userMessage = `
 ${buildContext({ companyName, structureType, educatorName, educatorRole, date })}
@@ -211,7 +225,7 @@ ${observations?.trim() || 'Aucune observation fournie.'}
 Analyse ces notes et génère un écrit éducatif professionnel structuré, avec des titres adaptés au contexte réel. Ne force aucune section inutile. Valorise les ressources et points d'appui avant les difficultés.
 `.trim();
 
-  return sendPrompt('ecrit_educatif', userMessage, { temperature: 0.35, model });
+  return sendPrompt('ecrit_educatif', userMessage, { temperature: 0.35, model, signal });
 }
 
 // CRR — Compte Rendu de Réunion
@@ -223,6 +237,7 @@ export async function generateCompteRenduReunion({
   educatorRole,
   date,
   model = DEFAULT_MODEL,
+  signal,
 }) {
   const userMessage = `
 ${buildContext({ companyName, structureType, educatorName, educatorRole, date })}
@@ -232,7 +247,7 @@ ${observations?.trim() || 'Aucune note fournie.'}
 
 Analyse ces notes et génère un compte rendu de réunion professionnel structuré avec ordre du jour, participants (par fonction), points abordés, décisions prises et actions à engager.
 `.trim();
-  return sendPrompt('compte_rendu_reunion', userMessage, { temperature: 0.35, model });
+  return sendPrompt('compte_rendu_reunion', userMessage, { temperature: 0.35, model, signal });
 }
 
 // VEILLE — Veille Professionnelle
@@ -244,6 +259,7 @@ export async function generateVeilleProfessionnelle({
   educatorRole,
   date,
   model = DEFAULT_MODEL,
+  signal,
 }) {
   const userMessage = `
 ${buildContext({ companyName, structureType, educatorName, educatorRole, date })}
@@ -253,7 +269,7 @@ ${observations?.trim() || 'Aucun élément fourni.'}
 
 Analyse ces éléments et génère une note de veille professionnelle structurée : contexte réglementaire ou thématique, synthèse des évolutions, impacts pour la structure et recommandations pratiques.
 `.trim();
-  return sendPrompt('veille_professionnelle', userMessage, { temperature: 0.4, model });
+  return sendPrompt('veille_professionnelle', userMessage, { temperature: 0.4, model, signal });
 }
 
 // RM — Reporting Mensuel
@@ -265,6 +281,7 @@ export async function generateReportingMensuel({
   educatorRole,
   date,
   model = DEFAULT_MODEL,
+  signal,
 }) {
   const userMessage = `
 ${buildContext({ companyName, structureType, educatorName, educatorRole, date })}
@@ -274,7 +291,7 @@ ${observations?.trim() || 'Aucune donnée fournie.'}
 
 Analyse ces données et génère un reporting mensuel structuré : indicateurs d'activité, faits marquants, points de vigilance, perspectives pour le mois suivant.
 `.trim();
-  return sendPrompt('reporting_mensuel', userMessage, { temperature: 0.35, model });
+  return sendPrompt('reporting_mensuel', userMessage, { temperature: 0.35, model, signal });
 }
 
 // RA — Rapport d'Activité
@@ -286,6 +303,7 @@ export async function generateRapportActivite({
   educatorRole,
   date,
   model = DEFAULT_MODEL,
+  signal,
 }) {
   const userMessage = `
 ${buildContext({ companyName, structureType, educatorName, educatorRole, date })}
@@ -295,7 +313,7 @@ ${observations?.trim() || 'Aucun élément fourni.'}
 
 Analyse ces éléments et génère un rapport d'activité professionnel structuré : présentation de la structure, bilan quantitatif et qualitatif des actions, points forts, axes d'amélioration et perspectives.
 `.trim();
-  return sendPrompt('rapport_activite', userMessage, { temperature: 0.35, model });
+  return sendPrompt('rapport_activite', userMessage, { temperature: 0.35, model, signal });
 }
 
 // BA — Bilan d'Activité
@@ -307,6 +325,7 @@ export async function generateBilanActivite({
   educatorRole,
   date,
   model = DEFAULT_MODEL,
+  signal,
 }) {
   const userMessage = `
 ${buildContext({ companyName, structureType, educatorName, educatorRole, date })}
@@ -316,7 +335,7 @@ ${observations?.trim() || 'Aucun élément fourni.'}
 
 Analyse ces éléments et génère un bilan d'activité structuré : évaluation des objectifs fixés, réalisations, indicateurs clés, enseignements tirés et orientations pour la prochaine période.
 `.trim();
-  return sendPrompt('bilan_activite', userMessage, { temperature: 0.35, model });
+  return sendPrompt('bilan_activite', userMessage, { temperature: 0.35, model, signal });
 }
 
 // PE — Projet d'Établissement
@@ -328,6 +347,7 @@ export async function generateProjetEtablissement({
   educatorRole,
   date,
   model = DEFAULT_MODEL,
+  signal,
 }) {
   const userMessage = `
 ${buildContext({ companyName, structureType, educatorName, educatorRole, date })}
@@ -337,7 +357,7 @@ ${observations?.trim() || 'Aucun élément fourni.'}
 
 Analyse ces éléments et génère un projet d'établissement structuré : présentation et valeurs, diagnostic de la situation, orientations stratégiques, objectifs à 5 ans, plan d'action et modalités d'évaluation.
 `.trim();
-  return sendPrompt('projet_etablissement', userMessage, { temperature: 0.4, model });
+  return sendPrompt('projet_etablissement', userMessage, { temperature: 0.4, model, signal });
 }
 
 // PS — Projet de Service
@@ -349,6 +369,7 @@ export async function generateProjetService({
   educatorRole,
   date,
   model = DEFAULT_MODEL,
+  signal,
 }) {
   const userMessage = `
 ${buildContext({ companyName, structureType, educatorName, educatorRole, date })}
@@ -358,7 +379,7 @@ ${observations?.trim() || 'Aucun élément fourni.'}
 
 Analyse ces éléments et génère un projet de service structuré : missions et périmètre du service, diagnostic, objectifs opérationnels, organisation et ressources, modalités de suivi et d'évaluation.
 `.trim();
-  return sendPrompt('projet_service', userMessage, { temperature: 0.4, model });
+  return sendPrompt('projet_service', userMessage, { temperature: 0.4, model, signal });
 }
 
 // PPAS — Projet Personnalisé d'Accompagnement Social (axes Séraphin)
@@ -370,6 +391,7 @@ export async function generatePpasSocial({
   educatorRole,
   date,
   model = DEFAULT_MODEL,
+  signal,
 }) {
   const userMessage = `
 ${buildContext({ companyName, structureType, educatorName, educatorRole, date })}
@@ -380,7 +402,7 @@ ${observations?.trim() || 'Aucune observation fournie.'}
 Analyse ces observations, identifie les axes Séraphin concernés et génère un PPAS complet en 7 sections. Pour toute information absente, indique « À compléter par le professionnel référent ». Valorise les ressources et le pouvoir d'agir de la personne.
 `.trim();
 
-  return sendPrompt('ppa_social', userMessage, { temperature: 0.35, model });
+  return sendPrompt('ppa_social', userMessage, { temperature: 0.35, model, signal });
 }
 
 // HAS — Préparation Évaluation HAS
@@ -392,6 +414,7 @@ export async function generateEvaluationHas({
   educatorRole,
   date,
   model,
+  signal,
 }) {
   const userMessage = `
 ${buildContext({ companyName, structureType, educatorName, educatorRole, date })}
@@ -401,7 +424,7 @@ ${observations?.trim() || 'Aucun élément fourni.'}
 
 Analyse ces éléments et génère une préparation structurée à l'évaluation HAS : identification des thématiques concernées, points forts, axes d'amélioration, recommandations concrètes et plan d'action priorisé.
 `.trim();
-  return sendPrompt('evaluation_has', userMessage, { temperature: 0.4, model });
+  return sendPrompt('evaluation_has', userMessage, { temperature: 0.4, model, signal });
 }
 
 // AAP — Appel à Projet
@@ -413,6 +436,7 @@ export async function generateAppelProjet({
   educatorRole,
   date,
   model,
+  signal,
 }) {
   const userMessage = `
 ${buildContext({ companyName, structureType, educatorName, educatorRole, date })}
@@ -422,5 +446,5 @@ ${observations?.trim() || 'Aucun élément fourni.'}
 
 Analyse ces éléments et génère une réponse structurée à l'appel à projet : présentation du porteur, diagnostic territorial, description du projet, public cible, moyens humains et organisationnels, plan de financement indicatif, démarche qualité et calendrier de mise en œuvre.
 `.trim();
-  return sendPrompt('appel_projet', userMessage, { temperature: 0.4, model });
+  return sendPrompt('appel_projet', userMessage, { temperature: 0.4, model, signal });
 }

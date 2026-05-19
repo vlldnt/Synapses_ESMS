@@ -14,7 +14,7 @@ export default function DownloadSuccessModal({ isOpen, onClose }) {
           clearInterval(interval);
           return 100;
         }
-        return prev + (100 / 10); // 10 ticks = 1 seconde
+        return prev + (100 / 15); // 15 ticks = 1.5 secondes
       });
     }, 100);
 
@@ -26,14 +26,12 @@ export default function DownloadSuccessModal({ isOpen, onClose }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
       <div className="rounded-2xl bg-(--bg-primary) border border-(--border) shadow-2xl p-8 max-w-sm text-center">
-        {/* Icône de succès */}
         <div className="flex justify-center mb-4">
           <div className="w-16 h-16 rounded-full bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center">
             <Check size={32} className="text-emerald-600 dark:text-emerald-400" />
           </div>
         </div>
 
-        {/* Titre */}
         <h2 className="text-lg font-semibold text-(--text-primary) mb-2">
           Fichier téléchargé
         </h2>
@@ -41,7 +39,6 @@ export default function DownloadSuccessModal({ isOpen, onClose }) {
           Votre compte rendu a été généré et archivé avec succès.
         </p>
 
-        {/* Barre de progression */}
         <div className="mb-6">
           <div className="w-full h-2 bg-(--bg-secondary) rounded-full overflow-hidden">
             <div
@@ -54,7 +51,6 @@ export default function DownloadSuccessModal({ isOpen, onClose }) {
           </p>
         </div>
 
-        {/* Icône téléchargement */}
         <div className="flex justify-center">
           <FileDown size={24} className="text-(--text-muted) animate-bounce" />
         </div>

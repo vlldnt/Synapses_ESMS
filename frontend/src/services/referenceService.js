@@ -30,7 +30,11 @@ export async function createReference({ firstName, lastName, educatorId }) {
   const response = await authFetch(`${BASE}/references`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ firstName, lastName, educatorId }),
+    body: JSON.stringify({
+      first_name: firstName,
+      last_name: lastName,
+      ...(educatorId ? { educator_id: educatorId } : {}),
+    }),
   });
   if (!response.ok) {
     const data = await response.json().catch(() => ({}));
@@ -45,7 +49,7 @@ export async function updateReference(id, { firstName, lastName, educatorId }) {
   const response = await authFetch(`${BASE}/references/${id}`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ firstName, lastName, educatorId }),
+    body: JSON.stringify({ first_name: firstName, last_name: lastName }),
   });
   if (!response.ok) {
     const data = await response.json().catch(() => ({}));

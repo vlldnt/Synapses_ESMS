@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import Button from './Button';
@@ -58,6 +58,7 @@ export default function DirectionPage({ config }) {
   const [selectedModelId, setSelectedModelId] = useState(draft.selectedModelId || DEFAULT_MODEL);
   const [selectedModelName, setSelectedModelName] = useState(draft.selectedModelName || 'Voxtral Small 24B');
   const [usedModel, setUsedModel] = useState(draft.usedModel || null);
+  const controllerRef = useRef(null);
 
   const handleModelChange = (model) => {
     setSelectedModelId(model.id);
@@ -106,9 +107,16 @@ export default function DirectionPage({ config }) {
     setReportStatus(REPORT_STATUS.DRAFT);
   };
 
+  const handleCancelGeneration = () => {
+    controllerRef.current?.abort();
+    setLoading(false);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!observations.trim()) return;
+    const controller = new AbortController();
+    controllerRef.current = controller;
     setLoading(true); setResult(''); setValidated(false); setElapsed(null);
     setUsedModel(null); setIsArchived(false); setReportStatus(REPORT_STATUS.IN_PROGRESS);
     const start = Date.now();
@@ -121,18 +129,20 @@ export default function DirectionPage({ config }) {
         educatorRole: ROLE_LABELS[role] ?? role,
         date: today,
         model: selectedModelId,
+        signal: controller.signal,
       });
       setResult(text);
       setUsedModel({ id: selectedModelId, name: selectedModelName });
       setElapsed(((Date.now() - start) / 1000).toFixed(1));
       setReportStatus(REPORT_STATUS.IN_PROGRESS);
     } catch (err) {
+      if (err.name === 'AbortError') return;
       setResult(err.message === PROMPT_NOT_FOUND
         ? "Cette fonctionnalité n'est pas disponible pour le moment."
         : `Erreur : ${err.message}`);
       setReportStatus(REPORT_STATUS.DRAFT);
     } finally {
-      setLoading(false);
+      if (!controller.signal.aborted) setLoading(false);
     }
   };
 
@@ -265,7 +275,7 @@ export default function DirectionPage({ config }) {
           />
         )}
 
-        <GeneratingReportModal isOpen={showGeneratingModal} message={loadingMessages[loadingMessageIndex]} />
+        <GeneratingReportModal isOpen={showGeneratingModal} message={loadingMessages[loadingMessageIndex]} onCancel={handleCancelGeneration} />
       </div>
     </div>
   );

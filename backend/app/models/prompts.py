@@ -10,6 +10,7 @@ class Prompt(BaseModel):
     type = db.Column(db.String(50), nullable=False)
     context = db.Column(db.Text, nullable=False)
     content = db.Column(db.Text, nullable=False)
+    model = db.Column(db.String(200), nullable=True)
 
     def to_dict(self):
         return {
@@ -18,4 +19,5 @@ class Prompt(BaseModel):
             "type": self.type,
             "context": self.context,
             "content": self.content,
+            "model": self.model,
         }

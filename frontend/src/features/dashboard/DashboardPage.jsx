@@ -184,11 +184,11 @@ function DashboardPage() {
         {/* Header */}
         <div>
           <h1 className="text-xl md:text-3xl text-(--text-primary)">
-            {role === 'admin' ? 'Bonjour Admin' : `Bonjour ${firstName}`}
+            {`Bonjour ${firstName}`}
             {role !== 'admin' && job && <span className="ml-2 text-sm font-normal text-(--text-muted)">{job}</span>}
           </h1>
           <p className="mt-1 text-xs md:text-sm text-(--text-muted)">
-            {date} — {organisationType && `${organisationType} - `}{etablissementName}
+            {[date, job, etablissementName].filter(Boolean).join(' - ')}
           </p>
         </div>
 

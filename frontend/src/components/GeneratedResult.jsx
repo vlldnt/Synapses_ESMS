@@ -91,7 +91,7 @@ export default function GeneratedResult({
   const [isEditing, setIsEditing] = useState(false);
   const [draftText, setDraftText]  = useState(result);
   const [copyState, setCopyState]  = useState('idle');   // idle | copied
-  const [dlState, setDlState]      = useState('idle');   // idle | loading | done
+  const [dlState, setDlState]      = useState('idle');
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [showExportMenu, setShowExportMenu] = useState(false);
   const textareaRef = useRef(null);
@@ -155,8 +155,7 @@ export default function GeneratedResult({
     setShowSuccessModal(true);
 
     try {
-      // Attendre 1 seconde avant de faire la conversion
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      await new Promise((resolve) => setTimeout(resolve, 1500));
 
       // Récupérer le type d'intervention détecté par l'IA si disponible
       const detectedType = typeof window !== 'undefined'
@@ -175,44 +174,31 @@ export default function GeneratedResult({
         modelName: downloadMeta.modelName ?? generatedByModel?.name,
       });
 
-      // Convertir le blob en base64
-      return new Promise((resolve) => {
-        const reader = new FileReader();
-        reader.onload = () => {
-          const base64String = reader.result.split(',')[1];
-
-          // Sauvegarder aux archives si ce n'est pas depuis le modal
-          if (!skipArchive) {
-            const reportType = downloadMeta.reportType || downloadMeta.type || 'CRI';
-
-            const archiveData = {
-              status: 'archived',
-              filename: result.filename,
-              displayName: result.displayName,
-              date: result.date,
-              interventionType: result.interventionType,
-              type: result.docType || reportType,
-              docxBase64: base64String,
-              creatorId: user?.id,
-              childName: downloadMeta.childName || '',
-            };
-
-            // Sauvegarder en localStorage
-            saveToHistory(archiveData);
-
-            onArchived?.();
-          }
-
-          // Télécharger le fichier
-          triggerDownload(result.blob, result.filename);
-
-          // Fermer le modal et réinitialiser l'état
-          setShowSuccessModal(false);
-          setDlState('idle');
-          resolve();
+      if (!skipArchive) {
+        const reportType = downloadMeta.reportType || downloadMeta.type || 'CRI';
+        const archiveData = {
+          filename: result.filename,
+          displayName: result.displayName,
+          date: result.date,
+          interventionType: result.interventionType,
+          type: result.docType || reportType,
+          content: editedText,
+          educatorName: downloadMeta.educatorName || '',
+          educatorRole: downloadMeta.educatorRole || '',
+          creatorId: user?.id,
+          childName: downloadMeta.childName || '',
         };
-        reader.readAsDataURL(result.blob);
-      });
+        try {
+          await saveToHistory(archiveData);
+          onArchived?.();
+        } catch (archiveErr) {
+          console.error('Erreur sauvegarde archive:', archiveErr);
+        }
+      }
+
+      triggerDownload(result.blob, result.filename);
+      setShowSuccessModal(false);
+      setDlState('idle');
     } catch (err) {
       console.error('Erreur téléchargement:', err);
       setShowSuccessModal(false);
@@ -224,9 +210,10 @@ export default function GeneratedResult({
     setShowExportMenu(false);
     if (!previewRef.current) return;
     setDlState('loading');
+    setShowSuccessModal(true);
     try {
       const agent = downloadMeta.reportType || downloadMeta.type || 'DOC';
-      const { filename } = generateReportFilename(
+      const { filename, displayName } = generateReportFilename(
         downloadMeta.childName,
         downloadMeta.educatorName,
         downloadMeta.date,
@@ -234,10 +221,31 @@ export default function GeneratedResult({
         'pdf',
       );
       const docLabel = downloadMeta.interventionType || downloadMeta.reportType || downloadMeta.type || '';
-      await downloadPdf({ element: previewRef.current, filename, docLabel });
+
+      const archiveData = {
+        filename,
+        displayName,
+        date: downloadMeta.date,
+        interventionType: downloadMeta.interventionType || docLabel,
+        type: agent,
+        content: editedText,
+        educatorName: downloadMeta.educatorName || '',
+        educatorRole: downloadMeta.educatorRole || '',
+        creatorId: user?.id,
+        childName: downloadMeta.childName || '',
+      };
+
+      await Promise.all([
+        saveToHistory(archiveData).then(() => {
+          onArchived?.();
+          return downloadPdf({ element: previewRef.current, filename, docLabel });
+        }),
+        new Promise((resolve) => setTimeout(resolve, 1500)),
+      ]);
     } catch (err) {
       console.error('Erreur export PDF:', err);
     } finally {
+      setShowSuccessModal(false);
       setDlState('idle');
     }
   };

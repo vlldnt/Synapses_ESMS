@@ -8,126 +8,136 @@ from flask import current_app
 api = Namespace('users', description="User operations")
 
 user_request = api.model("user request", {
-    'first_name': fields.String(required=True, description="User first name", example="user"),
-    'last_name': fields.String(required=True, description="User last name", example="test"),
-    'email': fields.String(required=True, description="User email", example="user@email.com"),
-    'job': fields.String(required=True, description="user job", exemple="Educateur")
+    'first_name': fields.String(required=True, example="John"),
+    'last_name': fields.String(required=True, example="Doe"),
+    'email': fields.String(required=True, example="john@example.com"),
+    'job': fields.String(required=True, example="Éducateur"),
+    'role': fields.String(required=False, example="user"),
 })
 
 user_update = api.model("user update", {
-    'first_name': fields.String(required=True, description="User first name", example="user"),
-    'last_name': fields.String(required=True, description="User last name", example="test"),
-    'email': fields.String(required=True, description="User email", example="user@email.com"),
-    'password': fields.String(required=True, description="User password", example="Johnd0e!"),
+    'first_name': fields.String(required=False),
+    'last_name': fields.String(required=False),
+    'job': fields.String(required=False),
+    'role': fields.String(required=False),
+    'status': fields.String(required=False),
 })
+
+
+def _require_admin(claims):
+    if claims.get('role') != 'admin':
+        api.abort(403, "Admin role required")
+    org_id = claims.get('organization_id')
+    if not org_id:
+        api.abort(400, "Organization ID missing from token")
+    return org_id
+
+
+def _require_auth(claims):
+    org_id = claims.get('organization_id')
+    if not org_id:
+        api.abort(400, "Organization ID missing from token")
+    return org_id
+
 
 @api.route('/')
 class UserList(Resource):
     @jwt_required()
     @api.doc(security="token")
-    @api.response(400, 'Invalid input data')
-    @api.response(403, 'Forbidden action')
-    @api.response(404, 'admin not found')
     @api.response(200, 'List of users retrieved successfully')
     def get(self):
-        """Get a list of users in the same organization"""
-
+        """Get all users in the same organization"""
         claims = get_jwt()
-        organisation_id = claims.get('organization_id')
-        if not organisation_id:
-            api.abort(400, "Organization ID missing from token")
+        org_id = _require_auth(claims)
+        users = facade.get_all_users(org_id)
+        return [user.to_dict() for user in users], 200
 
-        all_users = facade.get_all_users(organisation_id)
-        return [user.to_dict() for user in all_users], 200
-    
-    @api.expect(user_request)
     @jwt_required()
     @api.doc(security="token")
-    @api.response(201, "the request has successfully create")
-    @api.response(400, 'Invalid input data')
-    @api.response(403, 'Forbidden action')
-    @api.response(404, 'admin not found')
+    @api.expect(user_request)
+    @api.response(200, 'Invitation sent')
+    @api.response(403, 'Admin role required')
     def post(self):
-        data = get_jwt()
-        if (data['is_admin'] is False):
-            api.abort(403, "action Forbidden")
+        """Invite a new user — admin only"""
+        claims = get_jwt()
+        org_id = _require_admin(claims)
 
-        request_payload = api.payload
-        valid_inputs = ['first_name', 'last_name', 'email', 'job']
-        for key in request_payload:
-            if key not in valid_inputs:
-                api.abort(400, f'Invalid input data: {key}')
-
+        payload = api.payload or {}
         request = UserRequest(
-            first_name=request_payload['first_name'],
-            last_name=request_payload['last_name'],
-            email=request_payload['email'],
-            job=request_payload['job'],
-            organization_id=data["organization_id"],
-            role="agent"
+            first_name=payload['first_name'],
+            last_name=payload['last_name'],
+            email=payload['email'],
+            job=payload['job'],
+            organization_id=org_id,
+            role=payload.get('role', 'user'),
         )
-        
+
         new_request = facade.made_request_user(request)
-
+        org_data = facade.get_organisation(org_id)
         app_url = current_app.config["APP_URL"]
-
-        setPassword =  f"{app_url}/set-password/{new_request.verification_token}"
+        set_password_url = f"{app_url}/set-account/{new_request.verification_token}"
 
         MailService.send_email(
-            to=new_request.contact_email,
+            to=new_request.email,
             first_name=new_request.first_name,
             last_name=new_request.last_name,
-            org_name=new_request.org_name,
-            setPasswordUrl=setPassword
+            org_name=org_data.name,
+            setPasswordUrl=set_password_url,
         )
-
         return new_request.token(), 200
 
 
 @api.route('/<user_id>')
 class UserResource(Resource):
-    @api.response(200, 'user is successfully retrieved')
-    @api.response(404, 'the user does not exist')
-
+    @jwt_required()
+    @api.doc(security="token")
+    @api.response(200, 'User retrieved')
+    @api.response(404, 'User not found')
     def get(self, user_id):
-        """get user by his id"""
+        """Get user by ID — admin sees any user in org, user sees only self"""
+        claims = get_jwt()
+        current_id = get_jwt_identity()
+        org_id = _require_auth(claims)
+
+        if claims.get('role') != 'admin' and user_id != current_id:
+            api.abort(403, "You can only view your own profile")
 
         user = facade.get_user(user_id)
         if not user:
-            return {'error': 'the user does not exist'}, 404
+            return {'error': 'user not found'}, 404
+        if user.organization_id != org_id:
+            api.abort(403, "User does not belong to your organization")
+
         return user.to_dict(), 200
 
-    @api.expect(user_update)
     @jwt_required()
-    @api.response(201, 'User successfully updated')
-    @api.response(400, 'Invalid input data')
-    @api.response(403, 'Forbidden action')
     @api.doc(security="token")
+    @api.expect(user_update)
+    @api.response(200, 'User updated')
+    @api.response(403, 'Forbidden')
     @api.response(404, 'User not found')
-
     def put(self, user_id):
-        """Update user details by ID"""
+        """Update user — admin can update any user in org, user can update only self"""
+        claims = get_jwt()
+        current_id = get_jwt_identity()
+        org_id = _require_auth(claims)
+        is_admin = claims.get('role') == 'admin'
 
-        current_user = get_jwt_identity()
-        user = facade.get_user(current_user)
+        if not is_admin and user_id != current_id:
+            api.abort(403, "You can only update your own profile")
 
+        user = facade.get_user(user_id)
         if not user:
-            api.abort(404, "User not found")
+            return {'error': 'user not found'}, 404
+        if user.organization_id != org_id:
+            api.abort(403, "User does not belong to your organization")
 
-        if user_id != user.id:
-            api.abort(403, "Unauthorized action")
-        
-        user_data = api.payload
+        data = api.payload or {}
+        allowed = {"first_name", "last_name", "job", "role", "status"}
+        if not is_admin:
+            allowed -= {"role", "status"}
 
-        valid_inputs = ["first_name", "last_name", "email", "password"]
-        for key in user_data:
-            if key not in valid_inputs:
-                api.abort(400, f'Invalid input data: {key}')
+        update_data = {k: v for k, v in data.items() if k in allowed and v is not None}
+        updated = facade.update_user(user_id, update_data)
+        return updated.to_dict(), 200
 
-        try:
-            updated_user = facade.update_user(user_id, user_data)
-
-        except (ValueError, TypeError) as e:
-            api.abort(400, str(e))
-
-        return updated_user.to_dict(), 201

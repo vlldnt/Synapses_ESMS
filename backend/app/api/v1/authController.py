@@ -1,9 +1,11 @@
+from flask import make_response, jsonify, request as flask_request
 from flask_restx import Namespace, Resource, fields
-from flask_jwt_extended import get_jwt_identity, jwt_required, get_jwt
+from flask_jwt_extended import get_jwt_identity, jwt_required, get_jwt, set_access_cookies, set_refresh_cookies, unset_jwt_cookies, decode_token
 from app.services import facade
-from app.security.jwt import generete_token
+from app.security.jwt import generete_token, generete_refresh_token
+from app.models.blocklist_token import TokenBlocklist
 from app.services.mail_service import MailService
-from datetime import datetime
+from app import limiter
 from flask import current_app
 
 api = Namespace('auth', description="User authentication operation")
@@ -27,12 +29,13 @@ validation_model = api.model('organizationvalidate', {
     'confirm': fields.String(required=True, description='second password', example=""),
 })
 
-
+#---LOGIN ENDPOINT---------------------------------------------------------------------------------------------
 @api.route('/login')
 class Login(Resource):
+    @limiter.limit("10 par minute")
     @api.expect(login_model)
     def post(self):
-        """Authenticate user and return a JWT token"""
+        """Authenticate user and set HTTP-only JWT cookie"""
 
         credentials = api.payload
         email = credentials.get('email')
@@ -49,25 +52,68 @@ class Login(Resource):
             return {'error': 'Compte inactif.'}, 403
 
         access_token = generete_token(user)
-        return {'user': user.to_dict(), 'token': access_token}, 200
+        refresh_token = generete_refresh_token(user)
+        response = make_response(jsonify({'user': user.to_dict()}), 200)
+        set_access_cookies(response, access_token)
+        set_refresh_cookies(response, refresh_token)
+        return response
 
-    @api.route('/protected')
-    class ProtectedResource(Resource):
-        @jwt_required()
-        @api.doc(security='token')
-        def get(self):
-            """A protected endpoint that requires a valid JWT token"""
+#---LOGOUT ENDPOINT---------------------------------------------------------------------------------------------    
+@api.route('/logout')
+class Logout(Resource):
+    def post(self):
+        """ Logout a user, clear jwt and refresh_token """
+        refresh_cookies = flask_request.cookies.get('refresh_token_cookie')
+        if refresh_cookies:
+            try:
+                decoded = decode_token(refresh_cookies)
+                jti = decoded.get('jti')
+                if jti:
+                    TokenBlocklist.block(jti)
+            except Exception:
+                pass
+        response = make_response(jsonify({"message": "Déconnecté"}), 200)
+        unset_jwt_cookies(response)
+        return response
 
-            user_id = get_jwt_identity();
-            data = get_jwt()
+#---ME ENDPOINT------------------------------------------------------------------------------------------------------
+@api.route('/me')
+class ME(Resource):
+    @jwt_required()
+    def get(self):
+        """ Return the current authenticated user """
+        user_id = get_jwt_identity()
+        user = facade.get_user(user_id)
+        if not user:
+            return {'error': 'User not found.'}, 404
+        return user.to_dict(), 200
+    
+#---TOKEN REFRESH ENDPOINT--------------------------------------------------------------------------------------------- 
+@api.route("/token/refresh")
+class TokenRefresh(Resource):
+    @jwt_required(refresh=True)
+    def post(self):
+        user_id = get_jwt_identity()
+        old_jti = get_jwt().get('jti')
 
-            return {'message': f'Hello, user {user_id}, your organisation {data['organization_id']}'}, 200
+        user = facade.get_user(user_id)
+        if not user or user.status != 'active':
+            return {'error': 'Session invalid'}, 401
+        
+        if old_jti:
+            TokenBlocklist.block(old_jti)
 
+        access_token = generete_token(user)
+        refresh_token = generete_refresh_token(user)
+        response = make_response(jsonify({'user': user.to_dict()}), 200)
+        set_access_cookies(response, access_token)
+        set_refresh_cookies(response, refresh_token)
+        return response
 
+#---ORGANISATION REQUEST ENDPOINT---------------------------------------------------------------------------------------------   
 @api.route('/organization-requests')
 class made_organization_request(Resource):
     @jwt_required()
-    @api.doc(security="token")
     def get(self):
         """ can see list of all request"""
         user_id = get_jwt_identity()
@@ -120,7 +166,8 @@ class made_organization_request(Resource):
         )
 
         return new_request.token(), 200
-    
+
+#---ORGANISATION REQUEST INFO ENDPOINT---------------------------------------------------------------------------------------------     
 @api.route('/organization-requests/info/<token_id>')
 class get_orgnaisation_request_by_token(Resource):
     def get(self, token_id):
@@ -130,12 +177,13 @@ class get_orgnaisation_request_by_token(Resource):
         if not request:
             api.abort(404, "request not found")
         return request.to_dict(), 200
-    
+
+#---ORGANISATION REQUEST VALIDATION ENDPOINT---------------------------------------------------------------------------------------------   
 @api.route('/organization-requests/complete/<token_id>')
 class new_organization(Resource):
     @api.expect(validation_model)
     def post(self, token_id):
-        """ validate the creation with password """
+        """ validate the creation with password and set auth cookie """
 
         validate = api.payload or {}
         valid_inputs = ['password', 'confirm']
@@ -156,8 +204,16 @@ class new_organization(Resource):
         if not result:
             return {'error': 'Invalid or expired token / request already processed'}, 400
 
-        return result, 201
+        access_token = result.pop('token', None)
+        response = make_response(jsonify(result), 201)
+        if access_token:
+            set_access_cookies(response, access_token)
+            user = facade.get_user(result['user']['id'])
+            if user:
+                set_refresh_cookies(response, generete_refresh_token(user))
+        return response
 
+#---USER REQUEST INFO ENDPOINT--------------------------------------------------------------------------------------------- 
 @api.route("/user-requests/info/<token_id>")
 class list_resquest(Resource):
     def get(self, token_id):
@@ -167,14 +223,15 @@ class list_resquest(Resource):
             api.abort(404, "Request not found")
         return request.to_dict()
 
+#---USER REQUEST VALIDATION ENDPOINT--------------------------------------------------------------------------------------------- 
 @api.route("/user-requests/complete/<token_id>")
 @api.expect(validation_model)
 class new_user(Resource):
     def post(self, token_id):
-        """ validate the creation with password """
+        """ validate the creation with password and set auth cookie """
 
         validate = api.payload or {}
-        valid_inputs = ['password', 'validate_password']
+        valid_inputs = ['password', 'confirm']
         missing = [key for key in valid_inputs if key not in validate]
         extra = [key for key in validate if key not in valid_inputs]
         if missing or extra:
@@ -185,11 +242,18 @@ class new_user(Resource):
                 errors.append(f"Invalid input data: {', '.join(extra)}")
             api.abort(400, '; '.join(errors))
 
-        if validate['password'] != validate['validate_password']:
+        if validate['password'] != validate['confirm']:
             return {'error': 'Passwords do not match'}, 400
 
         result = facade.complete_request_user(token_id, validate['password'])
         if not result:
             return {'error': 'Invalid or expired token / request already processed'}, 400
 
-        return result, 201
+        access_token = result.pop('token', None)
+        response = make_response(jsonify(result), 201)
+        if access_token:
+            set_access_cookies(response, access_token)
+            user = facade.get_user(result['user']['id'])
+            if user:
+                set_refresh_cookies(response, generete_refresh_token(user))
+        return response

@@ -31,5 +31,10 @@ google-key.json
 .env
 .env.local
 
+<<<<<<< HEAD
 venv/
 __pycache__
+=======
+__pycache__/
+venv/
+>>>>>>> backend

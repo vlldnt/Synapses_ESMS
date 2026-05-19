@@ -5,81 +5,98 @@ from flask_jwt_extended import get_jwt_identity, jwt_required, get_jwt
 
 api = Namespace('references', description="references operations")
 
-""" references model """
 ref_model = api.model("references", {
-    "first_name": fields.String(required=True, description="references first name", example="Jotaro"),
-    "last_name": fields.String(required=True, description="references first name", example="Kujo"),
+    "first_name": fields.String(required=True, example="Jotaro"),
+    "last_name": fields.String(required=True, example="Kujo"),
+    "educator_id": fields.String(required=False),
 })
+
+ref_update_model = api.model("references_update", {
+    "first_name": fields.String(required=False),
+    "last_name": fields.String(required=False),
+    "educator_id": fields.String(required=False),
+})
+
+
+def _require_admin(claims):
+    """Returns org_id or aborts with 403/400."""
+    if claims.get('role') != 'admin':
+        api.abort(403, "Admin role required")
+    org_id = claims.get('organization_id')
+    if not org_id:
+        api.abort(400, "Organization ID missing from token")
+    return org_id
+
+
+def _require_auth(claims):
+    """Returns org_id for any authenticated user or aborts."""
+    org_id = claims.get('organization_id')
+    if not org_id:
+        api.abort(400, "Organization ID missing from token")
+    return org_id
+
 
 @api.route("/")
 class ReferencesList(Resource):
     @jwt_required()
     @api.doc(security="token")
-    @api.expect(ref_model)
-    @api.response(201, 'reference successfully created')
-    @api.response(400, 'Invalid input data')
-    def post(self):
-        """ engister a reference """
-        try:
-            ref_data = api.payload
-            educator = get_jwt_identity()
-            claims = get_jwt()
-            organisation_id = claims.get('organization_id')
-            if not organisation_id:
-                api.abort(400, "Organization ID missing from token")
-            
-            valid_inputs = ["first_name", "last_name"]
-            for key in ref_data:
-                if key not in valid_inputs:
-                    api.abort(400, f'Invalid input data: {key}')
+    @api.response(200, 'List of references retrieved successfully')
+    def get(self):
+        """Get all references for the organization"""
+        claims = get_jwt()
+        org_id = _require_auth(claims)
+        refs = facade.get_all_references(org_id)
+        return [ref.to_dict() for ref in refs], 200
 
-            reference = Reference(
-                first_name= ref_data["first_name"],
-                last_name= ref_data["last_name"],
-                organisation_id=organisation_id,
-                educator_id=educator 
-            )
-                
-            new_ref = facade.create_ref(reference)
-            return new_ref.to_dict(), 201
-        
-        except ValueError as error:
-            return{'error': str(error)}, 400
-        
     @jwt_required()
     @api.doc(security="token")
-    @api.response(200, 'List of reference retrieved successfully')
-    def get(self):
-        """get all references for the organization"""
-
+    @api.expect(ref_model)
+    @api.response(201, 'Reference successfully created')
+    @api.response(400, 'Invalid input data')
+    @api.response(403, 'Admin role required')
+    def post(self):
+        """Create a reference — admin only"""
         claims = get_jwt()
-        organisation_id = claims.get('organization_id')
-        if not organisation_id:
-            api.abort(400, "Organization ID missing from token")
+        org_id = _require_admin(claims)
 
-        all_ref = facade.get_all_references(organisation_id)
-        return [ref.to_dict() for ref in all_ref], 200
-    
+        data = api.payload or {}
+        educator_id = data.get("educator_id")
+        if not educator_id:
+            api.abort(400, "educator_id is required")
+
+        reference = Reference(
+            first_name=data["first_name"],
+            last_name=data["last_name"],
+            organisation_id=org_id,
+            educator_id=educator_id,
+        )
+        new_ref = facade.create_ref(reference)
+        return new_ref.to_dict(), 201
+
+
 @api.route('/<reference_id>')
 class ReferencesResource(Resource):
-    @api.response(200, 'reference is successfully deleted')
-    @api.response(404, 'the reference does not exist')
     @jwt_required()
     @api.doc(security="token")
-    def delete(self, reference_id):
-        """delete reference by his id"""
-
+    @api.expect(ref_update_model)
+    @api.response(200, 'Reference successfully updated')
+    @api.response(403, 'Admin role required')
+    @api.response(404, 'Reference not found')
+    def put(self, reference_id):
+        """Update a reference — admin only"""
         claims = get_jwt()
-        organisation_id = claims.get('organization_id')
-        if not organisation_id:
-            api.abort(400, "Organization ID missing from token")
+        org_id = _require_admin(claims)
 
         reference = facade.get_reference(reference_id)
         if not reference:
             return {'error': 'reference not found'}, 404
+        if reference.organisation_id != org_id:
+            api.abort(403, "Reference does not belong to your organization")
 
-        if reference.organisation_id != organisation_id:
-            api.abort(403, "You can only delete references from your organization")
+        data = api.payload or {}
+        allowed = {"first_name", "last_name", "educator_id"}
+        update_data = {k: v for k, v in data.items() if k in allowed and v is not None}
+        facade.update_references(reference_id, update_data)
+        updated = facade.get_reference(reference_id)
+        return updated.to_dict(), 200
 
-        facade.delete_reference(reference_id)
-        return {'message': 'reference successfully deleted'}, 200

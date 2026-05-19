@@ -3,17 +3,27 @@ import { authFetch } from './authServices';
 const API_URL = './api';
 
 let organizationsCache = [];
+let organizationsPromise = null;
 
 async function fetchOrganizations() {
-  try {
-    const response = await authFetch(`${API_URL}/organizations`);
-    if (!response.ok) throw new Error(`API error: ${response.status}`);
-    organizationsCache = await response.json();
-    return organizationsCache;
-  } catch (err) {
-    console.warn('Error fetching organizations:', err);
-    return organizationsCache;
+  if (organizationsCache.length > 0) return organizationsCache;
+  if (!organizationsPromise) {
+    organizationsPromise = authFetch(`${API_URL}/organizations`)
+      .then((r) => {
+        if (!r.ok) throw new Error(`API error: ${r.status}`);
+        return r.json();
+      })
+      .then((data) => {
+        organizationsCache = data;
+        return data;
+      })
+      .catch((err) => {
+        organizationsPromise = null;
+        console.warn('Error fetching organizations:', err);
+        return organizationsCache;
+      });
   }
+  return organizationsPromise;
 }
 
 export async function getOrganizationById(id) {
