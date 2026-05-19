@@ -221,8 +221,8 @@ export default function AgentPage({ config }) {
               <div className="w-px h-10 bg-(--border)" />
               <div className="flex flex-col">
                 <p className="text-(--text-muted) text-xs">Structure</p>
-                <p className="font-semibold text-(--text-primary)">{organization?.name ?? '—'}</p>
-                <p className="text-xs text-(--text-secondary)">{organization?.structure_type ?? '—'}</p>
+                <p className="font-semibold text-(--text-primary)">{organization?.name ?? '-'}</p>
+                <p className="text-xs text-(--text-secondary)">{organization?.structure_type ?? '-'}</p>
               </div>
               <div className="w-px h-10 bg-(--border)" />
               <div className="flex flex-col">
@@ -286,8 +286,8 @@ export default function AgentPage({ config }) {
                 <div className="w-px bg-(--border)" />
                 <div className="flex flex-col flex-1">
                   <p className="text-(--text-muted) font-medium">Structure</p>
-                  <p className="font-semibold text-(--text-primary)">{organization?.name ?? '—'}</p>
-                  <p className="text-(--text-secondary)">{organization?.structure_type ?? '—'}</p>
+                  <p className="font-semibold text-(--text-primary)">{organization?.name ?? '-'}</p>
+                  <p className="text-(--text-secondary)">{organization?.structure_type ?? '-'}</p>
                 </div>
                 <div className="w-px bg-(--border)" />
                 <div className="flex flex-col flex-1">
@@ -336,7 +336,7 @@ export default function AgentPage({ config }) {
             }
           >
             <TranscriptionCard value={observations} onChange={setObservations} placeholder={placeholder} rows={8} disabled={loading} />
-            <RgpdNotice message="Vos notes sont anonymisées — aucun nom, prénom ou donnée nominative ne doit être transmis." />
+            <RgpdNotice message="Vos notes sont anonymisées - aucun nom, prénom ou donnée nominative ne doit être transmis." />
           </StepCard>
 
           <div id="form-actions" className="flex flex-col gap-3">

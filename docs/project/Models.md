@@ -1,6 +1,6 @@
-# Modèles de données — `backend/data/*.json`
+# Modèles de données - `backend/data/*.json`
 
-### Organization — `organizations.json`
+### Organization - `organizations.json`
 
 | Champ | Type | Description |
 |-------|------|-------------|
@@ -13,7 +13,7 @@
 
 ---
 
-### OrganizationRequest — `organizationRequests.json`
+### OrganizationRequest - `organizationRequests.json`
 
 | Champ | Type | Description |
 |-------|------|-------------|
@@ -32,7 +32,7 @@
 
 ---
 
-### User — `users.json`
+### User - `users.json`
 
 | Champ | Type | Description |
 |-------|------|-------------|
@@ -49,7 +49,7 @@
 
 ---
 
-### UserRequest — `userRequests.json`
+### UserRequest - `userRequests.json`
 
 | Champ | Type | Description |
 |-------|------|-------------|
@@ -69,7 +69,7 @@
 
 ---
 
-### Reference — `references.json`
+### Reference - `references.json`
 
 | Champ | Type | Description |
 |-------|------|-------------|
@@ -82,7 +82,7 @@
 
 ---
 
-### Archive — `archives.json`
+### Archive - `archives.json`
 
 | Champ | Type | Description |
 |-------|------|-------------|
@@ -94,7 +94,7 @@
 
 ---
 
-### Document — `documents.json`
+### Document - `documents.json`
 
 | Champ | Type | Description |
 |-------|------|-------------|
@@ -113,7 +113,7 @@
 
 ---
 
-### Prompt — `prompts.json`
+### Prompt - `prompts.json`
 
 | Champ | Type | Description |
 |-------|------|-------------|

@@ -42,7 +42,7 @@ class ReferencesList(Resource):
     @api.doc(security="token")
     @api.response(200, 'List of references retrieved successfully')
     def get(self):
-        """Get references — admin sees all, educator sees only their own"""
+        """Get references - admin sees all, educator sees only their own"""
         claims = get_jwt()
         org_id = _require_auth(claims)
         if claims.get('role') == 'admin':
@@ -58,7 +58,7 @@ class ReferencesList(Resource):
     @api.response(201, 'Reference successfully created')
     @api.response(400, 'Invalid input data')
     def post(self):
-        """Create a reference — admin specifies educator_id, user uses their own id"""
+        """Create a reference - admin specifies educator_id, user uses their own id"""
         claims = get_jwt()
         org_id = _require_auth(claims)
 
@@ -89,7 +89,7 @@ class ReferencesResource(Resource):
     @api.response(403, 'Forbidden')
     @api.response(404, 'Reference not found')
     def put(self, reference_id):
-        """Update a reference — admin can update any, educator only their own"""
+        """Update a reference - admin can update any, educator only their own"""
         claims = get_jwt()
         org_id = _require_auth(claims)
 
@@ -118,7 +118,7 @@ class ReferencesResource(Resource):
     @api.response(403, 'Admin role required')
     @api.response(404, 'Reference not found')
     def delete(self, reference_id):
-        """Delete a reference — admin only"""
+        """Delete a reference - admin only"""
         claims = get_jwt()
         org_id = _require_admin(claims)
 

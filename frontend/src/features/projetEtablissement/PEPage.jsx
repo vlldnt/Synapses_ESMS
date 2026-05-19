@@ -18,7 +18,7 @@ const config = {
   resultId: 'pe-result',
   step1Subtitle: "Projet d'Établissement",
   step2Title: 'Orientations et éléments de contexte',
-  step2Subtitle: "Décrivez les valeurs, le diagnostic, les orientations stratégiques et les objectifs à 5 ans — l'IA structure le projet d'établissement",
+  step2Subtitle: "Décrivez les valeurs, le diagnostic, les orientations stratégiques et les objectifs à 5 ans - l'IA structure le projet d'établissement",
   placeholder: "Valeurs de la structure, public accueilli, diagnostic de situation, forces et faiblesses, orientations stratégiques, objectifs à 5 ans, moyens humains et matériels, partenariats…",
   buttonLabel: "Générer le projet d'établissement",
   resetLabel: '+ Nouveau projet',

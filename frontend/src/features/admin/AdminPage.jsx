@@ -185,7 +185,7 @@ function AdminPage() {
   }
 
   const tabs = [
-    { id: 'overview', label: organization?.structure_type ? `${organization.structure_type} — ${organization.name}` : (organization?.name || 'Vue générale') },
+    { id: 'overview', label: organization?.structure_type ? `${organization.structure_type} - ${organization.name}` : (organization?.name || 'Vue générale') },
     { id: 'employes', label: `Employés (${employees.length})` },
     { id: 'references', label: `Références (${references.length})` },
     { id: 'documents', label: `Documents (${documents.length})` },

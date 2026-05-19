@@ -71,7 +71,7 @@ function ValidatedBadge({ onUnvalidate }) {
  *  - validated      : bool (état de validation géré par le parent)
  *  - onValidatedChange : (bool) => void
  *  - onRegenerate   : () => void
- *  - validationText : string — mention légale sous la checkbox
+ *  - validationText : string - mention légale sous la checkbox
  *  - downloadMeta   : { interventionType, structureType, companyName, educatorName, date }
  */
 export default function GeneratedResult({
@@ -164,7 +164,7 @@ export default function GeneratedResult({
         ? sessionStorage.getItem('detectedInterventionType')
         : null;
 
-      const finalInterventionType = (downloadMeta.interventionType && downloadMeta.interventionType !== '—' && downloadMeta.interventionType !== '')
+      const finalInterventionType = (downloadMeta.interventionType && downloadMeta.interventionType !== '-' && downloadMeta.interventionType !== '')
         ? downloadMeta.interventionType
         : (detectedType || 'Intervention');
 
@@ -340,7 +340,7 @@ export default function GeneratedResult({
             title="Copier le texte dans le presse-papier"
           />
 
-          {/* Télécharger — dropdown Word / PDF */}
+          {/* Télécharger - dropdown Word / PDF */}
           {validated && (
             <div className="relative" ref={exportMenuRef}>
               <button
@@ -400,7 +400,7 @@ export default function GeneratedResult({
           <div className="p-4 md:p-6 bg-(--bg-secondary)">
             <div className="flex items-center gap-2 mb-3 text-xs text-(--text-muted)">
               <Pencil size={12} />
-              Mode édition — modifiez librement le texte ci-dessous
+              Mode édition - modifiez librement le texte ci-dessous
             </div>
             <textarea
               ref={textareaRef}
@@ -444,7 +444,7 @@ export default function GeneratedResult({
             {validated && (
               <div className="flex items-center gap-2 mb-3 text-xs text-emerald-600 dark:text-emerald-400 font-medium">
                 <LockKeyhole size={12} />
-                Document validé — lecture seule
+                Document validé - lecture seule
               </div>
             )}
             <div ref={previewRef} data-pdf-root="true">

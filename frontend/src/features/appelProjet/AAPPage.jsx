@@ -18,7 +18,7 @@ const config = {
   resultId: 'aap-result',
   step1Subtitle: 'Appel à Projet',
   step2Title: 'Éléments du projet',
-  step2Subtitle: "Décrivez le contexte, le public cible, les objectifs et les moyens envisagés — l'IA structure votre réponse à l'appel à projet",
+  step2Subtitle: "Décrivez le contexte, le public cible, les objectifs et les moyens envisagés - l'IA structure votre réponse à l'appel à projet",
   placeholder: 'Appel à projet ciblé, porteur de projet, diagnostic territorial, public visé, capacité d\'accueil, objectifs, moyens humains et financiers, partenaires, calendrier envisagé…',
   buttonLabel: 'Générer la réponse AAP',
   resetLabel: '+ Nouvel appel à projet',

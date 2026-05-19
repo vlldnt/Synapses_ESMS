@@ -21,7 +21,7 @@ export default function InterventionReportPage() {
       resultId: 'cr-result',
       step1Subtitle: "Compte rendu d'intervention",
       step2Title: 'Transcription',
-      step2Subtitle: "Dictez ou saisissez vos observations — l'IA détermine le type et structure le compte rendu",
+      step2Subtitle: "Dictez ou saisissez vos observations - l'IA détermine le type et structure le compte rendu",
       placeholder: "Dictez ou saisissez vos observations, le déroulement, les éléments d'analyse, les suites prévues… L'IA se charge du reste.",
       buttonLabel: 'Générer le compte rendu',
       resetLabel: '+ Nouveau rapport',

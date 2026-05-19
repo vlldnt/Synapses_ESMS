@@ -18,7 +18,7 @@ const config = {
   resultId: 'ps-result',
   step1Subtitle: 'Projet de Service',
   step2Title: 'Éléments et orientations du service',
-  step2Subtitle: "Décrivez les missions, l'organisation, les objectifs et les modalités d'intervention du service — l'IA structure le projet",
+  step2Subtitle: "Décrivez les missions, l'organisation, les objectifs et les modalités d'intervention du service - l'IA structure le projet",
   placeholder: "Missions du service, public visé, organisation interne, ressources humaines, objectifs opérationnels, modalités d'intervention, partenariats, indicateurs de suivi…",
   buttonLabel: 'Générer le projet de service',
   resetLabel: '+ Nouveau projet',

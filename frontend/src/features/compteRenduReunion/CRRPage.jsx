@@ -18,7 +18,7 @@ const config = {
   resultId: 'crr-result',
   step1Subtitle: 'Compte Rendu de Réunion',
   step2Title: 'Notes de réunion',
-  step2Subtitle: "Décrivez les participants, l'ordre du jour, les échanges, les décisions prises et les actions à engager — l'IA structure le compte rendu",
+  step2Subtitle: "Décrivez les participants, l'ordre du jour, les échanges, les décisions prises et les actions à engager - l'IA structure le compte rendu",
   placeholder: "Participants présents, points abordés, échanges importants, décisions prises, actions à mettre en place, prochaine réunion prévue…",
   buttonLabel: 'Générer le compte rendu',
   resetLabel: '+ Nouveau compte rendu',

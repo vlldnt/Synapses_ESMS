@@ -75,7 +75,7 @@ export default function CreateReferenceModal({ employees = [], onClose, onCreate
                 <option value=''>Sélectionner un éducateur…</option>
                 {employees.map((emp) => (
                   <option key={emp.id} value={emp.id}>
-                    {emp.first_name} {emp.last_name}{emp.job ? ` — ${emp.job}` : ''}
+                    {emp.first_name} {emp.last_name}{emp.job ? ` - ${emp.job}` : ''}
                   </option>
                 ))}
               </select>

@@ -163,7 +163,7 @@ export function TranscriptionInput({
   useEffect(() => {
     if (pathRef.current !== 'ws') return;
     if (ws.status === 'error') {
-      setErrorMessage("Connexion interrompue — réessayez");
+      setErrorMessage("Connexion interrompue - réessayez");
       setStatus("idle");
       pathRef.current = 'idle';
     }

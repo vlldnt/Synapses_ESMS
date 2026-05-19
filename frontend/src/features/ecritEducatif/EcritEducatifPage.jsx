@@ -21,7 +21,7 @@ export default function EcritEducatifPage() {
       resultId: 'ecrit-result',
       step1Subtitle: 'Écrit éducatif',
       step2Title: 'Notes terrain',
-      step2Subtitle: "Décrivez la situation, les observations et les éléments d'analyse — l'IA rédige l'écrit éducatif",
+      step2Subtitle: "Décrivez la situation, les observations et les éléments d'analyse - l'IA rédige l'écrit éducatif",
       placeholder: "Décrivez la situation de la personne, vos observations terrain, les éléments d'analyse, les ressources identifiées, les préconisations envisagées… L'IA se charge du reste.",
       buttonLabel: "Générer l'écrit éducatif",
       resetLabel: '+ Nouvel écrit',

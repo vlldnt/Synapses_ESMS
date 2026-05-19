@@ -1,4 +1,4 @@
-# Flows de création — Synapses ESMS
+# Flows de création - Synapses ESMS
 
 ---
 
@@ -90,7 +90,7 @@ Flow déclenché par un admin d'une organisation existante depuis le dashboard.
 ### Étapes
 
 ```
-[Admin — Dashboard]
+[Admin - Dashboard]
        │
        ▼
 POST /api/users                                   (JWT requis, role: admin)
@@ -125,9 +125,9 @@ POST /api/user-requests/complete/:token           (public)
 
 | Méthode | Route | Auth | Rôle |
 |---------|-------|------|------|
-| `POST` | `/api/users` | JWT requis | Admin — créer une invitation |
-| `GET` | `/api/users` | JWT requis | Admin — lister les users de l'org |
-| `PUT` | `/api/users/:id` | JWT requis | Admin — modifier un user |
+| `POST` | `/api/users` | JWT requis | Admin - créer une invitation |
+| `GET` | `/api/users` | JWT requis | Admin - lister les users de l'org |
+| `PUT` | `/api/users/:id` | JWT requis | Admin - modifier un user |
 | `GET` | `/api/user-requests/info/:token` | Public | Lire les infos de l'invitation |
 | `POST` | `/api/user-requests/complete/:token` | Public | Finaliser + créer le user |
 

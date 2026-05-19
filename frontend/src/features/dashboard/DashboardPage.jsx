@@ -187,7 +187,7 @@ function DashboardPage() {
                   <h2 className="text-sm md:text-base font-semibold text-(--text-primary)">Panneau d'administration</h2>
                   <span className="text-[11px] font-medium text-(--text-muted) bg-(--bg-secondary) px-2 py-0.5 rounded-full border border-(--border)">Admin</span>
                   <span className="text-xs text-(--text-muted)">
-                    {organisationType && `${organisationType} — `}{etablissementName}
+                    {organisationType && `${organisationType} - `}{etablissementName}
                   </span>
                 </div>
                 <Link to="/admin" className="text-xs text-(--bleu-fonce) hover:underline font-medium shrink-0">
@@ -366,11 +366,22 @@ function DashboardPage() {
                     {history.length === 0 ? (
                       <p className="text-xs text-(--text-muted)">Aucun document généré.</p>
                     ) : (
-                      history.map((doc) => (
-                        <p key={doc.id} className="text-xs text-(--text-primary) truncate shrink-0">
-                          {doc.filename || doc.type || 'Document'}
-                        </p>
-                      ))
+                      history.map((doc) => {
+                        const agent = findAgentForEntry(doc);
+                        const label = agent ? agent.badge : getDocTypeLabel(doc);
+                        const color = agent ? agent.color : getDocColorFromLabel(label);
+                        return (
+                          <div key={doc.id} className="flex items-center gap-2 shrink-0">
+                            <span
+                              className="inline-flex items-center justify-center w-14 h-5 rounded-full text-[10px] font-bold shrink-0 text-white"
+                              style={{ background: color }}
+                            >
+                              {label}
+                            </span>
+                            <p className="text-xs text-(--text-primary) truncate">{formatReportName(doc)}</p>
+                          </div>
+                        );
+                      })
                     )}
                   </div>
                 </div>
@@ -414,7 +425,7 @@ function DashboardPage() {
                 const agentForEntry = findAgentForEntry(entry);
                 const typeLabel = agentForEntry ? agentForEntry.badge : getDocTypeLabel(entry);
                 const docColor = agentForEntry ? agentForEntry.color : getDocColorFromLabel(typeLabel);
-                const enriched = getEnrichedInfo(entry, users, organizations);
+                const childName = entry.reference_name || entry.childName || null;
                 return (
                   <button
                     key={entry.id}
@@ -423,7 +434,7 @@ function DashboardPage() {
                     className="w-full text-left flex items-center gap-3 px-5 py-3.5 hover:bg-(--bg-secondary) transition-colors cursor-pointer"
                   >
                     <span
-                      className="inline-flex items-center justify-center px-2.5 h-7 rounded-full text-[11px] font-bold shrink-0 min-w-11 text-white"
+                      className="inline-flex items-center justify-center w-14 h-5 rounded-full text-[10px] font-bold shrink-0 text-white"
                       style={{ background: docColor }}
                     >
                       {typeLabel}
@@ -432,9 +443,9 @@ function DashboardPage() {
                       <p className="text-sm font-medium text-(--text-primary) truncate">
                         {formatReportName(entry)}
                       </p>
-                      <p className="text-xs text-(--text-muted) truncate">
-                        {enriched.companyName}
-                      </p>
+                      {childName && (
+                        <p className="text-xs text-(--text-muted) truncate">{childName}</p>
+                      )}
                     </div>
                     <span className="text-xs text-(--text-muted) shrink-0">{timeAgo(entry.created_at || entry.date)}</span>
                   </button>

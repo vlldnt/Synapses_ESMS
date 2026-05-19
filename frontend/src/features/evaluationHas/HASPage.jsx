@@ -18,7 +18,7 @@ const config = {
   resultId: 'has-result',
   step1Subtitle: 'Préparation Évaluation HAS',
   step2Title: 'Éléments de la démarche',
-  step2Subtitle: "Décrivez votre contexte, vos pratiques actuelles, les thématiques HAS concernées — l'IA structure votre préparation",
+  step2Subtitle: "Décrivez votre contexte, vos pratiques actuelles, les thématiques HAS concernées - l'IA structure votre préparation",
   placeholder: 'Thématique HAS ciblée, pratiques actuelles, points forts identifiés, axes d\'amélioration pressentis, actions déjà engagées, observations de l\'équipe…',
   buttonLabel: 'Générer la préparation HAS',
   resetLabel: '+ Nouvelle préparation',

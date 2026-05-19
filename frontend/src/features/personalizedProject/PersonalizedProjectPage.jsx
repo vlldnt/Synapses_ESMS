@@ -21,7 +21,7 @@ export default function PersonalizedProjectPage() {
       resultId: 'ppa-result',
       step1Subtitle: "Projet personnalisé d'accompagnement",
       step2Title: 'Observations',
-      step2Subtitle: "Décrivez librement la situation, les besoins, les objectifs et les modalités d'accompagnement — l'IA structure le PPA",
+      step2Subtitle: "Décrivez librement la situation, les besoins, les objectifs et les modalités d'accompagnement - l'IA structure le PPA",
       placeholder: "Décrivez la situation de la personne, ses besoins, ses capacités, les objectifs prioritaires, les modalités d'accompagnement prévues… L'IA se charge du reste.",
       buttonLabel: 'Générer le PPA',
       resetLabel: '+ Nouveau PPA',

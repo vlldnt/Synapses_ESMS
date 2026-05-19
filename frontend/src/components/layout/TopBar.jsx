@@ -43,14 +43,23 @@ const routeTitles = {
   },
   '/dev': {
     title: 'Développeur',
-    subtitle: 'Accès restreint — Éditeur de prompts et configuration',
+    subtitle: 'Accès restreint - Éditeur de prompts et configuration',
+  },
+  '/gestion': {
+    title: 'Gestion',
+    subtitle: null,
   },
 };
 
 function TopBar() {
   const location = useLocation();
-  const { title, subtitle } = routeTitles[location.pathname] || routeTitles['/'];
   const { fullName, organization } = useCurrentUser();
+
+  const routeEntry = routeTitles[location.pathname] || routeTitles['/'];
+  const title = routeEntry.title;
+  const subtitle = location.pathname === '/gestion'
+    ? [organization?.structure_type, organization?.name].filter(Boolean).join(' - ') || null
+    : routeEntry.subtitle;
   const role = useSelector((state) => state.role.role);
 
   return (

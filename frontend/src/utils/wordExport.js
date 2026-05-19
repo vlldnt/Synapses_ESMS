@@ -154,7 +154,7 @@ function buildDocxTableAsList({ headers, rows }) {
     );
     row.forEach((cell, colIdx) => {
       const header = headers[colIdx] || `Champ ${colIdx + 1}`;
-      const value = cell || '—';
+      const value = cell || '-';
       paragraphs.push(
         new Paragraph({
           children: [
@@ -298,7 +298,7 @@ export async function downloadDocx({ text, childName, educatorName, date, ...res
           default: new Header({
             children: [
               new Paragraph({
-                text: `Référence: ${childName || '—'} | Professionnel: ${educatorInfo || '—'}`,
+                text: `Référence: ${childName || '-'} | Professionnel: ${educatorInfo || '-'}`,
                 style: 'header',
                 spacing: { before: 100, after: 100 },
                 border: {

@@ -18,7 +18,7 @@ const config = {
   resultId: 'ba-result',
   step1Subtitle: "Bilan d'Activité",
   step2Title: 'Éléments du bilan',
-  step2Subtitle: "Décrivez les objectifs fixés, les réalisations, les indicateurs et les enseignements tirés — l'IA structure le bilan",
+  step2Subtitle: "Décrivez les objectifs fixés, les réalisations, les indicateurs et les enseignements tirés - l'IA structure le bilan",
   placeholder: "Objectifs de la période, actions réalisées, taux d'atteinte, indicateurs clés, points forts, difficultés, enseignements et orientations pour la prochaine période…",
   buttonLabel: "Générer le bilan d'activité",
   resetLabel: '+ Nouveau bilan',

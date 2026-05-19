@@ -196,7 +196,7 @@ function ProfileModal({ onClose }) {
                   </button>
                 </div>
                 <p className='text-xs text-(--text-muted)'>
-                  {user?.job || '—'}
+                  {user?.job || '-'}
                   {organization?.name && (
                     <>
                       <span className='text-(--border) ml-2 mr-2'>|</span>
@@ -205,7 +205,7 @@ function ProfileModal({ onClose }) {
                   )}
                 </p>
                 <p className='text-xs text-(--text-muted) flex items-center gap-1.5 flex-wrap mt-0.5'>
-                  <span className='truncate'>{user?.email || '—'}</span>
+                  <span className='truncate'>{user?.email || '-'}</span>
                 </p>
               </>
             ) : (
@@ -284,7 +284,7 @@ function ProfileModal({ onClose }) {
 
             {/* Stats */}
             {!editMode && <div className='flex flex-col gap-2 mt-4'>
-              {/* Références count — toggle */}
+              {/* Références count - toggle */}
               <button
                 onClick={() => setShowRefs((v) => !v)}
                 className='flex items-center justify-between px-3.5 py-2.5 rounded-xl bg-(--bg-secondary) border border-(--border) hover:bg-(--bleu-fonce)/10 hover:border-(--bleu-fonce)/40 transition-colors duration-150 cursor-pointer group w-full'
@@ -325,7 +325,7 @@ function ProfileModal({ onClose }) {
                 </div>
               )}
 
-              {/* Archives count — cliquable */}
+              {/* Archives count - cliquable */}
               <button
                 onClick={handleArchivesClick}
                 className='flex items-center justify-between px-3.5 py-2.5 rounded-xl bg-(--bg-secondary) border border-(--border) hover:bg-(--bleu-fonce)/10 hover:border-(--bleu-fonce)/40 transition-colors duration-150 cursor-pointer group'

@@ -145,6 +145,6 @@ Choisi à la première connexion. Une option **"Autre structure"** + champ libre
 | Champ | Type | Obligatoire |
 |---|---|---|
 | Fonction | Select (liste ci-dessus) + champ libre | Oui |
-| Niveau d'accès | Déduit automatiquement de la fonction | — |
+| Niveau d'accès | Déduit automatiquement de la fonction | - |
 | Type de structure | Select (liste ci-dessus) + champ libre | Oui |
 | Nom de l'établissement | Texte libre | Oui |

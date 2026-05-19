@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import Button from './Button';
@@ -58,7 +58,6 @@ export default function DirectionPage({ config }) {
   const [selectedModelId, setSelectedModelId] = useState(draft.selectedModelId || DEFAULT_MODEL);
   const [selectedModelName, setSelectedModelName] = useState(draft.selectedModelName || 'Voxtral Small 24B');
   const [usedModel, setUsedModel] = useState(draft.usedModel || null);
-  const controllerRef = useRef(null);
 
   const handleModelChange = (model) => {
     setSelectedModelId(model.id);
@@ -107,16 +106,9 @@ export default function DirectionPage({ config }) {
     setReportStatus(REPORT_STATUS.DRAFT);
   };
 
-  const handleCancelGeneration = () => {
-    controllerRef.current?.abort();
-    setLoading(false);
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!observations.trim()) return;
-    const controller = new AbortController();
-    controllerRef.current = controller;
     setLoading(true); setResult(''); setValidated(false); setElapsed(null);
     setUsedModel(null); setIsArchived(false); setReportStatus(REPORT_STATUS.IN_PROGRESS);
     const start = Date.now();
@@ -129,20 +121,18 @@ export default function DirectionPage({ config }) {
         educatorRole: ROLE_LABELS[role] ?? role,
         date: today,
         model: selectedModelId,
-        signal: controller.signal,
       });
       setResult(text);
       setUsedModel({ id: selectedModelId, name: selectedModelName });
       setElapsed(((Date.now() - start) / 1000).toFixed(1));
       setReportStatus(REPORT_STATUS.IN_PROGRESS);
     } catch (err) {
-      if (err.name === 'AbortError') return;
       setResult(err.message === PROMPT_NOT_FOUND
         ? "Cette fonctionnalité n'est pas disponible pour le moment."
         : `Erreur : ${err.message}`);
       setReportStatus(REPORT_STATUS.DRAFT);
     } finally {
-      if (!controller.signal.aborted) setLoading(false);
+      setLoading(false);
     }
   };
 
@@ -161,8 +151,8 @@ export default function DirectionPage({ config }) {
               <div className='w-px h-10 bg-(--border)' />
               <div className='flex flex-col'>
                 <p className='text-(--text-muted) text-xs'>Structure</p>
-                <p className='font-semibold text-(--text-primary)'>{organization?.name ?? '—'}</p>
-                <p className='text-xs text-(--text-secondary)'>{organization?.structure_type ?? '—'}</p>
+                <p className='font-semibold text-(--text-primary)'>{organization?.name ?? '-'}</p>
+                <p className='text-xs text-(--text-secondary)'>{organization?.structure_type ?? '-'}</p>
               </div>
               <div className='w-px h-10 bg-(--border)' />
               <div className='flex flex-col'>
@@ -179,8 +169,8 @@ export default function DirectionPage({ config }) {
               <div className='w-px bg-(--border)' />
               <div className='flex flex-col flex-1'>
                 <p className='text-(--text-muted) font-medium'>Structure</p>
-                <p className='font-semibold text-(--text-primary)'>{organization?.name ?? '—'}</p>
-                <p className='text-(--text-secondary)'>{organization?.structure_type ?? '—'}</p>
+                <p className='font-semibold text-(--text-primary)'>{organization?.name ?? '-'}</p>
+                <p className='text-(--text-secondary)'>{organization?.structure_type ?? '-'}</p>
               </div>
               <div className='w-px bg-(--border)' />
               <div className='flex flex-col flex-1'>
@@ -208,11 +198,11 @@ export default function DirectionPage({ config }) {
               rows={8}
               disabled={loading}
             />
-            <RgpdNotice message='Vos notes sont traitées de manière anonymisée — aucun nom, prénom ou donnée nominative ne doit être transmis.' />
+            <RgpdNotice message='Vos notes sont traitées de manière anonymisée - aucun nom, prénom ou donnée nominative ne doit être transmis.' />
           </StepCard>
 
           <div id='form-actions' className='flex flex-col gap-3'>
-            <div className='flex flex-row items-center gap-3'>
+            <div className='flex flex-row gap-3'>
               <button
                 type='submit'
                 disabled={loading || !observations.trim()}
@@ -221,8 +211,6 @@ export default function DirectionPage({ config }) {
               >
                 {loading ? 'Génération en cours…' : buttonLabel}
               </button>
-              {!loading && !result && <span className='text-xs text-(--text-muted)'>Temps estimé : 10–15 s</span>}
-              {!loading && elapsed && <span className='text-xs text-(--text-muted)'>Généré en {elapsed}s</span>}
               <button
                 type='button'
                 onClick={reset}
@@ -231,7 +219,10 @@ export default function DirectionPage({ config }) {
                 Nouveau
               </button>
             </div>
-            <div className='flex items-center'>
+            <div className='flex items-center gap-3'>
+              <ModelSelector value={selectedModelId} onChange={handleModelChange} />
+              {!loading && !result && <span className='text-xs text-(--text-muted)'>Temps estimé : 10–15 s</span>}
+              {!loading && elapsed && <span className='text-xs text-(--text-muted)'>Généré en {elapsed}s</span>}
               <button type='button' onClick={reset} className='hidden md:inline-flex ml-auto text-xs text-(--text-muted) hover:text-(--text-primary) transition-colors cursor-pointer'>
                 {resetLabel}
               </button>
@@ -242,7 +233,10 @@ export default function DirectionPage({ config }) {
         {loading && (
           <div className={`${CARD_CLASS} flex items-center gap-4`}>
             <div className='w-5 h-5 rounded-full border-2 border-t-transparent animate-spin shrink-0' style={{ borderColor: accent, borderTopColor: 'transparent' }} />
-            <span key={loadingMessageIndex} className='text-sm text-(--text-secondary) animate-pulse'>{loadingMessages[loadingMessageIndex]}</span>
+            <div className='flex flex-col gap-0.5'>
+              <span key={loadingMessageIndex} className='text-sm text-(--text-secondary) animate-pulse'>{loadingMessages[loadingMessageIndex]}</span>
+              <span className='text-[10px] text-(--text-muted) font-mono'>{selectedModelId}</span>
+            </div>
           </div>
         )}
 
@@ -271,7 +265,7 @@ export default function DirectionPage({ config }) {
           />
         )}
 
-        <GeneratingReportModal isOpen={showGeneratingModal} message={loadingMessages[loadingMessageIndex]} onCancel={handleCancelGeneration} />
+        <GeneratingReportModal isOpen={showGeneratingModal} message={loadingMessages[loadingMessageIndex]} />
       </div>
     </div>
   );

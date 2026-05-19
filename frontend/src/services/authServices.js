@@ -15,7 +15,7 @@ const getCsrfToken = () => getCookie('csrf_access_token');
 // CSRF token for the refresh endpoint (uses a separate cookie)
 const getCsrfRefreshToken = () => getCookie('csrf_refresh_token');
 
-// ----- internal refresh (not exported — callers use authFetch which retries) -----
+// ----- internal refresh (not exported - callers use authFetch which retries) -----
 let _refreshPromise = null; // deduplicate concurrent refresh calls
 
 async function _refresh() {
@@ -71,7 +71,7 @@ export async function logout() {
   store.dispatch(setUser(null));
 }
 
-// Called on every page load — rehydrates Redux from the HTTP-only cookie.
+// Called on every page load - rehydrates Redux from the HTTP-only cookie.
 // If the access token is expired but the refresh token is still valid, refreshes first.
 export async function checkAuthStatus() {
   try {
@@ -96,7 +96,7 @@ export async function checkAuthStatus() {
   }
 }
 
-// Authenticated fetch — sends cookies, adds CSRF header, auto-refreshes on 401.
+// Authenticated fetch - sends cookies, adds CSRF header, auto-refreshes on 401.
 export async function authFetch(url, options = {}) {
   const method = (options.method || 'GET').toUpperCase();
   const needsCsrf = !['GET', 'HEAD', 'OPTIONS'].includes(method);

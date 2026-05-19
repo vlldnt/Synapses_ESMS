@@ -18,7 +18,7 @@ const config = {
   resultId: 'ra-result',
   step1Subtitle: "Rapport d'Activité",
   step2Title: "Éléments d'activité",
-  step2Subtitle: "Décrivez les actions menées, les chiffres clés, les points forts et les axes d'amélioration — l'IA structure le rapport",
+  step2Subtitle: "Décrivez les actions menées, les chiffres clés, les points forts et les axes d'amélioration - l'IA structure le rapport",
   placeholder: "Période couverte, nombre d'usagers, actions réalisées, partenariats, événements marquants, difficultés rencontrées, points forts, perspectives…",
   buttonLabel: "Générer le rapport d'activité",
   resetLabel: '+ Nouveau rapport',

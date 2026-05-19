@@ -1,4 +1,4 @@
-# Synapses ESMS — Web App
+# Synapses ESMS - Web App
 
 ### Overview
 
@@ -166,7 +166,7 @@ sequenceDiagram
     API->>Store: Create admin user in users.json\n(is_admin: true, role: admin)
     API->>Store: Update request (status: approved, token: null)
     API-->>Front: { user, JWT token }
-    Front-->>Visitor: Logged in — redirect to dashboard
+    Front-->>Visitor: Logged in - redirect to dashboard
 ```
 
 #### 2. User invitation (from admin dashboard)
@@ -203,7 +203,7 @@ sequenceDiagram
     API->>Store: Create user in users.json\n(role: agent, is_admin: false)
     API->>Store: Update invitation (status: accepted, token: null)
     API-->>Front: { user, JWT token }
-    Front-->>Employee: Logged in — redirect to dashboard
+    Front-->>Employee: Logged in - redirect to dashboard
 ```
 
 #### 3. Login
@@ -221,7 +221,7 @@ sequenceDiagram
     API->>API: Compare password with bcrypt hash
     API->>API: Generate JWT { userId, organizationId, role }
     API-->>Front: { user, JWT token }
-    Front-->>User: Logged in — redirect to dashboard
+    Front-->>User: Logged in - redirect to dashboard
 ```
 
 #### 4. Document creation & archive
