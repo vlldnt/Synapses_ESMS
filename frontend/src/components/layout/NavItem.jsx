@@ -28,7 +28,7 @@ function NavItem({
           <p
             className={
               mobile
-                ? 'text-[10px] leading-3 text-center whitespace-normal break-words w-full'
+                ? 'text-[10px] leading-3 text-center whitespace-normal wrap-break-words w-full'
                 : ''
             }
           >
@@ -52,7 +52,7 @@ function NavItem({
           }`}
         >
           {Icon && <Icon className="w-4 h-4 shrink-0" />}
-          <p className="text-[10px] leading-3 text-center whitespace-normal break-words w-full">
+          <p className="text-[10px] leading-3 text-center whitespace-normal wrap-break-words w-full">
             {titre}
           </p>
         </NavLink>
