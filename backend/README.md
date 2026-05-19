@@ -8,22 +8,62 @@ To install all the required libraries in your virtual environment, use the `requ
 pip install -r requirements.txt
 ```
 
-## Configure Test PostgreSQL Database
-
-To set up the test PostgreSQL database, open `config.py` and update the following parameters:
-
-```bash
-    DB_USER = os.getenv('DB_USER', '{username}')
-    DB_PASSWORD = os.getenv('DB_PASSWORD', '{password}')
-    DB_HOST = os.getenv('DB_HOST', '{host}')
-    DB_PORT = os.getenv('DB_PORT', '{port}')
-    DB_NAME = os.getenv('DB_NAME', '{database name}')
-```
-__Note__: Replace the placeholders inside **' '** with your actual database credentials.
-
 ## Token Test with Flask-RESTX
 
 To authorize your requests, go to the **Authorization** field (top-right) and enter your token in this format:
 ``` Bearer <your_token_here> ```
 
 Make sure to replace `<your_token_here>` with the actual JWT token you received after login.
+
+## Flask-Migrate Usage
+
+Initialize the migration system for the database:
+
+```bash
+flask db init
+```
+
+When you modify a model in the backend:
+
+```bash
+flask db migrate -m "comment"
+flask db upgrade
+```
+
+## creation .env
+
+```bash
+# Backend configuration
+BACKEND_PORT=3002
+
+# Frontend configuration
+FRONTEND_PORT=8083
+
+# API configuration
+VITE_BASENAME=/synapses
+APP_URL=http://localhost:5173/synapses
+
+# Environment
+NODE_ENV=production
+
+# OpenRouter API Key
+OPENROUTER_API_KEY=your_openrouter_api_key
+
+# API URL
+VITE_API_URL=/synapses/api
+
+# JWT
+JWT_SECRET=replace_with_secure_random_secret
+JWT_EXPIRES_IN=5d
+
+# Resend (email)
+RESEND_API_KEY=your_resend_api_key
+ADMIN_EMAIL=noreply@example.com
+
+# Database PostgreSQL
+SQLALCHEMY_DATABASE_URI=postgresql://user:password@localhost:5432/database
+
+# Flask
+SECRET_KEY=replace_with_secure_secret
+FLASK_ENV=development
+```

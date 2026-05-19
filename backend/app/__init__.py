@@ -9,10 +9,13 @@ from flask_cors import CORS
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from flask_sock import Sock
+from flask_migrate import Migrate
+from sqlalchemy import inspect
 
 db = SQLAlchemy()
 bcrypt = Bcrypt()
 jwt = JWTManager()
+migrate = Migrate()
 limiter = Limiter(key_func=get_remote_address, default_limits=[])
 sock = Sock()
 
@@ -88,6 +91,7 @@ def createApp(config_class="config.DevelopmentConfig"):
 
     # ── Extensions ────────────────────────────────────────────────────────────
     db.init_app(app)
+    migrate.init_app(app, db)
     bcrypt.init_app(app)
     jwt.init_app(app)
     limiter.init_app(app)
@@ -107,7 +111,9 @@ def createApp(config_class="config.DevelopmentConfig"):
     from app.services.prompt_loader import load_initial_prompts
 
     with app.app_context():
-        db.create_all()
-        load_initial_prompts(db, Prompt)
+        inspector = inspect(db.engine)
+
+        if inspector.has_table("prompt"):
+            load_initial_prompts(db, Prompt)
 
     return app

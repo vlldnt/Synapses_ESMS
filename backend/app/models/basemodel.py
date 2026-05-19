@@ -2,7 +2,6 @@ import uuid
 from datetime import datetime
 from app import db
 
-
 class BaseModel(db.Model):
     __abstract__ = True
     

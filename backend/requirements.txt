@@ -2,6 +2,7 @@ Flask
 flask-restx
 
 Flask-SQLAlchemy
+Flask-Migrate
 psycopg2-binary
 
 Flask-Bcrypt

@@ -9,7 +9,7 @@ class User(BaseModel):
     email = db.Column(db.String(120), nullable=False, unique=True)
     hashed_password = db.Column(db.String(128), nullable=False)
     is_admin = db.Column(db.Boolean, default=False)
-    organization_id = db.Column(db.String(36), db.ForeignKey('organization.id'))
+    organization_id = db.Column(db.String(120), nullable=False)
     job = db.Column(db.String(120), nullable=False)
     role = db.Column(db.String(1200), nullable=False)
     status = db.Column(db.String(120), nullable=False)
