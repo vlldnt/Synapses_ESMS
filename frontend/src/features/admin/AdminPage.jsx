@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { Navigate, useLocation } from 'react-router-dom';
 import { Users, BookUser, FileText, Plus, Trash2, Download, X, Pencil } from 'lucide-react';
@@ -12,9 +12,11 @@ import EditReferenceModal from '../../components/admin/EditReferenceModal';
 import { AGENTS } from '../../constants/agents';
 import { getDocTypeLabel, getDocColorFromLabel } from '../../utils/docTypeBadge';
 import { formatReportName } from '../../utils/reportNameFormatter';
-import { triggerDownload } from '../../utils/wordExport';
 import { extractPreviewTextFromDocxBase64 } from '../../utils/docxPreview';
 import WordPreview from '../../components/WordPreview';
+import { useDocumentDownload } from '../../hooks/useDocumentDownload';
+import DownloadLoadingModal from '../../components/DownloadLoadingModal';
+import DownloadToast from '../../components/DownloadToast';
 
 const selectCls =
   'text-xs px-2.5 py-1.5 rounded-lg border border-(--border) bg-(--bg-secondary) text-(--text-primary) focus:outline-none cursor-pointer';
@@ -84,9 +86,10 @@ function AdminPage() {
   const [selectedDoc, setSelectedDoc] = useState(null);
   const [previewText, setPreviewText] = useState('');
   const [isPreviewLoading, setIsPreviewLoading] = useState(false);
-  const [isDownloading, setIsDownloading] = useState(false);
   const [deletingRefId, setDeletingRefId] = useState(null);
   const [deletingDocId, setDeletingDocId] = useState(null);
+  const previewRef = useRef(null);
+  const { handleDownload, isLoading: isDownloading, toast: downloadToast, clearToast } = useDocumentDownload();
 
   useEffect(() => {
     if (role !== 'admin' || !user?.organization_id) return;
@@ -175,17 +178,6 @@ function AdminPage() {
     finally { setDeletingDocId(null); }
   }
 
-  async function handleDownload() {
-    if (!selectedDoc?.docx_base_64) return;
-    setIsDownloading(true);
-    try {
-      const binaryString = atob(selectedDoc.docx_base_64);
-      const bytes = new Uint8Array(binaryString.length);
-      for (let i = 0; i < binaryString.length; i++) bytes[i] = binaryString.charCodeAt(i);
-      const blob = new Blob([bytes], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
-      triggerDownload(blob, selectedDoc.filename);
-    } finally { setIsDownloading(false); }
-  }
 
   function getCreatorName(creatorId) {
     const emp = employees.find((e) => e.id === creatorId);
@@ -201,6 +193,8 @@ function AdminPage() {
 
   return (
     <div id='admin-page' className='h-full overflow-y-auto py-6 px-3 md:px-8 md:py-8'>
+      {isDownloading && <DownloadLoadingModal />}
+      <DownloadToast filename={downloadToast} onClose={clearToast} />
       <div className='mx-auto w-full flex flex-col gap-5'>
 
         <h1 className='text-xl md:text-3xl font-semibold text-(--text-primary)'>Administration</h1>
@@ -496,12 +490,21 @@ function AdminPage() {
                     </div>
                     <button
                       type='button'
-                      onClick={handleDownload}
+                      onClick={() => handleDownload('word', selectedDoc)}
                       disabled={isDownloading || !selectedDoc.docx_base_64}
                       className='flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-(--bleu-fonce) text-white text-xs font-medium hover:bg-(--bleu-active) disabled:opacity-50 cursor-pointer transition-colors shrink-0'
                     >
                       <Download size={12} />
-                      {isDownloading ? '…' : 'Télécharger'}
+                      Word
+                    </button>
+                    <button
+                      type='button'
+                      onClick={() => handleDownload('pdf', selectedDoc, previewRef.current)}
+                      disabled={isDownloading || !selectedDoc.docx_base_64}
+                      className='flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-(--border) bg-(--bg-secondary) text-(--text-primary) text-xs font-medium hover:bg-(--bg-tertiary) disabled:opacity-50 cursor-pointer transition-colors shrink-0'
+                    >
+                      <Download size={12} />
+                      PDF
                     </button>
                     <button
                       type='button'
@@ -520,7 +523,7 @@ function AdminPage() {
                     </button>
                   </div>
                   <div className='flex-1 overflow-y-auto p-4 bg-(--bg-secondary)'>
-                    <div className='rounded-xl border border-(--border) bg-(--bg-primary) p-4'>
+                    <div ref={previewRef} className='rounded-xl border border-(--border) bg-(--bg-primary) p-4'>
                       {isPreviewLoading ? (
                         <p className='text-sm text-(--text-muted)'>Chargement…</p>
                       ) : previewText ? (

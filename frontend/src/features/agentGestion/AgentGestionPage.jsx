@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { Navigate } from 'react-router-dom';
-import { BookUser, FileText, Plus, Trash2, Download, X, Pencil } from 'lucide-react';
+import { BookUser, FileText, Plus, Trash2, Download, X, Pencil, ChevronRight } from 'lucide-react';
 import { getHistory, deleteFromHistory } from '../../services/historyService';
 import { getReferences, deleteReference, invalidateReferencesCache } from '../../services/referenceService';
 import { useCurrentUser } from '../../hooks/useCurrentUser';
@@ -10,9 +10,11 @@ import EditReferenceModal from '../../components/admin/EditReferenceModal';
 import { AGENTS } from '../../constants/agents';
 import { getDocTypeLabel, getDocColorFromLabel } from '../../utils/docTypeBadge';
 import { formatReportName } from '../../utils/reportNameFormatter';
-import { triggerDownload } from '../../utils/wordExport';
 import { extractPreviewTextFromDocxBase64 } from '../../utils/docxPreview';
 import WordPreview from '../../components/WordPreview';
+import { useDocumentDownload } from '../../hooks/useDocumentDownload';
+import DownloadLoadingModal from '../../components/DownloadLoadingModal';
+import DownloadToast from '../../components/DownloadToast';
 
 const selectCls =
   'text-xs px-2.5 py-1.5 rounded-lg border border-(--border) bg-(--bg-secondary) text-(--text-primary) focus:outline-none cursor-pointer';
@@ -72,8 +74,10 @@ function AgentGestionPage() {
   const [selectedDoc, setSelectedDoc] = useState(null);
   const [previewText, setPreviewText] = useState('');
   const [isPreviewLoading, setIsPreviewLoading] = useState(false);
-  const [isDownloading, setIsDownloading] = useState(false);
   const [deletingDocId, setDeletingDocId] = useState(null);
+  const [selectedRef, setSelectedRef] = useState(null);
+  const previewRef = useRef(null);
+  const { handleDownload, isLoading: isDownloading, toast: downloadToast, clearToast } = useDocumentDownload();
 
   useEffect(() => {
     if (role !== 'agent' || !user?.id) return;
@@ -132,18 +136,6 @@ function AgentGestionPage() {
     finally { setDeletingDocId(null); }
   }
 
-  async function handleDownload() {
-    if (!selectedDoc?.docx_base_64) return;
-    setIsDownloading(true);
-    try {
-      const binaryString = atob(selectedDoc.docx_base_64);
-      const bytes = new Uint8Array(binaryString.length);
-      for (let i = 0; i < binaryString.length; i++) bytes[i] = binaryString.charCodeAt(i);
-      const blob = new Blob([bytes], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
-      triggerDownload(blob, selectedDoc.filename);
-    } finally { setIsDownloading(false); }
-  }
-
   const tabs = [
     { id: 'references', label: `Mes références (${references.length})` },
     { id: 'documents', label: `Mes documents (${documents.length})` },
@@ -151,6 +143,8 @@ function AgentGestionPage() {
 
   return (
     <div id='agent-gestion-page' className='h-full overflow-y-auto py-6 px-3 md:px-8 md:py-8'>
+      {isDownloading && <DownloadLoadingModal />}
+      <DownloadToast filename={downloadToast} onClose={clearToast} />
       <div className='mx-auto w-full flex flex-col gap-5'>
 
         <div>
@@ -195,35 +189,77 @@ function AgentGestionPage() {
                 <Plus size={13} /> Ajouter
               </button>
             </div>
-            <div className='divide-y divide-(--border)/50'>
-              {references.length === 0 ? (
-                <p className='px-5 py-10 text-center text-sm text-(--text-muted)'>Aucune référence assignée.</p>
-              ) : references.map((ref) => (
-                <div key={ref.id} className='flex items-center gap-3 px-5 py-3.5'>
-                  <div className='w-9 h-9 rounded-full bg-(--bg-tertiary) flex items-center justify-center text-sm font-semibold text-(--text-secondary) shrink-0 uppercase'>
-                    {ref.first_name?.[0]}{ref.last_name?.[0]}
+            <div className={`flex ${selectedRef ? 'divide-x divide-(--border)' : ''}`}>
+              <div className={`divide-y divide-(--border)/50 ${selectedRef ? 'w-2/5' : 'w-full'}`}>
+                {references.length === 0 ? (
+                  <p className='px-5 py-10 text-center text-sm text-(--text-muted)'>Aucune référence assignée.</p>
+                ) : references.map((ref) => {
+                  const active = selectedRef?.id === ref.id;
+                  return (
+                    <div
+                      key={ref.id}
+                      className={`flex items-center gap-3 px-5 py-3.5 cursor-pointer transition-colors ${active ? 'bg-(--bg-secondary)' : 'hover:bg-(--bg-secondary)'}`}
+                      onClick={() => setSelectedRef(active ? null : ref)}
+                    >
+                      <div className='w-9 h-9 rounded-full bg-(--bg-tertiary) flex items-center justify-center text-sm font-semibold text-(--text-secondary) shrink-0 uppercase'>
+                        {ref.first_name?.[0]}{ref.last_name?.[0]}
+                      </div>
+                      <div className='flex-1 min-w-0'>
+                        <p className='text-sm font-medium text-(--text-primary)'>{ref.first_name} {ref.last_name}</p>
+                        {ref.created_at && (
+                          <p className='text-xs text-(--text-muted)'>Ajouté le {new Date(ref.created_at).toLocaleDateString('fr-FR')}</p>
+                        )}
+                      </div>
+                      <button
+                        type='button'
+                        onClick={(e) => { e.stopPropagation(); setEditingRef(ref); }}
+                        className='p-1.5 rounded-md text-(--text-muted) hover:text-(--bleu-fonce) hover:bg-(--bg-secondary) cursor-pointer transition-colors shrink-0'
+                      >
+                        <Pencil size={13} />
+                      </button>
+                      <button
+                        type='button'
+                        disabled={deletingRefId === ref.id}
+                        onClick={(e) => { e.stopPropagation(); handleDeleteRef(ref.id); }}
+                        className='p-1.5 rounded-md text-(--text-muted) hover:text-red-500 hover:bg-red-50 disabled:opacity-40 cursor-pointer transition-colors shrink-0'
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                      <ChevronRight size={13} className={`shrink-0 text-(--text-muted) transition-transform ${active ? 'rotate-90' : ''}`} />
+                    </div>
+                  );
+                })}
+              </div>
+
+              {selectedRef && (() => {
+                const refDocs = documents.filter((d) => d.reference_id === selectedRef.id || d.referenceId === selectedRef.id);
+                return (
+                  <div className='w-3/5 flex flex-col'>
+                    <div className='px-4 py-3 border-b border-(--border) flex items-center justify-between'>
+                      <p className='text-xs font-semibold text-(--text-primary)'>
+                        Documents de {selectedRef.first_name} {selectedRef.last_name}
+                        <span className='ml-1.5 text-(--text-muted) font-normal'>({refDocs.length})</span>
+                      </p>
+                      <button type='button' onClick={() => setSelectedRef(null)} className='p-1 rounded text-(--text-muted) hover:text-(--text-primary) cursor-pointer'>
+                        <X size={13} />
+                      </button>
+                    </div>
+                    <div className='divide-y divide-(--border)/50 overflow-y-auto max-h-80'>
+                      {refDocs.length === 0 ? (
+                        <p className='px-5 py-8 text-center text-sm text-(--text-muted)'>Aucun document pour cette référence.</p>
+                      ) : refDocs.map((doc) => (
+                        <div key={doc.id} className='flex items-center gap-3 px-4 py-2.5'>
+                          <DocBadge doc={doc} />
+                          <div className='flex-1 min-w-0'>
+                            <p className='text-xs font-medium text-(--text-primary) truncate'>{formatReportName(doc)}</p>
+                            <p className='text-[11px] text-(--text-muted)'>{timeAgo(doc.created_at || doc.date)}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                  <div className='flex-1 min-w-0'>
-                    <p className='text-sm font-medium text-(--text-primary)'>{ref.first_name} {ref.last_name}</p>
-                    <p className='text-xs text-(--text-muted)'>Ajouté le {new Date(ref.created_at).toLocaleDateString('fr-FR')}</p>
-                  </div>
-                  <button
-                    type='button'
-                    onClick={() => setEditingRef(ref)}
-                    className='p-1.5 rounded-md text-(--text-muted) hover:text-(--bleu-fonce) hover:bg-(--bg-secondary) cursor-pointer transition-colors'
-                  >
-                    <Pencil size={13} />
-                  </button>
-                  <button
-                    type='button'
-                    disabled={deletingRefId === ref.id}
-                    onClick={() => handleDeleteRef(ref.id)}
-                    className='p-1.5 rounded-md text-(--text-muted) hover:text-red-500 hover:bg-red-50 disabled:opacity-40 cursor-pointer transition-colors'
-                  >
-                    <Trash2 size={14} />
-                  </button>
-                </div>
-              ))}
+                );
+              })()}
             </div>
           </div>
         )}
@@ -286,12 +322,21 @@ function AgentGestionPage() {
                     </div>
                     <button
                       type='button'
-                      onClick={handleDownload}
+                      onClick={() => handleDownload('word', selectedDoc)}
                       disabled={isDownloading || !selectedDoc.docx_base_64}
                       className='flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-(--bleu-fonce) text-white text-xs font-medium hover:bg-(--bleu-active) disabled:opacity-50 cursor-pointer transition-colors shrink-0'
                     >
                       <Download size={12} />
-                      {isDownloading ? '…' : 'Télécharger'}
+                      Word
+                    </button>
+                    <button
+                      type='button'
+                      onClick={() => handleDownload('pdf', selectedDoc, previewRef.current)}
+                      disabled={isDownloading || !selectedDoc.docx_base_64}
+                      className='flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-(--border) bg-(--bg-secondary) text-(--text-primary) text-xs font-medium hover:bg-(--bg-tertiary) disabled:opacity-50 cursor-pointer transition-colors shrink-0'
+                    >
+                      <Download size={12} />
+                      PDF
                     </button>
                     <button
                       type='button'
@@ -310,7 +355,7 @@ function AgentGestionPage() {
                     </button>
                   </div>
                   <div className='flex-1 overflow-y-auto p-4 bg-(--bg-secondary)'>
-                    <div className='rounded-xl border border-(--border) bg-(--bg-primary) p-4'>
+                    <div ref={previewRef} className='rounded-xl border border-(--border) bg-(--bg-primary) p-4'>
                       {isPreviewLoading ? (
                         <p className='text-sm text-(--text-muted)'>Chargement…</p>
                       ) : previewText ? (

@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import WordPreview from './WordPreview';
 import DownloadSuccessModal from './DownloadSuccessModal';
+import DownloadToast from './DownloadToast';
 import { downloadDocx, triggerDownload, generateReportFilename } from '../utils/wordExport';
 import { downloadPdf } from '../utils/pdfExport';
 import { saveToHistory } from '../services/historyService';
@@ -94,6 +95,7 @@ export default function GeneratedResult({
   const [dlState, setDlState]      = useState('idle');
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [showExportMenu, setShowExportMenu] = useState(false);
+  const [downloadToast, setDownloadToast] = useState(null);
   const textareaRef = useRef(null);
   const previewRef = useRef(null);
   const exportMenuRef = useRef(null);
@@ -199,6 +201,8 @@ export default function GeneratedResult({
       triggerDownload(result.blob, result.filename);
       setShowSuccessModal(false);
       setDlState('idle');
+      setDownloadToast(result.filename);
+      setTimeout(() => setDownloadToast(null), 32000);
     } catch (err) {
       console.error('Erreur téléchargement:', err);
       setShowSuccessModal(false);
@@ -242,6 +246,8 @@ export default function GeneratedResult({
         }),
         new Promise((resolve) => setTimeout(resolve, 1500)),
       ]);
+      setDownloadToast(filename);
+      setTimeout(() => setDownloadToast(null), 32000);
     } catch (err) {
       console.error('Erreur export PDF:', err);
     } finally {
@@ -547,8 +553,8 @@ export default function GeneratedResult({
         )}
       </div>
 
-      {/* Modal de succès */}
       <DownloadSuccessModal isOpen={showSuccessModal} onClose={() => setShowSuccessModal(false)} />
+      <DownloadToast filename={downloadToast} onClose={() => setDownloadToast(null)} />
     </div>
   );
 }

@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Download, X, Clock3, Trash2, AlertTriangle } from 'lucide-react';
 import Button from '../../components/Button';
@@ -7,7 +7,9 @@ import { getHistory } from '../../services/historyService';
 import { authFetch } from '../../services/authServices';
 import { useCurrentUser } from '../../hooks/useCurrentUser';
 import { getEnrichedInfo } from '../../utils/documentEnricher';
-import { downloadDocx, triggerDownload } from '../../utils/wordExport';
+import { useDocumentDownload } from '../../hooks/useDocumentDownload';
+import DownloadLoadingModal from '../../components/DownloadLoadingModal';
+import DownloadToast from '../../components/DownloadToast';
 import { formatReportName } from '../../utils/reportNameFormatter';
 import {
   getDocTypeLabel,
@@ -30,7 +32,6 @@ function ArchivesPage() {
   const navigate = useNavigate();
   const { user } = useCurrentUser();
   const [selectedEntry, setSelectedEntry] = useState(null);
-  const [isDownloading, setIsDownloading] = useState(false);
   const [history, setHistory] = useState([]);
   const [organization, setOrganization] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -42,14 +43,10 @@ function ArchivesPage() {
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [deleteConfirm, setDeleteConfirm] = useState('');
   const [isDeleting, setIsDeleting] = useState(false);
-  const [downloadToast, setDownloadToast] = useState(null);
+  const previewRef = useRef(null);
+  const { handleDownload, isLoading: isDownloading, toast: downloadToast, clearToast } = useDocumentDownload();
 
   const isAdmin = user?.role === 'admin';
-
-  const showToast = (msg) => {
-    setDownloadToast(msg);
-    setTimeout(() => setDownloadToast(null), 3000);
-  };
 
 
   useEffect(() => {
@@ -225,27 +222,11 @@ function ArchivesPage() {
     }
   };
 
-  const handleDownload = async () => {
-    if (!selectedEntry || !selectedEntry.docx_base_64) return;
-    setIsDownloading(true);
-    try {
-      const binaryString = atob(selectedEntry.docx_base_64);
-      const bytes = new Uint8Array(binaryString.length);
-      for (let i = 0; i < binaryString.length; i++) {
-        bytes[i] = binaryString.charCodeAt(i);
-      }
-      const blob = new Blob([bytes], {
-        type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-      });
-      triggerDownload(blob, selectedEntry.filename);
-      showToast('Votre document Word est téléchargé');
-    } finally {
-      setIsDownloading(false);
-    }
-  };
 
   return (
     <>
+    {isDownloading && <DownloadLoadingModal />}
+    <DownloadToast filename={downloadToast} onClose={clearToast} />
     <div className='h-full overflow-y-auto py-6 px-2 md:px-5 md:py-8'>
       <div className='mx-auto w-full max-w-5xl flex flex-col gap-5'>
         <div>
@@ -457,15 +438,24 @@ function ArchivesPage() {
                   Apercu en lecture seule · telechargement uniquement
                 </p>
               </div>
-              <Button
-                color='blue'
-                size='sm'
-                icon={Download}
-                onClick={handleDownload}
-                disabled={isDownloading}
+              <button
+                type='button'
+                onClick={() => handleDownload('word', selectedEntry)}
+                disabled={isDownloading || !selectedEntry.docx_base_64}
+                className='flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-(--bleu-fonce) text-white text-xs font-medium hover:bg-(--bleu-active) disabled:opacity-50 cursor-pointer transition-colors shrink-0'
               >
-                {isDownloading ? 'Generation...' : 'Telecharger'}
-              </Button>
+                <Download size={12} />
+                Word
+              </button>
+              <button
+                type='button'
+                onClick={() => handleDownload('pdf', selectedEntry, previewRef.current)}
+                disabled={isDownloading || !selectedEntry.docx_base_64}
+                className='flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-(--border) bg-(--bg-secondary) text-(--text-primary) text-xs font-medium hover:bg-(--bg-tertiary) disabled:opacity-50 cursor-pointer transition-colors shrink-0'
+              >
+                <Download size={12} />
+                PDF
+              </button>
               <button
                 type='button'
                 onClick={() => setSelectedEntry(null)}
@@ -477,7 +467,7 @@ function ArchivesPage() {
             </div>
 
             <div className='flex-1 overflow-y-auto p-4 md:p-6 bg-(--bg-secondary)'>
-              <div className='rounded-xl border border-(--border) bg-(--bg-primary) p-4 md:p-6'>
+              <div ref={previewRef} className='rounded-xl border border-(--border) bg-(--bg-primary) p-4 md:p-6'>
                 {isPreviewLoading ? (
                   <p className='text-(--text-muted)'>
                     Chargement de l'aperçu du document...

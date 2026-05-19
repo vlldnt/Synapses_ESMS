@@ -1,9 +1,11 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { getHistory } from '../../services/historyService';
 import { useCurrentUser } from '../../hooks/useCurrentUser';
-import { downloadDocx, triggerDownload } from '../../utils/wordExport';
+import { useDocumentDownload } from '../../hooks/useDocumentDownload';
+import DownloadLoadingModal from '../../components/DownloadLoadingModal';
+import DownloadToast from '../../components/DownloadToast';
 import { formatReportName } from '../../utils/reportNameFormatter';
 import { getEnrichedInfo } from '../../utils/documentEnricher';
 import { extractPreviewTextFromDocxBase64 } from '../../utils/docxPreview';
@@ -37,8 +39,9 @@ function DashboardPage() {
   const [references, setReferences] = useState([]);
   const [organizations, setOrganizations] = useState([]);
   const [selectedEntry, setSelectedEntry] = useState(null);
-  const [isDownloading, setIsDownloading] = useState(false);
   const [previewText, setPreviewText] = useState('');
+  const previewRef = useRef(null);
+  const { handleDownload, isLoading: isDownloading, toast: downloadToast, clearToast } = useDocumentDownload();
   const [isPreviewLoading, setIsPreviewLoading] = useState(false);
   const [showAddAgentModal, setShowAddAgentModal] = useState(false);
   const [showAddRefModal, setShowAddRefModal] = useState(false);
@@ -81,23 +84,6 @@ function DashboardPage() {
     })();
   }, [user?.id, role]);
 
-  const handleDownload = async () => {
-    if (!selectedEntry) return;
-    setIsDownloading(true);
-    try {
-      if (selectedEntry.docx_base_64) {
-        const binaryString = atob(selectedEntry.docx_base_64);
-        const bytes = new Uint8Array(binaryString.length);
-        for (let i = 0; i < binaryString.length; i++) {
-          bytes[i] = binaryString.charCodeAt(i);
-        }
-        const blob = new Blob([bytes], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
-        triggerDownload(blob, selectedEntry.filename);
-      }
-    } finally {
-      setIsDownloading(false);
-    }
-  };
 
   const etablissementName = organization?.name ?? 'ESMS';
   const organisationType = organization?.structure_type ?? '';
@@ -188,7 +174,7 @@ function DashboardPage() {
             {role !== 'admin' && job && <span className="ml-2 text-sm font-normal text-(--text-muted)">{job}</span>}
           </h1>
           <p className="mt-1 text-xs md:text-sm text-(--text-muted)">
-            {[date, job, etablissementName].filter(Boolean).join(' - ')}
+            {[date, etablissementName].filter(Boolean).join(' - ')}
           </p>
         </div>
 
@@ -460,6 +446,9 @@ function DashboardPage() {
 
       </div>
 
+      {isDownloading && <DownloadLoadingModal />}
+      <DownloadToast filename={downloadToast} onClose={clearToast} />
+
       {/* Modal aperçu document */}
       {selectedEntry && (
         <div
@@ -474,15 +463,24 @@ function DashboardPage() {
                 </p>
                 <p className="text-xs text-(--text-muted)">Aperçu en lecture seule · téléchargement uniquement</p>
               </div>
-              <Button
-                color="blue"
-                size="sm"
-                icon={Download}
-                onClick={handleDownload}
-                disabled={isDownloading}
+              <button
+                type="button"
+                onClick={() => handleDownload('word', selectedEntry)}
+                disabled={isDownloading || !selectedEntry.docx_base_64}
+                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-(--bleu-fonce) text-white text-xs font-medium hover:bg-(--bleu-active) disabled:opacity-50 cursor-pointer transition-colors shrink-0"
               >
-                {isDownloading ? 'Génération...' : 'Télécharger'}
-              </Button>
+                <Download size={12} />
+                Word
+              </button>
+              <button
+                type="button"
+                onClick={() => handleDownload('pdf', selectedEntry, previewRef.current)}
+                disabled={isDownloading || !selectedEntry.docx_base_64}
+                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-(--border) bg-(--bg-secondary) text-(--text-primary) text-xs font-medium hover:bg-(--bg-tertiary) disabled:opacity-50 cursor-pointer transition-colors shrink-0"
+              >
+                <Download size={12} />
+                PDF
+              </button>
               <button
                 type="button"
                 onClick={() => setSelectedEntry(null)}
@@ -493,7 +491,7 @@ function DashboardPage() {
               </button>
             </div>
             <div className="flex-1 overflow-y-auto p-4 md:p-6 bg-(--bg-secondary)">
-              <div className="rounded-xl border border-(--border) bg-(--bg-primary) p-4 md:p-6">
+              <div ref={previewRef} className="rounded-xl border border-(--border) bg-(--bg-primary) p-4 md:p-6">
                 {isPreviewLoading ? (
                   <p className="text-(--text-muted)">Chargement de l'aperçu du document...</p>
                 ) : previewText ? (
