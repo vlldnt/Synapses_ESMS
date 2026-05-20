@@ -3,10 +3,14 @@ from datetime import datetime
 from flask_restx import Namespace, Resource
 from flask import request
 from flask_jwt_extended import get_jwt_identity, jwt_required, get_jwt
+from marshmallow import ValidationError
 from app.services import facade
 from app.models.document import Document
 from app.models.archive import Archives
+from app.schema.documentSchema import DocumentSchema
 from app.utils.docx_builder import generate_docx_base64
+
+document_schema = DocumentSchema()
 
 api = Namespace('archive', description="archive operation")
 
@@ -32,33 +36,42 @@ class archive_document(Resource):
         if not data:
             return {"error": "Missing JSON payload"}, 400
 
-        date_value = data.get('date')
-        if date_value:
-            try:
-                date_value = datetime.fromisoformat(date_value).date()
-            except ValueError:
-                date_value = None
+        try:
+            validated = document_schema.load(data)
+        except ValidationError as err:
+            messages = err.messages
+            error_list = []
+            if isinstance(messages, dict):
+                for value in messages.values():
+                    if isinstance(value, list):
+                        error_list.extend(value)
+                    else:
+                        error_list.append(value)
+            elif isinstance(messages, list):
+                error_list.extend(messages)
+            error_message = error_list[0] if error_list else str(err)
+            return {"error": error_message}, 400
 
-        # Generate DOCX from text content (backend handles conversion)
-        raw_text = data.get('content') or ''
+        date_value = validated.get('date') or datetime.utcnow().date()
+        raw_text = validated.get('content') or ''
         if raw_text:
             docx_base64 = generate_docx_base64(
                 text=raw_text,
-                child_name=data.get('reference_name') or '—',
-                educator_name=data.get('educator_name') or '',
-                educator_role=data.get('educator_role') or '',
+                child_name=validated.get('reference_name') or '—',
+                educator_name=validated.get('educator_name') or '',
+                educator_role=validated.get('educator_role') or '',
             )
         else:
             docx_base64 = ''
 
         document = Document(
             status='archived',
-            filename=data.get('filename') or f"document_{datetime.utcnow().strftime('%Y%m%d%H%M%S')}.docx",
-            display_name=data.get('display_name') or 'Document archivé',
-            date=date_value or datetime.utcnow().date(),
-            intervention_type=data.get('intervention_type') or '—',
-            type=data.get('type') or 'CRI',
-            reference_name=data.get('reference_name') or '—',
+            filename=validated.get('filename') or f"document_{datetime.utcnow().strftime('%Y%m%d%H%M%S')}.docx",
+            display_name=validated.get('display_name') or 'Document archivé',
+            date=date_value,
+            intervention_type=validated.get('intervention_type') or '—',
+            type=validated.get('type') or 'CRI',
+            reference_name=validated.get('reference_name') or '—',
             creator_id=user_id,
             organization_id=claims.get('organization_id'),
             docx_base_64=docx_base64,

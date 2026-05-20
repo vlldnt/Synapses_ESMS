@@ -20,6 +20,13 @@ class ApiFacade:
 
     """ Request organization facade """
     def made_request_org(self, request_data):
+        contact_email = request_data.get('contact_email')
+        if contact_email and self.get_user_by_email(contact_email):
+            raise ValueError("Cet email est déjà utilisé.")
+
+        if contact_email and self.organisationRequest_repo.get_by_attribute('contact_email', contact_email):
+            raise ValueError("Une demande d'organisation avec cet email existe déjà.")
+
         request = OrganizationRequest(**request_data)
         request.generate_token()
         self.organisationRequest_repo.add(request)
@@ -76,6 +83,13 @@ class ApiFacade:
     
     """ user request facade """
     def made_request_user(self, request_data):
+        email = getattr(request_data, 'email', None)
+        if email and self.get_user_by_email(email):
+            raise ValueError("Cet email est déjà utilisé.")
+
+        if email and self.userRequest_repo.get_by_attribute('email', email):
+            raise ValueError("Une invitation pour cet email existe déjà.")
+
         request_data.generate_token()
         self.userRequest_repo.add(request_data)
         return request_data

@@ -1,11 +1,15 @@
 from flask_restx import Namespace, Resource, fields
 from app.models.userRequest import UserRequest
+from app.schema.userRequestSchema import UserRequestSchema
 from app.services.mail_service import MailService
 from flask_jwt_extended import get_jwt_identity, jwt_required, get_jwt
 from app.services import facade
 from flask import current_app
+from marshmallow import ValidationError
 
 api = Namespace('users', description="User operations")
+
+user_request_schema = UserRequestSchema()
 
 user_request = api.model("user request", {
     'first_name': fields.String(required=True, example="John"),
@@ -63,16 +67,36 @@ class UserList(Resource):
         org_id = _require_admin(claims)
 
         payload = api.payload or {}
+        try:
+            validated_data = user_request_schema.load(payload)
+        except ValidationError as err:
+            messages = err.messages
+            error_list = []
+            if isinstance(messages, dict):
+                for value in messages.values():
+                    if isinstance(value, list):
+                        error_list.extend(value)
+                    else:
+                        error_list.append(value)
+            elif isinstance(messages, list):
+                error_list.extend(messages)
+            error_message = error_list[0] if error_list else str(err)
+            return {"error": error_message}, 400
+
         request = UserRequest(
-            first_name=payload['first_name'],
-            last_name=payload['last_name'],
-            email=payload['email'],
-            job=payload['job'],
+            first_name=validated_data['first_name'],
+            last_name=validated_data['last_name'],
+            email=validated_data['email'],
+            job=validated_data['job'],
             organization_id=org_id,
-            role=payload.get('role', 'user'),
+            role=validated_data.get('role', 'user'),
         )
 
-        new_request = facade.made_request_user(request)
+        try:
+            new_request = facade.made_request_user(request)
+        except ValueError as err:
+            return {"error": str(err)}, 400
+
         org_data = facade.get_organisation(org_id)
         app_url = current_app.config["APP_URL"]
         set_password_url = f"{app_url}/set-account/{new_request.verification_token}"

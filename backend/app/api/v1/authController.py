@@ -5,8 +5,15 @@ from app.services import facade
 from app.security.jwt import generete_token, generete_refresh_token
 from app.models.blocklist_token import TokenBlocklist
 from app.services.mail_service import MailService
+from app.schema.organisationRequestSchema import OrganizationRequestSchema
+from app.schema.loginSchema import LoginSchema
 from app import limiter
+import time
 from flask import current_app
+from marshmallow import ValidationError
+
+schema = OrganizationRequestSchema()
+login_schema = LoginSchema()
 
 api = Namespace('auth', description="User authentication operation")
 
@@ -37,12 +44,25 @@ class Login(Resource):
     def post(self):
         """Authenticate user and set HTTP-only JWT cookie"""
 
-        credentials = api.payload
-        email = credentials.get('email')
-        password = credentials.get('password')
+        credentials = api.payload or {}
+        try:
+            validated = login_schema.load(credentials)
+        except ValidationError as err:
+            messages = err.messages
+            error_list = []
+            if isinstance(messages, dict):
+                for value in messages.values():
+                    if isinstance(value, list):
+                        error_list.extend(value)
+                    else:
+                        error_list.append(value)
+            elif isinstance(messages, list):
+                error_list.extend(messages)
+            error_message = error_list[0] if error_list else str(err)
+            return {"error": error_message}, 400
 
-        if not email or not password:
-            return {'error': 'Email et mot de passe requis.'}, 400
+        email = validated.get('email')
+        password = validated.get('password')
 
         user = facade.get_user_by_email(email)
         if not user or not user.verify_password(password):
@@ -132,30 +152,48 @@ class made_organization_request(Resource):
     def post(self):
         """ made a request for create the organization """
 
-        request = api.payload
-        print(f"{request}")
-        valid_inputs = ['org_name', 'structure_type', 'description', 'first_name', 'last_name', 'contact_email', '_hp', '_t']
-        for key in request:
-            if key not in valid_inputs:
-                api.abort(400, f'Invalid input data: {key}')
+        payload = api.payload
 
-        # Honeypot check - hidden field should be empty
-        if request.get('_hp'):
-            api.abort(400, "Invalid request")
+        try:
+            data = schema.load(payload)
+        except ValidationError as err:
+            messages = err.messages
+            error_list = []
+            if isinstance(messages, dict):
+                for value in messages.values():
+                    if isinstance(value, list):
+                        error_list.extend(value)
+                    else:
+                        error_list.append(value)
+            elif isinstance(messages, list):
+                error_list.extend(messages)
+            error_message = error_list[0] if error_list else str(err)
+            return {"error": error_message}, 400
+        except Exception as err:
+            return {"error": str(err)}, 400
 
-        # Timing check - prevent too fast submissions (convert JS timestamp to datetime)
-        import time
-        current_time = int(time.time() * 1000)  # Current time in milliseconds
-        if current_time - request.get('_t', 0) < 5000:  # Require at least 5 seconds
-            api.abort(400, "too fast! wait 5 seconds")
+        if data.get("_hp"):
+            return {"error": "Invalid request"}, 400
 
-        # Remove validation fields before creating the request
-        request_data = {k: v for k, v in request.items() if k not in ['_hp', '_t']}
-        new_request = facade.made_request_org(request_data)
+        current_time = int(time.time() * 1000)
+        if current_time - (data.get("_t") or 0) < 5000:
+            return {"error": "Too fast, wait 5 seconds"}, 400
 
+        request_data = {
+            k: v for k, v in data.items()
+            if k not in ["_hp", "_t"]
+        }
+
+        # 💾 BUSINESS LAYER
+        try:
+            new_request = facade.made_request_org(request_data)
+        except ValueError as err:
+            return {"error": str(err)}, 400
+
+        # 📧 EMAIL
         app_url = current_app.config.get("APP_URL")
 
-        setPassword =  f"{app_url}/set-password/{new_request.verification_token}"
+        setPassword = f"{app_url}/set-password/{new_request.verification_token}"
 
         MailService.send_email(
             to=new_request.contact_email,

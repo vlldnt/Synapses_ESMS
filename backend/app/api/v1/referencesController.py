@@ -1,14 +1,18 @@
 from flask_restx import Namespace, Resource, fields
 from app.models.references import Reference
+from app.schema.referenceSchema import ReferenceSchema
 from app.services import facade
 from flask_jwt_extended import get_jwt_identity, jwt_required, get_jwt
+from marshmallow import ValidationError
 
 api = Namespace('references', description="references operations")
+
+reference_schema = ReferenceSchema()
 
 ref_model = api.model("references", {
     "first_name": fields.String(required=True, example="Jotaro"),
     "last_name": fields.String(required=True, example="Kujo"),
-    "educator_id": fields.String(required=False),
+    "educator_id": fields.String(required=True, example="123e4567-e89b-12d3-a456-426614174000"),
 })
 
 ref_update_model = api.model("references_update", {
@@ -60,15 +64,27 @@ class ReferencesList(Resource):
         org_id = _require_admin(claims)
 
         data = api.payload or {}
-        educator_id = data.get("educator_id")
-        if not educator_id:
-            api.abort(400, "educator_id is required")
+        try:
+            validated = reference_schema.load(data)
+        except ValidationError as err:
+            messages = err.messages
+            error_list = []
+            if isinstance(messages, dict):
+                for value in messages.values():
+                    if isinstance(value, list):
+                        error_list.extend(value)
+                    else:
+                        error_list.append(value)
+            elif isinstance(messages, list):
+                error_list.extend(messages)
+            error_message = error_list[0] if error_list else str(err)
+            return {"error": error_message}, 400
 
         reference = Reference(
-            first_name=data["first_name"],
-            last_name=data["last_name"],
+            first_name=validated["first_name"],
+            last_name=validated["last_name"],
             organisation_id=org_id,
-            educator_id=educator_id,
+            educator_id=validated["educator_id"],
         )
         new_ref = facade.create_ref(reference)
         return new_ref.to_dict(), 201
