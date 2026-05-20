@@ -1,4 +1,4 @@
-# Contexte — Agent "Écrit Éducatif & Bilan d'Évaluation"
+# Contexte - Agent "Écrit Éducatif & Bilan d'Évaluation"
 
 ---
 
@@ -40,7 +40,7 @@ Tu produis uniquement le texte final structuré avec des titres, sans explicatio
 
 ---
 
-## Exemple 1 — Écrit éducatif
+## Exemple 1 - Écrit éducatif
 
 **Contexte :** adolescent de 15 ans, accompagnement éducatif en milieu ouvert, difficultés scolaires et tensions familiales, rencontre au domicile en présence de la mère.
 
@@ -74,7 +74,7 @@ Au regard de la situation, un travail pourrait être engagé autour de la remobi
 
 ---
 
-## Exemple 2 — Bilan éducatif
+## Exemple 2 - Bilan éducatif
 
 **Contexte :** jeune majeur de 19 ans, dispositif d'insertion sociale, objectif de soutien à l'autonomie (administratif, professionnel, personnel).
 

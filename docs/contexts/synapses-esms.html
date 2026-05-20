@@ -35,7 +35,7 @@
   .screen.active { display: flex; flex-direction: column; }
 
   /* ══════════════════════════════
-     SCREEN 0 — SPLASH / LOGIN
+     SCREEN 0 - SPLASH / LOGIN
   ══════════════════════════════ */
   #screen-login {
     background: var(--navy);
@@ -347,7 +347,7 @@
   }
 
   /* ══════════════════════════════
-     SCREEN 1 — DASHBOARD
+     SCREEN 1 - DASHBOARD
   ══════════════════════════════ */
   .welcome-row {
     margin-bottom: 28px;
@@ -498,7 +498,7 @@
   .recent-date { font-size: 11px; color: var(--text-muted); }
 
   /* ══════════════════════════════
-     SCREEN 2 — COMPTE RENDU
+     SCREEN 2 - COMPTE RENDU
   ══════════════════════════════ */
   .form-card {
     background: #fff;
@@ -727,7 +727,7 @@
   @keyframes spin { to { transform: rotate(360deg); } }
 
   /* ══════════════════════════════
-     SCREEN 3 — PPA
+     SCREEN 3 - PPA
   ══════════════════════════════ */
 
   .axes-grid {
@@ -774,7 +774,7 @@
   }
 
   /* ══════════════════════════════
-     SCREEN 4 — HISTORIQUE
+     SCREEN 4 - HISTORIQUE
   ══════════════════════════════ */
 
   .history-filters {
@@ -996,7 +996,7 @@
             <div class="module-card blue">
               <div class="card-icon blue">📅</div>
               <div class="card-title">Compte rendu de réunion</div>
-              <div class="card-desc">Bientôt disponible — synthèse automatique des réunions d'équipe et de synthèse.</div>
+              <div class="card-desc">Bientôt disponible - synthèse automatique des réunions d'équipe et de synthèse.</div>
               <button class="card-cta blue" style="opacity:.5;cursor:default">Bientôt disponible</button>
             </div>
           </div>
@@ -1007,7 +1007,7 @@
               <div class="recent-item">
                 <div class="recent-dot teal"></div>
                 <div class="recent-info">
-                  <div class="recent-name">CR · Visite à domicile — B.L. (Réf. 2024-047)</div>
+                  <div class="recent-name">CR · Visite à domicile - B.L. (Réf. 2024-047)</div>
                   <div class="recent-meta">Compte rendu d'intervention · Validé</div>
                 </div>
                 <div class="recent-date">Aujourd'hui, 09h12</div>
@@ -1015,7 +1015,7 @@
               <div class="recent-item">
                 <div class="recent-dot orange"></div>
                 <div class="recent-info">
-                  <div class="recent-name">PPA · Axe autonomie + communication — T.M.</div>
+                  <div class="recent-name">PPA · Axe autonomie + communication - T.M.</div>
                   <div class="recent-meta">Projet Personnalisé · En attente de validation</div>
                 </div>
                 <div class="recent-date">Hier, 16h45</div>
@@ -1023,7 +1023,7 @@
               <div class="recent-item">
                 <div class="recent-dot teal"></div>
                 <div class="recent-info">
-                  <div class="recent-name">CR · Entretien famille — S.K. (Réf. 2024-031)</div>
+                  <div class="recent-name">CR · Entretien famille - S.K. (Réf. 2024-031)</div>
                   <div class="recent-meta">Compte rendu d'intervention · Validé</div>
                 </div>
                 <div class="recent-date">18 mars, 11h30</div>
@@ -1071,7 +1071,7 @@
               <div class="form-group">
                 <label class="form-label">Référence dossier (anonymisé)</label>
                 <input class="form-input" type="text" placeholder="Ex : Réf. 2024-047 ou initiales B.L." value="Réf. 2024-047">
-                <span class="field-hint">⚠️ Pas de nom complet — utilisez une référence ou des initiales.</span>
+                <span class="field-hint">⚠️ Pas de nom complet - utilisez une référence ou des initiales.</span>
               </div>
               <div class="form-group">
                 <label class="form-label">Date de l'intervention</label>
@@ -1213,15 +1213,15 @@
           <div class="form-card">
             <h3><span class="step-indicator">3</span> Observations par axe</h3>
             <div class="form-group" style="margin-bottom:16px">
-              <label class="form-label">Mobilité & déplacements — observations</label>
+              <label class="form-label">Mobilité & déplacements - observations</label>
               <textarea class="form-textarea" style="min-height:90px" placeholder="Décrivez les capacités actuelles, les difficultés, les progrès…">Déplacements autonomes en transport en commun depuis 2 mois, mais difficultés encore présentes la nuit ou sur trajets non familiers. Progresse bien avec le bus, veut apprendre le métro.</textarea>
             </div>
             <div class="form-group" style="margin-bottom:16px">
-              <label class="form-label">Autonomie quotidienne — observations</label>
+              <label class="form-label">Autonomie quotidienne - observations</label>
               <textarea class="form-textarea" style="min-height:90px" placeholder="Décrivez les capacités actuelles, les difficultés, les progrès…">Gestion des repas OK pour plats simples. Difficultés sur la gestion du budget et les courses. Motivé à progresser, aide de la famille encore nécessaire.</textarea>
             </div>
             <div class="form-group">
-              <label class="form-label">Emploi & activité — observations</label>
+              <label class="form-label">Emploi & activité - observations</label>
               <textarea class="form-textarea" style="min-height:90px" placeholder="Décrivez les capacités actuelles, les difficultés, les progrès…">Stage en ESAT depuis janvier, bilan positif de l'équipe. Apprécie les activités manuelles. Objectif : convention de stage renouvelée.</textarea>
             </div>
             <div class="anon-notice" style="margin-top:16px">
@@ -1413,24 +1413,24 @@ function generatePPA() {
 }
 
 function buildPPAOutput() {
-  return `<span class="result-section-title">PROJET PERSONNALISÉ D'ACCOMPAGNEMENT — SYNTHÈSE</span>
+  return `<span class="result-section-title">PROJET PERSONNALISÉ D'ACCOMPAGNEMENT - SYNTHÈSE</span>
 Document généré dans le cadre du suivi SESSAD · Période : 12 mois · Référentiel SERAFIN-PH
 
-<span class="result-section-title">AXE 1 — MOBILITÉ ET DÉPLACEMENTS</span>
+<span class="result-section-title">AXE 1 - MOBILITÉ ET DÉPLACEMENTS</span>
 <strong>Situation actuelle :</strong> La personne accompagnée a développé une capacité d'autonomie sur les transports en commun diurnes et sur les trajets familiers, notamment le bus. Des difficultés subsistent sur les déplacements nocturnes et les itinéraires non maîtrisés.
 
 <strong>Objectif SMART :</strong> D'ici 6 mois, la personne sera en capacité d'effectuer de manière autonome au moins 3 trajets en métro préalablement identifiés, avec un accompagnement progressif décroissant de l'équipe éducative.
 
 <strong>Moyens :</strong> Séances d'apprentissage pratique avec éducateur référent (2/mois) · Cartographie personnalisée des trajets · Fiche outil « Mes transports »
 
-<span class="result-section-title">AXE 2 — AUTONOMIE QUOTIDIENNE</span>
+<span class="result-section-title">AXE 2 - AUTONOMIE QUOTIDIENNE</span>
 <strong>Situation actuelle :</strong> Les compétences culinaires de base sont acquises. Des difficultés persistent concernant la gestion budgétaire et l'organisation des courses. Le soutien familial reste nécessaire et est à valoriser.
 
 <strong>Objectif SMART :</strong> D'ici 9 mois, la personne gèrera de manière autonome un budget hebdomadaire d'alimentation (courses + repas) sur une période test de 4 semaines consécutives.
 
 <strong>Moyens :</strong> Atelier gestion du budget (mensuel) · Accompagnement aux courses 1×/semaine les 3 premiers mois · Outil de suivi budgétaire adapté
 
-<span class="result-section-title">AXE 3 — EMPLOI ET ACTIVITÉ</span>
+<span class="result-section-title">AXE 3 - EMPLOI ET ACTIVITÉ</span>
 <strong>Situation actuelle :</strong> Intégration en ESAT depuis janvier avec un bilan positif. Appétence marquée pour les activités manuelles. La perspective d'un renouvellement de convention est à consolider.
 
 <strong>Objectif SMART :</strong> D'ici 3 mois, renouvellement de la convention de stage ESAT avec un plan de progression formalisé incluant de nouvelles responsabilités adaptées aux compétences identifiées.

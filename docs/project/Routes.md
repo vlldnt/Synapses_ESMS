@@ -1,4 +1,4 @@
-# API Routes — Synapses ESMS
+# API Routes - Synapses ESMS
 
 Base URL : `http://localhost:3002`
 
@@ -69,8 +69,8 @@ Toutes les routes `/api/*` sont protégées par JWT (`Authorization: Bearer <tok
 | `POST` | `/api/transcribe-stream` | JWT | Transcription SSE progressive d'un fichier audio |
 | `POST` | `/api/transcribe-audio` | JWT | Transcription brute (binary body) |
 | `POST` | `/api/transcribe-audio-upload` | JWT | Transcription multipart/form-data (`file`) · `?mock=1` pour simuler |
-| `WS` | `/api/transcribe-ws` | — | Streaming WebSocket temps réel (LINEAR16 PCM 16kHz) |
-| `GET` | `/health` | — | Health check → `{ status: "ok", timestamp }` |
+| `WS` | `/api/transcribe-ws` | - | Streaming WebSocket temps réel (LINEAR16 PCM 16kHz) |
+| `GET` | `/health` | - | Health check → `{ status: "ok", timestamp }` |
 
 ---
 

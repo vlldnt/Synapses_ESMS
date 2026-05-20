@@ -1,4 +1,4 @@
-# ERD — Modèle de données
+# ERD - Modèle de données
 
 ## Organization
 

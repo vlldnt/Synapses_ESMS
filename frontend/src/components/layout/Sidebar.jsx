@@ -66,7 +66,7 @@ function AgentsNavItem({ label, role }) {
         />
       </button>
 
-      {/* Accordéon — grid-template-rows pour animation fluide vers auto */}
+      {/* Accordéon - grid-template-rows pour animation fluide vers auto */}
       <div
         className="grid transition-[grid-template-rows] duration-300 ease-in-out"
         style={{ gridTemplateRows: open ? '1fr' : '0fr' }}

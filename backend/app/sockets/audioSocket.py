@@ -86,7 +86,7 @@ def register_audio_socket(app):
             while True:
                 message = ws.receive()
                 if message is None:
-                    print("[audio_ws] receive returned None — client closed connection")
+                    print("[audio_ws] receive returned None - client closed connection")
                     break
 
                 # log message type

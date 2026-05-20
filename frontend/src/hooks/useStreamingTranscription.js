@@ -30,12 +30,12 @@ registerProcessor('pcm-processor', PCMProcessor);
 `;
 
 // Returned by the hook:
-//   start(lang?)  — open mic + WS, begin streaming
-//   stop()        — close everything, returns final committed text
-//   status        — 'idle' | 'connecting' | 'recording' | 'error'
-//   committed     — stable, finalized transcript segments (never changes back)
-//   interim       — current partial hypothesis (replaced on each interim event)
-//   audioLevel    — 0–100, driven by the mic analyser
+//   start(lang?)  - open mic + WS, begin streaming
+//   stop()        - close everything, returns final committed text
+//   status        - 'idle' | 'connecting' | 'recording' | 'error'
+//   committed     - stable, finalized transcript segments (never changes back)
+//   interim       - current partial hypothesis (replaced on each interim event)
+//   audioLevel    - 0–100, driven by the mic analyser
 
 export function useStreamingTranscription() {
   const [status, setStatus]       = useState('idle');
@@ -43,7 +43,7 @@ export function useStreamingTranscription() {
   const [interim, setInterim]     = useState('');
   const [audioLevel, setAudioLevel] = useState(0);
 
-  // Internal refs — never cause re-renders
+  // Internal refs - never cause re-renders
   const wsRef          = useRef(null);
   const micStreamRef   = useRef(null);
   const audioCtxRef    = useRef(null);

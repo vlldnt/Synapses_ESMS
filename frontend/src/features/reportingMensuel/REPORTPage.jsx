@@ -18,7 +18,7 @@ const config = {
   resultId: 'report-result',
   step1Subtitle: 'Reporting Mensuel',
   step2Title: 'Données du mois',
-  step2Subtitle: "Renseignez les indicateurs, faits marquants, difficultés et perspectives du mois — l'IA structure le reporting",
+  step2Subtitle: "Renseignez les indicateurs, faits marquants, difficultés et perspectives du mois - l'IA structure le reporting",
   placeholder: "Nombre d'usagers suivis, actes réalisés, faits marquants, incidents, absences, partenariats, points de vigilance, perspectives du mois suivant…",
   buttonLabel: 'Générer le reporting',
   resetLabel: '+ Nouveau reporting',

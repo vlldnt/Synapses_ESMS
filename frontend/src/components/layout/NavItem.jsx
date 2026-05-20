@@ -21,15 +21,15 @@ function NavItem({
           className={
             mobile
               ? 'flex flex-col items-center justify-center gap-0 min-h-14 px-0 py-0 rounded-md text-(--text-muted) opacity-60 cursor-not-allowed'
-              : 'flex justify-start items-center w-full gap-3 px-5 py-3 text-sm rounded-xs text-(--text-muted) opacity-60 cursor-not-allowed'
+              : 'flex justify-start items-center w-full px-5 py-3 text-sm rounded-xs text-(--text-muted) opacity-60 cursor-not-allowed'
           }
         >
-          {Icon && <Icon className={mobile ? 'w-4 h-4 shrink-0' : 'w-5 h-5'} />}
+          {mobile && Icon && <Icon className="w-4 h-4 shrink-0" />}
           <p
             className={
               mobile
-                ? 'text-[10px] leading-3 text-center whitespace-normal break-words w-full'
-                : ''
+                ? 'text-[10px] leading-3 text-center whitespace-normal wrap-break-words w-full'
+                : 'truncate min-w-0'
             }
           >
             {titre}
@@ -52,7 +52,7 @@ function NavItem({
           }`}
         >
           {Icon && <Icon className="w-4 h-4 shrink-0" />}
-          <p className="text-[10px] leading-3 text-center whitespace-normal break-words w-full">
+          <p className="text-[10px] leading-3 text-center whitespace-normal wrap-break-words w-full">
             {titre}
           </p>
         </NavLink>
@@ -65,14 +65,13 @@ function NavItem({
     <li id={itemId} className="list-none">
       <NavLink
         to={link}
-        className={`flex justify-start items-center w-full gap-3 px-5 py-3 text-sm transition-colors duration-200 rounded-xs ${
+        className={`flex justify-start items-center w-full px-5 py-3 text-sm transition-colors duration-200 rounded-xs ${
           isActive
             ? 'text-(--bleu-fonce) bg-(--bleu-fonce)/10 font-semibold border-l-4 border-(--bleu-fonce)'
             : 'text-(--text-secondary) hover:bg-(--bg-tertiary) hover:text-(--text-primary)'
         }`}
       >
-        {Icon && <Icon className="w-5 h-5" />}
-        <p>{titre}</p>
+        <p className="truncate min-w-0">{titre}</p>
       </NavLink>
     </li>
   );

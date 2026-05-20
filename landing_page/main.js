@@ -51,6 +51,22 @@ document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') closeConsentModal();
 });
 
+// ── Barres de progression animées ────────────────────────────────────────────
+(function initBarChart() {
+  const trigger = document.getElementById('bar-chart');
+  if (!trigger) return;
+
+  const observer = new IntersectionObserver(([entry]) => {
+    if (!entry.isIntersecting) return;
+    observer.disconnect();
+    trigger.querySelectorAll('.bar-fill').forEach((bar, i) => {
+      setTimeout(() => { bar.style.width = bar.dataset.barTarget; }, i * 300);
+    });
+  }, { threshold: 0.4 });
+
+  observer.observe(trigger);
+})();
+
 // ── Document list interaction ────────────────────────────────────────────────
 (function initDocList() {
   const items = document.querySelectorAll('.doc-item[data-doc]');
@@ -108,30 +124,35 @@ document.addEventListener('keydown', (e) => {
   setTimeout(() => activate(0), 500);
 })();
 
-// ── Count-up animation (data-countup="420" data-suffix="+" data-prefix="−") ──
+// ── Count-up animation ────────────────────────────────────────────────────────
+// Attributs : data-countup="cible" data-from="départ(0)" data-prefix data-suffix data-duration="ms(1200)"
 (function initCountUp() {
   const els = document.querySelectorAll('[data-countup]');
   if (!els.length) return;
 
   const easeOut = t => 1 - Math.pow(1 - t, 3);
-  const DURATION = 1200;
+
+  function animate(el) {
+    const target   = parseFloat(el.dataset.countup);
+    const from     = parseFloat(el.dataset.from ?? '0');
+    const suffix   = el.dataset.suffix || '';
+    const prefix   = el.dataset.prefix || '';
+    const duration = parseFloat(el.dataset.duration || '1200');
+    const start    = performance.now();
+
+    (function tick(now) {
+      const p     = Math.min((now - start) / duration, 1);
+      const value = Math.round(from + easeOut(p) * (target - from));
+      el.textContent = prefix + value + suffix;
+      if (p < 1) requestAnimationFrame(tick);
+    })(start);
+  }
 
   const observer = new IntersectionObserver(entries => {
     entries.forEach(entry => {
       if (!entry.isIntersecting) return;
       observer.unobserve(entry.target);
-
-      const el     = entry.target;
-      const target = parseFloat(el.dataset.countup);
-      const suffix = el.dataset.suffix || '';
-      const prefix = el.dataset.prefix || '';
-      const start  = performance.now();
-
-      (function tick(now) {
-        const p = Math.min((now - start) / DURATION, 1);
-        el.textContent = prefix + Math.round(easeOut(p) * target) + suffix;
-        if (p < 1) requestAnimationFrame(tick);
-      })(start);
+      animate(entry.target);
     });
   }, { threshold: 0.5 });
 

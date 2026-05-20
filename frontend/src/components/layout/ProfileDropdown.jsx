@@ -4,7 +4,7 @@ import { logout } from '../../services/authServices';
 import { invalidateReferencesCache } from '../../services/referenceService';
 import { setTheme } from '../../store/themeSlice';
 import { useCurrentUser } from '../../hooks/useCurrentUser';
-import { User, LogOut, Sun, Moon, ChevronDown, Download, Briefcase, Building2 } from 'lucide-react';
+import { User, LogOut, Sun, Moon, ChevronDown, Download } from 'lucide-react';
 import { PWAInstallModal } from '../PWAInstallGuide';
 import ProfileModal from './ProfileModal';
 
@@ -78,21 +78,13 @@ function ProfileDropdown({ photo = null, mobile = false }) {
         )}
         {!mobile && (
           <>
-            <div className="flex flex-col items-start leading-tight">
-              <span className="font-medium text-(--text-primary) text-sm">
-                {fullName}
-              </span>
+            <div className="flex flex-col items-start leading-tight min-w-0 flex-1">
+              <span className="font-medium text-(--text-primary) text-sm truncate w-full">{fullName}</span>
               {job && (
-                <span className="text-(--text-muted) text-xs flex items-center gap-1">
-                  <Briefcase size={11} className="shrink-0" />
-                  {job}
-                </span>
+                <span className="text-(--text-muted) text-xs truncate w-full">{job}</span>
               )}
               {organization?.name && (
-                <span className="text-(--text-muted) text-xs flex items-center gap-1">
-                  <Building2 size={11} className="shrink-0" />
-                  {organization.name}
-                </span>
+                <span className="text-(--text-muted) text-xs truncate w-full">{organization.name}</span>
               )}
             </div>
             <ChevronDown
@@ -113,19 +105,13 @@ function ProfileDropdown({ photo = null, mobile = false }) {
               : 'absolute bottom-full left-0 mb-2 w-full bg-(--bg-primary) rounded-xl shadow-lg border border-(--border) py-2 z-70'
           }
         >
-          <div className="px-4 py-2 flex flex-col gap-0.5">
-            <p className="font-medium text-(--text-primary) text-sm">{fullName}</p>
+          <div className="px-4 py-2 flex flex-col gap-0.5 min-w-0">
+            <p className="font-medium text-(--text-primary) text-sm truncate">{fullName}</p>
             {job && (
-              <p className="text-(--text-muted) text-xs flex items-center gap-1">
-                <Briefcase size={11} className="shrink-0" />
-                {job}
-              </p>
+              <p className="text-(--text-muted) text-xs truncate">{job}</p>
             )}
             {organization?.name && (
-              <p className="text-(--text-muted) text-xs flex items-center gap-1">
-                <Building2 size={11} className="shrink-0" />
-                {organization.name}
-              </p>
+              <p className="text-(--text-muted) text-xs truncate">{organization.name}</p>
             )}
             {role && (
               <span className="mt-0.5 self-start text-[10px] px-2 py-0.5 rounded-full bg-(--bg-secondary) border border-(--border) text-(--text-muted) capitalize">

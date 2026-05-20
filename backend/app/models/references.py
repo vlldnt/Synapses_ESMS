@@ -14,6 +14,7 @@ class Reference(BaseModel):
             "id": self.id,
             "first_name": self.first_name,
             "last_name": self.last_name,
-            "organisation_id" : self.organisation_id,
+            "organisation_id": self.organisation_id,
             "educator_id": self.educator_id,
+            "created_at": self.created_at.isoformat() if self.created_at else None,
         }

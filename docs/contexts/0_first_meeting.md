@@ -1,4 +1,4 @@
-# SYNAPSES ESMS — Project Summary 
+# SYNAPSES ESMS - Project Summary 
 
 ## Overview *(03/03/2026)*
 **SYNAPSES ESMS** is a social-impact project aiming to develop an **AI-assisted web application** for professionals working in the **social and medico-social sector (ESMS)**.
@@ -51,15 +51,15 @@ An optional feature may include a **professional monitoring / knowledge module**
 ## Team
 
 ### Project leadership
-- **Pierre Maigne** — Project lead  
-- **Romain Glemet** — Co-lead and ESMS sector expertise  
+- **Pierre Maigne** - Project lead  
+- **Romain Glemet** - Co-lead and ESMS sector expertise  
 
 ### Technical supervision
-- **Gaël Dubocq** — Senior developer and technical supervisor  
+- **Gaël Dubocq** - Senior developer and technical supervisor  
 
 ### Development
-- **Cyprien Gehu** — Backend development and AI integration  
-- **Adrien Vieilledent** — Frontend development and user interface  
+- **Cyprien Gehu** - Backend development and AI integration  
+- **Adrien Vieilledent** - Frontend development and user interface  
 
 Potential extended collaborators may include **ESMS pilot organizations, communication partners, and funding support**.
 
@@ -111,12 +111,12 @@ Project duration: **March 4 → May 31, 2026**
 
 Main milestones:
 
-- **Week 1** — Project kickoff and scope validation  
-- **Week 3** — First modules (intervention reports and PPA)  
-- **Week 6** — Additional field-related modules  
-- **Week 8** — Meeting and management modules  
-- **Week 10** — Security, logs, and stability improvements  
-- **Week 12** — **Official MVP demonstration**
+- **Week 1** - Project kickoff and scope validation  
+- **Week 3** - First modules (intervention reports and PPA)  
+- **Week 6** - Additional field-related modules  
+- **Week 8** - Meeting and management modules  
+- **Week 10** - Security, logs, and stability improvements  
+- **Week 12** - **Official MVP demonstration**
 
 ---
 
@@ -128,8 +128,8 @@ Total estimated development time:
 - **766 hours total**
 
 Work distribution:
-- **March** — part-time development
-- **April–May** — full-time development
+- **March** - part-time development
+- **April–May** - full-time development
 
 ---
 

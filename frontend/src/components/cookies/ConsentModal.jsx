@@ -3,31 +3,31 @@ import { X, ShieldCheck, Cookie } from 'lucide-react';
 const COOKIES = [
   {
     name: 'access_token_cookie',
-    finalite: "Authentification — identifie votre session active auprès de l'API",
+    finalite: "Authentification - identifie votre session active auprès de l'API",
     duree: '15 minutes',
     type: 'HttpOnly, Secure, SameSite=Lax',
   },
   {
     name: 'refresh_token_cookie',
-    finalite: 'Maintien de session — permet le renouvellement sécurisé de votre authentification',
+    finalite: 'Maintien de session - permet le renouvellement sécurisé de votre authentification',
     duree: '7 jours',
     type: 'HttpOnly, Secure, SameSite=Lax',
   },
   {
     name: 'csrf_access_token',
-    finalite: 'Protection CSRF — sécurise les requêtes authentifiées contre les attaques cross-site',
+    finalite: 'Protection CSRF - sécurise les requêtes authentifiées contre les attaques cross-site',
     duree: '15 minutes',
     type: 'Secure, SameSite=Lax',
   },
   {
     name: 'csrf_refresh_token',
-    finalite: 'Protection CSRF — sécurise le renouvellement de session contre les attaques cross-site',
+    finalite: 'Protection CSRF - sécurise le renouvellement de session contre les attaques cross-site',
     duree: '7 jours',
     type: 'Secure, SameSite=Lax',
   },
   {
     name: 'theme',
-    finalite: "Préférence d'affichage — mémorise votre choix de thème clair ou sombre",
+    finalite: "Préférence d'affichage - mémorise votre choix de thème clair ou sombre",
     duree: '7 jours',
     type: 'SameSite=Strict',
   },

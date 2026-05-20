@@ -4,10 +4,11 @@ import {
   ClipboardCopy, ClipboardCheck,
   FileDown, Loader2, ChevronDown,
   ShieldCheck, LockKeyhole, RotateCcw,
-  FileText, FileType,
+  FileText, FileType, Archive,
 } from 'lucide-react';
 import WordPreview from './WordPreview';
 import DownloadSuccessModal from './DownloadSuccessModal';
+import DownloadToast from './DownloadToast';
 import { downloadDocx, triggerDownload, generateReportFilename } from '../utils/wordExport';
 import { downloadPdf } from '../utils/pdfExport';
 import { saveToHistory } from '../services/historyService';
@@ -70,7 +71,7 @@ function ValidatedBadge({ onUnvalidate }) {
  *  - validated      : bool (état de validation géré par le parent)
  *  - onValidatedChange : (bool) => void
  *  - onRegenerate   : () => void
- *  - validationText : string — mention légale sous la checkbox
+ *  - validationText : string - mention légale sous la checkbox
  *  - downloadMeta   : { interventionType, structureType, companyName, educatorName, date }
  */
 export default function GeneratedResult({
@@ -94,6 +95,9 @@ export default function GeneratedResult({
   const [dlState, setDlState]      = useState('idle');
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [showExportMenu, setShowExportMenu] = useState(false);
+  const [downloadToast, setDownloadToast] = useState(null);
+  const [archiving, setArchiving] = useState(false);
+  const [archiveToast, setArchiveToast] = useState(false);
   const textareaRef = useRef(null);
   const previewRef = useRef(null);
   const exportMenuRef = useRef(null);
@@ -162,7 +166,7 @@ export default function GeneratedResult({
         ? sessionStorage.getItem('detectedInterventionType')
         : null;
 
-      const finalInterventionType = (downloadMeta.interventionType && downloadMeta.interventionType !== '—' && downloadMeta.interventionType !== '')
+      const finalInterventionType = (downloadMeta.interventionType && downloadMeta.interventionType !== '-' && downloadMeta.interventionType !== '')
         ? downloadMeta.interventionType
         : (detectedType || 'Intervention');
 
@@ -199,6 +203,8 @@ export default function GeneratedResult({
       triggerDownload(result.blob, result.filename);
       setShowSuccessModal(false);
       setDlState('idle');
+      setDownloadToast(result.filename);
+      setTimeout(() => setDownloadToast(null), 32000);
     } catch (err) {
       console.error('Erreur téléchargement:', err);
       setShowSuccessModal(false);
@@ -242,11 +248,46 @@ export default function GeneratedResult({
         }),
         new Promise((resolve) => setTimeout(resolve, 1500)),
       ]);
+      setDownloadToast(filename);
+      setTimeout(() => setDownloadToast(null), 32000);
     } catch (err) {
       console.error('Erreur export PDF:', err);
     } finally {
       setShowSuccessModal(false);
       setDlState('idle');
+    }
+  };
+
+  const handleArchiveOnly = async () => {
+    setArchiving(true);
+    try {
+      const agent = downloadMeta.reportType || downloadMeta.type || 'DOC';
+      const { filename, displayName } = generateReportFilename(
+        downloadMeta.childName,
+        downloadMeta.educatorName,
+        downloadMeta.date,
+        agent,
+        'docx',
+      );
+      await saveToHistory({
+        filename,
+        displayName,
+        date: downloadMeta.date,
+        interventionType: downloadMeta.interventionType || agent,
+        type: agent,
+        content: editedText,
+        educatorName: downloadMeta.educatorName || '',
+        educatorRole: downloadMeta.educatorRole || '',
+        creatorId: user?.id,
+        childName: downloadMeta.childName || '',
+      });
+      onArchived?.();
+      setArchiveToast(true);
+      setTimeout(() => setArchiveToast(false), 5000);
+    } catch (err) {
+      console.error('Erreur archivage:', err);
+    } finally {
+      setArchiving(false);
     }
   };
 
@@ -334,7 +375,7 @@ export default function GeneratedResult({
             title="Copier le texte dans le presse-papier"
           />
 
-          {/* Télécharger — dropdown Word / PDF */}
+          {/* Télécharger - dropdown Word / PDF */}
           {validated && (
             <div className="relative" ref={exportMenuRef}>
               <button
@@ -394,7 +435,7 @@ export default function GeneratedResult({
           <div className="p-4 md:p-6 bg-(--bg-secondary)">
             <div className="flex items-center gap-2 mb-3 text-xs text-(--text-muted)">
               <Pencil size={12} />
-              Mode édition — modifiez librement le texte ci-dessous
+              Mode édition - modifiez librement le texte ci-dessous
             </div>
             <textarea
               ref={textareaRef}
@@ -438,17 +479,12 @@ export default function GeneratedResult({
             {validated && (
               <div className="flex items-center gap-2 mb-3 text-xs text-emerald-600 dark:text-emerald-400 font-medium">
                 <LockKeyhole size={12} />
-                Document validé — lecture seule
+                Document validé - lecture seule
               </div>
             )}
             <div ref={previewRef} data-pdf-root="true">
             <WordPreview text={editedText} />
           </div>
-            {generatedByModel?.id && (
-              <p className="mt-4 text-xs text-(--text-muted) italic">
-                Genere par modele : <strong>{generatedByModel.name || generatedByModel.id}</strong>
-              </p>
-            )}
           </div>
         )}
       </div>
@@ -536,6 +572,16 @@ export default function GeneratedResult({
 
               <button
                 type="button"
+                onClick={handleArchiveOnly}
+                disabled={archiving}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-white disabled:opacity-50 cursor-pointer transition-opacity"
+                style={{ background: 'linear-gradient(135deg, #7C3AED, #A78BFA)' }}
+              >
+                {archiving ? <Loader2 size={12} className="animate-spin" /> : <Archive size={12} />}
+                Archiver
+              </button>
+              <button
+                type="button"
                 onClick={handleUnvalidate}
                 className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs text-(--text-muted) hover:text-red-500 border border-(--border) hover:border-red-300 transition-colors cursor-pointer"
               >
@@ -547,8 +593,9 @@ export default function GeneratedResult({
         )}
       </div>
 
-      {/* Modal de succès */}
       <DownloadSuccessModal isOpen={showSuccessModal} onClose={() => setShowSuccessModal(false)} />
+      <DownloadToast filename={downloadToast} onClose={() => setDownloadToast(null)} />
+      <DownloadToast message={archiveToast ? 'Document archivé dans Mes documents' : null} onClose={() => setArchiveToast(false)} />
     </div>
   );
 }

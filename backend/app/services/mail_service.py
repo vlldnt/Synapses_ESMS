@@ -19,7 +19,7 @@ class MailService:
         parameter = {
             "from": current_app.config["ADMIN_EMAIL"],
             "to": [to] if isinstance(to, str) else to,
-            "subject": "📬 Créez votre compte — Synapses ESMS",
+            "subject": "📬 Créez votre compte - Synapses ESMS",
             "html": html
         }
 

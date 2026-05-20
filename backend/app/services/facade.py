@@ -182,7 +182,13 @@ class ApiFacade:
         if organization_id is None:
             return self.reference_repo.get_all()
         return self.reference_repo.get_all_by_attribute('organisation_id', organization_id)
-    
+
+    def get_references_by_educator(self, organization_id, educator_id):
+        return self.reference_repo.model.query.filter_by(
+            organisation_id=organization_id,
+            educator_id=educator_id,
+        ).all()
+
     def update_references(self, ref_id, ref_data):
         self.reference_repo.update(ref_id, ref_data)
 

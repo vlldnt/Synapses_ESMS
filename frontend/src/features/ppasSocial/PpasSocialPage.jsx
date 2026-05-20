@@ -21,7 +21,7 @@ export default function PpasSocialPage() {
       resultId: 'ppas-result',
       step1Subtitle: "Projet personnalisé d'accompagnement social",
       step2Title: 'Observations sociales',
-      step2Subtitle: "Décrivez la situation sociale, les besoins identifiés, les ressources et les objectifs — l'IA structure le PPAS",
+      step2Subtitle: "Décrivez la situation sociale, les besoins identifiés, les ressources et les objectifs - l'IA structure le PPAS",
       placeholder: "Décrivez la situation sociale de la personne, ses conditions de vie, ses besoins d'accompagnement, les démarches engagées, les ressources mobilisables, les objectifs visés… L'IA se charge du reste.",
       buttonLabel: 'Générer le PPAS',
       resetLabel: '+ Nouveau PPAS',

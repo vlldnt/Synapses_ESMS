@@ -221,8 +221,8 @@ export default function AgentPage({ config }) {
               <div className="w-px h-10 bg-(--border)" />
               <div className="flex flex-col">
                 <p className="text-(--text-muted) text-xs">Structure</p>
-                <p className="font-semibold text-(--text-primary)">{organization?.name ?? '—'}</p>
-                <p className="text-xs text-(--text-secondary)">{organization?.structure_type ?? '—'}</p>
+                <p className="font-semibold text-(--text-primary)">{organization?.name ?? '-'}</p>
+                <p className="text-xs text-(--text-secondary)">{organization?.structure_type ?? '-'}</p>
               </div>
               <div className="w-px h-10 bg-(--border)" />
               <div className="flex flex-col">
@@ -286,8 +286,8 @@ export default function AgentPage({ config }) {
                 <div className="w-px bg-(--border)" />
                 <div className="flex flex-col flex-1">
                   <p className="text-(--text-muted) font-medium">Structure</p>
-                  <p className="font-semibold text-(--text-primary)">{organization?.name ?? '—'}</p>
-                  <p className="text-(--text-secondary)">{organization?.structure_type ?? '—'}</p>
+                  <p className="font-semibold text-(--text-primary)">{organization?.name ?? '-'}</p>
+                  <p className="text-(--text-secondary)">{organization?.structure_type ?? '-'}</p>
                 </div>
                 <div className="w-px bg-(--border)" />
                 <div className="flex flex-col flex-1">
@@ -336,11 +336,11 @@ export default function AgentPage({ config }) {
             }
           >
             <TranscriptionCard value={observations} onChange={setObservations} placeholder={placeholder} rows={8} disabled={loading} />
-            <RgpdNotice message="Vos notes sont anonymisées — aucun nom, prénom ou donnée nominative ne doit être transmis." />
+            <RgpdNotice message="Vos notes sont anonymisées - aucun nom, prénom ou donnée nominative ne doit être transmis." />
           </StepCard>
 
           <div id="form-actions" className="flex flex-col gap-3">
-            <div className="flex flex-row gap-3">
+            <div className="flex flex-row items-center gap-3">
               <Button
                 type="submit"
                 color={accent}
@@ -350,14 +350,13 @@ export default function AgentPage({ config }) {
               >
                 {loading ? 'Génération en cours…' : buttonLabel}
               </Button>
+              {!loading && !result && <span className="text-xs text-(--text-muted)">Temps estimé : 5–15 s</span>}
+              {!loading && elapsed && <span className="text-xs text-(--text-muted)">Généré en {elapsed}s</span>}
               <Button color={accent} size="md" onClick={handleReset} className="flex-1 md:hidden">
                 Nouveau
               </Button>
             </div>
-            <div className="flex items-center gap-3">
-              <ModelSelector value={selectedModelId} onChange={handleModelChange} />
-              {!loading && !result && <span className="text-xs text-(--text-muted)">Temps estimé : 5–15 s</span>}
-              {!loading && elapsed && <span className="text-xs text-(--text-muted)">Généré en {elapsed}s</span>}
+            <div className="flex items-center">
               <button type="button" onClick={handleReset} className="hidden md:inline-flex ml-auto text-xs text-(--text-muted) hover:text-(--text-primary) transition-colors cursor-pointer">
                 {resetLabel}
               </button>
@@ -368,12 +367,9 @@ export default function AgentPage({ config }) {
         {loading && (
           <div className={`${CARD_CLASS} flex items-center gap-4`}>
             <div className="w-5 h-5 rounded-full border-2 border-t-transparent animate-spin shrink-0" style={{ borderColor: accent, borderTopColor: 'transparent' }} />
-            <div className="flex flex-col gap-0.5">
-              <span key={loadingMessageIndex} className="text-sm text-(--text-secondary) animate-pulse transition-opacity duration-300">
-                {loadingMessages[loadingMessageIndex]}
-              </span>
-              <span className="text-[10px] text-(--text-muted) font-mono">{selectedModelId}</span>
-            </div>
+            <span key={loadingMessageIndex} className="text-sm text-(--text-secondary) animate-pulse transition-opacity duration-300">
+              {loadingMessages[loadingMessageIndex]}
+            </span>
           </div>
         )}
 
@@ -406,6 +402,9 @@ export default function AgentPage({ config }) {
           isOpen={showGeneratingModal}
           message={loadingMessages[loadingMessageIndex]}
           onCancel={handleCancelGeneration}
+          badge={badge}
+          color={accent}
+          docTitle={step1Subtitle || badge}
         />
       </div>
     </div>

@@ -8,9 +8,9 @@ export function enrichDocument(document, users = [], organizations = []) {
   if (!creator) {
     return {
       ...document,
-      educatorName: '—',
-      structureType: '—',
-      companyName: '—',
+      educatorName: '-',
+      structureType: '-',
+      companyName: '-',
     };
   }
 
@@ -19,8 +19,8 @@ export function enrichDocument(document, users = [], organizations = []) {
   return {
     ...document,
     educatorName: `${creator.first_name} ${creator.last_name}`,
-    structureType: org?.structure_type || '—',
-    companyName: org?.name || '—',
+    structureType: org?.structure_type || '-',
+    companyName: org?.name || '-',
   };
 }
 

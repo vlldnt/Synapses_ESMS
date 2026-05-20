@@ -62,7 +62,7 @@ class UserList(Resource):
     @api.response(200, 'Invitation sent')
     @api.response(403, 'Admin role required')
     def post(self):
-        """Invite a new user — admin only"""
+        """Invite a new user - admin only"""
         claims = get_jwt()
         org_id = _require_admin(claims)
 
@@ -118,7 +118,7 @@ class UserResource(Resource):
     @api.response(200, 'User retrieved')
     @api.response(404, 'User not found')
     def get(self, user_id):
-        """Get user by ID — admin sees any user in org, user sees only self"""
+        """Get user by ID - admin sees any user in org, user sees only self"""
         claims = get_jwt()
         current_id = get_jwt_identity()
         org_id = _require_auth(claims)
@@ -141,7 +141,7 @@ class UserResource(Resource):
     @api.response(403, 'Forbidden')
     @api.response(404, 'User not found')
     def put(self, user_id):
-        """Update user — admin can update any user in org, user can update only self"""
+        """Update user - admin can update any user in org, user can update only self"""
         claims = get_jwt()
         current_id = get_jwt_identity()
         org_id = _require_auth(claims)

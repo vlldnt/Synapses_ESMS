@@ -18,7 +18,7 @@ const config = {
   resultId: 'veille-result',
   step1Subtitle: 'Veille Professionnelle',
   step2Title: 'Éléments de veille',
-  step2Subtitle: "Décrivez le sujet, les sources consultées, les évolutions réglementaires ou thématiques — l'IA structure la note de veille",
+  step2Subtitle: "Décrivez le sujet, les sources consultées, les évolutions réglementaires ou thématiques - l'IA structure la note de veille",
   placeholder: 'Sujet de veille, textes réglementaires, articles, rapports, évolutions observées, impacts pour la structure, points de vigilance…',
   buttonLabel: 'Générer la note de veille',
   resetLabel: '+ Nouvelle veille',

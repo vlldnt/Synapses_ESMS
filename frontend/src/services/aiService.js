@@ -7,7 +7,7 @@ export const DEFAULT_MODEL = 'mistralai/voxtral-small-24b-2507';
 const basename = import.meta.env.VITE_BASENAME || '/synapses';
 const API_URL = `${basename}/api`;
 
-// ─── PROMPTS — fetch & cache depuis /api/prompts ──────────────────────────────
+// ─── PROMPTS - fetch & cache depuis /api/prompts ──────────────────────────────
 
 let promptsCache = [];
 
@@ -37,7 +37,7 @@ async function getPrompt(name) {
   return prompt;
 }
 
-// ─── CŒUR — OpenRouter + nettoyage ───────────────────────────────────────────
+// ─── CŒUR - OpenRouter + nettoyage ───────────────────────────────────────────
 
 async function getChatResponse({
   systemPrompt,
@@ -115,11 +115,11 @@ function buildContext({
   return `--- CONTEXTE PROFESSIONNEL (données automatiques) ---
 Établissement : ${companyName || 'Non précisé'}
 Type de structure : ${structureType || 'Non précisé'}
-Professionnel rédacteur : ${educatorName || 'Non renseigné'} — ${educatorRole || 'Non précisé'}
+Professionnel rédacteur : ${educatorName || 'Non renseigné'} - ${educatorRole || 'Non précisé'}
 Date : ${date}`;
 }
 
-// CRI — Compte Rendu d'Intervention
+// CRI - Compte Rendu d'Intervention
 export async function generateInterventionReport({
   interventionType,
   transcription,
@@ -155,7 +155,7 @@ Extrais les informations pertinentes de cette transcription et rédige un compte
   return result.replace(/\[TYPE_INTERVENTION:.+?\]\n?/g, '');
 }
 
-// PPAMS — Projet Personnalisé d'Accompagnement Médico-Social (SERAFIN-PH)
+// PPAMS - Projet Personnalisé d'Accompagnement Médico-Social (SERAFIN-PH)
 export async function generatePersonalizedProject({
   observations,
   structureType,
@@ -228,7 +228,7 @@ Analyse ces notes et génère un écrit éducatif professionnel structuré, avec
   return sendPrompt('ecrit_educatif', userMessage, { temperature: 0.35, model, signal });
 }
 
-// CRR — Compte Rendu de Réunion
+// CRR - Compte Rendu de Réunion
 export async function generateCompteRenduReunion({
   observations,
   structureType,
@@ -250,7 +250,7 @@ Analyse ces notes et génère un compte rendu de réunion professionnel structur
   return sendPrompt('compte_rendu_reunion', userMessage, { temperature: 0.35, model, signal });
 }
 
-// VEILLE — Veille Professionnelle
+// VEILLE - Veille Professionnelle
 export async function generateVeilleProfessionnelle({
   observations,
   structureType,
@@ -272,7 +272,7 @@ Analyse ces éléments et génère une note de veille professionnelle structuré
   return sendPrompt('veille_professionnelle', userMessage, { temperature: 0.4, model, signal });
 }
 
-// RM — Reporting Mensuel
+// RM - Reporting Mensuel
 export async function generateReportingMensuel({
   observations,
   structureType,
@@ -294,7 +294,7 @@ Analyse ces données et génère un reporting mensuel structuré : indicateurs d
   return sendPrompt('reporting_mensuel', userMessage, { temperature: 0.35, model, signal });
 }
 
-// RA — Rapport d'Activité
+// RA - Rapport d'Activité
 export async function generateRapportActivite({
   observations,
   structureType,
@@ -316,7 +316,7 @@ Analyse ces éléments et génère un rapport d'activité professionnel structur
   return sendPrompt('rapport_activite', userMessage, { temperature: 0.35, model, signal });
 }
 
-// BA — Bilan d'Activité
+// BA - Bilan d'Activité
 export async function generateBilanActivite({
   observations,
   structureType,
@@ -338,7 +338,7 @@ Analyse ces éléments et génère un bilan d'activité structuré : évaluation
   return sendPrompt('bilan_activite', userMessage, { temperature: 0.35, model, signal });
 }
 
-// PE — Projet d'Établissement
+// PE - Projet d'Établissement
 export async function generateProjetEtablissement({
   observations,
   structureType,
@@ -360,7 +360,7 @@ Analyse ces éléments et génère un projet d'établissement structuré : prés
   return sendPrompt('projet_etablissement', userMessage, { temperature: 0.4, model, signal });
 }
 
-// PS — Projet de Service
+// PS - Projet de Service
 export async function generateProjetService({
   observations,
   structureType,
@@ -382,7 +382,7 @@ Analyse ces éléments et génère un projet de service structuré : missions et
   return sendPrompt('projet_service', userMessage, { temperature: 0.4, model, signal });
 }
 
-// PPAS — Projet Personnalisé d'Accompagnement Social (axes Séraphin)
+// PPAS - Projet Personnalisé d'Accompagnement Social (axes Séraphin)
 export async function generatePpasSocial({
   observations,
   structureType,
@@ -405,7 +405,7 @@ Analyse ces observations, identifie les axes Séraphin concernés et génère un
   return sendPrompt('ppa_social', userMessage, { temperature: 0.35, model, signal });
 }
 
-// HAS — Préparation Évaluation HAS
+// HAS - Préparation Évaluation HAS
 export async function generateEvaluationHas({
   observations,
   structureType,
@@ -427,7 +427,7 @@ Analyse ces éléments et génère une préparation structurée à l'évaluation
   return sendPrompt('evaluation_has', userMessage, { temperature: 0.4, model, signal });
 }
 
-// AAP — Appel à Projet
+// AAP - Appel à Projet
 export async function generateAppelProjet({
   observations,
   structureType,

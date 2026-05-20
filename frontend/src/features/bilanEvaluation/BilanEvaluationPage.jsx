@@ -21,7 +21,7 @@ export default function BilanEvaluationPage() {
       resultId: 'bilan-result',
       step1Subtitle: "Bilan d'évaluation",
       step2Title: "Éléments d'évaluation",
-      step2Subtitle: "Décrivez les observations, les évolutions et les axes à évaluer — l'IA structure le bilan",
+      step2Subtitle: "Décrivez les observations, les évolutions et les axes à évaluer - l'IA structure le bilan",
       placeholder: "Décrivez les acquis, les progrès observés, les difficultés persistantes, les évolutions depuis le dernier bilan, les objectifs atteints ou non, les nouvelles orientations envisagées… L'IA se charge du reste.",
       buttonLabel: 'Générer le bilan',
       resetLabel: '+ Nouveau bilan',

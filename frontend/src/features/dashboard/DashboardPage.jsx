@@ -1,9 +1,11 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { getHistory } from '../../services/historyService';
 import { useCurrentUser } from '../../hooks/useCurrentUser';
-import { downloadDocx, triggerDownload } from '../../utils/wordExport';
+import { useDocumentDownload } from '../../hooks/useDocumentDownload';
+import DownloadLoadingModal from '../../components/DownloadLoadingModal';
+import DownloadToast from '../../components/DownloadToast';
 import { formatReportName } from '../../utils/reportNameFormatter';
 import { getEnrichedInfo } from '../../utils/documentEnricher';
 import { extractPreviewTextFromDocxBase64 } from '../../utils/docxPreview';
@@ -29,16 +31,16 @@ function timeAgo(isoDate) {
 }
 
 function DashboardPage() {
-  const { firstName, job, organization, user } = useCurrentUser();
+  const { organization, user } = useCurrentUser();
   const role = useSelector((state) => state.role.role);
-  const [date, setDate] = useState('');
   const [history, setHistory] = useState([]);
   const [users, setUsers] = useState([]);
   const [references, setReferences] = useState([]);
   const [organizations, setOrganizations] = useState([]);
   const [selectedEntry, setSelectedEntry] = useState(null);
-  const [isDownloading, setIsDownloading] = useState(false);
   const [previewText, setPreviewText] = useState('');
+  const previewRef = useRef(null);
+  const { handleDownload, isLoading: isDownloading, toast: downloadToast, clearToast } = useDocumentDownload();
   const [isPreviewLoading, setIsPreviewLoading] = useState(false);
   const [showAddAgentModal, setShowAddAgentModal] = useState(false);
   const [showAddRefModal, setShowAddRefModal] = useState(false);
@@ -46,13 +48,6 @@ function DashboardPage() {
   const visibleAgents = AGENTS.filter((a) => a.roles.includes(role));
 
   useEffect(() => {
-    const now = new Date();
-    const weekday = new Intl.DateTimeFormat('fr-FR', { weekday: 'long' }).format(now);
-    const day = new Intl.DateTimeFormat('fr-FR', { day: '2-digit' }).format(now);
-    const month = new Intl.DateTimeFormat('fr-FR', { month: '2-digit' }).format(now);
-    const year = new Intl.DateTimeFormat('fr-FR', { year: 'numeric' }).format(now);
-    setDate(`${weekday} ${day}/${month}/${year}`);
-
     (async () => {
       try {
         const basename = import.meta.env.VITE_BASENAME || '/synapses';
@@ -81,23 +76,6 @@ function DashboardPage() {
     })();
   }, [user?.id, role]);
 
-  const handleDownload = async () => {
-    if (!selectedEntry) return;
-    setIsDownloading(true);
-    try {
-      if (selectedEntry.docx_base_64) {
-        const binaryString = atob(selectedEntry.docx_base_64);
-        const bytes = new Uint8Array(binaryString.length);
-        for (let i = 0; i < binaryString.length; i++) {
-          bytes[i] = binaryString.charCodeAt(i);
-        }
-        const blob = new Blob([bytes], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
-        triggerDownload(blob, selectedEntry.filename);
-      }
-    } finally {
-      setIsDownloading(false);
-    }
-  };
 
   const etablissementName = organization?.name ?? 'ESMS';
   const organisationType = organization?.structure_type ?? '';
@@ -181,17 +159,6 @@ function DashboardPage() {
     <div id="dashboard-page" className="h-full overflow-y-auto py-6 px-3 md:px-8 md:py-8">
       <div className="mx-auto w-full flex flex-col gap-6">
 
-        {/* Header */}
-        <div>
-          <h1 className="text-xl md:text-3xl text-(--text-primary)">
-            {`Bonjour ${firstName}`}
-            {role !== 'admin' && job && <span className="ml-2 text-sm font-normal text-(--text-muted)">{job}</span>}
-          </h1>
-          <p className="mt-1 text-xs md:text-sm text-(--text-muted)">
-            {[date, job, etablissementName].filter(Boolean).join(' - ')}
-          </p>
-        </div>
-
         {/* Admin Panel */}
         {role === 'admin' && (
           <div className="rounded-2xl border border-(--border) bg-(--bg-primary) shadow-sm overflow-hidden">
@@ -201,7 +168,7 @@ function DashboardPage() {
                   <h2 className="text-sm md:text-base font-semibold text-(--text-primary)">Panneau d'administration</h2>
                   <span className="text-[11px] font-medium text-(--text-muted) bg-(--bg-secondary) px-2 py-0.5 rounded-full border border-(--border)">Admin</span>
                   <span className="text-xs text-(--text-muted)">
-                    {organisationType && `${organisationType} — `}{etablissementName}
+                    {organisationType && `${organisationType} - `}{etablissementName}
                   </span>
                 </div>
                 <Link to="/admin" className="text-xs text-(--bleu-fonce) hover:underline font-medium shrink-0">
@@ -380,11 +347,22 @@ function DashboardPage() {
                     {history.length === 0 ? (
                       <p className="text-xs text-(--text-muted)">Aucun document généré.</p>
                     ) : (
-                      history.map((doc) => (
-                        <p key={doc.id} className="text-xs text-(--text-primary) truncate shrink-0">
-                          {doc.filename || doc.type || 'Document'}
-                        </p>
-                      ))
+                      history.map((doc) => {
+                        const agent = findAgentForEntry(doc);
+                        const label = agent ? agent.badge : getDocTypeLabel(doc);
+                        const color = agent ? agent.color : getDocColorFromLabel(label);
+                        return (
+                          <div key={doc.id} className="flex items-center gap-2 shrink-0">
+                            <span
+                              className="inline-flex items-center justify-center w-14 h-5 rounded-full text-[10px] font-bold shrink-0 text-white"
+                              style={{ background: color }}
+                            >
+                              {label}
+                            </span>
+                            <p className="text-xs text-(--text-primary) truncate">{formatReportName(doc)}</p>
+                          </div>
+                        );
+                      })
                     )}
                   </div>
                 </div>
@@ -428,7 +406,7 @@ function DashboardPage() {
                 const agentForEntry = findAgentForEntry(entry);
                 const typeLabel = agentForEntry ? agentForEntry.badge : getDocTypeLabel(entry);
                 const docColor = agentForEntry ? agentForEntry.color : getDocColorFromLabel(typeLabel);
-                const enriched = getEnrichedInfo(entry, users, organizations);
+                const childName = entry.reference_name || entry.childName || null;
                 return (
                   <button
                     key={entry.id}
@@ -437,7 +415,7 @@ function DashboardPage() {
                     className="w-full text-left flex items-center gap-3 px-5 py-3.5 hover:bg-(--bg-secondary) transition-colors cursor-pointer"
                   >
                     <span
-                      className="inline-flex items-center justify-center px-2.5 h-7 rounded-full text-[11px] font-bold shrink-0 min-w-11 text-white"
+                      className="inline-flex items-center justify-center w-14 h-5 rounded-full text-[10px] font-bold shrink-0 text-white"
                       style={{ background: docColor }}
                     >
                       {typeLabel}
@@ -446,9 +424,9 @@ function DashboardPage() {
                       <p className="text-sm font-medium text-(--text-primary) truncate">
                         {formatReportName(entry)}
                       </p>
-                      <p className="text-xs text-(--text-muted) truncate">
-                        {enriched.companyName}
-                      </p>
+                      {childName && (
+                        <p className="text-xs text-(--text-muted) truncate">{childName}</p>
+                      )}
                     </div>
                     <span className="text-xs text-(--text-muted) shrink-0">{timeAgo(entry.created_at || entry.date)}</span>
                   </button>
@@ -459,6 +437,9 @@ function DashboardPage() {
         </div>
 
       </div>
+
+      <DownloadLoadingModal isOpen={isDownloading} />
+      <DownloadToast filename={downloadToast} onClose={clearToast} />
 
       {/* Modal aperçu document */}
       {selectedEntry && (
@@ -474,15 +455,24 @@ function DashboardPage() {
                 </p>
                 <p className="text-xs text-(--text-muted)">Aperçu en lecture seule · téléchargement uniquement</p>
               </div>
-              <Button
-                color="blue"
-                size="sm"
-                icon={Download}
-                onClick={handleDownload}
-                disabled={isDownloading}
+              <button
+                type="button"
+                onClick={() => handleDownload('word', selectedEntry)}
+                disabled={isDownloading || !selectedEntry.docx_base_64}
+                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-(--bleu-fonce) text-white text-xs font-medium hover:bg-(--bleu-active) disabled:opacity-50 cursor-pointer transition-colors shrink-0"
               >
-                {isDownloading ? 'Génération...' : 'Télécharger'}
-              </Button>
+                <Download size={12} />
+                Word
+              </button>
+              <button
+                type="button"
+                onClick={() => handleDownload('pdf', selectedEntry, previewRef.current)}
+                disabled={isDownloading || !selectedEntry.docx_base_64}
+                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-(--border) bg-(--bg-secondary) text-(--text-primary) text-xs font-medium hover:bg-(--bg-tertiary) disabled:opacity-50 cursor-pointer transition-colors shrink-0"
+              >
+                <Download size={12} />
+                PDF
+              </button>
               <button
                 type="button"
                 onClick={() => setSelectedEntry(null)}
@@ -493,7 +483,7 @@ function DashboardPage() {
               </button>
             </div>
             <div className="flex-1 overflow-y-auto p-4 md:p-6 bg-(--bg-secondary)">
-              <div className="rounded-xl border border-(--border) bg-(--bg-primary) p-4 md:p-6">
+              <div ref={previewRef} className="rounded-xl border border-(--border) bg-(--bg-primary) p-4 md:p-6">
                 {isPreviewLoading ? (
                   <p className="text-(--text-muted)">Chargement de l'aperçu du document...</p>
                 ) : previewText ? (
