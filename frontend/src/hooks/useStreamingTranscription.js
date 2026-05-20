@@ -62,9 +62,7 @@ export function useStreamingTranscription() {
     rafRef.current = requestAnimationFrame(monitorLevel);
   }, []);
 
-  const teardown = useCallback(() => {
-    activeRef.current = false;
-
+  const teardownAudio = useCallback(() => {
     if (rafRef.current) { cancelAnimationFrame(rafRef.current); rafRef.current = null; }
 
     if (workletRef.current) {
@@ -81,15 +79,24 @@ export function useStreamingTranscription() {
       micStreamRef.current = null;
     }
     analyserRef.current = null;
+  }, []);
+
+  const teardown = useCallback(() => {
+    activeRef.current = false;
+    teardownAudio();
 
     if (wsRef.current) {
       const ws = wsRef.current;
       wsRef.current = null;
-      try { ws.close(); } catch { /* ignore */ }
+      if (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING) {
+        try { ws.close(1000); } catch { /* ignore */ }
+      }
     }
-  }, []);
+  }, [teardownAudio]);
 
   const start = useCallback(async (lang = 'fr-FR') => {
+    if (activeRef.current) return;
+
     committedRef.current = '';
     setCommitted('');
     setInterim('');
@@ -162,6 +169,7 @@ export function useStreamingTranscription() {
       };
 
       ws.onclose = () => {
+        wsRef.current = null;
         if (activeRef.current) {
           activeRef.current = false;
           setStatus('idle');
@@ -178,17 +186,22 @@ export function useStreamingTranscription() {
   // Returns the definitive committed text so callers can use it synchronously
   const stop = useCallback(() => {
     const finalCommitted = committedRef.current;
+    activeRef.current = false;
 
-    if (wsRef.current?.readyState === WebSocket.OPEN) {
-      wsRef.current.send(JSON.stringify({ type: 'stop' }));
-    }
-    teardown();
+    teardownAudio();
     setStatus('idle');
     setInterim('');
     setAudioLevel(0);
 
+    if (wsRef.current?.readyState === WebSocket.OPEN) {
+      wsRef.current.send(JSON.stringify({ type: 'stop' }));
+      // let the server close the connection; onclose will clean up wsRef
+    } else {
+      teardown();
+    }
+
     return finalCommitted;
-  }, [teardown]);
+  }, [teardown, teardownAudio]);
 
   // Auto-cleanup on unmount
   useEffect(() => () => teardown(), [teardown]);

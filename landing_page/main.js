@@ -73,18 +73,20 @@ document.addEventListener('keydown', (e) => {
   if (!items.length) return;
 
   const DOCS = [
-    { tag: 'CRI',         icon: 'clipboard-list',       color: '#673DE6', bg: 'rgba(103,61,230,.1)',  border: 'rgba(103,61,230,.3)',  name: 'Compte Rendu d\'Intervention',          desc: 'Formalisation des interventions à domicile ou en établissement, avec le contexte et les actions menées.' },
-    { tag: 'PPA',         icon: 'route',                color: '#9B2CB6', bg: 'rgba(155,44,182,.1)',  border: 'rgba(155,44,182,.3)',  name: 'Projet Personnalisé d\'Accompagnement', desc: 'Objectifs individualisés, axes de travail, échéances et professionnels référents pour chaque personne accompagnée.' },
-    { tag: 'SOAP',        icon: 'notes-medical',        color: '#42C4A1', bg: 'rgba(66,196,161,.1)',  border: 'rgba(66,196,161,.3)',  name: 'Transmissions ciblées',                 desc: 'Notes de transmission inter-équipes structurées selon le modèle SOAP, pour assurer la continuité de soin.' },
-    { tag: 'Synthèse',    icon: 'file-circle-check',    color: '#F44E92', bg: 'rgba(244,78,146,.1)',  border: 'rgba(244,78,146,.3)',  name: 'Synthèse de situation',                 desc: 'Bilan global de la situation socio-éducative ou médico-sociale d\'une personne accompagnée.' },
-    { tag: 'Bilan',       icon: 'chart-line',           color: '#D97706', bg: 'rgba(217,119,6,.1)',   border: 'rgba(217,119,6,.3)',   name: 'Bilan d\'évaluation intermédiaire',      desc: 'Évaluation des objectifs du PPA, progression observée et réajustements proposés.' },
-    { tag: 'HAS',         icon: 'star-half-stroke',     color: '#06B6D4', bg: 'rgba(6,182,212,.1)',   border: 'rgba(6,182,212,.3)',   name: 'Évaluation selon référentiel HAS',       desc: 'Structure conforme aux recommandations de la Haute Autorité de Santé pour l\'évaluation de la qualité.' },
-    { tag: 'Rapport',     icon: 'gavel',                color: '#673DE6', bg: 'rgba(103,61,230,.1)',  border: 'rgba(103,61,230,.3)',  name: 'Rapport social / Note sociale',          desc: 'Rapport d\'enquête sociale, note sociale ou rapport pour audience judiciaire.' },
-    { tag: 'Éducatif',    icon: 'pen-nib',              color: '#42C4A1', bg: 'rgba(66,196,161,.1)',  border: 'rgba(66,196,161,.3)',  name: 'Écrit éducatif',                         desc: 'Note éducative, bilan éducatif, compte rendu d\'activité ou de séjour éducatif.' },
-    { tag: 'CRR',         icon: 'people-group',         color: '#9B2CB6', bg: 'rgba(155,44,182,.1)',  border: 'rgba(155,44,182,.3)',  name: 'Compte rendu de réunion',                desc: 'CRR, synthèse pluridisciplinaire, compte rendu de réunion d\'équipe ou de service.' },
-    { tag: 'FEI',         icon: 'triangle-exclamation', color: '#F44E92', bg: 'rgba(244,78,146,.1)',  border: 'rgba(244,78,146,.3)',  name: 'Fiche d\'événement indésirable',         desc: 'FEI, signalement interne, rapport d\'incident ou information préoccupante.' },
-    { tag: 'Activité',    icon: 'chart-bar',            color: '#D97706', bg: 'rgba(217,119,6,.1)',   border: 'rgba(217,119,6,.3)',   name: 'Rapport d\'activité',                    desc: 'Rapport annuel, bilan trimestriel, rapport pour financeur ou DDETS.' },
-    { tag: 'Observation', icon: 'eye',                  color: '#06B6D4', bg: 'rgba(6,182,212,.1)',   border: 'rgba(6,182,212,.3)',   name: 'Grille d\'observation comportementale',  desc: 'Observation structurée, analyse fonctionnelle et suivi longitudinal des comportements.' },
+    { tag: 'CRI',    icon: 'clipboard-list',    color: '#673DE6', bg: 'rgba(103,61,230,.1)',  border: 'rgba(103,61,230,.3)',  name: 'Compte Rendu d\'Intervention',   desc: 'Formalisation des interventions à domicile ou en établissement, avec le contexte et les actions menées.' },
+    { tag: 'PPAMS',  icon: 'route',             color: '#4F72FF', bg: 'rgba(79,114,255,.1)',  border: 'rgba(79,114,255,.3)',  name: 'PPA Médico-Social',              desc: 'Projet personnalisé d\'accompagnement médico-social avec objectifs, axes de travail et professionnels référents.' },
+    { tag: 'PPAS',   icon: 'map-location-dot',  color: '#3B82F6', bg: 'rgba(59,130,246,.1)',  border: 'rgba(59,130,246,.3)',  name: 'PPA Social',                     desc: 'Projet personnalisé d\'accompagnement social, objectifs individualisés et échéances de suivi.' },
+    { tag: 'ECRIT',  icon: 'pen-nib',           color: '#0EA5E9', bg: 'rgba(14,165,233,.1)',  border: 'rgba(14,165,233,.3)',  name: 'Écrit Éducatif',                 desc: 'Note éducative, bilan éducatif, compte rendu d\'activité ou de séjour éducatif.' },
+    { tag: 'BILAN',  icon: 'chart-line',        color: '#06B6D4', bg: 'rgba(6,182,212,.1)',   border: 'rgba(6,182,212,.3)',   name: 'Bilan d\'Évaluation',            desc: 'Évaluation des objectifs du PPA, progression observée et réajustements proposés.' },
+    { tag: 'CRR',    icon: 'people-group',      color: '#F43F5E', bg: 'rgba(244,63,94,.1)',   border: 'rgba(244,63,94,.3)',   name: 'Compte Rendu de Réunion',        desc: 'Synthèse pluridisciplinaire, compte rendu de réunion d\'équipe ou de service.' },
+    { tag: 'VEILLE', icon: 'newspaper',         color: '#EF4444', bg: 'rgba(239,68,68,.1)',   border: 'rgba(239,68,68,.3)',   name: 'Veille Professionnelle',         desc: 'Synthèse documentaire sur les évolutions réglementaires, pratiques et sectorielles.' },
+    { tag: 'REPORT', icon: 'chart-bar',         color: '#F97316', bg: 'rgba(249,115,22,.1)',  border: 'rgba(249,115,22,.3)',  name: 'Reporting Mensuel',              desc: 'Tableau de bord mensuel des indicateurs d\'activité et de qualité du service.' },
+    { tag: 'RA',     icon: 'chart-pie',         color: '#FB923C', bg: 'rgba(251,146,60,.1)',  border: 'rgba(251,146,60,.3)',  name: 'Rapport d\'Activité',            desc: 'Rapport annuel d\'activité pour financeurs, autorités de contrôle ou instances internes.' },
+    { tag: 'BA',     icon: 'chart-column',      color: '#FBBF24', bg: 'rgba(251,191,36,.1)',  border: 'rgba(251,191,36,.3)',  name: 'Bilan d\'Activité',              desc: 'Bilan trimestriel ou semestriel avec analyse des résultats et perspectives.' },
+    { tag: 'PE',     icon: 'building',          color: '#F59E0B', bg: 'rgba(245,158,11,.1)',  border: 'rgba(245,158,11,.3)',  name: 'Projet d\'Établissement',        desc: 'Document stratégique définissant la vision, les valeurs et les orientations de l\'établissement.' },
+    { tag: 'PS',     icon: 'sitemap',           color: '#EAB308', bg: 'rgba(234,179,8,.1)',   border: 'rgba(234,179,8,.3)',   name: 'Projet de Service',              desc: 'Document opérationnel déclinant les objectifs du projet d\'établissement au niveau du service.' },
+    { tag: 'HAS',    icon: 'star-half-stroke',  color: '#D97706', bg: 'rgba(217,119,6,.1)',   border: 'rgba(217,119,6,.3)',   name: 'Préparation Évaluation HAS',     desc: 'Structure conforme aux recommandations de la Haute Autorité de Santé pour l\'évaluation de la qualité.' },
+    { tag: 'AAP',    icon: 'file-invoice',      color: '#B45309', bg: 'rgba(180,83,9,.1)',    border: 'rgba(180,83,9,.3)',    name: 'Appel à Projet',                 desc: 'Réponse structurée à un appel à projet pour la création ou l\'extension d\'un service.' },
   ];
 
   const panel   = document.getElementById('doc-detail-panel');
@@ -107,7 +109,7 @@ document.addEventListener('keydown', (e) => {
     items[idx].classList.add('is-active');
 
     if (!panel) return;
-    elIcon.className      = `fa-solid fa-${doc.icon} text-lg`;
+    elIcon.className      = `fa-solid fa-${doc.icon} text-xl transition-all duration-300`;
     elIcon.style.color    = doc.color;
     elWrap.style.background = doc.bg;
     panel.style.borderColor = doc.border;
@@ -117,8 +119,7 @@ document.addEventListener('keydown', (e) => {
   }
 
   items.forEach((item, i) => {
-    item.addEventListener('mouseenter', () => activate(i));
-    item.addEventListener('click',      () => activate(i));
+    item.addEventListener('click', () => activate(i));
   });
 
   setTimeout(() => activate(0), 500);
@@ -157,6 +158,47 @@ document.addEventListener('keydown', (e) => {
   }, { threshold: 0.5 });
 
   els.forEach(el => observer.observe(el));
+})();
+
+// ── Bubble proximity repulsion ────────────────────────────────────────────────
+(function initBubbles() {
+  const container = document.getElementById('bubbles-container');
+  if (!container) return;
+
+  const bubbles = Array.from(container.querySelectorAll('.pro-bubble'));
+  if (!bubbles.length) return;
+
+  const RADIUS = 160;
+  const MAX_PUSH = 14;
+
+  document.addEventListener('mousemove', (e) => {
+    bubbles.forEach(bubble => {
+      const rect = bubble.getBoundingClientRect();
+      const cx = rect.left + rect.width / 2;
+      const cy = rect.top + rect.height / 2;
+      const dx = e.clientX - cx;
+      const dy = e.clientY - cy;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+
+      if (dist < RADIUS && dist > 0) {
+        const force = (1 - dist / RADIUS) * MAX_PUSH;
+        const pushX = -(dx / dist) * force;
+        const pushY = -(dy / dist) * force;
+        bubble.style.transform = `translate(${pushX.toFixed(1)}px, ${pushY.toFixed(1)}px)`;
+        bubble.style.boxShadow = `0 4px 20px ${bubble.dataset.shadow || 'rgba(103,61,230,.3)'}`;
+      } else {
+        bubble.style.transform = '';
+        bubble.style.boxShadow = '';
+      }
+    });
+  });
+
+  container.addEventListener('mouseleave', () => {
+    bubbles.forEach(bubble => {
+      bubble.style.transform = '';
+      bubble.style.boxShadow = '';
+    });
+  });
 })();
 
 window.addEventListener('DOMContentLoaded', () => {

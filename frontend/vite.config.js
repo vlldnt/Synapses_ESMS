@@ -55,6 +55,23 @@ export default defineConfig({
         target: 'http://localhost:3002',
         changeOrigin: true,
         ws: true,
+        rewriteWsOrigin: true,
+      },
+      '/synapses/api/': {
+        target: 'http://localhost:3002',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/synapses/, ''),
+      },
+    },
+  },
+  preview: {
+    host: '0.0.0.0',
+    proxy: {
+      '/api': {
+        target: 'http://localhost:3002',
+        changeOrigin: true,
+        ws: true,
+        rewriteWsOrigin: true,
       },
       '/synapses/api/': {
         target: 'http://localhost:3002',
