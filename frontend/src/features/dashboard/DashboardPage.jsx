@@ -31,9 +31,8 @@ function timeAgo(isoDate) {
 }
 
 function DashboardPage() {
-  const { firstName, job, organization, user } = useCurrentUser();
+  const { organization, user } = useCurrentUser();
   const role = useSelector((state) => state.role.role);
-  const [date, setDate] = useState('');
   const [history, setHistory] = useState([]);
   const [users, setUsers] = useState([]);
   const [references, setReferences] = useState([]);
@@ -49,10 +48,6 @@ function DashboardPage() {
   const visibleAgents = AGENTS.filter((a) => a.roles.includes(role));
 
   useEffect(() => {
-    const now = new Date();
-    const [weekday, date] = now.toLocaleDateString('fr-FR', { weekday: 'long', day: '2-digit', month: '2-digit', year: 'numeric' }).split(' ');
-    setDate(`${weekday} ${date}`);
-
     (async () => {
       try {
         const basename = import.meta.env.VITE_BASENAME || '/synapses';
@@ -163,17 +158,6 @@ function DashboardPage() {
   return (
     <div id="dashboard-page" className="h-full overflow-y-auto py-6 px-3 md:px-8 md:py-8">
       <div className="mx-auto w-full flex flex-col gap-6">
-
-        {/* Header */}
-        <div>
-          <h1 className="text-xl md:text-3xl text-(--text-primary)">
-            {`Bonjour ${firstName}`}
-            {role !== 'admin' && job && <span className="ml-2 text-sm font-normal text-(--text-muted)">{job}</span>}
-          </h1>
-          <p className="mt-1 text-xs md:text-sm text-(--text-muted)">
-            {[date, etablissementName].filter(Boolean).join(' - ')}
-          </p>
-        </div>
 
         {/* Admin Panel */}
         {role === 'admin' && (

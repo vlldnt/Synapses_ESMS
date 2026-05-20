@@ -5,7 +5,7 @@ import faviconUrl from '/favicon.png';
 import { setUser, setLogged } from '../../store/authSlice';
 import { setRole } from '../../store/roleSlice';
 
-const PASSWORD_REGEX = /^(?=.*[A-Z])(?=.*[0-9])(?=.*[^a-zA-Z0-9]).{8,}$/;
+const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/;
 
 function SetAccountPage() {
   const { token } = useParams();

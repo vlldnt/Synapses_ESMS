@@ -229,12 +229,6 @@ function ArchivesPage() {
     <DownloadToast filename={downloadToast} onClose={clearToast} />
     <div className='h-full overflow-y-auto py-6 px-2 md:px-5 md:py-8'>
       <div className='mx-auto w-full max-w-5xl flex flex-col gap-5'>
-        <div>
-          <h1 className='text-xl md:text-2xl font-semibold text-(--text-primary)'>
-            Documents archivés
-          </h1>
-        </div>
-
         {hasDraft && (
           <div className='rounded-2xl border border-(--border) bg-(--bg-primary) shadow-sm overflow-hidden'>
             <div className='px-5 py-3 border-b border-(--border)'>

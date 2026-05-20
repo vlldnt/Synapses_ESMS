@@ -5,7 +5,7 @@ import faviconUrl from '/favicon.png';
 import { setUser, setLogged } from '../../store/authSlice';
 import { setRole } from '../../store/roleSlice';
 
-const PASSWORD_REGEX = /^(?=.*[A-Z])(?=.*[0-9])(?=.*[^a-zA-Z0-9]).{8,}$/;
+const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/;
 
 function SetPasswordPage() {
   const { token } = useParams();
@@ -111,7 +111,7 @@ function SetPasswordPage() {
                   autoComplete='new-password'
                 />
                 <p className='text-[11px] text-(--text-muted) px-1'>
-                  8 caractères min · 1 majuscule · 1 chiffre · 1 caractère spécial
+                  8 caractères min · 1 minuscule · 1 majuscule · 1 chiffre · 1 caractère spécial
                 </p>
               </div>
 

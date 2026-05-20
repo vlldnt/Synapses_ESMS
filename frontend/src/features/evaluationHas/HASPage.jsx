@@ -27,7 +27,7 @@ const config = {
   generateFn: generateEvaluationHas,
   loadingMessages: LOADING_MESSAGES,
   interventionType: 'Évaluation HAS',
-};
+}; 
 
 export default function HASPage() {
   return <DirectionPage config={config} />;

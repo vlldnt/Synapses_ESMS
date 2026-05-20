@@ -14,7 +14,7 @@ function LoginPage() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
 
-  const isEmailValid = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email);
+  const isEmailValid = /^[a-zA-Z0-9._%+\-À-ÖØ-öø-ž]+@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*\.[a-zA-Z]{2,}$/.test(email);
   const isFormValid = isEmailValid && password.length > 0;
 
   const handleSubmit = async (e) => {

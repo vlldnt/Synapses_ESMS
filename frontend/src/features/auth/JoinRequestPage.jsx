@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import faviconUrl from '/favicon.png';
 import { getStructureTypeCategories } from '../../services/structureTypeService';
 
-const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const EMAIL_REGEX = /^[a-zA-Z0-9._%+\-À-ÖØ-öø-ž]+@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*\.[a-zA-Z]{2,}$/;
 const MAX = { orgName: 100, structureType: 80, firstName: 50, lastName: 50, contactEmail: 150 };
 
 function getErrors(fields) {
