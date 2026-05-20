@@ -3,7 +3,7 @@ import { useSelector } from 'react-redux';
 import { Navigate } from 'react-router-dom';
 import { BookUser, FileText, Plus, Download, X, Pencil, ChevronRight } from 'lucide-react';
 import { getHistory } from '../../services/historyService';
-import { getReferences, invalidateReferencesCache } from '../../services/referenceService';
+import { getReferences, invalidateReferencesCache, formatReferenceName } from '../../services/referenceService';
 import { useCurrentUser } from '../../hooks/useCurrentUser';
 import CreateReferenceModal from '../../components/admin/CreateReferenceModal';
 import EditReferenceModal from '../../components/admin/EditReferenceModal';
@@ -17,7 +17,7 @@ import DownloadLoadingModal from '../../components/DownloadLoadingModal';
 import DownloadToast from '../../components/DownloadToast';
 
 const selectCls =
-  'text-xs px-2.5 py-1.5 rounded-lg border border-(--border) bg-(--bg-secondary) text-(--text-primary) focus:outline-none cursor-pointer';
+  'text-[11px] px-1.5 py-1 rounded-md border border-(--border) bg-(--bg-secondary) text-(--text-primary) focus:outline-none cursor-pointer min-w-0 flex-1';
 
 const WORD_BTN = 'flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-white text-xs font-medium disabled:opacity-50 cursor-pointer transition-opacity';
 const PDF_BTN  = 'flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-white text-xs font-medium disabled:opacity-50 cursor-pointer transition-opacity';
@@ -86,6 +86,16 @@ function AgentGestionPage() {
   const { handleDownload, isLoading: isDownloading, toast: downloadToast, clearToast } = useDocumentDownload();
 
   useEffect(() => {
+    const handleEscape = (e) => {
+      if (e.key !== 'Escape') return;
+      if (showDocModal) { closeDocModal(); return; }
+      if (selectedRef) { setSelectedRef(null); return; }
+    };
+    window.addEventListener('keydown', handleEscape);
+    return () => window.removeEventListener('keydown', handleEscape);
+  }, [showDocModal, selectedRef]);
+
+  useEffect(() => {
     if (role !== 'agent' || !user?.id) return;
     Promise.all([
       getReferences(),
@@ -119,7 +129,7 @@ function AgentGestionPage() {
 
   const filteredDocs = documents.filter((doc) => {
     if (docTypeFilter !== 'all' && (doc.type || doc.reportType) !== docTypeFilter) return false;
-    if (docRefFilter !== 'all' && doc.reference_id !== docRefFilter && doc.referenceId !== docRefFilter) return false;
+    if (docRefFilter !== 'all' && doc.reference_name?.trim() !== docRefFilter) return false;
     return true;
   });
 
@@ -136,12 +146,7 @@ function AgentGestionPage() {
   }
 
   function selectDoc(doc) {
-    if (selectedDoc?.id === doc.id) {
-      setSelectedDoc(null);
-    } else {
-      setSelectedDoc(doc);
-      openDocModal(doc, false);
-    }
+    setSelectedDoc(selectedDoc?.id === doc.id ? null : doc);
   }
 
   const tabs = [
@@ -184,79 +189,84 @@ function AgentGestionPage() {
 
         {/* ── Références ── */}
         {!loading && activeTab === 'references' && (
-          <div className='rounded-2xl border border-(--border) bg-(--bg-primary) shadow-sm'>
-            <div className='px-5 pt-5 pb-3 border-b border-(--border) flex items-center justify-between'>
-              <div className='flex items-center gap-2'>
-                <BookUser size={15} className='text-(--text-muted)' />
-                <h2 className='text-sm font-semibold text-(--text-primary)'>Mes références</h2>
-              </div>
-              <button
-                type='button'
-                onClick={() => setShowRefModal(true)}
-                className='flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-(--bleu-fonce) text-white text-xs font-medium hover:bg-(--bleu-active) cursor-pointer transition-colors'
-              >
-                <Plus size={13} /> Ajouter
-              </button>
-            </div>
-            <div className={`flex ${selectedRef ? 'divide-x divide-(--border)' : ''}`}>
-              <div className={`divide-y divide-(--border)/50 ${selectedRef ? 'w-2/5' : 'w-full'}`}>
-                {references.length === 0 ? (
-                  <p className='px-5 py-10 text-center text-sm text-(--text-muted)'>Aucune référence assignée.</p>
-                ) : references.map((ref) => {
-                  const active = selectedRef?.id === ref.id;
-                  return (
-                    <div
-                      key={ref.id}
-                      className={`flex items-center gap-3 px-5 py-3.5 cursor-pointer transition-colors ${active ? 'bg-(--bg-secondary)' : 'hover:bg-(--bg-secondary)'}`}
-                      onClick={() => setSelectedRef(active ? null : ref)}
-                    >
-                      <div className='w-9 h-9 rounded-full bg-(--bg-tertiary) flex items-center justify-center text-sm font-semibold text-(--text-secondary) shrink-0 uppercase'>
-                        {ref.first_name?.[0]}{ref.last_name?.[0]}
-                      </div>
-                      <div className='flex-1 min-w-0'>
-                        <p className='text-sm font-medium text-(--text-primary)'>{ref.first_name} {ref.last_name}</p>
-                        {ref.created_at && (
-                          <p className='text-xs text-(--text-muted)'>Ajouté le {new Date(ref.created_at).toLocaleDateString('fr-FR')}</p>
-                        )}
-                      </div>
-                      <button
-                        type='button'
-                        onClick={(e) => { e.stopPropagation(); setEditingRef(ref); }}
-                        className='p-1.5 rounded-md text-(--text-muted) hover:text-(--bleu-fonce) hover:bg-(--bg-secondary) cursor-pointer transition-colors shrink-0'
+          <div
+            className='rounded-2xl border border-(--border) bg-(--bg-primary) shadow-sm overflow-hidden flex flex-col'
+            style={{ height: 'calc(100vh - 220px)', minHeight: '480px' }}
+          >
+            {/* Desktop : 3 colonnes identiques à Mes documents */}
+            <div className='hidden md:flex flex-1 overflow-hidden'>
+
+              {/* Col 1 : liste des références */}
+              <div className={`flex flex-col shrink-0 border-r border-(--border) ${selectedRef ? 'w-[24%]' : 'w-full'}`}>
+                <div className='px-5 pt-5 pb-3 border-b border-(--border) flex items-center gap-2 shrink-0'>
+                  <BookUser size={15} className='text-(--text-muted)' />
+                  <h2 className='text-sm font-semibold text-(--text-primary)'>Mes références</h2>
+                </div>
+                <button
+                  type='button'
+                  onClick={() => setShowRefModal(true)}
+                  className='flex items-center gap-2 px-4 py-3 border-b border-(--border)/50 text-xs font-medium text-(--bleu-fonce) hover:bg-(--bleu-fonce)/5 cursor-pointer transition-colors shrink-0'
+                >
+                  <Plus size={13} /> Ajouter une référence
+                </button>
+                <div className='flex-1 overflow-y-auto divide-y divide-(--border)/50'>
+                  {references.length === 0 ? (
+                    <p className='px-5 py-10 text-center text-sm text-(--text-muted)'>Aucune référence assignée.</p>
+                  ) : references.map((ref) => {
+                    const active = selectedRef?.id === ref.id;
+                    return (
+                      <div
+                        key={ref.id}
+                        className={`flex items-center gap-3 px-4 py-3 cursor-pointer transition-colors ${active ? 'bg-(--bg-secondary)' : 'hover:bg-(--bg-secondary)'}`}
+                        onClick={() => setSelectedRef(active ? null : ref)}
                       >
-                        <Pencil size={13} />
-                      </button>
-                      <ChevronRight size={13} className={`shrink-0 text-(--text-muted) transition-transform ${active ? 'rotate-90' : ''}`} />
-                    </div>
-                  );
-                })}
+                        <div className='w-8 h-8 rounded-full bg-(--bg-tertiary) flex items-center justify-center text-xs font-semibold text-(--text-secondary) shrink-0 uppercase'>
+                          {ref.first_name?.[0]}{ref.last_name?.[0]}
+                        </div>
+                        <div className='flex-1 min-w-0'>
+                          <p className='text-xs font-medium text-(--text-primary) truncate'>{ref.first_name} {ref.last_name}</p>
+                        </div>
+                        <button
+                          type='button'
+                          onClick={(e) => { e.stopPropagation(); setEditingRef(ref); }}
+                          className='p-1.5 rounded-md text-(--text-muted) hover:text-(--bleu-fonce) hover:bg-(--bg-secondary) cursor-pointer transition-colors shrink-0'
+                        >
+                          <Pencil size={13} />
+                        </button>
+                        <ChevronRight size={12} className={`shrink-0 text-(--text-muted) transition-transform ${active ? 'rotate-90' : ''}`} />
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
 
+              {/* Col 2 : documents de la référence sélectionnée */}
               {selectedRef && (() => {
-                const refId = String(selectedRef.id);
-                const refDocs = documents.filter((d) =>
-                  String(d.reference_id) === refId || String(d.referenceId) === refId
-                );
+                const refFormatted = formatReferenceName(selectedRef);
+                const refDocs = documents.filter((d) => d.reference_name?.trim() === refFormatted);
                 return (
-                  <div className='w-3/5 flex flex-col'>
-                    <div className='px-4 py-3 border-b border-(--border) flex items-center justify-between'>
-                      <p className='text-xs font-semibold text-(--text-primary)'>
-                        Documents de {selectedRef.first_name} {selectedRef.last_name}
-                        <span className='ml-1.5 text-(--text-muted) font-normal'>({refDocs.length})</span>
-                      </p>
+                  <div className='flex-1 flex flex-col overflow-hidden'>
+                    <div className='px-5 pt-5 pb-3 border-b border-(--border) flex items-center justify-between shrink-0'>
+                      <div className='flex items-center gap-2'>
+                        <FileText size={15} className='text-(--text-muted)' />
+                        <h2 className='text-sm font-semibold text-(--text-primary)'>
+                          Documents de {selectedRef.first_name} {selectedRef.last_name}
+                          <span className='ml-1.5 text-(--text-muted) font-normal text-xs'>({refDocs.length})</span>
+                        </h2>
+                      </div>
                       <button type='button' onClick={() => setSelectedRef(null)} className='p-1 rounded text-(--text-muted) hover:text-(--text-primary) cursor-pointer'>
                         <X size={13} />
                       </button>
                     </div>
-                    <div className='divide-y divide-(--border)/50 overflow-y-auto max-h-80'>
+                    <div className='flex-1 overflow-y-auto divide-y divide-(--border)/50'>
                       {refDocs.length === 0 ? (
-                        <p className='px-5 py-8 text-center text-sm text-(--text-muted)'>Aucun document pour cette référence.</p>
+                        <p className='px-5 py-10 text-center text-sm text-(--text-muted)'>Aucun document pour cette référence.</p>
                       ) : refDocs.map((doc) => (
                         <button
                           key={doc.id}
                           type='button'
                           onClick={() => openDocModal(doc, true)}
-                          className='w-full text-left flex items-center gap-3 px-4 py-2.5 hover:bg-(--bg-secondary) transition-colors cursor-pointer'
+                          className='w-full text-left flex items-center gap-3 px-4 py-3 hover:bg-(--bg-secondary) transition-colors cursor-pointer'
                         >
                           <DocBadge doc={doc} />
                           <div className='flex-1 min-w-0'>
@@ -271,8 +281,94 @@ function AgentGestionPage() {
                 );
               })()}
             </div>
+
+            {/* Mobile : liste refs */}
+            <div className='md:hidden flex-1 overflow-y-auto divide-y divide-(--border)/50'>
+              <button
+                type='button'
+                onClick={() => setShowRefModal(true)}
+                className='w-full flex items-center gap-2 px-4 py-3.5 text-xs font-medium text-(--bleu-fonce) hover:bg-(--bleu-fonce)/5 cursor-pointer transition-colors'
+              >
+                <Plus size={13} /> Ajouter une référence
+              </button>
+              {references.length === 0 ? (
+                <p className='px-5 py-10 text-center text-sm text-(--text-muted)'>Aucune référence assignée.</p>
+              ) : references.map((ref) => (
+                <div
+                  key={ref.id}
+                  className='flex items-center gap-3 px-4 py-3.5 cursor-pointer hover:bg-(--bg-secondary) transition-colors'
+                  onClick={() => setSelectedRef(ref)}
+                >
+                  <div className='w-9 h-9 rounded-full bg-(--bg-tertiary) flex items-center justify-center text-sm font-semibold text-(--text-secondary) shrink-0 uppercase'>
+                    {ref.first_name?.[0]}{ref.last_name?.[0]}
+                  </div>
+                  <div className='flex-1 min-w-0'>
+                    <p className='text-sm font-medium text-(--text-primary)'>{ref.first_name} {ref.last_name}</p>
+                    {ref.created_at && (
+                      <p className='text-xs text-(--text-muted)'>Ajouté le {new Date(ref.created_at).toLocaleDateString('fr-FR')}</p>
+                    )}
+                  </div>
+                  <button
+                    type='button'
+                    onClick={(e) => { e.stopPropagation(); setEditingRef(ref); }}
+                    className='p-1.5 rounded-md text-(--text-muted) hover:text-(--bleu-fonce) cursor-pointer shrink-0'
+                  >
+                    <Pencil size={13} />
+                  </button>
+                  <ChevronRight size={13} className='text-(--text-muted) shrink-0' />
+                </div>
+              ))}
+            </div>
           </div>
         )}
+
+        {/* Bottom sheet mobile : documents d'une référence */}
+        {selectedRef && (() => {
+          const refFormatted = formatReferenceName(selectedRef);
+          const refDocs = documents.filter((d) =>
+            d.reference_name?.trim() === refFormatted
+          );
+          return (
+            <div
+              className='md:hidden fixed inset-0 z-50 bg-black/50 flex flex-col justify-end'
+              onClick={() => setSelectedRef(null)}
+            >
+              <div
+                className='bg-(--bg-primary) rounded-t-2xl flex flex-col max-h-[80vh]'
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className='px-4 py-3 border-b border-(--border) flex items-center justify-between shrink-0'>
+                  <p className='text-sm font-semibold text-(--text-primary)'>
+                    {selectedRef.first_name} {selectedRef.last_name}
+                    <span className='ml-1.5 text-xs text-(--text-muted) font-normal'>({refDocs.length} doc{refDocs.length !== 1 ? 's' : ''})</span>
+                  </p>
+                  <button type='button' onClick={() => setSelectedRef(null)} className='p-1.5 rounded-md text-(--text-muted) hover:text-(--text-primary) cursor-pointer'>
+                    <X size={15} />
+                  </button>
+                </div>
+                <div className='overflow-y-auto divide-y divide-(--border)/50 flex-1'>
+                  {refDocs.length === 0 ? (
+                    <p className='px-5 py-10 text-center text-sm text-(--text-muted)'>Aucun document pour cette référence.</p>
+                  ) : refDocs.map((doc) => (
+                    <button
+                      key={doc.id}
+                      type='button'
+                      onClick={() => { setSelectedRef(null); openDocModal(doc, true); }}
+                      className='w-full text-left flex items-center gap-3 px-4 py-3.5 hover:bg-(--bg-secondary) transition-colors cursor-pointer'
+                    >
+                      <DocBadge doc={doc} />
+                      <div className='flex-1 min-w-0'>
+                        <p className='text-sm font-medium text-(--text-primary) truncate'>{formatReportName(doc)}</p>
+                        <p className='text-xs text-(--text-muted)'>{timeAgo(doc.created_at || doc.date)}</p>
+                      </div>
+                      <ChevronRight size={13} className='text-(--text-muted) shrink-0' />
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          );
+        })()}
 
         {/* ── Documents ── */}
         {!loading && activeTab === 'documents' && (
@@ -281,13 +377,13 @@ function AgentGestionPage() {
             style={{ height: 'calc(100vh - 220px)', minHeight: '480px' }}
           >
             {/* ── Colonne gauche : header + liste ── */}
-            <div className={`flex flex-col shrink-0 w-full ${selectedDoc ? 'md:w-2/5 md:border-r md:border-(--border)' : ''}`}>
+            <div className={`flex flex-col shrink-0 w-full ${selectedDoc ? 'md:w-[24%] md:border-r md:border-(--border)' : ''}`}>
               <div className='px-5 pt-5 pb-3 border-b border-(--border) flex flex-col gap-3 shrink-0'>
                 <div className='flex items-center gap-2'>
                   <FileText size={15} className='text-(--text-muted)' />
                   <h2 className='text-sm font-semibold text-(--text-primary)'>Mes documents</h2>
                 </div>
-                <div className='flex gap-2 flex-wrap'>
+                <div className='flex gap-2'>
                   <select value={docTypeFilter} onChange={(e) => setDocTypeFilter(e.target.value)} className={selectCls}>
                     <option value='all'>Tous les types</option>
                     {docTypes.map((t) => {
@@ -297,9 +393,10 @@ function AgentGestionPage() {
                   </select>
                   <select value={docRefFilter} onChange={(e) => setDocRefFilter(e.target.value)} className={selectCls}>
                     <option value='all'>Toutes les références</option>
-                    {references.map((r) => (
-                      <option key={r.id} value={r.id}>{r.first_name} {r.last_name}</option>
-                    ))}
+                    {references.map((r) => {
+                      const formatted = formatReferenceName(r);
+                      return <option key={r.id} value={formatted}>{formatted}</option>;
+                    })}
                   </select>
                 </div>
               </div>
@@ -376,27 +473,23 @@ function AgentGestionPage() {
 
       </div>
 
-      {/* ── Modal preview document (mobile : bottom-sheet ; all-sizes si depuis références) ── */}
+      {/* ── Modal preview document (style Archives) ── */}
       {showDocModal && selectedDoc && (
         <div
-          className={`fixed inset-0 z-50 bg-black/50 flex flex-col justify-end ${modalAllSizes ? '' : 'md:hidden'}`}
-          onClick={closeDocModal}
+          className='fixed inset-0 z-50 bg-black/55 backdrop-blur-[1px] flex flex-col justify-end md:p-6 md:justify-start'
+          onClick={(e) => e.target === e.currentTarget && closeDocModal()}
         >
-          <div
-            className='bg-(--bg-primary) rounded-t-2xl flex flex-col max-h-[92vh]'
-            onClick={(e) => e.stopPropagation()}
-          >
-            {/* Header : nom + Word + PDF + Fermer */}
-            <div className='flex items-center gap-2 px-4 py-3 border-b border-(--border)'>
-              <div className='flex-1 min-w-0'>
+          <div className='bg-(--bg-primary) rounded-t-2xl border border-(--border) shadow-2xl overflow-hidden flex flex-col max-h-[92vh] md:mx-auto md:w-full md:max-w-5xl md:h-full md:rounded-2xl'>
+            <div className='px-4 py-3 border-b border-(--border) flex items-center gap-3'>
+              <div className='min-w-0 flex-1'>
                 <p className='text-sm font-semibold text-(--text-primary) truncate'>{formatReportName(selectedDoc)}</p>
-                <p className='text-[11px] text-(--text-muted)'>{timeAgo(selectedDoc.created_at || selectedDoc.date)}</p>
+                <p className='text-xs text-(--text-muted)'>Aperçu en lecture seule · téléchargement uniquement</p>
               </div>
               <button
                 type='button'
                 onClick={() => handleDownload('word', selectedDoc)}
                 disabled={isDownloading || !selectedDoc.docx_base_64}
-                className='flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-white text-xs font-medium disabled:opacity-50 cursor-pointer transition-opacity shrink-0'
+                className={`${WORD_BTN} shrink-0`}
                 style={WORD_STYLE}
               >
                 <Download size={12} /> Word
@@ -405,7 +498,7 @@ function AgentGestionPage() {
                 type='button'
                 onClick={() => handleDownload('pdf', selectedDoc, mobilePreviewRef.current)}
                 disabled={isDownloading || !selectedDoc.docx_base_64}
-                className='flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-white text-xs font-medium disabled:opacity-50 cursor-pointer transition-opacity shrink-0'
+                className={`${PDF_BTN} shrink-0`}
                 style={PDF_STYLE}
               >
                 <Download size={12} /> PDF
@@ -413,15 +506,14 @@ function AgentGestionPage() {
               <button
                 type='button'
                 onClick={closeDocModal}
-                className='p-1.5 rounded-md text-(--text-muted) hover:text-(--text-primary) hover:bg-(--bg-secondary) cursor-pointer transition-colors shrink-0'
+                className='w-8 h-8 rounded-lg border border-(--border) text-(--text-muted) hover:text-(--text-primary) hover:bg-(--bg-secondary) flex items-center justify-center cursor-pointer shrink-0'
+                aria-label='Fermer'
               >
-                <X size={16} />
+                <X size={15} />
               </button>
             </div>
-
-            {/* Contenu */}
-            <div className='flex-1 overflow-y-auto p-4'>
-              <div ref={mobilePreviewRef}>
+            <div className='flex-1 overflow-y-auto p-4 md:p-6 bg-(--bg-secondary)'>
+              <div ref={mobilePreviewRef} className='rounded-xl border border-(--border) bg-(--bg-primary) p-4 md:p-6'>
                 {docPreviewContent(mobilePreviewRef)}
               </div>
             </div>
