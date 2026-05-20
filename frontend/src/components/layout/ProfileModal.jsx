@@ -15,6 +15,8 @@ import {
   EyeOff,
   Check,
 } from 'lucide-react';
+
+const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/;
 import faviconUrl from '/favicon.png';
 import { useCurrentUser } from '../../hooks/useCurrentUser';
 import { getReferencesByEducator, invalidateReferencesCache } from '../../services/referenceService';
@@ -64,6 +66,8 @@ function ProfileModal({ onClose }) {
   const [editMode, setEditMode] = useState(false);
   const [editFields, setEditFields] = useState({});
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState('');
   const [saveSuccess, setSaveSuccess] = useState(false);
@@ -87,6 +91,9 @@ function ProfileModal({ onClose }) {
       email: user?.email || '',
       password: '',
     });
+    setConfirmPassword('');
+    setShowPassword(false);
+    setShowConfirm(false);
     setSaveError('');
     setSaveSuccess(false);
     setEditMode(true);
@@ -98,6 +105,16 @@ function ProfileModal({ onClose }) {
       setSaveError('Prénom, nom et email sont requis.');
       return;
     }
+    if (editFields.password) {
+      if (!PASSWORD_REGEX.test(editFields.password)) {
+        setSaveError('8 caractères min · 1 minuscule · 1 majuscule · 1 chiffre · 1 caractère spécial');
+        return;
+      }
+      if (editFields.password !== confirmPassword) {
+        setSaveError('Les mots de passe ne correspondent pas.');
+        return;
+      }
+    }
     setSaving(true);
     setSaveError('');
     setSaveSuccess(false);
@@ -108,7 +125,7 @@ function ProfileModal({ onClose }) {
         last_name: editFields.lastName.trim(),
         email: editFields.email.trim(),
       };
-      if (editFields.password.trim()) body.password = editFields.password.trim();
+      if (editFields.password) body.password = editFields.password;
       const res = await authFetch(`${base}/api/users/${user.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
@@ -244,14 +261,17 @@ function ProfileModal({ onClose }) {
                   />
                 </div>
                 <div className='flex flex-col gap-1'>
-                  <label className='text-xs text-(--text-muted)'>Nouveau mot de passe <span className='text-(--text-muted)/60'>(optionnel)</span></label>
+                  <label className='text-xs text-(--text-muted)'>
+                    Nouveau mot de passe <span className='text-(--text-muted)/60'>(optionnel)</span>
+                  </label>
                   <div className='relative'>
                     <input
                       type={showPassword ? 'text' : 'password'}
                       value={editFields.password}
                       onChange={(e) => setEditFields((f) => ({ ...f, password: e.target.value }))}
-                      className={`${inputCls} pr-9`}
+                      className={`${inputCls} pr-9 ${editFields.password ? (PASSWORD_REGEX.test(editFields.password) ? 'border-green-500' : 'border-red-400') : ''}`}
                       placeholder='Laisser vide pour ne pas changer'
+                      autoComplete='new-password'
                     />
                     <button
                       type='button'
@@ -261,7 +281,35 @@ function ProfileModal({ onClose }) {
                       {showPassword ? <EyeOff size={14} /> : <Eye size={14} />}
                     </button>
                   </div>
+                  {editFields.password && (
+                    <p className='text-[11px] text-(--text-muted) px-1'>
+                      8 caractères min · 1 minuscule · 1 majuscule · 1 chiffre · 1 caractère spécial
+                    </p>
+                  )}
                 </div>
+
+                {editFields.password && (
+                  <div className='flex flex-col gap-1'>
+                    <label className='text-xs text-(--text-muted)'>Confirmer le mot de passe</label>
+                    <div className='relative'>
+                      <input
+                        type={showConfirm ? 'text' : 'password'}
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        className={`${inputCls} pr-9 ${confirmPassword ? (confirmPassword === editFields.password ? 'border-green-500' : 'border-red-400') : ''}`}
+                        placeholder='Confirmer le mot de passe'
+                        autoComplete='new-password'
+                      />
+                      <button
+                        type='button'
+                        onClick={() => setShowConfirm((v) => !v)}
+                        className='absolute right-2.5 top-1/2 -translate-y-1/2 text-(--text-muted) hover:text-(--text-primary) cursor-pointer'
+                      >
+                        {showConfirm ? <EyeOff size={14} /> : <Eye size={14} />}
+                      </button>
+                    </div>
+                  </div>
+                )}
                 {saveError && <p className='text-xs text-red-500'>{saveError}</p>}
                 <div className='flex gap-2 mt-1'>
                   <button

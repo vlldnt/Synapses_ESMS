@@ -172,7 +172,7 @@ function JoinRequestPage() {
           </div>
 
           <input required type='email' value={fields.contactEmail} onChange={set('contactEmail')}
-            maxLength={MAX.contactEmail} className={`${inputClass} ${errCls('contactEmail')}`} placeholder='Email' autoComplete='email' />
+            maxLength={MAX.contactEmail} className={`${inputClass} ${errCls('contactEmail')}`} placeholder='propriétaire@synapses.com' autoComplete='email' />
 
           <button type='submit' disabled={submitting}
             className='mt-1 w-full py-2.5 md:py-3 rounded-lg text-white font-medium cursor-pointer text-sm md:text-base bg-(--bleu-fonce) hover:bg-(--bleu-active) disabled:opacity-60 transition-all duration-200'>
