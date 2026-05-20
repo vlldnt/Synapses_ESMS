@@ -12,7 +12,7 @@ reference_schema = ReferenceSchema()
 ref_model = api.model("references", {
     "first_name": fields.String(required=True, example="Jotaro"),
     "last_name": fields.String(required=True, example="Kujo"),
-    "educator_id": fields.String(required=True, example="123e4567-e89b-12d3-a456-426614174000"),
+    "educator_id": fields.String(required=False, example="123e4567-e89b-12d3-a456-426614174000"),
 })
 
 ref_update_model = api.model("references_update", {
@@ -83,11 +83,20 @@ class ReferencesList(Resource):
             error_message = error_list[0] if error_list else str(err)
             return {"error": error_message}, 400
 
+        is_admin = claims.get('role') == 'admin'
+        # determine educator_id: admins must provide it, non-admins use their own id
+        if is_admin:
+            educator_id = validated.get('educator_id')
+            if not educator_id:
+                return {"error": "educator_id is required for admin"}, 400
+        else:
+            educator_id = get_jwt_identity()
+
         reference = Reference(
             first_name=validated["first_name"],
             last_name=validated["last_name"],
             organisation_id=org_id,
-            educator_id=validated["educator_id"],
+            educator_id=educator_id,
         )
         new_ref = facade.create_ref(reference)
         return new_ref.to_dict(), 201

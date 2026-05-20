@@ -17,7 +17,7 @@ class OrganizationRequest(BaseModel):
     description = db.Column(db.String(500))
     first_name = db.Column(db.String(50), nullable=False)
     last_name = db.Column(db.String(50), nullable=False)
-    contact_email = db.Column(db.String(50), nullable=False)
+    contact_email = db.Column(db.String(120), nullable=False)
     status = db.Column(db.Enum(Status), default=Status.pending, nullable=False)
     verification_token = db.Column(db.String(255), nullable=True)
     verification_expiry = db.Column(db.DateTime, nullable=False)

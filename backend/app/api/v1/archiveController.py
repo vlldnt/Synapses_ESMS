@@ -60,9 +60,6 @@ class archive_document(Resource):
                 child_name=validated.get('reference_name') or '—',
                 educator_name=validated.get('educator_name') or '',
                 educator_role=validated.get('educator_role') or '',
-                child_name=data.get('reference_name') or '-',
-                educator_name=data.get('educator_name') or '',
-                educator_role=data.get('educator_role') or '',
             )
         else:
             docx_base64 = ''
@@ -75,12 +72,6 @@ class archive_document(Resource):
             intervention_type=validated.get('intervention_type') or '—',
             type=validated.get('type') or 'CRI',
             reference_name=validated.get('reference_name') or '—',
-            filename=data.get('filename') or f"document_{datetime.utcnow().strftime('%Y%m%d%H%M%S')}.docx",
-            display_name=data.get('display_name') or 'Document archivé',
-            date=date_value or datetime.utcnow().date(),
-            intervention_type=data.get('intervention_type') or '-',
-            type=data.get('type') or 'CRI',
-            reference_name=data.get('reference_name') or '-',
             creator_id=user_id,
             organization_id=claims.get('organization_id'),
             docx_base_64=docx_base64,
