@@ -369,7 +369,7 @@ function AdminPage() {
                   <Users size={15} className='text-(--text-muted)' />
                   <h2 className='text-sm font-semibold text-(--text-primary)'>Employés</h2>
                 </div>
-                <div className='flex gap-2'>
+                <div className='flex items-center gap-2'>
                   <select value={empRoleFilter} onChange={(e) => setEmpRoleFilter(e.target.value)} className={selectCls}>
                     <option value='all'>Tous les rôles</option>
                     <option value='direction'>Direction</option>
@@ -379,6 +379,14 @@ function AdminPage() {
                     <option value='all'>Tous les postes</option>
                     {availableJobs.map((j) => <option key={j} value={j}>{j}</option>)}
                   </select>
+                  {(empRoleFilter !== 'all' || empJobFilter !== 'all') && (
+                    <button type='button'
+                      onClick={() => { setEmpRoleFilter('all'); setEmpJobFilter('all'); }}
+                      className='flex items-center gap-1 px-2 py-1 rounded-md text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors cursor-pointer shrink-0 text-[11px] font-medium border border-red-200 dark:border-red-800'
+                      title='Réinitialiser les filtres'>
+                      <X size={11} /> Reset
+                    </button>
+                  )}
                 </div>
               </div>
               <button
@@ -528,13 +536,21 @@ function AdminPage() {
                   <BookUser size={15} className='text-(--text-muted)' />
                   <h2 className='text-sm font-semibold text-(--text-primary)'>Références</h2>
                 </div>
-                <div className='flex gap-2'>
+                <div className='flex items-center gap-2'>
                   <select value={refEducatorFilter} onChange={(e) => setRefEducatorFilter(e.target.value)} className={selectCls}>
                     <option value='all'>Tous les éducateurs</option>
                     {employees.filter((e) => e.role !== 'admin').map((emp) => (
                       <option key={emp.id} value={emp.id}>{emp.first_name} {emp.last_name}</option>
                     ))}
                   </select>
+                  {refEducatorFilter !== 'all' && (
+                    <button type='button'
+                      onClick={() => setRefEducatorFilter('all')}
+                      className='flex items-center gap-1 px-2 py-1 rounded-md text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors cursor-pointer shrink-0 text-[11px] font-medium border border-red-200 dark:border-red-800'
+                      title='Réinitialiser les filtres'>
+                      <X size={11} /> Reset
+                    </button>
+                  )}
                 </div>
               </div>
               <button
@@ -632,7 +648,7 @@ function AdminPage() {
                   <FileText size={15} className='text-(--text-muted)' />
                   <h2 className='text-sm font-semibold text-(--text-primary)'>Documents</h2>
                 </div>
-                <div className='flex gap-2'>
+                <div className='flex items-center gap-2 flex-wrap'>
                   <select value={docTypeFilter} onChange={(e) => setDocTypeFilter(e.target.value)} className={selectCls}>
                     <option value='all'>Tous les types</option>
                     {docTypes.map((t) => {
@@ -653,6 +669,16 @@ function AdminPage() {
                       <option key={emp.id} value={emp.id}>{emp.first_name} {emp.last_name}</option>
                     ))}
                   </select>
+                  {(docTypeFilter !== 'all' || docRefFilter !== 'all' || docCreatorFilter !== 'all') && (
+                    <button
+                      type='button'
+                      onClick={() => { setDocTypeFilter('all'); setDocRefFilter('all'); setDocCreatorFilter('all'); }}
+                      className='flex items-center gap-1 px-2 py-1 rounded-md text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors cursor-pointer shrink-0 text-[11px] font-medium border border-red-200 dark:border-red-800'
+                      title='Réinitialiser les filtres'
+                    >
+                      <X size={11} /> Reset
+                    </button>
+                  )}
                 </div>
               </div>
               <div className='flex-1 overflow-y-auto divide-y divide-(--border)/50'>
@@ -715,7 +741,7 @@ function AdminPage() {
       {/* ── Modal document (Archives style) ── */}
       {showDocModal && modalDoc && (
         <div
-          className='fixed inset-0 z-50 bg-black/55 backdrop-blur-[1px] flex flex-col justify-end md:p-6 md:justify-start'
+          className='fixed inset-0 z-50 bg-black/55 backdrop-blur-[1px] flex flex-col justify-end pb-[calc(3.75rem+env(safe-area-inset-bottom,0px))] md:pb-0 md:p-6 md:justify-start'
           onClick={(e) => e.target === e.currentTarget && (setShowDocModal(false), setModalDoc(null))}
         >
           <div className='bg-(--bg-primary) rounded-t-2xl border border-(--border) shadow-2xl overflow-hidden flex flex-col max-h-[92vh] md:mx-auto md:w-full md:max-w-5xl md:h-full md:rounded-2xl'>
@@ -734,8 +760,8 @@ function AdminPage() {
                 <X size={15} />
               </button>
             </div>
-            <div className='flex-1 overflow-y-auto p-4 md:p-6 bg-(--bg-secondary)'>
-              <div ref={modalPreviewRef} className='rounded-xl border border-(--border) bg-(--bg-primary) p-4 md:p-6'>
+            <div className='flex-1 overflow-y-auto px-2 py-3 md:p-6 bg-(--bg-secondary)'>
+              <div ref={modalPreviewRef} className='rounded-xl border border-(--border) bg-(--bg-primary) px-3 py-4 md:p-6'>
                 <ModalDocPreview doc={modalDoc} />
               </div>
             </div>

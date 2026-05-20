@@ -325,16 +325,16 @@ function AgentGestionPage() {
         {/* Bottom sheet mobile : documents d'une référence */}
         {selectedRef && (() => {
           const refFormatted = formatReferenceName(selectedRef);
-          const refDocs = documents.filter((d) =>
-            d.reference_name?.trim() === refFormatted
-          );
+          const refDocs = documents
+            .filter((d) => d.reference_name?.trim() === refFormatted)
+            .sort((a, b) => new Date(b.created_at || b.date || 0) - new Date(a.created_at || a.date || 0));
           return (
             <div
-              className='md:hidden fixed inset-0 z-50 bg-black/50 flex flex-col justify-end'
+              className='md:hidden fixed inset-0 z-50 bg-black/50 flex flex-col justify-end pb-[calc(3.75rem+env(safe-area-inset-bottom,0px))]'
               onClick={() => setSelectedRef(null)}
             >
               <div
-                className='bg-(--bg-primary) rounded-t-2xl flex flex-col max-h-[80vh]'
+                className='bg-(--bg-primary) rounded-t-2xl flex flex-col'
                 onClick={(e) => e.stopPropagation()}
               >
                 <div className='px-4 py-3 border-b border-(--border) flex items-center justify-between shrink-0'>
@@ -346,9 +346,9 @@ function AgentGestionPage() {
                     <X size={15} />
                   </button>
                 </div>
-                <div className='overflow-y-auto divide-y divide-(--border)/50 flex-1'>
+                <div className='overflow-y-auto divide-y divide-(--border)/50' style={{ maxHeight: '232px' }}>
                   {refDocs.length === 0 ? (
-                    <p className='px-5 py-10 text-center text-sm text-(--text-muted)'>Aucun document pour cette référence.</p>
+                    <p className='px-5 py-8 text-center text-sm text-(--text-muted)'>Aucun document pour cette référence.</p>
                   ) : refDocs.map((doc) => (
                     <button
                       key={doc.id}
@@ -365,6 +365,7 @@ function AgentGestionPage() {
                     </button>
                   ))}
                 </div>
+                <div className='h-[env(safe-area-inset-bottom,0px)]' />
               </div>
             </div>
           );
@@ -383,7 +384,7 @@ function AgentGestionPage() {
                   <FileText size={15} className='text-(--text-muted)' />
                   <h2 className='text-sm font-semibold text-(--text-primary)'>Mes documents</h2>
                 </div>
-                <div className='flex gap-2'>
+                <div className='flex items-center gap-2'>
                   <select value={docTypeFilter} onChange={(e) => setDocTypeFilter(e.target.value)} className={selectCls}>
                     <option value='all'>Tous les types</option>
                     {docTypes.map((t) => {
@@ -398,6 +399,16 @@ function AgentGestionPage() {
                       return <option key={r.id} value={formatted}>{formatted}</option>;
                     })}
                   </select>
+                  {(docTypeFilter !== 'all' || docRefFilter !== 'all') && (
+                    <button
+                      type='button'
+                      onClick={() => { setDocTypeFilter('all'); setDocRefFilter('all'); }}
+                      className='flex items-center gap-1 px-2 py-1 rounded-md text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors cursor-pointer shrink-0 text-[11px] font-medium border border-red-200 dark:border-red-800'
+                      title='Réinitialiser les filtres'
+                    >
+                      <X size={11} /> Reset
+                    </button>
+                  )}
                 </div>
               </div>
               <div className='flex-1 overflow-y-auto divide-y divide-(--border)/50'>
@@ -409,7 +420,7 @@ function AgentGestionPage() {
                     <button
                       key={doc.id}
                       type='button'
-                      onClick={() => selectDoc(doc)}
+                      onClick={() => window.innerWidth < 768 ? openDocModal(doc) : selectDoc(doc)}
                       className={`w-full text-left flex items-center gap-3 px-4 py-3 transition-colors cursor-pointer ${active ? 'bg-(--bg-secondary)' : 'hover:bg-(--bg-secondary)'}`}
                     >
                       <DocBadge doc={doc} />
@@ -476,7 +487,7 @@ function AgentGestionPage() {
       {/* ── Modal preview document (style Archives) ── */}
       {showDocModal && selectedDoc && (
         <div
-          className='fixed inset-0 z-50 bg-black/55 backdrop-blur-[1px] flex flex-col justify-end md:p-6 md:justify-start'
+          className='fixed inset-0 z-50 bg-black/55 backdrop-blur-[1px] flex flex-col justify-end pb-[calc(3.75rem+env(safe-area-inset-bottom,0px))] md:pb-0 md:p-6 md:justify-start'
           onClick={(e) => e.target === e.currentTarget && closeDocModal()}
         >
           <div className='bg-(--bg-primary) rounded-t-2xl border border-(--border) shadow-2xl overflow-hidden flex flex-col max-h-[92vh] md:mx-auto md:w-full md:max-w-5xl md:h-full md:rounded-2xl'>
@@ -512,8 +523,8 @@ function AgentGestionPage() {
                 <X size={15} />
               </button>
             </div>
-            <div className='flex-1 overflow-y-auto p-4 md:p-6 bg-(--bg-secondary)'>
-              <div ref={mobilePreviewRef} className='rounded-xl border border-(--border) bg-(--bg-primary) p-4 md:p-6'>
+            <div className='flex-1 overflow-y-auto px-2 py-3 md:p-6 bg-(--bg-secondary)'>
+              <div ref={mobilePreviewRef} className='rounded-xl border border-(--border) bg-(--bg-primary) px-3 py-4 md:p-6'>
                 {docPreviewContent(mobilePreviewRef)}
               </div>
             </div>

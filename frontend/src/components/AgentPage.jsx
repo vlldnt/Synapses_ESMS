@@ -340,21 +340,23 @@ export default function AgentPage({ config }) {
           </StepCard>
 
           <div id="form-actions" className="flex flex-col gap-3">
-            <div className="flex flex-row items-center gap-3">
-              <Button
-                type="submit"
-                color={accent}
-                size="md"
-                disabled={loading || !observations.trim() || !selectedReferenceId}
-                className="flex-1 md:flex-none"
-              >
-                {loading ? 'Génération en cours…' : buttonLabel}
-              </Button>
+            <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-3">
+              <div className="flex items-center gap-3">
+                <Button
+                  type="submit"
+                  color={accent}
+                  size="md"
+                  disabled={loading || !observations.trim() || !selectedReferenceId}
+                  className="flex-1 md:flex-none"
+                >
+                  {loading ? 'Génération en cours…' : buttonLabel}
+                </Button>
+                <Button color={accent} size="md" onClick={handleReset} className="flex-1 md:hidden">
+                  Nouveau
+                </Button>
+              </div>
               {!loading && !result && <span className="text-xs text-(--text-muted)">Temps estimé : 5–15 s</span>}
               {!loading && elapsed && <span className="text-xs text-(--text-muted)">Généré en {elapsed}s</span>}
-              <Button color={accent} size="md" onClick={handleReset} className="flex-1 md:hidden">
-                Nouveau
-              </Button>
             </div>
             <div className="flex items-center">
               <button type="button" onClick={handleReset} className="hidden md:inline-flex ml-auto text-xs text-(--text-muted) hover:text-(--text-primary) transition-colors cursor-pointer">

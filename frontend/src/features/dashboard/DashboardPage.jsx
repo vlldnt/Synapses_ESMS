@@ -292,7 +292,7 @@ function DashboardPage() {
               </div>
             </div>
             <div className="p-4 md:p-5">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
 
                 {/* Mes références */}
                 <div className="bg-(--bg-primary) rounded-xl p-4 flex flex-col gap-3">
@@ -302,20 +302,19 @@ function DashboardPage() {
                       <span className="text-sm font-bold text-(--text-primary)">Mes références</span>
                       <span className="text-xs font-medium text-white bg-(--bleu-active) px-1.5 py-0.5 rounded-full">{references.length}</span>
                     </div>
-                    <button
-                      type="button"
-                      onClick={() => setShowAddRefModal(true)}
-                      className="text-xs px-3 py-1.5 rounded-lg bg-(--bleu-active) text-white hover:bg-(--bleu-fonce) cursor-pointer transition-colors shrink-0"
+                    <Link
+                      to="/gestion"
+                      className="text-xs px-3 py-1.5 rounded-lg bg-(--bleu-active) text-white hover:bg-(--bleu-fonce) transition-colors shrink-0"
                     >
-                      + Ajouter
-                    </button>
+                      Voir →
+                    </Link>
                   </div>
                   <span className="block h-px bg-(--border)" />
-                  <div className="flex flex-col gap-2 overflow-y-auto" style={{ maxHeight: '108px' }}>
+                  <div className="flex flex-col gap-2">
                     {references.length === 0 ? (
                       <p className="text-xs text-(--text-muted)">Aucune référence assignée.</p>
                     ) : (
-                      references.map((r) => (
+                      references.slice(0, 3).map((r) => (
                         <div key={r.id} className="flex items-center gap-2.5 shrink-0">
                           <div className="w-7 h-7 rounded-full bg-(--bg-secondary) flex items-center justify-center text-xs font-semibold text-(--text-secondary) shrink-0 uppercase">
                             {r.first_name?.[0]}{r.last_name?.[0]}
@@ -327,12 +326,12 @@ function DashboardPage() {
                   </div>
                 </div>
 
-                {/* Mes documents */}
+                {/* Mes derniers documents */}
                 <div className="bg-(--bg-primary) rounded-xl p-4 flex flex-col gap-3">
                   <div className="flex items-center justify-between gap-2">
                     <Link to="/archives" className="flex items-center gap-2 group">
                       <span className="w-1.5 h-5 rounded-full bg-[#9B2CB6] shrink-0" />
-                      <span className="text-sm font-bold text-(--text-primary) group-hover:text-[#9B2CB6] transition-colors">Mes documents</span>
+                      <span className="text-sm font-bold text-(--text-primary) group-hover:text-[#9B2CB6] transition-colors">Mes derniers documents</span>
                       <span className="text-xs font-medium text-white bg-[#9B2CB6] px-1.5 py-0.5 rounded-full">{history.length}</span>
                     </Link>
                     <Link

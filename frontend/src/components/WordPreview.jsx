@@ -98,7 +98,7 @@ export default function WordPreview({ text }) {
 
   return (
     <div className="bg-white text-[#1a1a1a] font-['Calibri','Georgia',serif] text-[15px] leading-7 rounded-xl shadow-[0_2px_16px_rgba(0,0,0,0.10)] border border-[#e0e0e0] min-h-32 overflow-hidden">
-      <div className="px-8 md:px-12 py-8 md:py-10">
+      <div className="px-3 md:px-12 py-8 md:py-10">
         {blocks.map((block, idx) =>
           block.type === 'table' ? (
             <TableBlock key={idx} headers={block.headers} rows={block.rows} />

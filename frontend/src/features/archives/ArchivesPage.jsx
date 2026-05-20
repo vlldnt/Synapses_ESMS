@@ -227,8 +227,8 @@ function ArchivesPage() {
     <>
     <DownloadLoadingModal isOpen={isDownloading} />
     <DownloadToast filename={downloadToast} onClose={clearToast} />
-    <div className='h-full overflow-y-auto py-6 px-2 md:px-5 md:py-8'>
-      <div className='mx-auto w-full max-w-5xl flex flex-col gap-5'>
+    <div className='h-full overflow-y-auto py-6 px-3 md:px-8 md:py-8'>
+      <div className='mx-auto w-full flex flex-col gap-5'>
         {hasDraft && (
           <div className='rounded-2xl border border-(--border) bg-(--bg-primary) shadow-sm overflow-hidden'>
             <div className='px-5 py-3 border-b border-(--border)'>
@@ -270,7 +270,7 @@ function ArchivesPage() {
 
         <div className='rounded-2xl border border-(--border) bg-(--bg-primary) shadow-sm overflow-hidden'>
           <div className='px-3 py-2 md:px-5 md:py-4 border-b border-(--border) bg-(--bg-primary)'>
-            <div className='grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto] md:grid-cols-3 gap-2 md:gap-3'>
+            <div className='grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto_auto] md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto_auto] gap-2 md:gap-3'>
               <div className='flex flex-col gap-1'>
                 <label
                   htmlFor='archive-filter-child'
@@ -333,6 +333,18 @@ function ArchivesPage() {
                     ↑
                   </span>
                 </button>
+              </div>
+
+              <div className='flex flex-col gap-1 items-end justify-end'>
+                <span className='text-[11px] md:text-xs font-medium text-(--text-primary) opacity-0 select-none'>‎</span>
+                {(childFilter !== 'all' || typeFilter !== 'all') && (
+                  <button type='button'
+                    onClick={() => { setChildFilter('all'); setTypeFilter('all'); }}
+                    className='flex items-center gap-1 px-2 py-1 rounded-md text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors cursor-pointer shrink-0 text-[11px] font-medium border border-red-200 dark:border-red-800 h-7.5 md:h-8.5'
+                    title='Réinitialiser les filtres'>
+                    <X size={11} /> Reset
+                  </button>
+                )}
               </div>
             </div>
           </div>
@@ -417,7 +429,7 @@ function ArchivesPage() {
 
       {selectedEntry && (
         <div
-          className='fixed inset-0 z-50 bg-black/55 backdrop-blur-[1px] flex flex-col justify-end md:p-6 md:justify-start'
+          className='fixed inset-0 z-50 bg-black/55 backdrop-blur-[1px] flex flex-col justify-end pb-[calc(3.75rem+env(safe-area-inset-bottom,0px))] md:pb-0 md:p-6 md:justify-start'
           onClick={(e) =>
             e.target === e.currentTarget && setSelectedEntry(null)
           }
@@ -462,8 +474,8 @@ function ArchivesPage() {
               </button>
             </div>
 
-            <div className='flex-1 overflow-y-auto p-4 md:p-6 bg-(--bg-secondary)'>
-              <div ref={previewRef} className='rounded-xl border border-(--border) bg-(--bg-primary) p-4 md:p-6'>
+            <div className='flex-1 overflow-y-auto px-2 py-3 md:p-6 bg-(--bg-secondary)'>
+              <div ref={previewRef} className='rounded-xl border border-(--border) bg-(--bg-primary) px-3 py-4 md:p-6'>
                 {isPreviewLoading ? (
                   <p className='text-(--text-muted)'>
                     Chargement de l'aperçu du document...
@@ -533,12 +545,6 @@ function ArchivesPage() {
         </div>
       )}
 
-      {downloadToast && (
-        <div className='fixed bottom-6 left-1/2 -translate-x-1/2 z-50 px-4 py-2.5 rounded-xl bg-(--bg-primary) border border-(--border) shadow-lg text-sm text-(--text-primary) flex items-center gap-2 animate-in fade-in slide-in-from-bottom-2 duration-200'>
-          <span className='w-2 h-2 rounded-full bg-emerald-500 shrink-0' />
-          {downloadToast}
-        </div>
-      )}
     </>
   );
 }
