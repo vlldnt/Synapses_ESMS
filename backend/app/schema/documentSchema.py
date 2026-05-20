@@ -3,6 +3,9 @@ from app.schema.validationSchema import validate_safe_string
 
 
 class DocumentSchema(Schema):
+    class Meta:
+        unknown = 'exclude'
+    
     filename = fields.String(required=False, validate=validate_safe_string)
     display_name = fields.String(required=False, validate=validate_safe_string)
     date = fields.Date(required=False)

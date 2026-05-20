@@ -119,7 +119,6 @@ class ApiFacade:
             role="agent",
             status="active"
         )
-        print(f"request : {user}")
         user.hash_password(password)
         self.user_repo.add(user)
         self.userRequest_repo.update(request.id, {'status': UserRequestStatus.approved, 'approved_at': datetime.utcnow()})
@@ -194,7 +193,6 @@ class ApiFacade:
 
     """ Archive facade """
     def get_archive(self, user_id=None):
-        print(f"{user_id}")
         if user_id is None:
             return self.archive_repo.get_all()
         return self.archive_repo.get_all_by_attribute('creator_id', user_id)
